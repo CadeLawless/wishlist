@@ -57,6 +57,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
     $offset = ($pageNumber - 1) * $itemsPerPage;
     $selectQuery = $db->query("$query LIMIT $offset, $itemsPerPage");
     if($selectQuery->num_rows > 0){
+        $invisibleDivsNeeded = 3 - ($selectQuery->num_rows % 3);
         if($type == "wisher"){
             echo "<div class='flex items-list'>";
             while($row = $selectQuery->fetch_assoc()){
@@ -66,8 +67,9 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 $price = htmlspecialchars($row["price"]);
                 $link = htmlspecialchars($row["link"]);
                 $image = htmlspecialchars($row["image"]);
-                $notes = htmlspecialchars(substr($row["notes"], 0, 70));
-                if(strlen($row["notes"]) > 70) $notes .= "...";
+                $notes = htmlspecialchars(substr($row["notes"], 0, 40));
+                $notes = $notes == "" ? "None" : $notes;
+                if(strlen($row["notes"]) > 40) $notes .= "...";
                 $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_added"])));
                 $price_date = htmlspecialchars(date("n/j/y", strtotime($row["date_added"])));
                 echo "
@@ -76,17 +78,57 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                     <div class='item-description'>
                         <h3>$name</h3>
                         <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
-                        <h4>Notes:</h4>
-                        <p class='notes'>$notes</p>
-                        <a class='view-button' href='view.php?id=$id'>View Item</a>
-                        <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
+                        <h4 class='notes-label'>Notes: </h4><span>$notes</span><br>
+                        <p class='center'>
+                            <a class='view-button' href='view-item.php?id=$id'>View Item</a>
+                            <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
+                        </p>
+                        <p class='center'><a class='edit-button' href='edit-item.php?id=$id'>Edit Item</a></p>
                         <p class='date-added center'><em>Date Added: $date_added</em></p>
                     </div>
                 </div>";
             }
+            for($i=0; $i<$invisibleDivsNeeded; $i++){
+                echo "
+                <div class='item-container invisible placeholder'>
+                </div>";
+            }
             echo "</div>";
         }else if($type == "buyer"){
-
+            echo "<div class='flex items-list'>";
+            while($row = $selectQuery->fetch_assoc()){
+                $id = $row["id"];
+                $name = htmlspecialchars(substr($row["name"], 0, 30));
+                if(strlen($row["name"]) > 30) $name .= "...";
+                $price = htmlspecialchars($row["price"]);
+                $link = htmlspecialchars($row["link"]);
+                $image = htmlspecialchars($row["image"]);
+                $notes = htmlspecialchars(substr($row["notes"], 0, 40));
+                $notes = $notes == "" ? "None" : $notes;
+                if(strlen($row["notes"]) > 40) $notes .= "...";
+                $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_added"])));
+                $price_date = htmlspecialchars(date("n/j/y", strtotime($row["date_added"])));
+                echo "
+                <div class='item-container'>
+                    <img class='item-image' src='images/$image' alt='wishlist item image'>
+                    <div class='item-description'>
+                        <h3>$name</h3>
+                        <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
+                        <h4 class='notes-label'>Notes: </h4><span>$notes</span><br>
+                        <p class='center'>
+                            <a class='view-button' href='view-item.php?id=$id'>View Item</a>
+                            <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
+                        </p>
+                        <p class='date-added center'><em>Date Added: $date_added</em></p>
+                    </div>
+                </div>";
+            }
+            for($i=0; $i<$invisibleDivsNeeded; $i++){
+                echo "
+                <div class='item-container invisible placeholder'>
+                </div>";
+            }
+            echo "</div>";
         }
     }
 }

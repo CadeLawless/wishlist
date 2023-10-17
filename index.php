@@ -8,6 +8,9 @@ require("includes/error-functions.php");
 // database connection
 $db = new DB();
 
+// check to see if already logged in
+require("includes/autologin.php");
+
 // find correct password
 $findCorrectPassword = $db->query("SELECT wisher_password FROM passwords");
 if($findCorrectPassword->num_rows > 0){
@@ -29,10 +32,10 @@ if(isset($_POST["add_submit"])){
         }else{
             $errors = true;
             $errorList .= "<li>The password you entered was incorrect. Please try again.";
-            $errorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
+            $addErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
         }
     }else{
-        $errorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
+        $addErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
     }
 }
 
@@ -44,15 +47,20 @@ if(isset($_POST["view_submit"])){
     $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
     if(!$errors){
         if($password == $correctPassword){
-            $_SESSION["password_entered"] = true;
-            header("Location: index.php");
+            $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
+            if($db->write("UPDATE passwords SET session = ?, session_expiration = ?", "ss", [session_id(), $expire_date])){
+                $cookie_time = (3600 * 24 * 365); // 1 year
+                setcookie("session_id", session_id(), time() + $cookie_time);
+                $_SESSION["password_entered"] = true;
+                header("Location: index.php");
+            }
         }else{
             $errors = true;
             $errorList .= "<li>The password you entered was incorrect. Please try again.";
-            $errorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
+            $viewErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
         }
     }else{
-        $errorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
+        $viewErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
     }
 }
 ?>
@@ -67,40 +75,45 @@ if(isset($_POST["view_submit"])){
 <body>
     <div id="container">
         <h1 class="center">Cade's Christmas Wishlist</h1>
-        <div id="add-item-container">
+        <?php if($passwordEntered){ ?>
+            <a href="logout.php">Log out</a>
+        <?php } ?>
+        <div id="add-item-container" class="center">
             <a id="add-item" <?php if($passwordEntered) echo "href='add-item.php'"?>>Add Item to Wishlist</a>
         </div>
         <?php if(!$passwordEntered){?>
-        <div id="view-list-wisher-container">
-            <a id="view-list">View Wishlist</a>
-        </div>
-        <div id="add-popup" class="password-popup flex hidden">
-            <div class="form-container flex">
-                <img src="images/close.png" class="close-button">
-                <form method="POST" action="">
-                    <div class="center">
-                        <label for="password">Enter Password:<br></label>
-                        <input type="password" name="password" id="password">
-                    </div>
-                    <p class="center"><input type="submit" name="add_submit" class="submit_button" value="Submit"></p>
-                </form>
+            <div id="view-list-wisher-container">
+                <a id="view-list">View Wishlist</a>
             </div>
-        </div>
-        <div id="view-popup" class="password-popup flex hidden">
-            <div class="form-container flex">
-                <img src="images/close.png" class="close-button">
-                <form method="POST" action="">
-                    <div class="center">
-                        <label for="password">Enter Password:<br></label>
-                        <input type="password" name="password" id="password">
-                    </div>
-                    <p class="center"><input type="submit" name="view_submit" class="submit_button" value="Submit"></p>
-                </form>
+            <div id="add-popup" class="password-popup flex <?php if(!isset($addErrorMsg)) echo "hidden"; ?>">
+                <div class="form-container flex">
+                    <img src="images/close.png" class="close-button">
+                    <form method="POST" action="">
+                        <div class="center">
+                            <?php if(isset($addErrorMsg)) echo $addErrorMsg; ?>
+                            <label for="password">Enter Password:<br></label>
+                            <input type="password" name="password" id="password">
+                        </div>
+                        <p class="center"><input type="submit" name="add_submit" class="submit_button" value="Submit"></p>
+                    </form>
+                </div>
             </div>
-        </div>
+            <div id="view-popup" class="password-popup flex <?php if(!isset($viewErrorMsg)) echo "hidden"; ?>">
+                <div class="form-container flex">
+                    <img src="images/close.png" class="close-button">
+                    <form method="POST" action="">
+                        <div class="center">
+                            <?php if(isset($viewErrorMsg)) echo $viewErrorMsg; ?>
+                            <label for="password">Enter Password:<br></label>
+                            <input type="password" name="password" id="password">
+                        </div>
+                        <p class="center"><input type="submit" name="view_submit" class="submit_button" value="Submit"></p>
+                    </form>
+                </div>
+            </div>
         <?php 
         }else{
-            echo "<h2>All Items</h2>";
+            echo "<h2 class='center'>All Items</h2>";
             if(isset($_GET["pageno"])){
                 $pageno = $_GET["pageno"];
             }else{
