@@ -77,6 +77,7 @@ if(isset($_POST["submit_button"])){
 </head>
 <body>
     <div id="container">
+        <a href="index.php">Back to Home</a>
         <h1 class="center">Cade's Christmas Wishlist</h1>
         <h2>Add Item</h2>
         <?php if(isset($errorMsg)) echo $errorMsg?>
