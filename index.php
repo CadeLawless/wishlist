@@ -76,65 +76,69 @@ if(isset($_POST["view_submit"])){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Cade's Christmas Wishlist</title>
 </head>
 <body>
-    <div id="container">
-        <?php if($passwordEntered){ ?>
-            <a href="logout.php">Log out</a>
-        <?php } ?>
+    <div id="body">
+        <?php require "includes/background.php"; ?>
         <h1 class="center">Cade's Christmas Wishlist</h1>
-        <div id="add-item-container" class="center">
-            <a id="add-item" <?php if($passwordEntered) echo "href='add-item.php'"?>>Add Item to Wishlist</a>
-        </div>
-        <?php if(!$passwordEntered){?>
-            <div id="view-list-wisher-container">
-                <a id="view-list">View Wishlist</a>
-            </div>
-            <div id="add-popup" class="popup-container flex <?php if(!isset($addErrorMsg)) echo "hidden"; ?>">
-                <div class="popup flex">
-                    <img src="images/close.png" class="close-button">
-                    <form method="POST" action="">
-                        <div class="center">
-                            <?php if(isset($addErrorMsg)) echo $addErrorMsg; ?>
-                            <label for="password">Enter Password:<br></label>
-                            <input type="password" name="password" id="password">
-                        </div>
-                        <p class="center"><input type="submit" name="add_submit" class="submit_button" value="Submit"></p>
-                    </form>
+        <?php if($passwordEntered){ ?>
+            <a class="logout-button" href="logout.php">Log out</a>
+        <?php } ?>
+        <div id="container">
+            <p class="center">
+                <a id="add-item" <?php if($passwordEntered) echo "href='add-item.php'"?>>Add Item to Wishlist</a>
+            </p>
+            <?php if(!$passwordEntered){?>
+                <p class="center">
+                    <a id="view-list">View Wishlist</a>
+                </p>
+                <div id="add-popup" class="popup-container flex <?php if(!isset($addErrorMsg)) echo "hidden"; ?>">
+                    <div class="popup flex">
+                        <img src="images/close.png" class="close-button">
+                        <form method="POST" action="">
+                            <div class="center">
+                                <?php if(isset($addErrorMsg)) echo $addErrorMsg; ?>
+                                <label for="password">Enter Password:<br></label>
+                                <input type="password" name="password" id="password">
+                            </div>
+                            <p class="center"><input type="submit" name="add_submit" class="submit_button" value="Submit"></p>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            <div id="view-popup" class="popup-container flex <?php if(!isset($viewErrorMsg)) echo "hidden"; ?>">
-                <div class="popup flex">
-                    <img src="images/close.png" class="close-button">
-                    <form method="POST" action="">
-                        <div class="center">
-                            <?php if(isset($viewErrorMsg)) echo $viewErrorMsg; ?>
-                            <label for="password">Enter Password:<br></label>
-                            <input type="password" name="password" id="password">
-                        </div>
-                        <p class="center"><input type="submit" name="view_submit" class="submit_button" value="Submit"></p>
-                    </form>
+                <div id="view-popup" class="popup-container flex <?php if(!isset($viewErrorMsg)) echo "hidden"; ?>">
+                    <div class="popup flex">
+                        <img src="images/site-images/close.png" class="close-button">
+                        <form method="POST" action="">
+                            <div class="center">
+                                <?php if(isset($viewErrorMsg)) echo $viewErrorMsg; ?>
+                                <label for="password">Enter Password:<br></label>
+                                <input type="password" name="password" id="password">
+                            </div>
+                            <p class="center"><input type="submit" name="view_submit" class="submit_button" value="Submit"></p>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        <?php 
-        }else{
-            echo "<h2 class='center'>All Items</h2>";
-            $findPriceTotal = $db->query("SELECT SUM(price) AS total_price FROM items");
-            if($findPriceTotal->num_rows > 0){
-                while($row = $findPriceTotal->fetch_assoc()){
-                    $total_price = round($row["total_price"], 2);
-                }
-            }
-            echo "<h3 class='center'>Current Wishlist Total: $$total_price</h3>";
-            if(isset($_GET["pageno"])){
-                $pageno = $_GET["pageno"];
+            <?php 
             }else{
-                $pageno = 1;
+                echo "<h2 class='center'>All Items</h2>";
+                $findPriceTotal = $db->query("SELECT SUM(price) AS total_price FROM items");
+                if($findPriceTotal->num_rows > 0){
+                    while($row = $findPriceTotal->fetch_assoc()){
+                        $total_price = round($row["total_price"], 2);
+                    }
+                }
+                echo "<h3 class='center'>Current Wishlist Total: $$total_price</h3>";
+                if(isset($_GET["pageno"])){
+                    $pageno = $_GET["pageno"];
+                }else{
+                    $pageno = 1;
+                }
+                paginate("wisher", $db, "SELECT * FROM items", 12, $pageno);
             }
-            paginate("wisher", $db, "SELECT * FROM items", 12, $pageno);
-        }
-        ?>
+            ?>
+        </div>
     </div>
 </body>
 <?php include "includes/footer.php"; ?>

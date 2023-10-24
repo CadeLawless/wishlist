@@ -7,14 +7,24 @@ body {
     position: relative;
     padding: 0;
     margin: 0;
+    min-height: 100vh;
 }
 #body {
     position: relative;
     padding: 0;
     margin: 0;
+    min-height: 100vh;
+}
+footer {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
 }
 .background {
     object-fit: cover;
+    height: 100vh;
     width: 100vw;
     position: fixed;
     top: 0;
@@ -62,6 +72,13 @@ body {
 }
 h1 {
     margin-top: 15px;
+    background: url("../images/site-images/gold-glitter.png");
+    background-size: 200px;
+    background-repeat: repeat;
+    padding: 15px 0;
+    border-top: 5px solid rgb(168, 143, 0);
+    border-bottom: 5px solid rgb(168, 143, 0);
+    box-shadow: rgba(255, 255, 255, 0.771) 0px 7px 29px 0px;
 }
 h3 {
     font-size: 20px;
@@ -141,6 +158,16 @@ label {
     padding: 5px;
     background-color: white;
 }
+.paginate-container:last-of-type {
+    margin-bottom: 40px;
+}
+.pagination img {
+    width: 40px;
+    height: 40px;
+}
+.pagination strong {
+    font-size: 33px;
+}
 .paginate-container {
     width: 100%;
     text-align: center;
@@ -212,6 +239,7 @@ textarea {
 }
 .dollar-sign-input {
     margin: 5px 0 20px;
+    background-color: white;
     padding: 10px;
     border-radius: 5px;
     background-color: #FAFAFA;
@@ -332,18 +360,34 @@ textarea {
 /*** specific css ***/
 
 /* item list css */
-#add-item {
+#add-item, #view-list {
+    display: inline-block;
     text-decoration: none;
-    background-color: green;
     color: white;
     padding: 8px 15px;
+    cursor: pointer;
     text-align: center;
     border-radius: 2px;
     transition: all 0.5s;
 }
+#add-item {
+    background-color: green;
+}
+#view-list {
+    background-color: #8c0005;
+}
 #add-item:hover {
     background-color: #8c0005;
     border-bottom: 1px solid white;
+}
+.logout-button, #back-home {
+    background-color: #8c0005;
+    position: relative;
+    top: -15px;
+    left: 5px;
+}
+.logout-button:hover, #view-list:hover, #back-home:hover {
+    background-color: green;
 }
 .items-list {
     flex-direction: row;
@@ -379,10 +423,15 @@ textarea {
 .item-container .notes {
     margin-bottom: 10px;
 }
+.item-image-container {
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .item-image {
     width: 100%;
     max-height: 100%;
-    border-radius: 10px 10px 0 0;
 }
 .bow {
     position: absolute;
@@ -399,7 +448,7 @@ textarea {
     border-radius: 0 0 15px 15px;
     padding: 5px;
 }
-.view-button, .link-button, .edit-button, .delete-button {
+.view-button, .link-button, .edit-button, .delete-button, .logout-button, #back-home {
     display: inline-block;
     color: white;
     cursor: pointer;
@@ -409,15 +458,6 @@ textarea {
     text-align: center;
     background-image: none;
     transition: all 0.5s;
-}
-.list-title {
-    background: url("../images/site-images/gold-glitter.png");
-    background-size: 200px;
-    background-repeat: repeat;
-    padding: 15px 0;
-    border-top: 5px solid rgb(168, 143, 0);
-    border-bottom: 5px solid rgb(168, 143, 0);
-    box-shadow: rgba(255, 255, 255, 0.771) 0px 7px 29px 0px;
 }
 .view-button {
     background-image: linear-gradient(to right,green, green);
@@ -464,16 +504,16 @@ textarea {
     justify-content: center;
     align-items: center;
     background-color: white;
-    width: 70%;
+    max-width: 550px;
     outline: solid 7px #8c0005;
     border: solid 7px green;
     border-radius: 2px;
-    margin: 0 auto 60px;
+    margin: 0 auto 110px;
     padding: 20px;
 }
 .view-item-image {
-    width: 310px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 315px;
     max-height: 100%;
 }
 .view-item-content {
@@ -518,12 +558,8 @@ textarea {
     .mobile-background {
         display: block;
     }
-    .pagination img {
-        width: 45px !important;
-        height: 45px !important;
-    }
     .pagination strong {
-        font-size: 25px !important;
+        font-size: 25px;
     }
 }
 @media (max-width: 360px) {

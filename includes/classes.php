@@ -69,25 +69,25 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                     <ul class=\"pagination\">
                         <li class='";
                         if($pageNumber <= 1) echo 'disabled';
-                        echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png' style='width: 50px; height: 50px;'></a></li>
+                        echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                         <li class=";
                         if($pageNumber <= 1) echo 'disabled';
                         echo ">
                             <a href='";
                             if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#weight-history-title"; }
-                            echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png' style='width: 50px; height: 50px;'></a>
+                            echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                         </li>
-                        <li style='font-size: 14px; cursor: default; margin-bottom: 5px;'><strong style='font-size: 33px'>$pageNumber/$totalPages</strong></li>
+                        <li style='cursor: default; position: relative; bottom: 5px;'><strong>$pageNumber/$totalPages</strong></li>
                         <li class=";
                         if($pageNumber >= $totalPages) echo "disabled";
                         echo ">
                             <a href='";
                             if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#weight-history-title"; }
-                            echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png' style='width: 50px; height: 50px;'></a>
+                            echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                         </li>
                         <li class='";
                         if($pageNumber == $totalPages) echo 'disabled';
-                        echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png' style='width: 50px; height: 50px;'></a></li>
+                        echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                     </ul>
                 </div>
             </div>";
@@ -107,7 +107,9 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 $price_date = $row["date_modified"] == NULL ? htmlspecialchars(date("n/j/Y", strtotime($row["date_added"]))) : htmlspecialchars(date("n/j/Y", strtotime($row["date_modified"])));
                 echo "
                 <div class='item-container'>
-                    <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
+                    <div class='item-image-container'>
+                        <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
+                    </div>
                     <div class='item-description'>
                         <h3>$name</h3>
                         <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
@@ -121,7 +123,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             <a class='delete-button' id='$id'>Delete Item</a>
                             <div class='popup-container delete-popup-$id flex hidden'>
                                 <div class='popup flex'>
-                                    <img src='images/close.png' class='close-button'>
+                                    <img src='images/site-images/close.png' class='close-button'>
                                     <div class='center'>
                                         <label>Are you sure you want to delete this item?</label>
                                         <p>";
@@ -161,7 +163,9 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 echo "
                 <div class='item-container'>
                     <img class='bow' src='images/site-images/bow-$bow.png' alt='bow'>
-                    <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
+                    <div class='item-image-container'>
+                        <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
+                    </div>
                     <div class='item-description'>
                         <h3>$name</h3>
                         <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
@@ -175,7 +179,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             <p class='center'><input class='purchased-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label></p>
                             <div class='popup-container purchased-popup-$id flex hidden'>
                                 <div class='popup flex'>
-                                    <img src='images/close.png' class='close-button'>
+                                    <img src='images/site-images/close.png' class='close-button'>
                                     <div class='center'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
                                         <p>";
@@ -214,25 +218,25 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
             echo "<ul class=\"pagination\">
                 <li class='";
                 if($pageNumber <= 1) echo 'disabled';
-                echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png' style='width: 50px; height: 50px;'></a></li>
+                echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                 <li class=";
                 if($pageNumber <= 1) echo 'disabled';
                 echo ">
                     <a href='";
                     if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#weight-history-title"; }
-                    echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png' style='width: 50px; height: 50px;'></a>
+                    echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                 </li>
-                <li style='font-size: 14px; cursor: default; margin-bottom: 5px;'><strong style='font-size: 33px'>$pageNumber/$totalPages</strong></li>
+                <li style='font-size: 14px; cursor: default; position: relative; bottom: 5px;'><strong style='font-size: 33px'>$pageNumber/$totalPages</strong></li>
                 <li class=";
                 if($pageNumber >= $totalPages) echo "disabled";
                 echo ">
                     <a href='";
                     if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#weight-history-title"; }
-                    echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png' style='width: 50px; height: 50px;'></a>
+                    echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                 </li>
                 <li class='";
                 if($pageNumber == $totalPages) echo 'disabled';
-                echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png' style='width: 50px; height: 50px;'></a></li>
+                echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
             </ul>";
         }
         echo "
