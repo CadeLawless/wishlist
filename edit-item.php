@@ -9,13 +9,22 @@ require("includes/error-functions.php");
 // database connection
 $db = new DB();
 
-// intialize form field variables
-$name = "";
-$price = "";
-$link = "";
-$image = "";
-$notes = "";
-$priority = "";
+// get item id from URL
+$itemID = $_GET["id"] ?? "";
+
+// find item information
+$findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", "i", [$itemID]);
+if($findItemInformation->num_rows > 0){
+    while($row = $findItemInformation->fetch_assoc()){
+        $name = htmlspecialchars($row["name"]);
+        $notes = htmlspecialchars($row["notes"]);
+        $price = htmlspecialchars($row["price"]);
+        $link = htmlspecialchars($row["link"]);
+        $image = htmlspecialchars($row["image"]);
+        $priority = htmlspecialchars($row["priority"]);
+        $purchased = $row["purchased"];
+    }
+}
 $priority_options = ["1", "2", "3", "4"];
 
 // if submit button is clicked
@@ -30,7 +39,7 @@ if(isset($_POST["submit_button"])){
     $notes = errorCheck("notes", "Not Required");
     $priority = errorCheck("priority", "How much do you want this item", "Yes", $errors, $errorList);
     validOptionCheck($priority, "How much do you want this item", $priority_options, $errors, $errorList);
-    $filename = "";
+    $filename = $image;
     if(!$errors){
         if(isset($_FILES["item_image"]["name"])){
             $allowed = ["jpg", "jpeg", "png", "webp"];
@@ -54,13 +63,9 @@ if(isset($_POST["submit_button"])){
             }
         }
     }
-    if($filename == ""){
-        $errors = true;
-        $errorList .= "<li>Item Image is a required field. Please select a file.</li>";
-    }
-    $date_added = date("Y-m-d H:i:s");
+    $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("INSERT INTO items(name, price, link, image, notes, purchased, date_added) VALUES(?, ?, ?, ?, ?, 'No', '$date_added')", "sssss", [$name, $price, $link, $filename, $notes])){
+        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, purchased = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$name, $price, $link, $filename, $notes, $purchased, $itemID])){
             header("Location: index.php");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -77,13 +82,13 @@ if(isset($_POST["submit_button"])){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
-    <title>Cade's Christmas Wishlist | Add Item</title>
+    <title>Cade's Christmas Wishlist | Edit Item</title>
 </head>
 <body>
     <div id="container">
         <a href="index.php">Back to Home</a>
         <h1 class="center">Cade's Christmas Wishlist</h1>
-        <h2>Add Item</h2>
+        <h2>Edit Item</h2>
         <?php if(isset($errorMsg)) echo $errorMsg?>
         <form method="POST" action="" enctype="multipart/form-data">
             <div class="flex form-flex">
@@ -107,7 +112,11 @@ if(isset($_POST["submit_button"])){
                 </div>
                 <div class="large-input">
                     <label for="image">Item Image:<br></label>
-                    <input required type="file" name="item_image" id="image" accept=".png, .jpg, .jpeg, .webp">
+                    <button class="file-input">Change Item Image</button>
+                    <input type="file" name="item_image" class="invisible" id="image" accept=".png, .jpg, .jpeg, .webp">
+                    <div id="preview_container">
+                        <img id="preview" src="images/item-images/<?php echo $image; ?>" height="400px" />
+                    </div>
                 </div>
                 <div class="large-input">
                     <label for="notes">Item Notes:<br></label>
@@ -122,32 +131,48 @@ if(isset($_POST["submit_button"])){
                         <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
                     </select>
                 </div>
-                <p class="large-input center"><input type="submit" name="submit_button" value="Add Item"></p>
+                <p class="large-input center"><input type="submit" name="submit_button" value="Update Item"></p>
             </div>
         </form>
     </div>
 </body>
-<?php include "includes/footer.php"; ?>
 </html>
 <script src="scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script>
-    <?php if(!$passwordEntered){?>
-    // password pop up on click of buttons
-    document.querySelector("#add-item").addEventListener("click", function(){
-        document.querySelector("#add-popup").classList.remove("hidden");
-    });
-    document.querySelector("#view-list").addEventListener("click", function(){
-        document.querySelector("#view-popup").classList.remove("hidden");
+    // on click of file input button, open file picker
+    document.querySelector(".file-input").addEventListener("click", function(e){
+        e.preventDefault();
+        document.querySelector("#image").click();
     });
 
-    // close popup on click of x button
-    for(const x of document.querySelectorAll(".close-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.classList.add("hidden");
-        })
+    // show image preview on change
+    document.querySelector("#image").addEventListener("change", function(){
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.querySelector("#preview").setAttribute('src', e.target.result);
+            }
+
+            reader.readAsDataURL(this.files[0]);
+        }else{
+            document.querySelector("#preview_container").classList.add("hidden");
+        }
+    });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            $('#preview_container').show();
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#preview').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }else{
+            $('#preview_container').hide();
+        }
     }
-    <?php }?>
-
     // autosize textareas
     for(const textarea of document.querySelectorAll("textarea")){
         autosize(textarea);
