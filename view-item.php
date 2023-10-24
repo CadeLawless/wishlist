@@ -10,7 +10,9 @@ $db = new DB();
 
 // check to see if already logged in
 require("includes/autologin.php");
-if(!$passwordEntered) header("Location: index.php");
+if($_SESSION["home"] == "index.php"){
+    if(!$passwordEntered) header("Location: index.php");
+}
 
 // get item id from URL
 $itemID = $_GET["id"] ?? "";
@@ -20,7 +22,7 @@ $findItemInformation = $db->select("SELECT name, notes, price, link, image, date
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
         $name = htmlspecialchars($row["name"]);
-        $notes = htmlspecialchars($row["notes"]);
+        $notes = $row["notes"] !=  "" ? htmlspecialchars($row["notes"]) : "None";
         $price = htmlspecialchars($row["price"]);
         $link = htmlspecialchars($row["link"]);
         $image = htmlspecialchars($row["image"]);
@@ -34,23 +36,26 @@ if($findItemInformation->num_rows > 0){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $name; ?></title>
 </head>
 <body>
-    <div id="container">
-        <a href="<?php echo $_SESSION["home"]; ?>">Back to Home</a>
-        <h1 class="center"><?php echo $name; ?></h1>
-        <div class="center flex view-item-container">
-            <div class="item-image-container">
-                <img class="view-item-image" src="images/<?php echo $image; ?>" alt="item image">
-            </div>
-            <div class="view-item-content">
-                <label>Item Name: </label><?php echo $name; ?><br>
-                <label>Item Price: </label>$<?php echo $price; ?><br>
-                <label>Website Link: </label><a target="_blank" href="<?php echo $link; ?>">View on Website</a><br>
-                <label>Notes: </label><br>
-                <?php echo $notes; ?><br>
-                <label>Date Added: </label><?php echo $date_added; ?><br>
+    <div id="body">
+        <?php require "includes/background.php"; ?>
+        <h1 class="center">Cade's Christmas Wishlist</h1>
+        <div id="container">
+            <a id="back-home" href="<?php echo $_SESSION["home"]; ?>">Back to Home</a>
+            <div class="center flex view-item-container">
+                <h2 class="center"><?php echo $name; ?></h2>
+                <img class="view-item-image" src="images/item-images/<?php echo $image; ?>" alt="item image">
+                <div class="view-item-content">
+                    <label>Item Name:<br></label><?php echo $name; ?><br>
+                    <label>Item Price:<br></label>$<?php echo $price; ?><br>
+                    <label>Website Link:<br></label><a target="_blank" href="<?php echo $link; ?>">View on Website</a><br>
+                    <label>Notes: </label><br>
+                    <?php echo $notes; ?><br>
+                    <label>Date Added:<br></label><?php echo $date_added; ?><br>
+                </div>
             </div>
         </div>
     </div>
