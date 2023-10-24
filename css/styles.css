@@ -94,9 +94,10 @@ label {
 .pagination {
     list-style-type: none;
     text-decoration: none;
-    margin-top: 10px;
     padding: 0;
-    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    margin: 0;
 }
 .pagination li {
     float: left;
@@ -162,8 +163,8 @@ label {
     margin-bottom: 40px;
 }
 .pagination img {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
 }
 .pagination strong {
     font-size: 33px;
@@ -171,6 +172,9 @@ label {
 .paginate-container {
     width: 100%;
     text-align: center;
+}
+#item-count p {
+    margin: 0;
 }
 
 /* flexbox css */
@@ -560,6 +564,9 @@ textarea {
     }
     .pagination strong {
         font-size: 25px;
+    }
+    .snowing {
+        width: 60% !important;
     }
 }
 @media (max-width: 360px) {
