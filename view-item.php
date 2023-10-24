@@ -38,7 +38,7 @@ if($findItemInformation->num_rows > 0){
 </head>
 <body>
     <div id="container">
-        <a href="index.php">Back to Home</a>
+        <a href="<?php echo $_SESSION["home"]; ?>">Back to Home</a>
         <h1 class="center"><?php echo $name; ?></h1>
         <div class="center flex view-item-container">
             <div class="item-image-container">
@@ -55,4 +55,5 @@ if($findItemInformation->num_rows > 0){
         </div>
     </div>
 </body>
+<?php include "includes/footer.php"; ?>
 </html>
