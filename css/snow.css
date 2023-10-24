@@ -3,7 +3,7 @@
     position: absolute;
     filter: blur(.8px);
     z-index: 3;
-    width: 90%;
+    width: 80%;
     top: 0;
     bottom: 0;
     pointer-events: none;

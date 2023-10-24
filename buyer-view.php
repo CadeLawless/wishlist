@@ -29,7 +29,7 @@ $db = new DB();
         <?php } ?>
         </div>
         <video class="background desktop-background" src="images/site-images/christmas-background.mp4" autoplay="true" muted="muted"></video>
-        <video class="background mobile-background" src="images/site-images/christmas-background-mobile.mp4" autoplay="true" muted="muted"></video>
+        <video class="background mobile-background" src="images/site-images/christmas-background-mobile.mp4" playsinline autoplay="true" muted="muted"></video>
         <h1 class="center list-title">Cade's Christmas Wishlist</h1>
         <div id="container">
             <?php
