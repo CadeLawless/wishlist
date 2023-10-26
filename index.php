@@ -58,7 +58,7 @@ if(isset($_POST["view_submit"])){
                 $cookie_time = (3600 * 24 * 365); // 1 year
                 setcookie("session_id", session_id(), time() + $cookie_time);
                 $_SESSION["password_entered"] = true;
-                //header("Location: index.php");
+                header("Location: index.php");
             }
         }else{
             $errors = true;
@@ -96,12 +96,12 @@ if(isset($_POST["view_submit"])){
                 </p>
                 <div id="add-popup" class="popup-container flex <?php if(!isset($addErrorMsg)) echo "hidden"; ?>">
                     <div class="popup flex">
-                        <img src="images/close.png" class="close-button">
+                        <img src="images/site-images/close.png" class="close-button">
                         <form method="POST" action="">
                             <div class="center">
                                 <?php if(isset($addErrorMsg)) echo $addErrorMsg; ?>
-                                <label for="password">Enter Password:<br></label>
-                                <input type="password" name="password" id="password">
+                                <label for="add-password">Enter Password:<br></label>
+                                <input type="password" name="password" id="add-password">
                             </div>
                             <p class="center"><input type="submit" name="add_submit" class="submit_button" value="Submit"></p>
                         </form>
@@ -113,8 +113,8 @@ if(isset($_POST["view_submit"])){
                         <form method="POST" action="">
                             <div class="center">
                                 <?php if(isset($viewErrorMsg)) echo $viewErrorMsg; ?>
-                                <label for="password">Enter Password:<br></label>
-                                <input type="password" name="password" id="password">
+                                <label for="view-password">Enter Password:<br></label>
+                                <input type="password" name="password" id="view-password">
                             </div>
                             <p class="center"><input type="submit" name="view_submit" class="submit_button" value="Submit"></p>
                         </form>
@@ -148,15 +148,21 @@ if(isset($_POST["view_submit"])){
     // password pop up on click of buttons
     document.querySelector("#add-item").addEventListener("click", function(){
         document.querySelector("#add-popup").classList.remove("hidden");
+        document.querySelector("#add-password").focus();
+
     });
     document.querySelector("#view-list").addEventListener("click", function(){
         document.querySelector("#view-popup").classList.remove("hidden");
+        document.querySelector("#view-password").focus();
+
     });
 
     // close popup on click of x button
     for(const x of document.querySelectorAll(".close-button")){
         x.addEventListener("click", function(){
             x.parentElement.parentElement.classList.add("hidden");
+            document.querySelector("#add-password").value = "";
+            document.querySelector("#view-password").value = "";
         })
     }
     <?php }else{ ?>
