@@ -64,18 +64,18 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
         echo "<div class='flex items-list'>";
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
-            <div class='paginate-container'>
+            <div class='paginate-container' id='top-paginate'>
                 <div class='paginate-footer'>
                     <ul class=\"pagination\">
                         <div>
                             <li class='";
                             if($pageNumber <= 1) echo 'disabled';
-                            echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
+                            echo "'><a href=\"?pageno=1#top-paginate"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                             <li class=";
                             if($pageNumber <= 1) echo 'disabled';
                             echo ">
                                 <a href='";
-                                if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#weight-history-title"; }
+                                if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#top-paginate"; }
                                 echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                             </li>
                         </div>
@@ -85,12 +85,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             if($pageNumber >= $totalPages) echo "disabled";
                             echo ">
                                 <a href='";
-                                if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#weight-history-title"; }
+                                if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#top-paginate"; }
                                 echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                             </li>
                             <li class='";
                             if($pageNumber == $totalPages) echo 'disabled';
-                            echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
+                            echo "'><a href=\"?pageno=$totalPages#top-paginate"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                         </div>
                     </ul>
                 </div>
@@ -260,12 +260,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 <div>
                     <li class='";
                     if($pageNumber <= 1) echo 'disabled';
-                    echo "'><a href=\"?pageno=1#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
+                    echo "'><a href=\"?pageno=1#top-paginate"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                     <li class=";
                     if($pageNumber <= 1) echo 'disabled';
                     echo ">
                         <a href='";
-                        if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#weight-history-title"; }
+                        if($pageNumber <= 1){echo "#'";} else { echo "?pageno=".($pageNumber - 1)."#top-paginate"; }
                         echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                     </li>
                 </div>
@@ -275,12 +275,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                     if($pageNumber >= $totalPages) echo "disabled";
                     echo ">
                         <a href='";
-                        if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#weight-history-title"; }
+                        if($pageNumber >= $totalPages){ echo '#\''; } else { echo "?pageno=".($pageNumber + 1)."#top-paginate"; }
                         echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                     </li>
                     <li class='";
                     if($pageNumber == $totalPages) echo 'disabled';
-                    echo "'><a href=\"?pageno=$totalPages#weight-history-title"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
+                    echo "'><a href=\"?pageno=$totalPages#top-paginate"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                 </div>
             </ul>";
         }
