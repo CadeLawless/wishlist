@@ -1,6 +1,5 @@
 <?php
 session_start();
-$_SESSION["home"] = "index.php";
 $_SESSION["password_entered"] = $_SESSION["password_entered"] ?? false;
 $passwordEntered = $_SESSION["password_entered"];
 ini_set("display_errors", 1);
@@ -33,6 +32,7 @@ if(isset($_POST["add_submit"])){
                 $cookie_time = (3600 * 24 * 365); // 1 year
                 setcookie("session_id", session_id(), time() + $cookie_time);
                 $_SESSION["password_entered"] = true;
+                $_SESSION["home"] = "index.php";
                 header("Location: add-item.php");
             }
         }else{
@@ -58,6 +58,7 @@ if(isset($_POST["view_submit"])){
                 $cookie_time = (3600 * 24 * 365); // 1 year
                 setcookie("session_id", session_id(), time() + $cookie_time);
                 $_SESSION["password_entered"] = true;
+                $_SESSION["home"] = "index.php";
                 header("Location: index.php");
             }
         }else{
@@ -130,8 +131,8 @@ if(isset($_POST["view_submit"])){
                     }
                 }
                 echo "<h3 class='center'>Current Wishlist Total: $$total_price</h3>";
-                if(isset($_GET["pageno"])){
-                    $pageno = $_GET["pageno"];
+                if(isset($_SESSION["pageno"])){
+                    $pageno = $_SESSION["pageno"];
                 }else{
                     $pageno = 1;
                 }
