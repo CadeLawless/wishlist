@@ -57,16 +57,6 @@ footer {
 .float-right {
     float: right;
 }
-
-/* CSS Document */
-
-/* general css */
-.hidden {
-    display: none;
-}
-.center {
-    text-align: center;
-}
 .no-margin-top {
     margin-top: 0;
 }
@@ -224,7 +214,6 @@ label.normal-text {
 }
 input, textarea, select {
     box-sizing: border-box;
-    font-family: Avenir, sans-serif;
     font-size: 1rem;
 }
 input:not([type=radio], [type=checkbox], [type=submit], [class=price-input]), select, textarea {
@@ -408,7 +397,7 @@ textarea {
     align-items: center;
     flex-wrap: wrap;
     max-width: 1200px;
-    margin: 20px auto 40px;
+    margin: 5px auto 40px;
     padding: 20px;
 }
 .items-list .item-container {
@@ -546,6 +535,19 @@ textarea {
 }
 .hide-3 {
     display: none !important;
+}
+.filter-form {
+    display: flex;
+    column-gap: 15px;
+    row-gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.filter-input {
+    max-width: 300px;
+}
+.filter-input select {
+    margin-bottom: 0;
 }
 
 @media (max-width: 1204px){
