@@ -18,7 +18,7 @@ if($_SESSION["home"] == "index.php"){
 $itemID = $_GET["id"] ?? "";
 
 // find item information
-$findItemInformation = $db->select("SELECT name, notes, price, link, image, date_added FROM items WHERE id = ?", "i", [$itemID]);
+$findItemInformation = $db->select("SELECT name, notes, price, link, image, priority, date_added FROM items WHERE id = ?", "i", [$itemID]);
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
         $name = htmlspecialchars($row["name"]);
@@ -26,9 +26,16 @@ if($findItemInformation->num_rows > 0){
         $price = htmlspecialchars($row["price"]);
         $link = htmlspecialchars($row["link"]);
         $image = htmlspecialchars($row["image"]);
+        $priority = htmlspecialchars($row["priority"]);
         $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_added"])));
     }
 }
+$priorities = [
+    1 => "Cade absolutely needs this item",
+    2 => "Cade really wants this item",
+    3 => "It would be cool if Cade had this item",
+    4 => "Eh, Cade could do without this item"
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +61,7 @@ if($findItemInformation->num_rows > 0){
                     <label>Website Link:<br></label><a target="_blank" href="<?php echo $link; ?>">View on Website</a><br>
                     <label>Notes: </label><br>
                     <?php echo $notes; ?><br>
+                    <label>Priority:<br></label><?php echo "($priority) $priorities[$priority]"; ?><br>
                     <label>Date Added:<br></label><?php echo $date_added; ?><br>
                 </div>
             </div>
