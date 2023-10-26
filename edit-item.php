@@ -22,7 +22,6 @@ if($findItemInformation->num_rows > 0){
         $link = htmlspecialchars($row["link"]);
         $image = htmlspecialchars($row["image"]);
         $priority = htmlspecialchars($row["priority"]);
-        $purchased = $row["purchased"];
     }
 }
 $priority_options = ["1", "2", "3", "4"];
@@ -65,7 +64,7 @@ if(isset($_POST["submit_button"])){
     }
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, purchased = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$name, $price, $link, $filename, $notes, $purchased, $itemID])){
+        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$name, $price, $link, $filename, $notes, $priority, $itemID])){
             header("Location: index.php");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -90,56 +89,59 @@ if(isset($_POST["submit_button"])){
         <?php require "includes/background.php"; ?>
         <h1 class="center">Cade's Christmas Wishlist</h1>
         <div id="container">
-            <a href="index.php">Back to Home</a>       
-            <h2>Edit Item</h2>
-            <?php if(isset($errorMsg)) echo $errorMsg?>
-            <form method="POST" action="" enctype="multipart/form-data">
-                <div class="flex form-flex">
-                    <div class="large-input">
-                        <label for="name">Item Name:<br></label>
-                        <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $name?></textarea>
-                    </div>
-                    <div class="large-input">
-                        <label for="price">Item Price:<br></label>
-                        <div id="price-input-container">
-                            <span class="dollar-sign-input flex">
-                                <label for="price"><span class="dollar-sign">$</span></label>
-                                <input type="text" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
-                            </span>
-                            <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
+            <a id="back-home" href="index.php">Back to Home</a>       
+            <div class="form-container">
+                <h2>Edit Item</h2>
+                <?php if(isset($errorMsg)) echo $errorMsg?>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <div class="flex form-flex">
+                        <div class="large-input">
+                            <label for="name">Item Name:<br></label>
+                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $name?></textarea>
                         </div>
-                    </div>
-                    <div class="large-input">
-                        <label for="link">Item URL:<br></label>
-                        <input required type="text" name="link" id="link" value="<?php echo $link?>" placeholder="https://example.com">
-                    </div>
-                    <div class="large-input">
-                        <label for="image">Item Image:<br></label>
-                        <button class="file-input">Change Item Image</button>
-                        <input type="file" name="item_image" class="invisible" id="image" accept=".png, .jpg, .jpeg, .webp">
-                        <div id="preview_container">
-                            <img id="preview" src="images/item-images/<?php echo $image; ?>" height="400px" />
+                        <div class="large-input">
+                            <label for="price">Item Price:<br></label>
+                            <div id="price-input-container">
+                                <span class="dollar-sign-input flex">
+                                    <label for="price"><span class="dollar-sign">$</span></label>
+                                    <input type="text" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
+                                </span>
+                                <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
+                            </div>
                         </div>
+                        <div class="large-input">
+                            <label for="link">Item URL:<br></label>
+                            <input required type="text" name="link" id="link" value="<?php echo $link?>" placeholder="https://example.com">
+                        </div>
+                        <div class="large-input">
+                            <label for="image">Item Image:<br></label>
+                            <button class="file-input">Change Item Image</button>
+                            <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
+                            <div id="preview_container">
+                                <img id="preview" src="images/item-images/<?php echo $image; ?>" height="400px" />
+                            </div>
+                        </div>
+                        <div class="large-input">
+                            <label for="notes">Item Notes:<br></label>
+                            <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo $notes?></textarea>
+                        </div>
+                        <div class="large-input">
+                            <label for="priority">How much do you want this item?</label><br>
+                            <select id="priority" name="priority">
+                                <option value="1" <?php if($priority == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
+                                <option value="2" <?php if($priority == "2") echo "selected"; ?>>(2) I really want this item</option>
+                                <option value="3" <?php if($priority == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
+                                <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
+                            </select>
+                        </div>
+                        <p class="large-input center"><input type="submit" name="submit_button" value="Update Item"></p>
                     </div>
-                    <div class="large-input">
-                        <label for="notes">Item Notes:<br></label>
-                        <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo $notes?></textarea>
-                    </div>
-                    <div class="large-input">
-                        <label for="priority">How much do you want this item?</label><br>
-                        <select id="priority" name="priority" style="width: 500px; max-width: 100%;">
-                            <option value="1" <?php if($priority == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
-                            <option value="2" <?php if($priority == "2") echo "selected"; ?>>(2) I really want this item</option>
-                            <option value="3" <?php if($priority == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
-                            <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
-                        </select>
-                    </div>
-                    <p class="large-input center"><input type="submit" name="submit_button" value="Update Item"></p>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </body>
+<?php include "includes/footer.php"; ?>
 </html>
 <script src="scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script>
