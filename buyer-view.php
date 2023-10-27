@@ -96,7 +96,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // close popup on click of x or no button
     for(const x of document.querySelectorAll(".close-button")){
         x.addEventListener("click", function(){
-            x.parentElement.parentElement.classList.add("hidden");
+            x.parentElement.parentElement.parentElement.classList.add("hidden");
         })
     }
     for(const x of document.querySelectorAll(".no-button")){

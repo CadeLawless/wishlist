@@ -135,13 +135,15 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             <a class='delete-button' id='$id'>Delete Item</a>
                             <div class='popup-container delete-popup-$id flex hidden'>
                                 <div class='popup flex'>
+                                <div class='close-container'>
                                     <img src='images/site-images/close.png' class='close-button'>
-                                    <div class='center'>
+                                </div>
+                            <div class='center'>
                                         <label>Are you sure you want to delete this item?</label>
                                         <p>";
                                         echo htmlspecialchars($row["name"]);
                                         echo "</p>
-                                        <p><a class='red_button float-left no-button'>No</a><a class='green_button float-right' href='delete-item.php?id=$id?>'>Yes</a></p>
+                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-item.php?id=$id?>'>Yes</a></p>
                                     </div>
                                 </div>
                             </div>
@@ -203,13 +205,15 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             <p class='center'><input class='purchased-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label></p>
                             <div class='popup-container purchased-popup-$id flex hidden'>
                                 <div class='popup flex'>
-                                    <img src='images/site-images/close.png' class='close-button'>
+                                    <div class='close-container'>
+                                        <img src='images/site-images/close.png' class='close-button'>
+                                    </div>
                                     <div class='center'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
                                         <p>";
                                         echo htmlspecialchars($row["name"]);
                                         echo "</p>
-                                        <p><a class='red_button float-left no-button'>No</a><a class='green_button float-right' href='purchase-item.php?id=$id?>'>Yes</a></p>
+                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='purchase-item.php?id=$id?>'>Yes</a></p>
                                     </div>
                                 </div>
                             </div>";
