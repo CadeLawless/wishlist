@@ -57,7 +57,7 @@ if(isset($_POST["submit_button"])){
                         move_uploaded_file($temp_name, $path_filename);
                     }else{
                         $errors = true;
-                        $error_list .= "<li>Item Image file type must match: jpg, jpeg, png</li>";
+                        $error_list .= "<li>Item Image file type must match: jpg, jpeg, png, webp</li>";
                     }
             }
         }
