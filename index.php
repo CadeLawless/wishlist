@@ -117,7 +117,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 </p>
                 <div id="add-popup" class="popup-container flex <?php if(!isset($addErrorMsg)) echo "hidden"; ?>">
                     <div class="popup flex">
-                        <img src="images/site-images/close.png" class="close-button">
+                        <div class="close-container">
+                            <img src="images/site-images/close.png" class="close-button">
+                        </div>
                         <form method="POST" action="">
                             <div class="center">
                                 <?php if(isset($addErrorMsg)) echo $addErrorMsg; ?>
@@ -130,7 +132,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 </div>
                 <div id="view-popup" class="popup-container flex <?php if(!isset($viewErrorMsg)) echo "hidden"; ?>">
                     <div class="popup flex">
-                        <img src="images/site-images/close.png" class="close-button">
+                        <div class="close-container">
+                            <img src="images/site-images/close.png" class="close-button">
+                        </div>
                         <form method="POST" action="">
                             <div class="center">
                                 <?php if(isset($viewErrorMsg)) echo $viewErrorMsg; ?>
@@ -211,7 +215,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // close popup on click of x button
     for(const x of document.querySelectorAll(".close-button")){
         x.addEventListener("click", function(){
-            x.parentElement.parentElement.classList.add("hidden");
+            x.parentElement.parentElement.parentElement.classList.add("hidden");
             document.querySelector("#add-password").value = "";
             document.querySelector("#view-password").value = "";
         })
@@ -227,7 +231,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // close popup on click of x or no button
         for(const x of document.querySelectorAll(".close-button")){
             x.addEventListener("click", function(){
-                x.parentElement.parentElement.classList.add("hidden");
+                x.parentElement.parentElement.parentElement.classList.add("hidden");
             })
         }
         for(const x of document.querySelectorAll(".no-button")){
