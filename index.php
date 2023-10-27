@@ -19,55 +19,75 @@ if($findCorrectPassword->num_rows > 0){
     }
 }
 
-// if add item password submit button is clicked
-if(isset($_POST["add_submit"])){
-    $errors = false;
-    $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
-    $errorList = "";
-    $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
-    if(!$errors){
-        if($password == $correctPassword){
-            $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
-            if($db->write("UPDATE passwords SET session = ?, session_expiration = ?", "ss", [session_id(), $expire_date])){
-                $cookie_time = (3600 * 24 * 365); // 1 year
-                setcookie("session_id", session_id(), time() + $cookie_time);
-                $_SESSION["password_entered"] = true;
-                $_SESSION["home"] = "index.php";
-                header("Location: add-item.php");
+// initialize filter variables
+$valid_options = ["", "1", "2"];
+$sort_priority = $_SESSION["sort_priority"] ?? "1";
+$sort_price = $_SESSION["sort_price"] ?? "";
+
+// if form is submitted
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    // if add item password submit button is clicked
+    if(isset($_POST["add_submit"])){
+        $errors = false;
+        $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
+        $errorList = "";
+        $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
+        if(!$errors){
+            if($password == $correctPassword){
+                $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
+                if($db->write("UPDATE passwords SET session = ?, session_expiration = ?", "ss", [session_id(), $expire_date])){
+                    $cookie_time = (3600 * 24 * 365); // 1 year
+                    setcookie("session_id", session_id(), time() + $cookie_time);
+                    $_SESSION["password_entered"] = true;
+                    $_SESSION["home"] = "index.php";
+                    header("Location: add-item.php");
+                }
+            }else{
+                $errors = true;
+                $errorList .= "<li>The password you entered was incorrect. Please try again.";
+                $addErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
             }
         }else{
-            $errors = true;
-            $errorList .= "<li>The password you entered was incorrect. Please try again.";
             $addErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
         }
-    }else{
-        $addErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
     }
-}
-
-// if view list password submit button is clicked
-if(isset($_POST["view_submit"])){
-    $errors = false;
-    $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
-    $errorList = "";
-    $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
-    if(!$errors){
-        if($password == $correctPassword){
-            $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
-            if($db->write("UPDATE passwords SET session = ?, session_expiration = ?", "ss", [session_id(), $expire_date])){
-                $cookie_time = (3600 * 24 * 365); // 1 year
-                setcookie("session_id", session_id(), time() + $cookie_time);
-                $_SESSION["password_entered"] = true;
-                $_SESSION["home"] = "index.php";
-                header("Location: index.php");
+    // if view list password submit button is clicked
+    if(isset($_POST["view_submit"])){
+        $errors = false;
+        $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
+        $errorList = "";
+        $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
+        if(!$errors){
+            if($password == $correctPassword){
+                $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
+                if($db->write("UPDATE passwords SET session = ?, session_expiration = ?", "ss", [session_id(), $expire_date])){
+                    $cookie_time = (3600 * 24 * 365); // 1 year
+                    setcookie("session_id", session_id(), time() + $cookie_time);
+                    $_SESSION["password_entered"] = true;
+                    $_SESSION["home"] = "index.php";
+                    header("Location: index.php");
+                }
+            }else{
+                $errors = true;
+                $errorList .= "<li>The password you entered was incorrect. Please try again.";
+                $viewErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
             }
         }else{
-            $errors = true;
-            $errorList .= "<li>The password you entered was incorrect. Please try again.";
             $viewErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
         }
-    }else{
-        $viewErrorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
+    }
+
+    if($passwordEntered){
+        // if filter value is changed, change session value
+        $sort_priority = $_POST["sort_priority"];
+        $sort_price = $_POST["sort_price"];
+        if(in_array($sort_priority, $valid_options)){
+            $_SESSION["sort_priority"] = $sort_priority;
+        }
+        if(in_array($sort_price, $valid_options)){
+            $_SESSION["sort_price"] = $sort_price;
+        }
+        header("Location: index.php");
     }
 }
 ?>
@@ -122,8 +142,28 @@ if(isset($_POST["view_submit"])){
                     </div>
                 </div>
             <?php 
-            }else{
-                echo "<h2 class='center'>All Items</h2>";
+            }else{ ?>
+                <h2 class='center'>All Items</h2>
+                <form class="filter-form" method="POST" action="">
+                    <div class="filter-input">
+                        <label for="sort-priority">Sort by Priority</label><br>
+                        <select id="sort-priority" name="sort_priority">
+                            <option value="">None</option>
+                            <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
+                            <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
+                        </select>
+                    </div>
+                    <div class="filter-input">
+                        <label for="sort-price">Sort by Price</label><br>
+                        <select id="sort-price" name="sort_price">
+                            <option value="">None</option>
+                            <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
+                            <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
+                        </select>
+                    </div>
+                </form>
+                <h2 class='center'>All Items</h2>
+                <?php
                 $findPriceTotal = $db->query("SELECT SUM(price) AS total_price FROM items");
                 if($findPriceTotal->num_rows > 0){
                     while($row = $findPriceTotal->fetch_assoc()){
@@ -136,7 +176,17 @@ if(isset($_POST["view_submit"])){
                 }else{
                     $pageno = 1;
                 }
-                paginate("wisher", $db, "SELECT * FROM items", 12, $pageno);
+                $priority_order = match ($sort_priority) {
+                    "" => "",
+                    "1" => "priority ASC, ",
+                    "2" => "priority DESC, ",
+                };
+                $price_order = match ($sort_price) {
+                    "" => "",
+                    "1" => "price * 1 ASC, ",
+                    "2" => "price * 1 DESC, ",
+                };
+                paginate("wisher", $db, "SELECT * FROM items ORDER BY $priority_order$price_order date_added DESC", 12, $pageno);
             }
             ?>
         </div>
@@ -186,4 +236,11 @@ if(isset($_POST["view_submit"])){
             })
         }
     <?php } ?>
+    // submit form on filter change
+    for(const sel of document.querySelectorAll("select")){
+        sel.addEventListener("change", function(){
+            document.querySelector("form").submit();
+        });
+    }
+
 </script>

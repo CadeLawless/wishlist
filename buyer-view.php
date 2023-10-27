@@ -10,7 +10,7 @@ require("includes/error-functions.php");
 $db = new DB();
 
 // initialize filter variables
-$valid_options = ["1", "2"];
+$valid_options = ["", "1", "2"];
 $sort_priority = $_SESSION["sort_priority"] ?? "1";
 $sort_price = $_SESSION["sort_price"] ?? "";
 
@@ -18,13 +18,14 @@ $sort_price = $_SESSION["sort_price"] ?? "";
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     $sort_priority = $_POST["sort_priority"];
     $sort_price = $_POST["sort_price"];
-    if(!in_array($sort_priority, $valid_options)){
+    if(in_array($sort_priority, $valid_options)){
         $_SESSION["sort_priority"] = $sort_priority;
     }
-    if(!in_array($sort_price, $valid_options)){
+    echo $_SESSION["sort_priority"];
+    if(in_array($sort_price, $valid_options)){
         $_SESSION["sort_price"] = $sort_price;
     }
-    //header("Location: buyer-view.php");
+    header("Location: buyer-view.php");
 }
 ?>
 <!DOCTYPE html>
