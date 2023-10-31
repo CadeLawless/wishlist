@@ -25,32 +25,32 @@
     top: -100%;
 }
 .small-snow:nth-child(1) {
-    left: 20%;
+    left: 3%;
     top: -40px;
     animation-delay: 2s, .3s;
 }
 .small-snow:nth-child(2) {
-    left: 40%;
+    left: 8%;
     top: -50px;
-    animation-delay: 4s, .3s;
+    animation-delay: 28s, .3s;
 }
 .small-snow:nth-child(3) {
-    left: 99%;
+    left: 13%;
     top: -130px;
-    animation-delay: 6s, .3s;
+    animation-delay: 0s, .3s;
 }
 .small-snow:nth-child(4) {
-    left: 10%;
-    animation-delay: 8s, .3s;
+    left: 15%;
+    animation-delay: 25s, .3s;
 }
 .small-snow:nth-child(5) {
-    left: 60%;
-    animation-delay: 2s, .2s;
+    left: 23%;
+    animation-delay: 4s, .2s;
 }
 .small-snow:nth-child(6) {
-    left: 15%;
+    left: 28%;
     top: -30px;
-    animation-delay: 4s, .3s;
+    animation-delay: 26s, .3s;
 }
 .small-snow:nth-child(7) {
     left: 17%;
