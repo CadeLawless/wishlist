@@ -22,6 +22,10 @@ class DB{
         return $this->connection->error;
     }
 
+    public function insert_id(){
+        return $this->connection->insert_id;
+    }
+
     public function getConnection(){
         return $this->connection;
     }
