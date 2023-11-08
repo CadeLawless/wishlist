@@ -59,13 +59,20 @@ class DB{
 }
 function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
     $offset = ($pageNumber - 1) * $itemsPerPage;
-    $selectQuery = $db->query("$query LIMIT $offset, $itemsPerPage");
+    $selectQuery = $db->select("$query LIMIT $offset, $itemsPerPage", "is", [$_SESSION["wishlist_id"], $_SESSION["username"]]);
+    $findPriceTotal = $db->select("SELECT SUM(items.price) AS total_price FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ?", "is", [$_SESSION["wishlist_id"], $_SESSION["username"]]);
+    if($findPriceTotal->num_rows > 0){
+        while($row = $findPriceTotal->fetch_assoc()){
+            $total_price = $row["total_price"] != "" ? round($row["total_price"], 2) : "";
+        }
+    }
     if($selectQuery->num_rows > 0){
+        if($type == "wisher")  echo "<h3 class='center'>Current Wishlist Total: $$total_price</h3>";
+        echo "<div class='flex items-list'>";
         $invisibleDivsNeeded = 3 - ($selectQuery->num_rows % 3);
         $numberOfItemsOnPage = $selectQuery->num_rows;
-        $numberOfItems = $db->query($query)->num_rows;
+        $numberOfItems = $db->select($query, "is", [$_SESSION["wishlist_id"], $_SESSION["username"]])->num_rows;
         $totalPages = ceil($numberOfItems / $itemsPerPage);
-        echo "<div class='flex items-list'>";
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
             <div class='paginate-container' id='top-paginate'>
@@ -109,8 +116,8 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
         if($type == "wisher"){
             while($row = $selectQuery->fetch_assoc()){
                 $id = $row["id"];
-                $name = htmlspecialchars(substr($row["name"], 0, 25));
-                if(strlen($row["name"]) > 25) $name .= "...";
+                $item_name = htmlspecialchars(substr($row["name"], 0, 25));
+                if(strlen($row["name"]) > 25) $item_name .= "...";
                 $price = htmlspecialchars($row["price"]);
                 $link = htmlspecialchars($row["link"]);
                 $image = htmlspecialchars($row["image"]);
@@ -126,7 +133,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                         <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
                     </div>
                     <div class='item-description'>
-                        <h3>$name</h3>
+                        <h3>$item_name</h3>
                         <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
                         <h4 class='notes-label'>Notes: </h4><span>$notes</span><br>
                         <h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span><br>
@@ -139,15 +146,15 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             <a class='delete-button' id='$id'>Delete Item</a>
                             <div class='popup-container delete-popup-$id flex hidden'>
                                 <div class='popup flex'>
-                                <div class='close-container'>
-                                    <img src='images/site-images/close.png' class='close-button'>
-                                </div>
-                            <div class='center'>
+                                    <div class='close-container'>
+                                        <img src='images/site-images/close.png' class='close-button'>
+                                    </div>
+                                    <div class='center'>
                                         <label>Are you sure you want to delete this item?</label>
                                         <p>";
                                         echo htmlspecialchars($row["name"]);
                                         echo "</p>
-                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-item.php?id=$id?>'>Yes</a></p>
+                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-item.php?id=$id'>Yes</a></p>
                                     </div>
                                 </div>
                             </div>
@@ -167,8 +174,8 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
             $gift_wrap = 1;
             while($row = $selectQuery->fetch_assoc()){
                 $id = $row["id"];
-                $name = htmlspecialchars(substr($row["name"], 0, 25));
-                if(strlen($row["name"]) > 25) $name .= "...";
+                $item_name = htmlspecialchars(substr($row["name"], 0, 25));
+                if(strlen($row["name"]) > 25) $item_name .= "...";
                 $price = htmlspecialchars($row["price"]);
                 $link = htmlspecialchars($row["link"]);
                 $image = htmlspecialchars($row["image"]);
@@ -196,7 +203,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                         <img class='item-image' src='images/item-images/$image' alt='wishlist item image'>
                     </div>
                     <div class='item-description'>
-                        <h3>$name</h3>
+                        <h3>$item_name</h3>
                         <h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4>
                         <h4 class='notes-label'>Notes: </h4><span>$notes</span><br>
                         <h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span><br>";
@@ -258,9 +265,6 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 }
             }
         }
-        $numberOfItemsOnPage = $selectQuery->num_rows;
-        $numberOfItems = $db->query($query)->num_rows;
-        $totalPages = ceil($numberOfItems / $itemsPerPage);
         echo "<div class='paginate-container'><div class='paginate-footer'>";
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
@@ -290,12 +294,13 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                     if($pageNumber == $totalPages) echo 'disabled';
                     echo "'><a href=\"change-page.php?pageno=$totalPages"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                 </div>
-            </ul>";
-        }
-        echo "
+            </ul>
             <div id='item-count'>
                 <p>Showing " . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . " of " . $numberOfItems . " items</p>
-            </div>
+            </div>";
+        }
+
+        echo "
         </div>
         </div>";
     }

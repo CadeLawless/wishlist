@@ -16,9 +16,9 @@ $password = "";
 if(isset($_POST["submit_button"])){
     $errors = false;
     $error_title = "<b>Login failed due to the following errors:<b>";
-    $error_list = "";
-    $username = inputCheck("username", "Username", "text", "Yes", $errors, $error_list);
-    $password = inputCheck("password", "Password", "text", "Yes", $errors, $error_list);
+    $errorList = "";
+    $username = errorCheck("username", "Username", "Yes", $errors, $errorList);
+    $password = errorCheck("password", "Password", "Yes", $errors, $errorList);
     if(!$errors){
         $findUser = $db->select("SELECT password FROM wishlist_users WHERE username = ?", "s", [$username]);
         if($findUser->num_rows > 0){
@@ -35,12 +35,14 @@ if(isset($_POST["submit_button"])){
                     }
                 }else{
                     $errors = true;
-                    $error_list .= "<li>Username or password is incorrect</li>";
+                    $errorList .= "<li>Username or password is incorrect</li>";
+                    $error_msg = "<div class='submit-error'>$error_title<ul>$errorList</ul></div>";
                 }
             }
         }else{
             $errors = true;
-            $error_list .= "<li>Username or password is incorrect</li>";
+            $errorList .= "<li>Username or password is incorrect</li>";
+            $error_msg = "<div class='submit-error'>$error_title<ul>$errorList</ul></div>";
         }
     }else{
         $error_msg = "<div class='submit-error'>$error_title<ul>$errorList</ul></div>";
@@ -52,25 +54,29 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="css/daily_weight.css" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Wishlist | Login</title>
 </head>
 <body>
-    <h1 class="center">Login</h1>
-    <?php if(isset($error_msg)) echo $error_msg?>
-    <form id="login-form flex" method="POST" action="">
-        <div class="large-input center">
-            <label for="username">Username: </label><br>
-            <input type="text" name="username" id="username">
-            <span class="error-msg hidden">Username must include</span>
-        </div>
-        <div class="large-input center">
-            <label for="password">Password: </label><br>
-            <input type="password" name="password" id="password">
-            <span class="error-msg hidden">Password must include</span>
-        </div>
-        <p class="large-input center"><input type="submit" name="submit_button" value="Login"></p>
-        <p style="font-size: 14px" class="large-input center">Dont have an account? <a href="create-an-account.php">Create one here</a></p>
-    </form>
+    <div id="body">
+        <?php require "includes/background.php"; ?>
+        <h1 class="center">Login</h1>
+        <?php if(isset($error_msg)) echo $error_msg; ?>
+        <form id="login-form" method="POST" action="">
+            <div class="large-input center">
+                <label for="username">Username: </label><br>
+                <input required type="text" value="<?php echo $username; ?>" name="username" id="username">
+                <span class="error-msg hidden">Username must include</span>
+            </div>
+            <div class="large-input center">
+                <label for="password">Password: </label><br>
+                <input required type="password" name="password" id="password">
+                <span class="error-msg hidden">Password must include</span>
+            </div>
+            <p class="large-input center"><input type="submit" name="submit_button" value="Login"></p>
+            <p style="font-size: 14px" class="large-input center">Dont have an account? <a href="create-an-account.php">Create one here</a></p>
+        </form>
+    </div>
 </body>
 </html>
