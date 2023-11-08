@@ -1,16 +1,12 @@
 <?php
-session_start();
-$_SESSION["password_entered"] = $_SESSION["password_entered"] ?? false;
-$passwordEntered = $_SESSION["password_entered"];
-if(!$passwordEntered) header("Location: index.php");
-ini_set("display_errors", 1);
-require("includes/classes.php");
-require("includes/error-functions.php");
-// database connection
-$db = new DB();
+// includes db and paginate class and checks if logged in
+require "includes/setup.php";
+
+// gets wishlist id from session and wishlist info from database
+require "includes/wishlist-setup.php";
 
 // intialize form field variables
-$name = "";
+$item_name = "";
 $price = "";
 $link = "";
 $filename = "";
@@ -23,7 +19,7 @@ if(isset($_POST["submit_button"])){
     $errors = false;
     $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
     $errorList = "";
-    $name = errorCheck("name", "Item Name", "Yes", $errors, $errorList);
+    $item_name = errorCheck("name", "Item Name", "Yes", $errors, $errorList);
     $price = errorCheck("price", "Item Price", "Yes", $errors, $errorList);
     patternCheck("/(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$/", $price, $errors, $errorList, "Item Price must match U.S. currency format: 9,999.00");
     $link = errorCheck("link", "Item URL", "Yes", $errors, $errorList);
@@ -40,7 +36,7 @@ if(isset($_POST["submit_button"])){
                     $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $ext = strtolower($ext);
                     if(in_array($ext, $allowed)){
-                        $filename = substr($name, 0, 10) . ".$ext";
+                        $filename = substr($item_name, 0, 10) . ".$ext";
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
@@ -60,8 +56,8 @@ if(isset($_POST["submit_button"])){
     }
     $date_added = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("INSERT INTO items(name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, 'No', '$date_added')", "ssssss", [$name, $price, $link, $filename, $notes, $priority])){
-            header("Location: index.php");
+        if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", "issssss", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
+            header("Location: view-wishlist.php?id=$wishlistID");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
             // echo $db->error();
@@ -78,13 +74,13 @@ if(isset($_POST["submit_button"])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Cade's Christmas Wishlist | Add Item</title>
+    <title><?php echo $wishlistTitle; ?></title>
 </head>
 <body>
     <div id="body">
         <?php require "includes/background.php"; ?>
-        <h1 class="center">Cade's Christmas Wishlist</h1>
-        <a id="back-home" href="index.php">Back to Home</a>
+        <h1 class="center"><?php echo $wishlistTitle; ?></h1>
+        <a id="back-home" href="view-wishlist.php?id=<?php echo $wishlistID; ?>">Back to List</a>
         <div id="container">
             <div class="form-container">
                 <h2>Add Item</h2>
@@ -93,7 +89,7 @@ if(isset($_POST["submit_button"])){
                     <div class="flex form-flex">
                         <div class="large-input">
                             <label for="name">Item Name:<br></label>
-                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $name?></textarea>
+                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
                         </div>
                         <div class="large-input">
                             <label for="price">Item Price:<br></label>
@@ -141,23 +137,6 @@ if(isset($_POST["submit_button"])){
 </html>
 <script src="scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script>
-    <?php if(!$passwordEntered){?>
-    // password pop up on click of buttons
-    document.querySelector("#add-item").addEventListener("click", function(){
-        document.querySelector("#add-popup").classList.remove("hidden");
-    });
-    document.querySelector("#view-list").addEventListener("click", function(){
-        document.querySelector("#view-popup").classList.remove("hidden");
-    });
-
-    // close popup on click of x button
-    for(const x of document.querySelectorAll(".close-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.classList.add("hidden");
-        })
-    }
-    <?php }?>
-
     // autosize textareas
     for(const textarea of document.querySelectorAll("textarea")){
         autosize(textarea);

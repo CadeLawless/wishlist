@@ -3,11 +3,13 @@
 if(!$logged_in){
     if(isset($_COOKIE["session_id"])){
         $session = $_COOKIE["session_id"];
-        $findSession = $db->select("SELECT session_expiration FROM passwords WHERE session = ?", "s", [$session]);
+        $findSession = $db->select("SELECT username, session_expiration FROM wishlist_users WHERE session = ?", "s", [$session]);
         if($findSession->num_rows > 0){
             while($row = $findSession->fetch_assoc()){
                 $session_expiration = $row["session_expiration"];
                 if(date("Y-m-d H:i:s") < $session_expiration){
+                    $username = $row["username"];
+                    $_SESSION["username"] = $username;
                     $logged_in = true;
                     $_SESSION["logged_in"] = true;
                 }

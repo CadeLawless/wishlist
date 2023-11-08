@@ -268,12 +268,12 @@ textarea {
 .dollar-sign {
     cursor: default;
     font-size: 1rem;
-    position: relative;
-    bottom: 2px;
 }
 
 /* server side error css */
 .submit-error {
+    margin: 10px auto;
+    width: 95%;
     padding: 7px;
     border: 1px solid transparent;
     border-radius: 5px;
@@ -372,7 +372,7 @@ textarea {
 /*** specific css ***/
 
 /* item list css */
-#add-item, #view-list {
+#add-item, .view-list, .create-wishlist-button {
     display: inline-block;
     text-decoration: none;
     color: white;
@@ -382,14 +382,17 @@ textarea {
     border-radius: 2px;
     transition: all 0.5s;
 }
-#add-item {
+#add-item, .create-wishlist-button {
     background-color: green;
 }
-#view-list {
+.view-list {
     background-color: #8c0005;
 }
-#add-item:hover {
+#add-item:hover, .create-wishlist-button:hover {
     background-color: #8c0005;
+}
+#add-item {
+    margin-bottom: 10px;
 }
 .logout-button, #back-home {
     background-color: #8c0005;
@@ -397,7 +400,7 @@ textarea {
     top: -15px;
     left: 5px;
 }
-.logout-button:hover, #view-list:hover, #back-home:hover {
+.logout-button:hover, #view-list:hover, #back-home:hover, .view-list:hover {
     background-color: green;
 }
 .items-list {
@@ -560,7 +563,13 @@ textarea {
 .filter-input select {
     margin-bottom: 0;
 }
-
+#login-form {
+    max-width: 300px;
+    margin: auto;
+}
+#login-form label {
+    float: left;
+}
 @media (max-width: 1204px){
     .hide-3 {
         display: block !important;

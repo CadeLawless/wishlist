@@ -1,22 +1,19 @@
 <?php
-session_start();
-$_SESSION["password_entered"] = $_SESSION["password_entered"] ?? false;
-$passwordEntered = $_SESSION["password_entered"];
-if(!$passwordEntered) header("Location: index.php");
-ini_set("display_errors", 1);
-require("includes/classes.php");
-require("includes/error-functions.php");
-// database connection
-$db = new DB();
+// includes db and paginate class and checks if logged in
+require "includes/setup.php";
+
+// gets wishlist id from session and wishlist info from database
+require "includes/wishlist-setup.php";
 
 // get item id from URL
 $itemID = $_GET["id"] ?? "";
+if($itemID == "") header("Location: index.php");
 
 // find item information
 $findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", "i", [$itemID]);
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
-        $name = htmlspecialchars($row["name"]);
+        $item_name = htmlspecialchars($row["name"]);
         $notes = htmlspecialchars($row["notes"]);
         $price = htmlspecialchars($row["price"]);
         $link = htmlspecialchars($row["link"]);
@@ -31,7 +28,7 @@ if(isset($_POST["submit_button"])){
     $errors = false;
     $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
     $errorList = "";
-    $name = errorCheck("name", "Item Name", "Yes", $errors, $errorList);
+    $item_name = errorCheck("name", "Item Name", "Yes", $errors, $errorList);
     $price = errorCheck("price", "Item Price", "Yes", $errors, $errorList);
     patternCheck("/(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$/", $price, $errors, $errorList, "Item Price must match U.S. currency format: 9,999.00");
     $link = errorCheck("link", "Item URL", "Yes", $errors, $errorList);
@@ -48,7 +45,7 @@ if(isset($_POST["submit_button"])){
                     $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $ext = strtolower($ext);
                     if(in_array($ext, $allowed)){
-                        $filename = substr($name, 0, 10) . ".$ext";
+                        $filename = substr($item_name, 0, 10) . ".$ext";
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
@@ -64,7 +61,7 @@ if(isset($_POST["submit_button"])){
     }
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$name, $price, $link, $filename, $notes, $priority, $itemID])){
+        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$item_name, $price, $link, $filename, $notes, $priority, $itemID])){
             header("Location: index.php");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -82,14 +79,14 @@ if(isset($_POST["submit_button"])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Cade's Christmas Wishlist | Edit Item</title>
+    <title><?php echo $wishlistTitle; ?> | Edit Item</title>
 </head>
 <body>
     <div id="body">
         <?php require "includes/background.php"; ?>
-        <h1 class="center">Cade's Christmas Wishlist</h1>
+        <h1 class="center"><?php echo "$name's $year $type Wishlist"; ?></h1>
         <div id="container">
-            <a id="back-home" href="index.php">Back to Home</a>       
+            <a id="back-home" href="view-wishlist.php?id=<?php echo $wishlistID; ?>">Back to List</a>       
             <div class="form-container">
                 <h2>Edit Item</h2>
                 <?php if(isset($errorMsg)) echo $errorMsg?>
@@ -97,7 +94,7 @@ if(isset($_POST["submit_button"])){
                     <div class="flex form-flex">
                         <div class="large-input">
                             <label for="name">Item Name:<br></label>
-                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $name?></textarea>
+                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
                         </div>
                         <div class="large-input">
                             <label for="price">Item Price:<br></label>

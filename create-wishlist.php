@@ -30,9 +30,16 @@ while(!$unique){
     if($checkKey->num_rows == 0) $unique = true;
 }
 
+// get year for wishlist
+$currentYear = date("Y");
+$year = date("m/d/Y") >= "12/25/$currentYear" ? $currentYear + 1 : $currentYear;
+
+// find if there is a duplicate type and year in database
+$findDuplicates = $db->select("SELECT id FROM wishlists WHERE type = ? AND year = ? AND username = ?", "sss", ["Christmas", $year, $username]);
+$duplicateValue = $findDuplicates->num_rows;
+
 // create new christmas wishlist for user
-if($db->write("INSERT INTO wishlists(type, username, secret_key) VALUES(?, ?, ?)", "sss", ["Christmas", $username, $secret_key])){
+if($db->write("INSERT INTO wishlists(type, year, duplicate, username, secret_key) VALUES(?, ?, ?, ?, ?)", "sssss", ["Christmas", $year, $duplicateValue, $username, $secret_key])){
     $wishlistID = $db->insert_id();
-    $_SESSION["wishlist_id"] = $wishlistID;
     header("Location: view-wishlist.php?id=$wishlistID");
 }
