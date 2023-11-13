@@ -1,8 +1,8 @@
 <?php
 // check to see if password has been entered
 if(!$logged_in){
-    if(isset($_COOKIE["session_id"])){
-        $session = $_COOKIE["session_id"];
+    if(isset($_COOKIE["wishlist_session_id"])){
+        $session = $_COOKIE["wishlist_session_id"];
         $findSession = $db->select("SELECT username, session_expiration FROM wishlist_users WHERE session = ?", "s", [$session]);
         if($findSession->num_rows > 0){
             while($row = $findSession->fetch_assoc()){

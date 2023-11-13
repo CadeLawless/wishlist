@@ -1,13 +1,41 @@
 <?php
 session_start();
-$_SESSION["home"] = "buyer-view.php";
-$_SESSION["password_entered"] = $_SESSION["password_entered"] ?? false;
-$passwordEntered = $_SESSION["password_entered"];
 ini_set("display_errors", 1);
 require("includes/classes.php");
 require("includes/error-functions.php");
 // database connection
 $db = new DB();
+
+// get wishlist key from URL
+$wishlistKey = $_GET["key"] ?? "";
+if($wishlistKey == "") header("Location: wishlist-search.php");
+
+// find wishlist based off of key
+$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate FROM wishlists WHERE secret_key = ?", "s", [$wishlistKey]);
+if($findWishlistInfo->num_rows > 0){
+    while($row = $findWishlistInfo->fetch_assoc()){
+        $wishlistID = $row["id"];
+        $_SESSION["wishlist_id"] = $wishlistID;
+        $username = $row["username"];
+        $year = $row["year"];
+        $type = $row["type"];
+        $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
+    }
+}else{
+    header("Location: wishlist-search.php");
+}
+
+$_SESSION["home"] = "buyer-view.php?key=$wishlistKey";
+
+// find name based off of username
+$findName = $db->select("SELECT name FROM wishlist_users WHERE username = ?", "s", [$username]);
+if($findName->num_rows > 0){
+    while($row = $findName->fetch_assoc()){
+        $name = htmlspecialchars($row["name"]);
+        $_SESSION["name"] = $name;
+    }
+}
+$wishlistTitle = "$name's $year $type Wishlist$duplicate";
 
 // initialize filter variables
 $valid_options = ["", "1", "2"];
@@ -33,16 +61,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Cade's Christmas Wishlist</title>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
+    <title><?php echo $wishlistTitle; ?></title>
 </head>
 <body>
     <div id="body">
         <?php require "includes/background.php"; ?>
-        <h1 class="center">Cade's Christmas Wishlist</h1>
+        <h1 class="center"><?php echo $wishlistTitle; ?></h1>
         <div id="container">
-            <h2 class='center'>All Items</h2>
+            <h2 id='paginate-top' class='center'>All Items</h2>
             <form class="filter-form" method="POST" action="">
                 <div class="filter-input">
                     <label for="sort-priority">Sort by Priority</label><br>
@@ -77,7 +107,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 "1" => ", price * 1 ASC",
                 "2" => ", price * 1 DESC",
             };
-            paginate("buyer", $db, "SELECT * FROM items ORDER BY purchased ASC$priority_order$price_order, date_added DESC", 12, $pageno);
+            paginate("buyer", $db, "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC$priority_order$price_order, date_added DESC", 12, $pageno);
             ?>
         </div>
     </div>
@@ -109,6 +139,66 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     for(const sel of document.querySelectorAll("select")){
         sel.addEventListener("change", function(){
             document.querySelector("form").submit();
+        });
+    }
+
+    // confetti on mark as purchased
+    for(const button of document.querySelectorAll(".purchase-button")){
+        button.addEventListener("click", function(){
+            let item_id = button.id.split("-")[1];
+            setTimeout(function(){
+                window.location = "purchase-item.php?id=" + item_id;
+            }, 3000);
+            button.style.pointerEvents = "none";
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            let position = button.getBoundingClientRect();
+            let left = position.left;
+            let top = position.top;
+            let centerX = left + button.offsetWidth / 2;
+            centerX = centerX / windowWidth * 100;
+            let centerY = top + button.offsetHeight / 2;
+            centerY = centerY / windowHeight * 100;
+            console.log(centerX, centerY);
+            button.style.backgroundColor = "#ff7300";
+            button.style.boxShadow = "0 0 0 4px dodgerblue";
+            button.style.border = "2px solid white";
+            confetti("tsparticles", {
+                angle: 90,
+                count: 200,
+                position: {
+                    x: centerX,
+                    y: centerY,
+                },
+                spread: 60,
+                startVelocity: 45,
+                decay: 0.9,
+                gravity: 1,
+                drift: 0,
+                ticks: 200,
+                shapes: ["image"],
+                shapeOptions: {
+                    image: [{
+                        src: "images/1.png",
+                        width: 75,
+                        height: 75,
+                    },
+                    {
+                        src: "images/2.png",
+                        width: 75,
+                        height: 75,
+                    },
+                    {
+                        src: "images/3.png",
+                        width: 75,
+                        height: 75,
+                    },
+                    ],
+                },
+                scalar: 3,
+                zIndex: 100,
+                disableForReducedMotion: true,
+            });
         });
     }
 </script>

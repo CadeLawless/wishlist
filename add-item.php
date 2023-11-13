@@ -1,4 +1,5 @@
 <?php
+ini_set("allow_url_fopen", 1);
 // includes db and paginate class and checks if logged in
 require "includes/setup.php";
 
@@ -31,7 +32,10 @@ if(isset($_POST["submit_button"])){
         if(isset($_FILES["item_image"]["name"])){
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
-                    $target_dir = "images/item-images/";
+                    if(!is_dir("images/item-images/$wishlistID")){
+                        mkdir("images/item-images/$wishlistID");
+                    }
+                    $target_dir = "images/item-images/$wishlistID/";
                     $file = $_FILES['item_image']['name'];
                     $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $ext = strtolower($ext);
@@ -40,9 +44,10 @@ if(isset($_POST["submit_button"])){
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
-                            unlink($path_filename);
+                            $errors = true;
+                            $errorList .= "<li>You already have an item with the name". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
                         }
-                        move_uploaded_file($temp_name, $path_filename);
+                        if(!$errors) move_uploaded_file($temp_name, $path_filename);
                     }else{
                         $errors = true;
                         $error_list .= "<li>Item Image file type must match: jpg, jpeg, png</li>";
@@ -72,6 +77,7 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $wishlistTitle; ?></title>
@@ -96,7 +102,7 @@ if(isset($_POST["submit_button"])){
                             <div id="price-input-container">
                                 <span class="dollar-sign-input flex">
                                     <label for="price"><span class="dollar-sign">$</span></label>
-                                    <input type="text" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
+                                    <input type="text" inputmode="decimal" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
                                 </span>
                                 <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
                             </div>
@@ -107,10 +113,10 @@ if(isset($_POST["submit_button"])){
                         </div>
                         <div class="large-input">
                             <label for="image">Item Image:<br></label>
-                            <button class="file-input">Choose Item Image</button>
+                            <a class="file-input">Choose Item Image</a>
                             <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
                             <div class="<?php if($filename == "") echo "hidden"; ?>" id="preview_container">
-                                <img id="preview" src="" height="400px">
+                                <img id="preview" src="">
                             </div>
                         </div>
                         <div class="large-input">
