@@ -9,7 +9,28 @@ require "includes/wishlist-setup.php";
 $sql_errors = false;
 if($db->write("DELETE FROM wishlists WHERE id = ?", "i", [$wishlistID])){
     if($db->write("DELETE FROM items WHERE wishlist_id = ?", "i", [$wishlistID])){
-        header("Location: index.php");
+        function rrmdir($dir) {
+            if (is_dir($dir)) {
+                $objects = scandir($dir);
+                foreach($objects as $object){
+                    if ($object != "." && $object != "..") {
+                        if(filetype($dir."/".$object) == "dir"){
+                            rrmdir($dir."/".$object); 
+                        }else{
+                            unlink($dir."/".$object);
+                        }
+                    }
+                }
+                reset($objects);
+                return rmdir($dir);
+            }
+        }
+        if(rrmdir("images/item-images/$wishlistID")){
+            header("Location: index.php");
+        }else{
+            echo "<script>alert('Something went wrong while trying to delete this wishlist')</script>";
+            // echo $db->error();
+        }
     }else{
         $sql_errors = true;
     }

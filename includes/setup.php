@@ -21,6 +21,7 @@ $findName = $db->select("SELECT name FROM wishlist_users WHERE username = ?", "s
 if($findName->num_rows > 0){
     while($row = $findName->fetch_assoc()){
         $name = htmlspecialchars($row["name"]);
+        $_SESSION["name"] = $name;
     }
 }
 ?>

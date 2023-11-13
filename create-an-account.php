@@ -40,7 +40,7 @@ if(isset($_POST["submit_button"])){
         $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
         if($db->write("INSERT INTO wishlist_users (name, username, password, session, session_expiration) VALUES(?,?,?,?,?)", "sssss", [$name, $username, $hashed_password, session_id(), $expire_date])){
             $cookie_time = (3600 * 24 * 365); // 1 year
-            setcookie("session_id", session_id(), time() + $cookie_time);
+            setcookie("wishlist_session_id", session_id(), time() + $cookie_time);
             $_SESSION["logged_in"] = true;
             $_SESSION["username"] = $username;
             header("Location: index.php");
@@ -58,6 +58,7 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Wishlist | Create an Account</title>
@@ -89,4 +90,5 @@ if(isset($_POST["submit_button"])){
         </form>
     </div>
 </body>
+<?php include "includes/footer.php"; ?>
 </html>

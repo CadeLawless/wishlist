@@ -7,6 +7,8 @@ $wishlistID = $_GET["id"] ?? false;
 if(!$wishlistID) header("Location: index.php");
 $_SESSION["wishlist_id"] = $wishlistID;
 
+$_SESSION["home"] = "view-wishlist.php?id=$wishlistID";
+
 // find wishlist year and type
 $findWishlistInfo = $db->select("SELECT id, type, year, duplicate FROM wishlists WHERE username = ? AND id = ?", "si", [$username, $wishlistID]);
 if($findWishlistInfo->num_rows > 0){
@@ -44,6 +46,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $wishlistTitle; ?></title>
@@ -69,7 +72,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                 </div>
             </div>
-            <h2 class='center'>All Items</h2>
+            <h2 id='paginate-top' class='center'>All Items</h2>
             <form class="filter-form" method="POST" action="">
                 <div class="filter-input">
                     <label for="sort-priority">Sort by Priority</label><br>
