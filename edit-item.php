@@ -23,6 +23,8 @@ if($findItemInformation->num_rows > 0){
 }
 $priority_options = ["1", "2", "3", "4"];
 
+$pageno = $_GET["pageno"] ?? 1;
+
 // if submit button is clicked
 if(isset($_POST["submit_button"])){
     $errors = false;
@@ -49,8 +51,7 @@ if(isset($_POST["submit_button"])){
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
-                            $errors = true;
-                            $errorList .= "<li>You already have an item with the name". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
+                            unlink($path_filename);
                         }
                         if(!$errors) move_uploaded_file($temp_name, $path_filename);
                     }else{
@@ -63,7 +64,7 @@ if(isset($_POST["submit_button"])){
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
         if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$item_name, $price, $link, $filename, $notes, $priority, $itemID])){
-            header("Location: view-wishlist.php?id=$wishlistID");
+            header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
             // echo $db->error();

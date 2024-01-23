@@ -9,6 +9,8 @@ $db = new DB();
 // get item id from URL
 $itemID = $_GET["id"] ?? "";
 
+$pageno = $_GET["pageno"] ?? 1;
+
 // find item information
 $findItemInformation = $db->select("SELECT name, wishlist_id, notes, price, link, image, priority, date_added FROM items WHERE id = ?", "i", [$itemID]);
 if($findItemInformation->num_rows > 0){

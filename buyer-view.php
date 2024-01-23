@@ -25,7 +25,9 @@ if($findWishlistInfo->num_rows > 0){
     header("Location: wishlist-search.php");
 }
 
-$_SESSION["home"] = "buyer-view.php?key=$wishlistKey";
+$pageno = $_GET["pageno"] ?? 1;
+
+$_SESSION["home"] = "buyer-view.php?key=$wishlistKey&pageno=$pageno#paginate-top";
 
 // find name based off of username
 $findName = $db->select("SELECT name FROM wishlist_users WHERE username = ?", "s", [$username]);
@@ -49,11 +51,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(in_array($sort_priority, $valid_options)){
         $_SESSION["sort_priority"] = $sort_priority;
     }
-    echo $_SESSION["sort_priority"];
+    //echo $_SESSION["sort_priority"];
     if(in_array($sort_price, $valid_options)){
         $_SESSION["sort_price"] = $sort_price;
     }
-    header("Location: buyer-view.php");
+    header("Location: buyer-view.php?key=$wishlistKey&pageno=$pageno#paginate-top");
 }
 ?>
 <!DOCTYPE html>
@@ -66,6 +68,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <title><?php echo $wishlistTitle; ?></title>
+
+    <style>
+        #container {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div id="body">
@@ -73,30 +81,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <h1 class="center"><?php echo $wishlistTitle; ?></h1>
         <div id="container">
             <h2 id='paginate-top' class='center'>All Items</h2>
-            <form class="filter-form" method="POST" action="">
-                <div class="filter-input">
-                    <label for="sort-priority">Sort by Priority</label><br>
-                    <select id="sort-priority" name="sort_priority">
-                        <option value="">None</option>
-                        <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
-                        <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
-                    </select>
-                </div>
-                <div class="filter-input">
-                    <label for="sort-price">Sort by Price</label><br>
-                    <select id="sort-price" name="sort_price">
-                        <option value="">None</option>
-                        <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
-                        <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
-                    </select>
-                </div>
-            </form>
             <?php
-            if(isset($_SESSION["pageno"])){
-                $pageno = $_SESSION["pageno"];
-            }else{
-                $pageno = 1;
-            }
             $priority_order = match ($sort_priority) {
                 "" => "",
                 "1" => ", priority ASC",
@@ -107,7 +92,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 "1" => ", price * 1 ASC",
                 "2" => ", price * 1 DESC",
             };
-            paginate("buyer", $db, "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC$priority_order$price_order, date_added DESC", 12, $pageno);
+            $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC$priority_order$price_order, date_added DESC", "i", [$wishlistID]);
+            if($findItems->num_rows > 0){ ?>
+                <form class="filter-form" method="POST" action="">
+                    <div class="filter-input">
+                        <label for="sort-priority">Sort by Priority</label><br>
+                        <select id="sort-priority" name="sort_priority">
+                            <option value="">None</option>
+                            <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
+                            <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
+                        </select>
+                    </div>
+                    <div class="filter-input">
+                        <label for="sort-price">Sort by Price</label><br>
+                        <select id="sort-price" name="sort_price">
+                            <option value="">None</option>
+                            <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
+                            <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
+                        </select>
+                    </div>
+                </form>
+            <?php }
+            paginate(type: "buyer", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC$priority_order$price_order, date_added DESC", itemsPerPage: 12, pageNumber: $pageno, wishlist_id: $wishlistID, wishlist_key: $wishlistKey);
             ?>
         </div>
     </div>
