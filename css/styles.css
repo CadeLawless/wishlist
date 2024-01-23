@@ -594,6 +594,22 @@ textarea {
     max-width: 100%;
     max-height: 400px;
 }
+.coal {
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 85px;
+    max-width: 700px;
+    background-color: white;
+    padding: 10px 25px;
+    border-radius: 5px;
+}
+.coal-img {
+    display: block;
+    margin: 10px auto;
+    max-width: 100%;
+    width: 300px;
+    border-radius: 5px;
+}
 @media (max-width: 1204px){
     .hide-3 {
         display: block !important;

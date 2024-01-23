@@ -6,6 +6,8 @@ require "includes/setup.php";
 // gets wishlist id from session and wishlist info from database
 require "includes/wishlist-setup.php";
 
+$pageno = $_GET["pageno"] ?? 1;
+
 // intialize form field variables
 $item_name = "";
 $price = "";
@@ -45,7 +47,7 @@ if(isset($_POST["submit_button"])){
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
                             $errors = true;
-                            $errorList .= "<li>You already have an item with the name". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
+                            $errorList .= "<li>You already have an item with the name ". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
                         }
                         if(!$errors) move_uploaded_file($temp_name, $path_filename);
                     }else{
@@ -62,7 +64,7 @@ if(isset($_POST["submit_button"])){
     $date_added = date("Y-m-d H:i:s");
     if(!$errors){
         if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", "issssss", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
-            header("Location: view-wishlist.php?id=$wishlistID");
+            header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
             // echo $db->error();

@@ -57,18 +57,18 @@ class DB{
         }
     }
 }
-function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
+function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", $wishlist_id="", $wishlist_key=""){
     $offset = ($pageNumber - 1) * $itemsPerPage;
     if($type == "wisher"){
-        $selectQuery = $db->select("$query LIMIT $offset, $itemsPerPage", "is", [$_SESSION["wishlist_id"], $_SESSION["username"]]);
-        $findPriceTotal = $db->select("SELECT SUM(items.price) AS total_price FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ?", "is", [$_SESSION["wishlist_id"], $_SESSION["username"]]);
+        $selectQuery = $db->select("$query LIMIT $itemsPerPage OFFSET $offset", "is", [$wishlist_id, $username]);
+        $findPriceTotal = $db->select("SELECT SUM(items.price) AS total_price FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ?", "is", [$wishlist_id, $username]);
         if($findPriceTotal->num_rows > 0){
             while($row = $findPriceTotal->fetch_assoc()){
                 $total_price = $row["total_price"] != "" ? round($row["total_price"], 2) : "";
             }
         }
     }else if($type == "buyer"){
-        $selectQuery = $db->select("$query LIMIT $offset, $itemsPerPage", "i", [$_SESSION["wishlist_id"]]);
+        $selectQuery = $db->select("$query LIMIT $itemsPerPage OFFSET $offset", "i", [$wishlist_id]);
     }
     if($selectQuery->num_rows > 0){
         if($type == "wisher")  echo "<h3 class='center'>Current Wishlist Total: $$total_price</h3>";
@@ -76,11 +76,15 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
         $invisibleDivsNeeded = 3 - ($selectQuery->num_rows % 3);
         $numberOfItemsOnPage = $selectQuery->num_rows;
         if($type == "wisher"){
-            $numberOfItems = $db->select($query, "is", [$_SESSION["wishlist_id"], $_SESSION["username"]])->num_rows;
+            $numberOfItems = $db->select($query, "is", [$wishlist_id, $username])->num_rows;
         }else if($type == "buyer"){
-            $numberOfItems = $db->select($query, "i", [$_SESSION["wishlist_id"]])->num_rows;
+            $numberOfItems = $db->select($query, "i", [$wishlist_id])->num_rows;
         }
         $totalPages = ceil($numberOfItems / $itemsPerPage);
+        $home = match($type){
+            "wisher" => "view-wishlist.php?id=$wishlist_id&",
+            "buyer" => "buyer-view.php?key=$wishlist_key&",
+        };
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
             <div class='paginate-container'>
@@ -89,12 +93,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                         <div>
                             <li class='";
                             if($pageNumber <= 1) echo 'disabled';
-                            echo "'><a href=\"change-page.php?pageno=1"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
+                            echo "'><a href=\"{$home}pageno=1#paginate-top"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                             <li class=";
                             if($pageNumber <= 1) echo 'disabled';
                             echo ">
                                 <a href='";
-                                if($pageNumber <= 1){echo "#'";} else { echo "change-page.php?pageno=".($pageNumber - 1).""; }
+                                if($pageNumber <= 1){echo "#'";} else { echo "{$home}pageno=".($pageNumber - 1)."#paginate-top"; }
                                 echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                             </li>
                         </div>
@@ -104,12 +108,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                             if($pageNumber >= $totalPages) echo "disabled";
                             echo ">
                                 <a href='";
-                                if($pageNumber >= $totalPages){ echo '#\''; } else { echo "change-page.php?pageno=".($pageNumber + 1).""; }
+                                if($pageNumber >= $totalPages){ echo '#\''; } else { echo "{$home}pageno=".($pageNumber + 1)."#paginate-top"; }
                                 echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                             </li>
                             <li class='";
                             if($pageNumber == $totalPages) echo 'disabled';
-                            echo "'><a href=\"change-page.php?pageno=$totalPages"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
+                            echo "'><a href=\"{$home}pageno=$totalPages#paginate-top"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                         </div>
                     </ul>
                 </div>
@@ -146,11 +150,11 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                         <h4 class='notes-label'>Notes: </h4><span>$notes</span><br>
                         <h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span><br>
                         <p class='center'>
-                            <a class='view-button' href='view-item.php?id=$id'>View Item</a>
+                            <a class='view-button' href='view-item.php?id=$id&pageno=$pageNumber'>View Item</a>
                             <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
                         </p>
                         <p class='center'>
-                            <a class='edit-button' href='edit-item.php?id=$id'>Edit Item</a>
+                            <a class='edit-button' href='edit-item.php?id=$id&pageno=$pageNumber'>Edit Item</a>
                             <a class='delete-button' id='$id'>Delete Item</a>
                             <div class='popup-container delete-popup-$id flex hidden'>
                                 <div class='popup flex'>
@@ -162,7 +166,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                                         <p>";
                                         echo htmlspecialchars($row["name"]);
                                         echo "</p>
-                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-item.php?id=$id'>Yes</a></p>
+                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a></p>
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +222,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                         if(!$purchased){
                             echo "
                             <p class='center'>
-                                <a class='view-button' href='view-item.php?id=$id'>View Item</a>
+                                <a class='view-button' href='view-item.php?id=$id&pageno=$pageNumber'>View Item</a>
                                 <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
                             </p>
                             <p class='center'><input class='purchased-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label></p>
@@ -279,12 +283,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                 <div>
                     <li class='";
                     if($pageNumber <= 1) echo 'disabled';
-                    echo "'><a href=\"change-page.php?pageno=1"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
+                    echo "'><a href=\"{$home}pageno=1#paginate-top"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='first' src='images/site-images/first.png'></a></li>
                     <li class=";
                     if($pageNumber <= 1) echo 'disabled';
                     echo ">
                         <a href='";
-                        if($pageNumber <= 1){echo "#'";} else { echo "change-page.php?pageno=".($pageNumber - 1).""; }
+                        if($pageNumber <= 1){echo "#'";} else { echo "{$home}pageno=".($pageNumber - 1)."#paginate-top"; }
                         echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='prev' src='images/site-images/prev.png'></a>
                     </li>
                 </div>
@@ -294,12 +298,12 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
                     if($pageNumber >= $totalPages) echo "disabled";
                     echo ">
                         <a href='";
-                        if($pageNumber >= $totalPages){ echo '#\''; } else { echo "change-page.php?pageno=".($pageNumber + 1).""; }
+                        if($pageNumber >= $totalPages){ echo '#\''; } else { echo "{$home}pageno=".($pageNumber + 1)."#paginate-top"; }
                         echo "'><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='next' src='images/site-images/prev.png'></a>
                     </li>
                     <li class='";
                     if($pageNumber == $totalPages) echo 'disabled';
-                    echo "'><a href=\"change-page.php?pageno=$totalPages"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
+                    echo "'><a href=\"{$home}pageno=$totalPages#paginate-top"."\"><img onClick='if(this.parentElement.parentElement.className == \"disabled\") return false;' class='last' src='images/site-images/first.png'></a></li>
                 </div>
             </ul>
             <div id='item-count'>
@@ -309,6 +313,10 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber){
         }
 
         echo "</div>";
+    }else{
+        if($type == "buyer"){
+            echo "<div class='center coal'>Looks like all {$_SESSION["name"]} is getting this year is coal. No items added yet.<img src='images/site-images/coal.gif' class='coal-img'></div>";
+        }
     }
 }
 ?>
