@@ -12,13 +12,14 @@ $pageno = $_GET["pageno"] ?? 1;
 $_SESSION["home"] = "view-wishlist.php?id=$wishlistID&pageno=$pageno#paginate-top";
 
 // find wishlist year and type
-$findWishlistInfo = $db->select("SELECT id, type, year, duplicate FROM wishlists WHERE username = ? AND id = ?", "si", [$username, $wishlistID]);
+$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, secret_key FROM wishlists WHERE username = ? AND id = ?", "si", [$username, $wishlistID]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $year = $row["year"];
         $type = $row["type"];
         $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
-        $wishlistTitle = "$name's $year $type Wishlist$duplicate";
+        $wishlistTitle = htmlspecialchars($row["wishlist_name"]);
+        $secret_key = $row["secret_key"];
     }
 }else{
     header("Location: index.php");
@@ -59,20 +60,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <div id="body">
         <?php require "includes/background.php"; ?>
         <h1 class="center"><?php echo $wishlistTitle; ?></h1>
-        <p><a class="logout-button" href="logout.php">Log out</a></p>
-        <p><a id="back-home" href="index.php">Back to Home</a></p>
+        <div style="display: inline-block; width: 100%;">
+            <a class="logout-button" style="float: left;" href="logout.php">Log out</a>
+            <a class="create-wishlist-button" id="copy-link" style="float: right;" href="#">Copy Link to Wishlist</a>
+        </div>
+        <div><a id="back-home" href="index.php">Back to Home</a></div>
         <div id="container">
             <p class="center"><a id="add-item" href='add-item.php?pageno=<?php echo $pageno; ?>'>Add Item to Wishlist</a></p>
-            <p class="center"><a id="back-home" class="delete-wishlist">Delete Wishlist</a></p>
-            <div class='popup-container delete-wishlist-popup flex hidden'>
-                <div class='popup flex'>
-                    <div class='close-container'>
-                        <img src='images/site-images/close.png' class='close-button'>
-                    </div>
-                    <div class='center'>
-                        <label>Are you sure you want to delete this wishlist?</label>
-                        <p><?php echo $wishlistTitle; ?></p>
-                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-wishlist.php'>Yes</a></p>
+            <div class="center">
+                <a class="delete-wishlist popup-button" href="#">Delete Wishlist</a>
+                <div class='popup-container delete-wishlist-popup hidden'>
+                    <div class='popup'>
+                        <div class='close-container'>
+                            <img src='images/site-images/close.png' class='close-button'>
+                        </div>
+                        <div class='popup-content'>
+                            <label>Are you sure you want to delete this wishlist?</label>
+                            <p><?php echo $wishlistTitle; ?></p>
+                            <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-wishlist.php'>Yes</a></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,33 +122,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </body>
 <?php include "includes/footer.php"; ?>
 </html>
+<script src="includes/popup.js"></script>
 <script>
-    // open delete popup for specified item on click of delete button
-    for(const del of document.querySelectorAll(".delete-button")){
-        del.addEventListener("click", function(){
-            document.querySelector(".delete-popup-" + del.id).classList.remove("hidden");
-        });
-    }
-    document.querySelector(".delete-wishlist").addEventListener("click", function(){
-        document.querySelector(".delete-wishlist-popup").classList.remove("hidden");
-    });
-
-    // close popup on click of x or no button
-    for(const x of document.querySelectorAll(".close-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.parentElement.classList.add("hidden");
-        })
-    }
-    for(const x of document.querySelectorAll(".no-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.parentElement.parentElement.classList.add("hidden");
-        })
-    }
-
     // submit form on filter change
     for(const sel of document.querySelectorAll("select")){
         sel.addEventListener("change", function(){
             document.querySelector("form").submit();
         });
     }
+
+    // copy link to share
+    document.querySelector("#copy-link").addEventListener("click", function(e){
+        e.preventDefault();
+        navigator.clipboard.writeText("https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>");
+        this.textContent = "Link Copied!";
+        setTimeout(() => {
+            this.textContent = "Copy Link to Wishlist";
+        }, 1300);
+    });
 </script>

@@ -321,12 +321,12 @@ textarea {
     display: block;
 }
 
-
 /* popup css */
 .popup-container {
+    display: flex;
     justify-content: center;
-    position: fixed;
     align-items: flex-start;
+    position: fixed;
     z-index: 100;
     top: 0;
     left: 0;
@@ -336,17 +336,56 @@ textarea {
 }
 .popup {
     width: 40%;
-    max-height: 80vh;
-    flex-grow: 0 !important;
-    align-items: center;
-    justify-content: center;
-    margin: 160px 15px 0;
+    margin: 250px 15px 0;
     background-color: white;
+    padding: 5px;
     position: relative;
-    border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    padding: 20px;
+    border-radius: 10px;
 }
+.slide-out-left {
+    animation: slideoutleft 1s;
+}
+@keyframes slideoutleft {
+    0% { opacity: 1; left: 0;}
+    100% { opacity: 0; left: -600px;}
+}
+.slide-in-left {
+    animation: slideinleft 1s;
+}
+@keyframes slideinleft {
+    0% { opacity: 0; left: 600px;}
+    100% { opacity: 1; left: 0;}
+}
+.slide-out-right {
+    animation: slideoutright 1s;
+}
+@keyframes slideoutright {
+    0% { opacity: 1; left: 0;}
+    100% { opacity: 0; left: 600px;}
+}
+.slide-in-right {
+    animation: slideinright 1s;
+}
+@keyframes slideinright {
+    0% { opacity: 0; left: -600px;}
+    100% { opacity: 1; left: 0;}
+}
+.active {
+    animation: fadein 0.4s;
+}
+@keyframes fadein {
+    0% { opacity: 0; bottom: -100px; }
+    100% { opacity: 1; bottom: 0; }
+}
+.popup-content {
+    font-size: 16px;
+    padding: 0 30px 15px;
+    margin-top: 40px;
+    overflow: auto;
+    max-height: 60vh;
+    text-align: left;
+}
+/* popup css */
 .close-container {
     position: absolute;
     display: flex;
@@ -405,6 +444,14 @@ textarea {
 #add-item, .create-wishlist-button {
     background-color: green;
 }
+#copy-link{
+    position: relative;
+    top: -15px;
+    right: 5px;
+    width: 195px;
+    padding-right: 0;
+    padding-left: 0;
+}
 .view-list {
     background-color: #8c0005;
 }
@@ -414,13 +461,13 @@ textarea {
 #add-item {
     margin-bottom: 10px;
 }
-.logout-button, #back-home {
+.logout-button, #back-home, .delete-wishlist {
     background-color: #8c0005;
     position: relative;
     top: -15px;
     left: 5px;
 }
-.logout-button:hover, #view-list:hover, #back-home:hover, .view-list:hover {
+.logout-button:hover, #view-list:hover, #back-home:hover, .view-list:hover, .delete-wishlist:hover {
     background-color: green;
 }
 .items-list {
@@ -487,7 +534,7 @@ textarea {
     border-radius: 0 0 15px 15px;
     padding: 5px;
 }
-.view-button, .link-button, .edit-button, .delete-button, .logout-button, #back-home {
+.view-button, .link-button, .edit-button, .delete-button, .logout-button, #back-home, .delete-wishlist {
     display: inline-block;
     color: white;
     cursor: pointer;

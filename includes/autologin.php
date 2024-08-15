@@ -11,7 +11,7 @@ if(!$logged_in){
                     $username = $row["username"];
                     $_SESSION["username"] = $username;
                     $logged_in = true;
-                    $_SESSION["logged_in"] = true;
+                    $_SESSION["date_night_logged_in"] = true;
                 }
             }
         }
