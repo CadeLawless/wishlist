@@ -155,13 +155,13 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                         </p>
                         <p class='center'>
                             <a class='edit-button' href='edit-item.php?id=$id&pageno=$pageNumber'>Edit Item</a>
-                            <a class='delete-button' id='$id'>Delete Item</a>
-                            <div class='popup-container delete-popup-$id flex hidden'>
-                                <div class='popup flex'>
+                            <a class='delete-button popup-button' id='$id'>Delete Item</a>
+                            <div class='popup-container delete-popup-$id hidden'>
+                                <div class='popup'>
                                     <div class='close-container'>
                                         <img src='images/site-images/close.png' class='close-button'>
                                     </div>
-                                    <div class='center'>
+                                    <div class='popup-content'>
                                         <label>Are you sure you want to delete this item?</label>
                                         <p>";
                                         echo htmlspecialchars($row["name"]);
@@ -225,18 +225,20 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                                 <a class='view-button' href='view-item.php?id=$id&pageno=$pageNumber'>View Item</a>
                                 <a class='link-button' href='$link' target='_blank'>View Item on Website</a>
                             </p>
-                            <p class='center'><input class='purchased-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label></p>
-                            <div class='popup-container purchased-popup-$id flex hidden'>
-                                <div class='popup flex'>
-                                    <div class='close-container'>
-                                        <img src='images/site-images/close.png' class='close-button'>
-                                    </div>
-                                    <div class='center'>
-                                        <label>Are you sure you want to mark this item as purchased?</label>
-                                        <p>";
-                                        echo htmlspecialchars($row["name"]);
-                                        echo "</p>
-                                        <p class='center'><a class='red_button no-button'>No</a><a class='green_button purchase-button' id='purchase-$id'>Yes</a></p>
+                            <div class='center'>
+                                <input class='purchased-button popup-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label>
+                                <div class='popup-container purchased-popup-$id hidden'>
+                                    <div class='popup'>
+                                        <div class='close-container'>
+                                            <img src='images/site-images/close.png' class='close-button'>
+                                        </div>
+                                        <div class='popup-content'>
+                                            <label>Are you sure you want to mark this item as purchased?</label>
+                                            <p>";
+                                            echo htmlspecialchars($row["name"]);
+                                            echo "</p>
+                                            <p class='center'><a class='red_button no-button'>No</a><a class='green_button purchase-button' id='purchase-$id'>Yes</a></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>";

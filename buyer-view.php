@@ -11,7 +11,7 @@ $wishlistKey = $_GET["key"] ?? "";
 if($wishlistKey == "") header("Location: wishlist-search.php");
 
 // find wishlist based off of key
-$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate FROM wishlists WHERE secret_key = ?", "s", [$wishlistKey]);
+$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name FROM wishlists WHERE secret_key = ?", "s", [$wishlistKey]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $wishlistID = $row["id"];
@@ -20,6 +20,7 @@ if($findWishlistInfo->num_rows > 0){
         $year = $row["year"];
         $type = $row["type"];
         $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
+        $wishlistTitle = htmlspecialchars($row["wishlist_name"].$duplicate);
     }
 }else{
     header("Location: wishlist-search.php");
@@ -37,7 +38,6 @@ if($findName->num_rows > 0){
         $_SESSION["name"] = $name;
     }
 }
-$wishlistTitle = "$name's $year $type Wishlist$duplicate";
 
 // initialize filter variables
 $valid_options = ["", "1", "2"];
@@ -120,27 +120,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </body>
 <?php include "includes/footer.php"; ?>
 </html>
+<script src="includes/popup.js"></script>
 <script>
-    // open purchase popup for specified item on click of mark as purchased button
-    for(const purchase of document.querySelectorAll(".purchased-button")){
-        purchase.addEventListener("click", function(e){
-            e.preventDefault();
-            document.querySelector(".purchased-popup-" + purchase.id).classList.remove("hidden");
-        });
-    }
-
-    // close popup on click of x or no button
-    for(const x of document.querySelectorAll(".close-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.parentElement.classList.add("hidden");
-        })
-    }
-    for(const x of document.querySelectorAll(".no-button")){
-        x.addEventListener("click", function(){
-            x.parentElement.parentElement.parentElement.parentElement.classList.add("hidden");
-        })
-    }
-
     // submit form on filter change
     for(const sel of document.querySelectorAll("select")){
         sel.addEventListener("change", function(){
