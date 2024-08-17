@@ -106,7 +106,7 @@ if(isset($_POST["submit_button"])){
                 </div>       
                 <h2 class="center">All Wishlists</h2>
                 <?php
-                $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate FROM wishlists WHERE username = ?", "s", [$username]);
+                $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate FROM wishlists WHERE username = ?", [$username]);
                 if($findWishlists->num_rows > 0){
                     while($row = $findWishlists->fetch_assoc()){
                         $id = $row["id"];

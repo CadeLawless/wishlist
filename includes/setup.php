@@ -17,7 +17,7 @@ if(!$logged_in) header("Location: login.php");
 $username = $_SESSION["username"] ?? "";
 
 // find name based off of username
-$findName = $db->select("SELECT name FROM wishlist_users WHERE username = ?", "s", [$username]);
+$findName = $db->select("SELECT name FROM wishlist_users WHERE username = ?", [$username]);
 if($findName->num_rows > 0){
     while($row = $findName->fetch_assoc()){
         $name = htmlspecialchars($row["name"]);

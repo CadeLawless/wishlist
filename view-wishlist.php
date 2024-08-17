@@ -10,9 +10,10 @@ $_SESSION["wishlist_id"] = $wishlistID;
 $pageno = $_GET["pageno"] ?? 1;
 
 $_SESSION["home"] = "view-wishlist.php?id=$wishlistID&pageno=$pageno#paginate-top";
+$_SESSION["type"] = "wisher";
 
 // find wishlist year and type
-$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, secret_key FROM wishlists WHERE username = ? AND id = ?", "si", [$username, $wishlistID]);
+$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, secret_key FROM wishlists WHERE username = ? AND id = ?", [$username, $wishlistID]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $year = $row["year"];
@@ -31,6 +32,8 @@ $pageno = $_GET["pageno"] ?? 1;
 $valid_options = ["", "1", "2"];
 $sort_priority = $_SESSION["sort_priority"] ?? "1";
 $sort_price = $_SESSION["sort_price"] ?? "";
+$_SESSION["sort_priority"] = $sort_priority;
+$_SESSION["sort_price"] = $sort_price;
 
 // if filter is changed
 if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -84,17 +87,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <h2 id='paginate-top' class='center'>All Items</h2>
             <?php
-            $priority_order = match ($sort_priority) {
-                "" => "",
-                "1" => "priority ASC, ",
-                "2" => "priority DESC, ",
-            };
-            $price_order = match ($sort_price) {
-                "" => "",
-                "1" => "price * 1 ASC, ",
-                "2" => "price * 1 DESC, ",
-            };
-            $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", "is", [$wishlistID, $username]);
+            require("includes/sort.php");
+            $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", [$wishlistID, $username]);
             if($findItems->num_rows > 0){ ?>
                 <form class="filter-form" method="POST" action="">
                     <div class="filter-input">
@@ -115,7 +109,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                 </form>
             <?php }
-            paginate(type: "wisher", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", itemsPerPage: 12, pageNumber: $pageno, wishlist_id: $wishlistID, username: $username);
+            paginate(type: "wisher", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", itemsPerPage: 6, pageNumber: $pageno, wishlist_id: $wishlistID, username: $username);
             ?>
         </div>
     </div>
@@ -123,6 +117,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <?php include "includes/footer.php"; ?>
 </html>
 <script src="includes/popup.js"></script>
+<script src="includes/page-change.js"></script>
 <script>
     // submit form on filter change
     for(const sel of document.querySelectorAll("select")){

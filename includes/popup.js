@@ -1,6 +1,7 @@
-// show popup if approve button is clicked
-for(const button of document.querySelectorAll(".popup-button")){
-    button.addEventListener("click", function(e){
+$(document).ready(function() {
+    // show popup if approve button is clicked
+    $(document.body).on("click", ".popup-button", function(e) {
+        let button = this;
         e.preventDefault();
         if(button.tagName == "INPUT"){
             button.nextElementSibling.nextElementSibling.firstElementChild.classList.add("active");
@@ -10,22 +11,18 @@ for(const button of document.querySelectorAll(".popup-button")){
             button.nextElementSibling.classList.remove("hidden");
         }
     });
-}
 
-// hide popup if x button or no button is clicked
-for(const x of document.querySelectorAll(".close-button")){
-    x.addEventListener("click", function(){
-        x.closest(".popup-container").classList.add("hidden");
-        for(const popup of x.closest(".popup-container").querySelectorAll(".popup")){
+    // hide popup if x button or no button is clicked
+    $(document.body).on("click", ".close-button", function() {
+        this.closest(".popup-container").classList.add("hidden");
+        for(const popup of this.closest(".popup-container").querySelectorAll(".popup")){
             popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right", "hidden");
             if(popup.className.includes("yes")){
                 popup.classList.add("hidden");
             }
         }
     });
-}
-for(const no of document.querySelectorAll(".no-button")){
-    no.addEventListener("click", function(){
-        no.closest(".popup-container").classList.add("hidden");
+    $(document.body).on("click", ".no-button", function() {
+        this.closest(".popup-container").classList.add("hidden");
     });
-}
+});
