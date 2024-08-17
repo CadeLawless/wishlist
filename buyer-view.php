@@ -6,6 +6,8 @@ require("includes/error-functions.php");
 // database connection
 $db = new DB();
 
+$_SESSION["type"] == "buyer";
+
 // get wishlist key from URL
 $wishlistKey = $_GET["key"] ?? "";
 if($wishlistKey == "") header("Location: wishlist-search.php");
@@ -82,16 +84,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <div id="container">
             <h2 id='paginate-top' class='center'>All Items</h2>
             <?php
-            $priority_order = match ($sort_priority) {
-                "" => "",
-                "1" => ", priority ASC",
-                "2" => ", priority DESC",
-            };
-            $price_order = match ($sort_price) {
-                "" => "",
-                "1" => ", price * 1 ASC",
-                "2" => ", price * 1 DESC",
-            };
+            require("includes/sort.php");
             $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC$priority_order$price_order, date_added DESC", "i", [$wishlistID]);
             if($findItems->num_rows > 0){ ?>
                 <form class="filter-form" method="POST" action="">
