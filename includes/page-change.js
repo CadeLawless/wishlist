@@ -4,7 +4,7 @@ $(document).ready(function() {
     // paginate arrow click
     $(".paginate-arrow").on("click", function(e) {
         e.preventDefault();
-        let pageno, id;
+        let pageno, id, key;
         searchParams = new URLSearchParams(window.location.search);
         if(searchParams.has("pageno")){
             pageno = searchParams.get("pageno");
@@ -40,6 +40,9 @@ $(document).ready(function() {
                 if(searchParams.has("id")){
                     id = searchParams.get("id");
                     window.history.replaceState(null, null, "?id="+id+"&pageno="+new_pageno);
+                }else if(searchParams.has("key")){
+                    key = searchParams.get("key");
+                    window.history.replaceState(null, null, "?key="+key+"&pageno="+new_pageno);
                 }else{
                     window.history.replaceState(null, null, "?pageno="+new_pageno);
                 }

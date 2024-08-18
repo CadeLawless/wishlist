@@ -85,6 +85,7 @@ label {
     border: 2px solid black;
     border-radius: 15px;
     padding: 5px 10px;
+    margin-bottom: 0;
 }
 
 /* pagination css */
@@ -101,7 +102,7 @@ label {
     border-radius: 15px;
     padding: 10px 5px;
     width: 340px;
-    margin: auto;
+    margin: 20px auto 0;
 }
 .paginate-container.bottom {
     margin-bottom: 95px;
