@@ -94,9 +94,10 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
         require("write-items-list.php");
         echo "
         </div>
-        <div class='paginate-container bottom'><div class='filler'></div>";
+        <div class='paginate-container bottom'>";
             if($numberOfItems > $numberOfItemsOnPage){
                 echo "
+                <div class='filler'></div>
                 <a class='paginate-arrow paginate-first";
                 if($pageNumber <= 1) echo " disabled";
                 echo "' href='#'></a>
@@ -109,10 +110,10 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                 echo "' href='#'></a>
                 <a class='paginate-arrow paginate-last";
                 if($pageNumber == $totalPages) echo " disabled";
-                echo "'><a href='#'></a>";
+                echo "'><a href='#'></a>
+                <div class='filler'></div>";
             }
             echo "
-            <div class='filler'></div>
             <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " items</div>
         </div>";
     }else{
