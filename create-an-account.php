@@ -22,7 +22,7 @@ if(isset($_POST["submit_button"])){
     $name = errorCheck("name", "First Name", "Yes", $errors, $error_list);
     $username = errorCheck("username", "Username", "Yes", $errors, $error_list);
     if(!$errors){
-        $findUsers = $db->select("SELECT username FROM wishlist_users WHERE username = ?", "s", [$username]);
+        $findUsers = $db->select("SELECT username FROM wishlist_users WHERE username = ?", [$username]);
         if($findUsers->num_rows > 0){
             $errors = true;
             $error_list .= "<li>That username is already taken. Try a different one.</li>";
@@ -38,7 +38,7 @@ if(isset($_POST["submit_button"])){
     }
     if(!$errors){
         $expire_date = date("Y-m-d H:i:s", strtotime("+1 year"));
-        if($db->write("INSERT INTO wishlist_users (name, username, password, session, session_expiration) VALUES(?,?,?,?,?)", "sssss", [$name, $username, $hashed_password, session_id(), $expire_date])){
+        if($db->write("INSERT INTO wishlist_users (name, username, password, session, session_expiration) VALUES(?,?,?,?,?)", [$name, $username, $hashed_password, session_id(), $expire_date])){
             $cookie_time = (3600 * 24 * 365); // 1 year
             setcookie("wishlist_session_id", session_id(), time() + $cookie_time);
             $_SESSION["logged_in"] = true;
@@ -58,7 +58,7 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Wishlist | Create an Account</title>
@@ -66,9 +66,10 @@ if(isset($_POST["submit_button"])){
 <body>
     <div id="body">
         <?php require "includes/background.php"; ?>
-        <h1 class="center">Create an Account</h1>
-        <?php if(isset($error_msg)) echo $error_msg?>
+        <p class="center"><img class="logo login" src="images/site-images/logo.png" alt="Wish List" /></p>
         <form id="login-form" method="POST" action="">
+            <p><a href="login.php">Back to Login</a></p>
+            <?php if(isset($error_msg)) echo $error_msg?>
             <div class="large-input center">
                 <label for="name">First Name: </label><br>
                 <input required type="text" name="name" value="<?php echo $name?>" id="name">
@@ -86,7 +87,7 @@ if(isset($_POST["submit_button"])){
                 <input required type="password" name="confirm_password" value="<?php echo $confirm_password?>" id="confirm_password">
                 <span class="error-msg hidden">Passwords must match</span>
             </div>
-            <p class="large-input center"><input type="submit" name="submit_button" value="Start Wishing"></p>
+            <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Start Wishing"></p>
         </form>
     </div>
 </body>

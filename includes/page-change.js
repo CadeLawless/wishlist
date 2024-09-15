@@ -1,4 +1,7 @@
 $(document).ready(function() {
+    window.addEventListener("popstate", function(){
+        window.location.reload();
+    });
     let searchParams;
     $items_list = $(".items-list");
     // paginate arrow click
@@ -36,6 +39,7 @@ $(document).ready(function() {
             success: function(html) {
                 //Assigning result to "display" div in "search.php" file.
                 $items_list.html(html);
+                window.history.pushState({}, "", window.location);
                 searchParams = new URLSearchParams(window.location.search);
                 if(searchParams.has("id")){
                     id = searchParams.get("id");

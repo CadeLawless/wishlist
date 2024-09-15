@@ -7,6 +7,8 @@ require "includes/setup.php";
 require "includes/wishlist-setup.php";
 
 $pageno = $_GET["pageno"] ?? 1;
+$background_image = $_SESSION["wisher_background_image"] ?? "";
+if($background_image == "") header("Location: view-wishlist.php?id=$wishlistID");
 
 // intialize form field variables
 $item_name = "";
@@ -42,7 +44,7 @@ if(isset($_POST["submit_button"])){
                     $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $ext = strtolower($ext);
                     if(in_array($ext, $allowed)){
-                        $filename = substr($item_name, 0, 10) . ".$ext";
+                        $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
@@ -63,7 +65,7 @@ if(isset($_POST["submit_button"])){
     }
     $date_added = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", "issssss", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
+        if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
             header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -79,17 +81,34 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title><?php echo $wishlistTitle; ?></title>
-</head>
+    <title><?php echo $wishlistTitle; ?> | Add Item</title>
+    <style>
+        #body {
+            padding-top: 84px;
+        }
+        h1 {
+            display: inline-block;
+            margin-top: 0;
+        }
+        #container {
+            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        }
+        @media (max-width: 600px){
+            #container {
+                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            }
+        }
+    </style>
+    </head>
 <body>
     <div id="body">
-        <?php require "includes/background.php"; ?>
-        <h1 class="center"><?php echo $wishlistTitle; ?></h1>
-        <a id="back-home" href="view-wishlist.php?id=<?php echo $wishlistID; ?>">Back to List</a>
+        <?php require "includes/header.php"; ?>
         <div id="container">
+            <p style="padding-top: 15px;"><a class="button accent" href="<?php echo $_SESSION["home"]; ?>">Back to List</a></p>
+            <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <div class="form-container">
                 <h2>Add Item</h2>
                 <?php if(isset($errorMsg)) echo $errorMsg?>
@@ -134,7 +153,7 @@ if(isset($_POST["submit_button"])){
                                 <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
                             </select>
                         </div>
-                        <p class="large-input center"><input type="submit" name="submit_button" value="Add Item"></p>
+                        <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Add Item"></p>
                     </div>
                 </form>
             </div>

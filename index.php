@@ -2,9 +2,13 @@
 // includes db and paginate class and checks if logged in
 require "includes/setup.php";
 
+require("includes/write-theme-popup.php");
+
 // initialize form field variables
 $wishlist_type = "";
 $wishlist_type_options = ["Birthday", "Christmas"];
+$theme_background_id = "";
+$theme_gift_wrap_id = "";
 $wishlist_name = "";
 
 if(isset($_POST["submit_button"])){
@@ -14,6 +18,9 @@ if(isset($_POST["submit_button"])){
 
     $wishlist_type = errorCheck("wishlist_type", "Type", "Yes", $errors, $errorList);
     validOptionCheck($wishlist_type, "Type", $wishlist_type_options, $errors, $errorList);
+
+    $theme_background_id = $_POST["theme_background_id"];
+    $theme_gift_wrap_id = $_POST["theme_gift_wrap_id"];
 
     $wishlist_name = errorCheck("wishlist_name", "Name", "Yes", $errors, $errorList);
 
@@ -34,7 +41,7 @@ if(isset($_POST["submit_button"])){
         while(!$unique){
             $secret_key = generateRandomString(10);
             // check to make sure that key doesn't exist for another wishlist in the database
-            $checkKey = $db->select("SELECT secret_key FROM wishlists WHERE secret_key = ?", "s", [$secret_key]);
+            $checkKey = $db->select("SELECT secret_key FROM wishlists WHERE secret_key = ?", [$secret_key]);
             if($checkKey->num_rows == 0) $unique = true;
         }
 
@@ -43,11 +50,11 @@ if(isset($_POST["submit_button"])){
         $year = date("m/d/Y") >= "12/25/$currentYear" ? $currentYear + 1 : $currentYear;
 
         // find if there is a duplicate type and year in database
-        $findDuplicates = $db->select("SELECT id FROM wishlists WHERE type = ? AND wishlist_name = ? AND username = ?", "sss", [$wishlist_type, $wishlist_name, $username]);
+        $findDuplicates = $db->select("SELECT id FROM wishlists WHERE type = ? AND wishlist_name = ? AND username = ?", [$wishlist_type, $wishlist_name, $username]);
         $duplicateValue = $findDuplicates->num_rows;
 
         // create new christmas wishlist for user
-        if($db->write("INSERT INTO wishlists(type, wishlist_name, year, duplicate, username, secret_key) VALUES(?, ?, ?, ?, ?, ?)", "ssssss", [$wishlist_type, $wishlist_name, $year, $duplicateValue, $username, $secret_key])){
+        if($db->write("INSERT INTO wishlists(type, wishlist_name, theme_background_id, theme_gift_wrap_id, year, duplicate, username, secret_key) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [$wishlist_type, $wishlist_name, $theme_background_id, $theme_gift_wrap_id, $year, $duplicateValue, $username, $secret_key])){
             $wishlistID = $db->insert_id();
             header("Location: view-wishlist.php?id=$wishlistID");
         }
@@ -61,92 +68,21 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title><?php echo $name; ?>'s Wishlists</title>
+    <title>Wish List</title>
 </head>
 <body>
     <div id="body">
-        <?php require "includes/background.php"; ?>
-        <h1 class="center"><?php echo $name; ?>'s Wishlists</h1>
-        <a class="logout-button" href="logout.php">Log out</a>
+        <?php require("includes/header.php"); ?>
         <div id="container">
-            <div class="center">
-                <a class="create-wishlist-button popup-button" href="#">Create New Wishlist</a>
-                <div class='popup-container<?php if(!isset($errorMsg)) echo " hidden"; ?>'>
-                    <div class='popup'>
-                        <div class='close-container'>
-                            <img src='images/site-images/close.png' class='close-button' />
-                        </div>
-                        <div class='popup-content'>
-                            <h2 style="margin-top: 0;">New Wishlist</h2>
-                            <form method="POST" action="">
-                                <?php echo $errorMsg ?? ""; ?>
-                                <div class="flex form-flex">
-                                    <div class="large-input">
-                                        <label for="wishlist_type">Type:<br/></label>
-                                        <select required name="wishlist_type" id="wishlist_type">
-                                            <option value="" disabled <?php if($wishlist_type == "") echo "selected"; ?>>Select an option</option>
-                                            <option value="Birthday" <?php if($wishlist_type == "Birthday") echo "selected"; ?>>Birthday</option>
-                                            <option value="Christmas" <?php if($wishlist_type == "Christmas") echo "selected"; ?>>Christmas</option>
-                                        </select>
-                                    </div>
-                                    <div class="large-input">
-                                        <label for="wishlist_name">Name:<br/></label>
-                                        <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name); ?>" />
-                                    </div>
-                                    <div class="large-input">
-                                        <p class="center"><input type="submit" name="submit_button" id="submitButton" value="Create" /></p>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>       
-                <h2 class="center">All Wishlists</h2>
-                <?php
-                $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate FROM wishlists WHERE username = ?", [$username]);
-                if($findWishlists->num_rows > 0){
-                    while($row = $findWishlists->fetch_assoc()){
-                        $id = $row["id"];
-                        $type = $row["type"];
-                        $list_name = $row["wishlist_name"];
-                        $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
-                        echo "<p><a class='view-list' href='view-wishlist.php?id=$id'>$list_name$duplicate</a></p>";
-                    }
-                }
-                ?>
+            <div class="big-buttons-container">
+                <a class="big-button create-wish-list" href="create-wishlist.php">Create Wish List</a>
+                <a class="big-button view-wish-list" href="view-wishlists.php">View Wish Lists</a>
             </div>
+            <?php include "includes/footer.php"; ?>
         </div>
     </div>
 </body>
-<?php include "includes/footer.php"; ?>
 </html>
-<script src="includes/popup.js"></script>
-<script>
-    let name_input = document.querySelector("#wishlist_name");
-    name_input.addEventListener("focus", function(){
-        this.select();
-    });
-
-    let type_select = document.querySelector("#wishlist_type");
-    type_select.addEventListener("change", function(){
-        let current_year = new Date().getFullYear();
-        if(this.value == "Birthday"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Birthday Wishlist";
-        }else if(this.value == "Christmas"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Christmas Wishlist";
-        }
-    });
-
-    let submit_button = document.querySelector("#submitButton");
-    // on submit, disable submit so user cannot press submit twice
-    document.querySelector("form").addEventListener("submit", function(e){
-        setTimeout( () => {
-            submit_button.setAttribute("disabled", "");
-            submit_button.value = "Creating...";
-            submit_button.style.cursor = "default";
-        });
-    });
-</script>
