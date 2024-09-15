@@ -11,6 +11,8 @@ $host = match($type){
     "buyer" => "buyer-view",
     default => "",
 };
+$wrap_image = $_SESSION["buyer_wrap_image"] ?? "";
+$ajax = true;
 
 //Getting value of "search" variable from "script.js".
 if(isset($_POST["new_page"])) {

@@ -11,7 +11,7 @@ $home = $_SESSION["home"] ?? "";
 $itemID = $_GET["id"] ?? "";
 
 // delete item from list
-if($db->write("UPDATE items SET purchased = 'Yes' WHERE id = ?", "i", [$itemID])){
+if($db->write("UPDATE items SET purchased = 'Yes' WHERE id = ?", [$itemID])){
     header("Location: $home");
 }else{
     echo "<script>alert('Something went wrong while trying to delete this item from your wishlist')</script>";

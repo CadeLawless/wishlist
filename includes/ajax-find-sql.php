@@ -1,7 +1,12 @@
 <?php
 $pageNumber = $_POST["new_page"];
-$itemsPerPage = 6;
-$wishlist_id = $_SESSION["wishlist_id"];
+$itemsPerPage = 12;
+$wishlist_id = match($type){
+    "wisher" => $_SESSION["wisher_wishlist_id"],
+    "buyer" => $_SESSION["buyer_wishlist_id"],
+    default => "",
+};
+if($wishlist_id == "") header("Location: index.php");
 $_SESSION["home"] = "$host.php?id=$wishlist_id&pageno=$pageNumber#paginate-top";
 $username = $_SESSION["username"];
 $sort_priority = $_SESSION["sort_priority"];

@@ -7,8 +7,8 @@ require "includes/wishlist-setup.php";
 
 // delete list database
 $sql_errors = false;
-if($db->write("DELETE FROM wishlists WHERE id = ?", "i", [$wishlistID])){
-    if($db->write("DELETE FROM items WHERE wishlist_id = ?", "i", [$wishlistID])){
+if($db->write("DELETE FROM wishlists WHERE id = ?", [$wishlistID])){
+    if($db->write("DELETE FROM items WHERE wishlist_id = ?", [$wishlistID])){
         function rrmdir($dir) {
             if (is_dir($dir)) {
                 $objects = scandir($dir);

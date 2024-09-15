@@ -13,19 +13,33 @@ $wishlistKey = $_GET["key"] ?? "";
 if($wishlistKey == "") header("Location: wishlist-search.php");
 
 // find wishlist based off of key
-$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
+$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $wishlistID = $row["id"];
-        $_SESSION["wishlist_id"] = $wishlistID;
+        $_SESSION["buyer_wishlist_id"] = $wishlistID;
         $username = $row["username"];
         $year = $row["year"];
         $type = $row["type"];
         $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
         $wishlistTitle = htmlspecialchars($row["wishlist_name"].$duplicate);
+        $theme_background_id = $row["theme_background_id"];
+        $theme_gift_wrap_id = $row["theme_gift_wrap_id"];
+        $findBackground = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
+        if($findBackground->num_rows > 0){
+            while($bg_row = $findBackground->fetch_assoc()){
+                $background_image = $bg_row["theme_image"];
+                $_SESSION["buyer_background_image"] = $background_image;
+            }
+        }
+        $findGiftWrap = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_gift_wrap_id]);
+        if($findGiftWrap->num_rows > 0){
+            while($gw_row = $findGiftWrap->fetch_assoc()){
+                $wrap_image = $gw_row["theme_image"];
+                $_SESSION["buyer_wrap_image"] = $wrap_image;
+            }
+        }
     }
-}else{
-    header("Location: wishlist-search.php");
 }
 
 $pageno = $_GET["pageno"] ?? 1;
@@ -67,23 +81,49 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <title><?php echo $wishlistTitle; ?></title>
-
     <style>
+        h1 {
+            display: inline-block;
+        }
+        h2.items-list-title {
+            position: relative;
+        }
+        .menu-links, .hamburger-menu, .close-menu {
+            display: none !important;
+        }
+        .popup.fullscreen .gift-wrap-content .popup-content {
+            max-height: calc(100% - 184px);
+        }
         #container {
-            text-align: center;
+            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        }
+        @media (max-width: 600px){
+            #container {
+                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            }
+        }
+        @media (max-width: 460px){
+            .popup.fullscreen .gift-wrap-content .popup-content {
+                max-height: calc(100% - 223px);
+            }
+        }
+        @media (max-width: 284px){
+            .popup.fullscreen .gift-wrap-content .popup-content {
+                max-height: calc(100% - 254px);
+            }
         }
     </style>
 </head>
 <body>
     <div id="body">
-        <?php require "includes/background.php"; ?>
-        <h1 class="center"><?php echo $wishlistTitle; ?></h1>
+        <?php require("includes/header.php"); ?>
         <div id="container">
+            <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <h2 id='paginate-top' class='center'>All Items</h2>
             <?php
             require("includes/sort.php");
@@ -108,7 +148,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                 </form>
             <?php }
-            paginate(type: "buyer", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC, $priority_order$price_order date_added DESC", itemsPerPage: 6, pageNumber: $pageno, wishlist_id: $wishlistID, wishlist_key: $wishlistKey);
+            paginate(type: "buyer", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC, $priority_order$price_order date_added DESC", itemsPerPage: 12, pageNumber: $pageno, wishlist_id: $wishlistID, wishlist_key: $wishlistKey);
             ?>
         </div>
     </div>
@@ -143,9 +183,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             let centerY = top + button.offsetHeight / 2;
             centerY = centerY / windowHeight * 100;
             console.log(centerX, centerY);
-            button.style.backgroundColor = "#ff7300";
-            button.style.boxShadow = "0 0 0 4px dodgerblue";
-            button.style.border = "2px solid white";
+            button.style.backgroundColor = "var(--accent)";
             confetti("tsparticles", {
                 angle: 90,
                 count: 200,
@@ -161,21 +199,26 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 ticks: 200,
                 shapes: ["image"],
                 shapeOptions: {
-                    image: [{
-                        src: "images/1.png",
-                        width: 75,
-                        height: 75,
-                    },
-                    {
-                        src: "images/2.png",
-                        width: 75,
-                        height: 75,
-                    },
-                    {
-                        src: "images/3.png",
-                        width: 75,
-                        height: 75,
-                    },
+                    image: [
+                        <?php if($type == "Christmas"){
+                            for($i=1; $i<=6; $i++){
+                                echo "
+                                {
+                                    src: 'images/site-images/confetti/christmas-confetti-$i.png',
+                                    width: 100,
+                                    height: 100,
+                                },";
+                            }
+                    }elseif($type == "Birthday"){
+                        for($i=1; $i<=9; $i++){
+                            echo "
+                            {
+                                src: 'images/site-images/confetti/birthday-confetti-$i.png',
+                                width: 125,
+                                height: 125,
+                            },";
+                        }
+                    } ?>
                     ],
                 },
                 scalar: 3,

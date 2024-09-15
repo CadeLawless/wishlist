@@ -72,53 +72,62 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
         };
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
-            <div class='paginate-container'>
-                <div class='filler'></div>
-                <a class='paginate-arrow paginate-first";
-                if($pageNumber <= 1) echo " disabled";
-                echo "' href='#'></a>
-                <a class='paginate-arrow paginate-previous";
-                if($pageNumber <= 1) echo " disabled";
-                echo "' href='#'></a>
-                <div class='paginate-title'><span class='page-number'>$pageNumber</span>/<span class='last-page'>$totalPages</span></div>
-                <a class='paginate-arrow paginate-next";
-                if($pageNumber >= $totalPages) echo " disabled";
-                echo "' href='#'></a>
-                <a class='paginate-arrow paginate-last";
-                if($pageNumber == $totalPages) echo " disabled";
-                echo "'><a href='#'></a>
-                <div class='filler'></div>
+            <div class='center'>
+                <div class='paginate-container'>
+                    <a class='paginate-arrow paginate-first";
+                    if($pageNumber <= 1) echo " disabled";
+                    echo "' href='#'></a>
+                    <a class='paginate-arrow paginate-previous";
+                    if($pageNumber <= 1) echo " disabled";
+                    echo "' href='#'></a>
+                    <div class='paginate-title'><span class='page-number'>$pageNumber</span>/<span class='last-page'>$totalPages</span></div>
+                    <a class='paginate-arrow paginate-next";
+                    if($pageNumber >= $totalPages) echo " disabled";
+                    echo "' href='#'></a>
+                    <a class='paginate-arrow paginate-last";
+                    if($pageNumber == $totalPages) echo " disabled";
+                    echo "'></a>
+                </div>
             </div>";
         }
         echo "<div class='items-list'>";
         require("write-items-list.php");
         echo "
         </div>
-        <div class='paginate-container bottom'>";
-            if($numberOfItems > $numberOfItemsOnPage){
+        <div class='center'>
+            <div class='paginate-container bottom'>";
+                if($numberOfItems > $numberOfItemsOnPage){
+                    echo "
+                    <a class='paginate-arrow paginate-first";
+                    if($pageNumber <= 1) echo " disabled";
+                    echo "' href='#'></a>
+                    <a class='paginate-arrow paginate-previous";
+                    if($pageNumber <= 1) echo " disabled";
+                    echo "' href='#'></a>
+                    <div class='paginate-title'><span class='page-number'>$pageNumber</span>/$totalPages</div>
+                    <a class='paginate-arrow paginate-next";
+                    if($pageNumber >= $totalPages) echo " disabled";
+                    echo "' href='#'></a>
+                    <a class='paginate-arrow paginate-last";
+                    if($pageNumber == $totalPages) echo " disabled";
+                    echo "'></a>";
+                }
                 echo "
-                <div class='filler'></div>
-                <a class='paginate-arrow paginate-first";
-                if($pageNumber <= 1) echo " disabled";
-                echo "' href='#'></a>
-                <a class='paginate-arrow paginate-previous";
-                if($pageNumber <= 1) echo " disabled";
-                echo "' href='#'></a>
-                <div class='paginate-title'><span class='page-number'>$pageNumber</span>/$totalPages</div>
-                <a class='paginate-arrow paginate-next";
-                if($pageNumber >= $totalPages) echo " disabled";
-                echo "' href='#'></a>
-                <a class='paginate-arrow paginate-last";
-                if($pageNumber == $totalPages) echo " disabled";
-                echo "'><a href='#'></a>
-                <div class='filler'></div>";
-            }
-            echo "
-            <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " items</div>
+                <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " items</div>
+            </div>
         </div>";
     }else{
         if($type == "buyer"){
             echo "<div class='center coal'>Looks like all {$_SESSION["name"]} is getting this year is coal. No items added yet.<img src='images/site-images/coal.gif' class='coal-img'></div>";
+        }elseif($type == "wisher"){
+            echo "
+            <a class='item-container add-placeholder' href='add-item.php'>
+                <div class='item-image-container'>
+                    <img class='item-image' src='images/site-images/default-photo.png' alt='wishlist item image'>
+                </div>
+                <div class='item-description'></div>
+                <div class='add-label'>Add Item</div>
+            </a>";
         }
     }
 }

@@ -1,10 +1,10 @@
 <?php
 // get wishlist id from SESSION
-$wishlistID = $_SESSION["wishlist_id"] ?? false;
+$wishlistID = $_SESSION["wisher_wishlist_id"] ?? false;
 if(!$wishlistID) header("Location: index.php");
 
 // find wishlist year and type
-$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, theme FROM wishlists WHERE username = ? AND id = ?", "si", [$username, $wishlistID]);
+$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate FROM wishlists WHERE username = ? AND id = ?", [$username, $wishlistID]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $year = $row["year"];

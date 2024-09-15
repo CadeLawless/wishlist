@@ -8,12 +8,15 @@ require "includes/wishlist-setup.php";
 // get item id from URL
 $itemID = $_GET["id"] ?? "";
 if($itemID == "") header("Location: index.php");
+$background_image = $_SESSION["wisher_background_image"] ?? "";
+if($background_image == "") header("Location: view-wishlist.php?id=$wishlistID");
 
 // find item information
-$findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", "i", [$itemID]);
+$findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", [$itemID]);
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
-        $item_name = htmlspecialchars($row["name"]);
+        $original_item_name = $row["name"];
+        $item_name = htmlspecialchars($original_item_name);
         $notes = htmlspecialchars($row["notes"]);
         $price = htmlspecialchars($row["price"]);
         $link = htmlspecialchars($row["link"]);
@@ -40,6 +43,16 @@ if(isset($_POST["submit_button"])){
     $filename = $image;
     if(!$errors){
         if(isset($_FILES["item_image"]["name"])){
+            $phpFileUploadErrors = array(
+                0 => 'There is no error, the file uploaded with success',
+                1 => 'The uploaded file exceeds the max file size allowed',
+                2 => 'The uploaded file exceeds the max file size allowed',
+                3 => 'The uploaded file was only partially uploaded',
+                4 => 'No file was uploaded',
+                6 => 'Missing a temporary folder',
+                7 => 'Failed to write file to disk.',
+                8 => 'A PHP extension stopped the file upload.',
+            );
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
                     $target_dir = "images/item-images/$wishlistID/";
@@ -47,23 +60,36 @@ if(isset($_POST["submit_button"])){
                     $ext = pathinfo($file, PATHINFO_EXTENSION);
                     $ext = strtolower($ext);
                     if(in_array($ext, $allowed)){
-                        $filename = substr($item_name, 0, 10) . ".$ext";
+                        $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
+                        echo $filename;
                         $temp_name = $_FILES['item_image']['tmp_name'];
                         $path_filename = $target_dir.$filename;
                         if(file_exists($path_filename)){
                             unlink($path_filename);
                         }
-                        if(!$errors) move_uploaded_file($temp_name, $path_filename);
+                        if(!$errors){
+                            if(!move_uploaded_file($temp_name, $path_filename)){
+                                $errors = true;
+                                $errorList .= "<li>Item Image file upload failed: " . $phpFileUploadErrors[$_FILES["item_image"]["error"]] . "</li>";
+                            }
+                        }
                     }else{
                         $errors = true;
-                        $error_list .= "<li>Item Image file type must match: jpg, jpeg, png, webp</li>";
+                        $errorList .= "<li>Item Image file type must match: jpg, jpeg, png, webp</li>";
                     }
             }
         }
     }
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", "ssssssi", [$item_name, $price, $link, $filename, $notes, $priority, $itemID])){
+        if($filename != $image){
+            $target_dir = "images/item-images/$wishlistID/";
+            $original_path = $target_dir.$image;
+            if(file_exists($original_path)){
+                unlink($original_path);
+            }
+        }
+        if($db->write("UPDATE items SET name = ?, price = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", [$item_name, $price, $link, $filename, $notes, $priority, $itemID])){
             header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -79,17 +105,34 @@ if(isset($_POST["submit_button"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $wishlistTitle; ?> | Edit Item</title>
+    <style>
+        #body {
+            padding-top: 84px;
+        }
+        h1 {
+            display: inline-block;
+            margin-top: 0;
+        }
+        #container {
+            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        }
+        @media (max-width: 600px){
+            #container {
+                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="body">
-        <?php require "includes/background.php"; ?>
-        <h1 class="center"><?php echo "$name's $year $type Wishlist"; ?></h1>
+        <?php require("includes/header.php"); ?>
         <div id="container">
-            <a id="back-home" href="view-wishlist.php?id=<?php echo $wishlistID; ?>">Back to List</a>       
+        <p style="padding-top: 15px;"><a class="button accent" href="<?php echo $_SESSION["home"]; ?>">Back to List</a></p>
+        <h1 class="center"><?php echo $wishlistTitle; ?></h1>
             <div class="form-container">
                 <h2>Edit Item</h2>
                 <?php if(isset($errorMsg)) echo $errorMsg?>
@@ -134,7 +177,7 @@ if(isset($_POST["submit_button"])){
                                 <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
                             </select>
                         </div>
-                        <p class="large-input center"><input type="submit" id="submit_button" name="submit_button" value="Update Item"></p>
+                        <p class="large-input center"><input type="submit" class="button text" id="submit_button" name="submit_button" value="Update Item"></p>
                     </div>
                 </form>
             </div>
