@@ -77,6 +77,9 @@ body {
     background-position: center;
     background-attachment: fixed;
 }
+#container .background {
+    position: absolute;
+}
 footer {
     position: absolute;
     bottom: 0;
@@ -968,7 +971,7 @@ textarea {
     background-color: green;
 }
 .items-list-container {
-    max-width: 1115px;
+    max-width: 1200px;
     margin: 0 auto 25px auto;
 }
 .items-list {
