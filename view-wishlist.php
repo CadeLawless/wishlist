@@ -155,7 +155,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <h1 class="center transparent-background">
                     <?php echo $wishlistTitle; ?>
                     <div class="wishlist-options">
-                        <a class="icon edit popup-button" href="#"><div class="inline-popup">Rename</div></a>
+                        <a class="icon edit popup-button" href="#"><div class="inline-label">Rename</div></a>
                         <div class='popup-container hidden'>
                             <div class='popup'>
                                 <div class='close-container'>
@@ -178,12 +178,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                 </div>
                             </div>
                         </div>
-                        <a class="icon swap popup-button choose-theme-button" href="#"><div class="inline-popup">Change Theme</div></a>
+                        <a class="icon swap popup-button choose-theme-button" href="#"><div class="inline-label">Change Theme</div></a>
                         <?php
                         write_theme_popup(type: strtolower($type), swap: true);
                         ?>
-                        <a class="icon copy-link" href="#"><div class="inline-popup">Copy Link to Wish List</div></a>
-                        <a class="icon trashcan popup-button" href="#"><div class="inline-popup">Delete</div></a>
+                        <a class="icon copy-link" href="#"><div class="inline-label">Copy Link to Wish List</div></a>
+                        <a class="icon trashcan popup-button" href="#"><div class="inline-label">Delete</div></a>
                         <div class='popup-container delete-wishlist-popup hidden'>
                             <div class='popup'>
                                 <div class='close-container'>
