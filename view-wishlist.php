@@ -204,7 +204,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", [$wishlistID, $username]);
             echo "
             <div class='items-list-container'>
-                <h2 class='transparent-background items-list-title' id='paginate-top'>All Items<a href='add-item.php' class='icon plus add-item'><div class='inline-popup'>Add Item</div></a></h2>";
+                <h2 class='transparent-background items-list-title' id='paginate-top'>All Items<a href='add-item.php' class='icon plus add-item'><div class='inline-label'>Add Item</div></a></h2>";
                 if($findItems->num_rows > 0){ ?>
                     <form class="filter-form center" method="POST" action="">
                         <div class="filter-inputs">
