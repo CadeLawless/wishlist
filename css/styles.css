@@ -76,9 +76,12 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 .desktop-background {
-    min-width: 1275px;
+    min-width: 2000px;
+    min-height: 1065px;
 }
 .mobile-background {
     min-width: 515px;
