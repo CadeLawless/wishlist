@@ -1468,6 +1468,16 @@ img.gift-wrap {
     justify-content: center;
     flex-wrap: wrap;
 }
+.filter-inputs {
+    display: inline-flex;
+    column-gap: 15px;
+    row-gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--transparent-background);
+}
 .filter-input {
     max-width: 300px;
 }
