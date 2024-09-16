@@ -50,14 +50,7 @@ body {
     padding: 0;
     margin: 0;
     min-height: 75vh;
-    padding-top: 90px;
-}
-.desktop-background {
-    min-width: 1275px;
-}
-.mobile-background {
-    min-width: 515px;
-    display: none;
+    padding-top: 85px;
 }
 .center {
     text-align: center;
@@ -79,6 +72,17 @@ body {
 }
 #container .background {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+.desktop-background {
+    min-width: 1275px;
+}
+.mobile-background {
+    min-width: 515px;
+    display: none;
 }
 footer {
     position: absolute;
