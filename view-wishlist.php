@@ -119,12 +119,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         .popup.fullscreen .gift-wrap-content .popup-content {
             max-height: calc(100% - 184px);
         }
-        #container {
-            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        #container .background-theme.mobile-background {
+            display: none;
         }
         @media (max-width: 600px){
-            #container {
-                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            #container .background-theme.mobile-background {
+                display: block;
+            }
+            #container .background-theme.desktop-background {
+                display: none;
             }
         }
         @media (max-width: 460px){
@@ -144,6 +147,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <?php require("includes/header.php"); ?>
         <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
         <div id="container">
+            <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+            <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <p style="padding-top: 15px;"><a class="button accent" href="view-wishlists.php">Back to All Wish Lists</a></p>
 
             <div class="center">
