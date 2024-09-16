@@ -1653,6 +1653,11 @@ img.gift-wrap {
         grid-template-columns: 1fr;
     }
 }
+@media (max-width: 440px){
+    .theme-popup-container .items-list .item-container {
+        width: auto;
+    }
+}
 @media (max-width: 380px){
     .paginate-container, .items-list:not(.preview) .item-container {
         width: auto;
