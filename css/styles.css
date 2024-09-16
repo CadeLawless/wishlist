@@ -336,7 +336,7 @@ label {
     background-repeat: no-repeat;
     background-size: cover;
     cursor: pointer;
-    padding: 4px;
+    padding: 4px 4px 2px;
     border-radius: 4px;
     border: 1px solid var(--text);
     background-color: var(--icon-background);
@@ -370,10 +370,11 @@ label {
     position: absolute;
     left: 50%;
     transform: translate(-50%, 0);
-    top: calc(100% + 2px);
+    top: 100%;
     font-size: 12px;
     font-weight: bold;
-    width: auto;
+    width: 100%;
+    text-align: center;
     padding-right: 5px;
     padding-left: 5px;
 }
