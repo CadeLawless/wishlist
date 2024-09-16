@@ -99,12 +99,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         .popup.fullscreen .gift-wrap-content .popup-content {
             max-height: calc(100% - 184px);
         }
-        #container {
-            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        #container .background-theme.mobile-background {
+            display: none;
         }
         @media (max-width: 600px){
-            #container {
-                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            #container .background-theme.mobile-background {
+                display: block;
+            }
+            #container .background-theme.desktop-background {
+                display: none;
             }
         }
         @media (max-width: 460px){
@@ -123,28 +126,32 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
+            <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+            <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <h2 id='paginate-top' class='center'>All Items</h2>
             <?php
             require("includes/sort.php");
             $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC, $priority_order$price_order date_added DESC", [$wishlistID]);
             if($findItems->num_rows > 0){ ?>
-                <form class="filter-form" method="POST" action="">
-                    <div class="filter-input">
-                        <label for="sort-priority">Sort by Priority</label><br>
-                        <select id="sort-priority" name="sort_priority">
-                            <option value="">None</option>
-                            <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
-                            <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
-                        </select>
-                    </div>
-                    <div class="filter-input">
-                        <label for="sort-price">Sort by Price</label><br>
-                        <select id="sort-price" name="sort_price">
-                            <option value="">None</option>
-                            <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
-                            <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
-                        </select>
+                <form class="filter-form center" method="POST" action="">
+                    <div class="filter-inputs">
+                        <div class="filter-input">
+                            <label for="sort-priority">Sort by Priority</label><br>
+                            <select id="sort-priority" name="sort_priority">
+                                <option value="">None</option>
+                                <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
+                                <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
+                            </select>
+                        </div>
+                        <div class="filter-input">
+                            <label for="sort-price">Sort by Price</label><br>
+                            <select id="sort-price" name="sort_price">
+                                <option value="">None</option>
+                                <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
+                                <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             <?php }
