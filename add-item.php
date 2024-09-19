@@ -93,12 +93,15 @@ if(isset($_POST["submit_button"])){
             display: inline-block;
             margin-top: 0;
         }
-        #container {
-            background-image: url("images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>");
+        #container .background-theme.mobile-background {
+            display: none;
         }
         @media (max-width: 600px){
-            #container {
-                background-image: url("images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>");
+            #container .background-theme.mobile-background {
+                display: block;
+            }
+            #container .background-theme.desktop-background {
+                display: none;
             }
         }
     </style>
@@ -107,6 +110,8 @@ if(isset($_POST["submit_button"])){
     <div id="body">
         <?php require "includes/header.php"; ?>
         <div id="container">
+            <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+            <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <p style="padding-top: 15px;"><a class="button accent" href="<?php echo $_SESSION["home"]; ?>">Back to List</a></p>
             <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <div class="form-container">

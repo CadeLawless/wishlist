@@ -65,8 +65,8 @@ while($row = $selectQuery->fetch_assoc()){
             <div class='line'><h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4></div>
             <div class='line'><h4 class='notes-label'>Notes: </h4><span>$notes_short</span></div>
             <div class='line'><h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span></div>
-            <div class='wishlist-options'>
-                <a class='icon view popup-button' href='#'><div class='inline-popup'>View Item Information</div></a>
+            <div class='icon-options item-options $type-item-options'>
+                <a class='icon-container popup-button' href='#'><div class='icon view'></div><div class='inline-label'>View</div></a>
                 <div class='popup-container hidden'>
                     <div class='popup fullscreen'>
                         <div class='close-container'>
@@ -85,11 +85,11 @@ while($row = $selectQuery->fetch_assoc()){
                         </div>
                     </div>
                 </div>
-                <a class='icon link' href='$link' target='_blank'><div class='inline-popup'>View Item on Website</div></a>";
+                <a class='icon-container' href='$link' target='_blank'><div class='icon link'></div><div class='inline-label'>Website Link</div></a>";
             if($type == "wisher"){
                 echo "
-                    <a class='icon edit edit-item' href='edit-item.php?id=$id&pageno=$pageNumber'><div class='inline-popup'>Edit Item</div></a>
-                    <a class='icon x-delete popup-button' href='#'><div class='inline-popup'>Delete Item</div></a>
+                    <a class='icon-container' href='edit-item.php?id=$id&pageno=$pageNumber'><div class='icon edit'></div><div class='inline-label'>Edit</div></a>
+                    <a class='icon-container popup-button' href='#'><div class='icon x-delete'></div><div class='inline-label'>Delete</div></a>
                     <div class='popup-container hidden'>
                         <div class='popup'>
                             <div class='close-container'>

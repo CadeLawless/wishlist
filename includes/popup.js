@@ -14,7 +14,7 @@ $(document).ready(function() {
     });
 
     // hide popup if x button or no button is clicked
-    $(document.body).on("click", ".close-container", function() {
+    $(document.body).on("click", ".close-container:not(.options-close)", function() {
         $("body").removeClass("fixed");
         this.closest(".popup-container").classList.add("hidden");
         for(const popup of this.closest(".popup-container").querySelectorAll(".popup:not(.first, .second)")){
@@ -36,7 +36,7 @@ $(document).ready(function() {
             if(!e.target.classList.contains("popup-button") && (e.target.closest(".popup-container") == null || e.target.classList.contains("popup-container"))){
                 if($open_dropdowns.length > 0){
                     $open_dropdowns.addClass("hidden");
-                    $open_dropdowns.first().closest(".popup-content").removeClass("fixed");
+                    $open_dropdowns.first().closest(".popup-content").removeClass("fixed static");
                 }else{
                     $popupSecond = $(".popup-container.second:not(.hidden)");
                     $popupFirst = $(".popup-container.first:not(.hidden)");
