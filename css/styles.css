@@ -142,6 +142,7 @@ h2, h2 div {
 }
 h2.items-list-title {
     padding: 15px 10px;
+    scroll-margin-top: 115px;
 }
 h3 {
     font-size: 20px;

@@ -145,7 +145,7 @@ if(isset($_POST["submit_button"])){
                     <div class="flex form-flex">
                         <div class="large-input">
                             <label for="name">Item Name:<br></label>
-                            <textarea required name="name" id="name" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
+                            <textarea required name="name" autocapitalize="words" id="name" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
                         </div>
                         <div class="large-input">
                             <label for="price">Item Price:<br></label>

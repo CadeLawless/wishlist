@@ -107,7 +107,7 @@ if(isset($_POST["submit_button"])){
                         </div>
                         <div class="large-input">
                             <label for="wishlist_name">Name:<br/></label>
-                            <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name); ?>" />
+                            <input required type="text" id="wishlist_name" autocapitalize="words" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name); ?>" />
                         </div>
                         <div class="large-input">
                             <p class="center"><input type="submit" class="button text" name="submit_button" id="submitButton" value="Create" /></p>
