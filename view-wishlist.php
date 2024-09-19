@@ -43,11 +43,12 @@ if($findWishlistInfo->num_rows > 0){
 $pageno = $_GET["pageno"] ?? 1;
 
 // initialize filter variables
-$valid_options = ["", "1", "2"];
-$sort_priority = $_SESSION["sort_priority"] ?? "1";
-$sort_price = $_SESSION["sort_price"] ?? "";
-$_SESSION["sort_priority"] = $sort_priority;
-$_SESSION["sort_price"] = $sort_price;
+require("includes/filter-options.php");
+$sort_priority = $_SESSION["wisher_sort_priority"] ?? "";
+$sort_price = $_SESSION["wisher_sort_price"] ?? "";
+$_SESSION["wisher_sort_priority"] = $sort_priority;
+$_SESSION["wisher_sort_price"] = $sort_price;
+
 $wishlist_name_input = $wishlist_name;
 
 // if filter is changed
@@ -86,17 +87,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $errorMsg = "<div class='submit-error'>$errorTitle<ul>$errorList</ul></div>";
         }
     }
-    
-    // if filter value is changed, change session value
-    $sort_priority = $_POST["sort_priority"];
-    $sort_price = $_POST["sort_price"];
-    if(in_array($sort_priority, $valid_options)){
-        $_SESSION["sort_priority"] = $sort_priority;
-    }
-    if(in_array($sort_price, $valid_options)){
-        $_SESSION["sort_price"] = $sort_price;
-    }
-    header("Location: ?id=$wishlistID&pageno=$pageno#paginate-top");
 }
 ?>
 <!DOCTYPE html>
@@ -206,29 +196,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             echo "
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>All Items<a href='add-item.php' class='icon-container add-item'><div class='icon plus'></div><div class='inline-label'>Add</div></a></h2>";
-                if($findItems->num_rows > 0){ ?>
-                    <form class="filter-form center" method="POST" action="">
-                        <div class="filter-inputs">
-                            <div class="filter-input">
-                                <label for="sort-priority">Sort by Priority</label><br>
-                                <select id="sort-priority" name="sort_priority">
-                                    <option value="">None</option>
-                                    <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
-                                    <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
-                                </select>
-                            </div>
-                            <div class="filter-input">
-                                <label for="sort-price">Sort by Price</label><br>
-                                <select id="sort-price" name="sort_price">
-                                    <option value="">None</option>
-                                    <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
-                                    <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                <?php }
+                if($findItems->num_rows > 0){
+                    require("includes/write-filters.php");
+                }
+                echo "<div class='items-list-sub-container'>";
                 paginate(type: "wisher", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", itemsPerPage: 12, pageNumber: $pageno, wishlist_id: $wishlistID, username: $username);
+                echo "</div>";
                 ?>
             </div>
         <?php include "includes/footer.php"; ?>
@@ -239,6 +212,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <script src="includes/popup.js"></script>
 <script src="includes/page-change.js"></script>
 <script src="includes/choose-theme.js"></script>
+<script>$type = "wisher";</script>
+<script src="includes/filter-change.js"></script>
 <script>
     $(document).ready(function(){
         $(".icon.edit").on("click", function(){
@@ -249,13 +224,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $(this).select();
         });
     });
-
-    // submit form on filter change
-    for(const sel of document.querySelectorAll("select")){
-        sel.addEventListener("change", function(){
-            document.querySelector("form").submit();
-        });
-    }
 
     // copy link to share
     document.querySelector(".copy-link a").addEventListener("click", function(e){

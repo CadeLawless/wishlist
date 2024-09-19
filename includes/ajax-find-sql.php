@@ -9,8 +9,13 @@ $wishlist_id = match($type){
 if($wishlist_id == "") header("Location: index.php");
 $_SESSION["home"] = "$host.php?id=$wishlist_id&pageno=$pageNumber#paginate-top";
 $username = $_SESSION["username"];
-$sort_priority = $_SESSION["sort_priority"];
-$sort_price = $_SESSION["sort_price"];
+if($type == "wisher"){
+    $sort_priority = $_SESSION["wisher_sort_priority"];
+    $sort_price = $_SESSION["wisher_sort_price"];
+}else{
+    $sort_priority = $_SESSION["buyer_sort_priority"];
+    $sort_price = $_SESSION["buyer_sort_price"];
+}
 require("../sort.php");
 if($type == "wisher"){
     $query = "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC";

@@ -90,7 +90,7 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                 </div>
             </div>";
         }
-        echo "<div class='items-list'>";
+        echo "<div class='items-list main'>";
         require("write-items-list.php");
         echo "
         </div>

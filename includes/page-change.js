@@ -3,9 +3,9 @@ $(document).ready(function() {
         window.location.reload();
     });
     let searchParams;
-    $items_list = $(".items-list");
     // paginate arrow click
-    $(".paginate-arrow").on("click", function(e) {
+    $(document.body).on("click", ".paginate-arrow", function(e) {
+        $items_list = $(".items-list.main");
         e.preventDefault();
         let pageno, id, key;
         searchParams = new URLSearchParams(window.location.search);
@@ -26,19 +26,14 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            //AJAX type is "Post".
             type: "POST",
-            //Data will be sent to "ajax.php".
             url: "includes/ajax/page-change.php",
-            //Data, that will be sent to "ajax.php".
             data: {
-                //Assigning value of "name" into "search" variable.
                 new_page: new_pageno,
             },
-            //If result found, this funtion will be called.
             success: function(html) {
-                //Assigning result to "display" div in "search.php" file.
                 $items_list.html(html);
+                $(".items-list-title")[0].scrollIntoView();
                 window.history.pushState({}, "", window.location);
                 searchParams = new URLSearchParams(window.location.search);
                 if(searchParams.has("id")){
@@ -64,18 +59,12 @@ $(document).ready(function() {
             }
         });
         $.ajax({
-            //AJAX type is "Post".
             type: "POST",
-            //Data will be sent to "ajax.php".
             url: "includes/ajax/count-showing.php",
-            //Data, that will be sent to "ajax.php".
             data: {
-                //Assigning value of "name" into "search" variable.
                 new_page: new_pageno,
             },
-            //If result found, this funtion will be called.
             success: function(html) {
-                //Assigning result to "display" div in "search.php" file.
                 $(".count-showing").text(html);
             }
         });
