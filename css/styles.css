@@ -51,6 +51,7 @@ body {
     margin: 0;
     min-height: 75vh;
     padding-top: 85px;
+    padding-top: 85px;
 }
 .center {
     text-align: center;
@@ -136,6 +137,7 @@ h1.transparent-background, h2.transparent-background {
     background-color: var(--transparent-background);
     border-radius: 5px;
 }
+h2, h2 div {
 h2, h2 div {
     font-size: 24px;
 }
@@ -343,7 +345,7 @@ label {
     background-size: cover;
     background-position: center;
     cursor: pointer;
-    padding: 4px;
+    padding: 4px 4px 2px;
     border-radius: 4px;
     border: 1px solid var(--text);
     background-color: var(--icon-background);
