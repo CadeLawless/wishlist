@@ -98,7 +98,8 @@ if(isset($_POST["submit_button"])){
                             write_theme_popup(type: "christmas");
                             ?>
                             <div class="theme-results">
-                                <div class="theme-background-display"></div>
+                                <div class="theme-background-display desktop-background-display"></div>
+                                <div class="theme-background-display mobile-background-display"></div>
                                 <div class="theme-gift-wrap-display"></div>
                             </div>
                             <input type="hidden" id="theme_background_id" name="theme_background_id" value="<?php echo $theme_background_id; ?>" />
