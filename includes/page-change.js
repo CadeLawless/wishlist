@@ -27,7 +27,7 @@ $(document).ready(function() {
 
         $.ajax({
             type: "POST",
-            url: "includes/ajax/page-change.php",
+            url: "includes/ajax/page-change.php?"+$key_url+"type="+$type,
             data: {
                 new_page: new_pageno,
             },
@@ -60,7 +60,7 @@ $(document).ready(function() {
         });
         $.ajax({
             type: "POST",
-            url: "includes/ajax/count-showing.php",
+            url: "includes/ajax/count-showing.php?"+$key_url+"type="+$type,
             data: {
                 new_page: new_pageno,
             },

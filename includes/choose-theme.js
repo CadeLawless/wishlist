@@ -48,7 +48,7 @@ $(document).ready(function() {
         $open_dropdowns = $(".image-dropdown .options:not(.hidden)");
         if(!e.target.classList.contains("image-dropdown") && e.target.closest(".image-dropdown") == null){
             $open_dropdowns.addClass("hidden");
-            $open_dropdowns.first().closest(".popup-content").removeClass("fixed");
+            $open_dropdowns.first().closest(".popup-content").removeClass("fixed static");
         }
     });
 
@@ -75,7 +75,7 @@ $(document).ready(function() {
                 $file_count++;
             });
             $(this).closest(".options").addClass("hidden");
-            $(this).closest(".popup-content").removeClass("fixed");
+            $(this).closest(".popup-content").removeClass("fixed static");
         }else if($(this).closest(".image-dropdown").hasClass("background")){
             $($popup_container+".image-dropdown.background .options .option").removeClass("selected");
             $(this).addClass("selected");
@@ -97,7 +97,7 @@ $(document).ready(function() {
             $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().click();
             $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().addClass("recommended");
             $(this).closest(".options").addClass("hidden");
-            $(this).closest(".popup-content").removeClass("fixed");
+            $(this).closest(".popup-content").removeClass("fixed static");
         }
     });
 
@@ -108,7 +108,8 @@ $(document).ready(function() {
         $($popup_container+".theme-content").removeClass("hidden");
         $($popup_container+".gift-wrap-content").addClass("hidden");
         $(this).closest(".popup").removeClass("theme-background");
-        $(this).closest(".popup").css("background-image", "");
+        $(this).closest(".popup").find(".background-theme.desktop-background").addClass("hidden");
+        $(this).closest(".popup").find(".background-theme.mobile-background").addClass("hidden");
         $(this).closest($popup_container+"> .popup").find(".close-container").first().removeClass("transparent-background");
     });
     $("a.continue-button").on("click", function(e){
@@ -133,6 +134,6 @@ $(document).ready(function() {
     $(".close-container.options-close").on("click", function(e){
         e.preventDefault();
         $(this).closest(".options").addClass("hidden");
-        $(this).closest(".popup-content").removeClass("fixed");
+        $(this).closest(".popup-content").removeClass("fixed static");
     });
 });

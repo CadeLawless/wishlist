@@ -1,5 +1,6 @@
 <?php
 date_default_timezone_set("America/Chicago");
+$dark = false;
 class DB{
     private $connection;
     private $servername = "localhost";
@@ -70,23 +71,37 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
             "wisher" => "view-wishlist.php?id=$wishlist_id&",
             "buyer" => "buyer-view.php?key=$wishlist_key&",
         };
+        global $ajax;
+        $image_folder = match($ajax){
+            true => "../../images",
+            default => "images",
+        };
+
         if($numberOfItems > $numberOfItemsOnPage){
             echo "
             <div class='center'>
                 <div class='paginate-container'>
                     <a class='paginate-arrow paginate-first";
                     if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/first.php");
+                    echo "</a>
                     <a class='paginate-arrow paginate-previous";
                     if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/prev.php");
+                    echo "</a>
                     <div class='paginate-title'><span class='page-number'>$pageNumber</span>/<span class='last-page'>$totalPages</span></div>
                     <a class='paginate-arrow paginate-next";
                     if($pageNumber >= $totalPages) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/prev.php");
+                    echo "</a>
                     <a class='paginate-arrow paginate-last";
                     if($pageNumber == $totalPages) echo " disabled";
-                    echo "'></a>
+                    echo "'>";
+                    require("$image_folder/site-images/first.php");
+                    echo "</a>
                 </div>
             </div>";
         }
@@ -100,17 +115,25 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                     echo "
                     <a class='paginate-arrow paginate-first";
                     if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/first.php");
+                    echo "</a>
                     <a class='paginate-arrow paginate-previous";
                     if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/prev.php");
+                    echo "</a>
                     <div class='paginate-title'><span class='page-number'>$pageNumber</span>/$totalPages</div>
                     <a class='paginate-arrow paginate-next";
                     if($pageNumber >= $totalPages) echo " disabled";
-                    echo "' href='#'></a>
+                    echo "' href='#'>";
+                    require("$image_folder/site-images/prev.php");
+                    echo "</a>
                     <a class='paginate-arrow paginate-last";
                     if($pageNumber == $totalPages) echo " disabled";
-                    echo "'></a>";
+                    echo "'>";
+                    require("$image_folder/site-images/first.php");
+                    echo "</a>";
                 }
                 echo "
                 <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " items</div>
@@ -126,7 +149,9 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                     <img class='item-image' src='images/site-images/default-photo.png' alt='wishlist item image'>
                 </div>
                 <div class='item-description'></div>
-                <div class='add-label'>Add Item</div>
+                <div class='add-label'>";
+                require("images/site-images/icons/plus.php");
+                echo "Add Item</div>
             </a>";
         }
     }

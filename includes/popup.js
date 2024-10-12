@@ -14,7 +14,8 @@ $(document).ready(function() {
     });
 
     // hide popup if x button or no button is clicked
-    $(document.body).on("click", ".close-container:not(.options-close)", function() {
+    $(document.body).on("click", ".close-container:not(.options-close)", function(e) {
+        e.preventDefault();
         $("body").removeClass("fixed");
         this.closest(".popup-container").classList.add("hidden");
         for(const popup of this.closest(".popup-container").querySelectorAll(".popup:not(.first, .second)")){

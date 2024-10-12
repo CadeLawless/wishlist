@@ -36,26 +36,30 @@ if(isset($_POST["submit_button"])){
         if(isset($_FILES["item_image"]["name"])){
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
-                    if(!is_dir("images/item-images/$wishlistID")){
-                        mkdir("images/item-images/$wishlistID");
-                    }
-                    $target_dir = "images/item-images/$wishlistID/";
-                    $file = $_FILES['item_image']['name'];
-                    $ext = pathinfo($file, PATHINFO_EXTENSION);
-                    $ext = strtolower($ext);
-                    if(in_array($ext, $allowed)){
-                        $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
-                        $temp_name = $_FILES['item_image']['tmp_name'];
-                        $path_filename = $target_dir.$filename;
-                        if(file_exists($path_filename)){
-                            $errors = true;
-                            $errorList .= "<li>You already have an item with the name ". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
-                        }
-                        if(!$errors) move_uploaded_file($temp_name, $path_filename);
-                    }else{
+                if(!is_dir("images/item-images/$wishlistID")){
+                    mkdir("images/item-images/$wishlistID");
+                }
+                $target_dir = "images/item-images/$wishlistID/";
+                $file = $_FILES['item_image']['name'];
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                $ext = strtolower($ext);
+                if(in_array($ext, $allowed)){
+                    $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
+                    $temp_name = $_FILES['item_image']['tmp_name'];
+                    $path_filename = $target_dir.$filename;
+                    if(file_exists($path_filename)){
                         $errors = true;
-                        $error_list .= "<li>Item Image file type must match: jpg, jpeg, png</li>";
+                        $errorList .= "<li>You already have an item with the name ". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
                     }
+                }else{
+                    $errors = true;
+                    $errorList .= "<li>Item Image file type must match: jpg, jpeg, png</li>";
+                }
+            }
+        }
+        if($errors){
+            if(isset($path_filename) && file_exists($path_filename)){
+                unlink($path_filename);
             }
         }
     }
@@ -66,7 +70,7 @@ if(isset($_POST["submit_button"])){
     $date_added = date("Y-m-d H:i:s");
     if(!$errors){
         if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
-            header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
+            //header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
             // echo $db->error();
@@ -106,7 +110,7 @@ if(isset($_POST["submit_button"])){
         }
     </style>
     </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require "includes/header.php"; ?>
         <div id="container">

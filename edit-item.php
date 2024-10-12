@@ -20,7 +20,7 @@ if($findItemInformation->num_rows > 0){
         $notes = htmlspecialchars($row["notes"]);
         $price = htmlspecialchars($row["price"]);
         $link = htmlspecialchars($row["link"]);
-        $image = htmlspecialchars($row["image"]);
+        $image_name = htmlspecialchars($row["image"]);
         $priority = htmlspecialchars($row["priority"]);
     }
 }
@@ -40,7 +40,7 @@ if(isset($_POST["submit_button"])){
     $notes = errorCheck("notes", "Not Required");
     $priority = errorCheck("priority", "How much do you want this item", "Yes", $errors, $errorList);
     validOptionCheck($priority, "How much do you want this item", $priority_options, $errors, $errorList);
-    $filename = $image;
+    $filename = $image_name;
     if(!$errors){
         if(isset($_FILES["item_image"]["name"])){
             $phpFileUploadErrors = array(
@@ -55,36 +55,33 @@ if(isset($_POST["submit_button"])){
             );
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
-                    $target_dir = "images/item-images/$wishlistID/";
-                    $file = $_FILES['item_image']['name'];
-                    $ext = pathinfo($file, PATHINFO_EXTENSION);
-                    $ext = strtolower($ext);
-                    if(in_array($ext, $allowed)){
-                        $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
-                        echo $filename;
-                        $temp_name = $_FILES['item_image']['tmp_name'];
-                        $path_filename = $target_dir.$filename;
-                        if(file_exists($path_filename)){
-                            unlink($path_filename);
-                        }
-                        if(!$errors){
-                            if(!move_uploaded_file($temp_name, $path_filename)){
-                                $errors = true;
-                                $errorList .= "<li>Item Image file upload failed: " . $phpFileUploadErrors[$_FILES["item_image"]["error"]] . "</li>";
-                            }
-                        }
-                    }else{
-                        $errors = true;
-                        $errorList .= "<li>Item Image file type must match: jpg, jpeg, png, webp</li>";
+                $target_dir = "images/item-images/$wishlistID/";
+                $file = $_FILES['item_image']['name'];
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                $ext = strtolower($ext);
+                if(in_array($ext, $allowed)){
+                    $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
+                    $temp_name = $_FILES['item_image']['tmp_name'];
+                    $path_filename = $target_dir.$filename;
+                    if(file_exists($path_filename)){
+                        unlink($path_filename);
                     }
+                    if(!move_uploaded_file($temp_name, $path_filename)){
+                        $errors = true;
+                        $errorList .= "<li>Item Image file upload failed: " . $phpFileUploadErrors[$_FILES["item_image"]["error"]] . "</li>";
+                    }
+                }else{
+                    $errors = true;
+                    $errorList .= "<li>Item Image file type must match: jpg, jpeg, png, webp</li>";
+                }
             }
         }
     }
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
-        if($filename != $image){
+        if($filename != $image_name){
             $target_dir = "images/item-images/$wishlistID/";
-            $original_path = $target_dir.$image;
+            $original_path = $target_dir.$image_name;
             if(file_exists($original_path)){
                 unlink($original_path);
             }
@@ -130,7 +127,7 @@ if(isset($_POST["submit_button"])){
         }
     </style>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
@@ -166,7 +163,7 @@ if(isset($_POST["submit_button"])){
                             <a class="file-input">Change Item Image</a>
                             <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
                             <div id="preview_container">
-                                <img id="preview" src="images/item-images/<?php echo "$wishlistID/$image"; ?>">
+                                <img id="preview" src="images/item-images/<?php echo "$wishlistID/$image_name"; ?>">
                             </div>
                         </div>
                         <div class="large-input">

@@ -23,10 +23,12 @@ if($db->write("DELETE FROM wishlists WHERE id = ?", [$wishlistID])){
                 }
                 reset($objects);
                 return rmdir($dir);
+            }else{
+                return true;
             }
         }
         if(rrmdir("images/item-images/$wishlistID")){
-            header("Location: index.php");
+            header("Location: view-wishlists.php");
         }else{
             echo "<script>alert('Something went wrong while trying to delete this wishlist')</script>";
             // echo $db->error();

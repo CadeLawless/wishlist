@@ -5,7 +5,7 @@ ini_set("display_errors", 1);
 require("../classes.php");
 // database connection
 $db = new DB();
-$type = $_SESSION["type"];
+$type = $_GET["type"];
 $host = match($type){
     "wisher" => "view-wishlist",
     "buyer" => "buyer-view",

@@ -73,14 +73,14 @@ if(isset($_POST["submit_button"])){
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $name; ?>'s Wish Lists</title>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
             <h1 class="center"><?php echo $name; ?>'s Wish Lists</h1>
             <div class="wishlist-grid">
                 <?php
-                $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE username = ?", [$username]);
+                $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE username = ? ORDER BY date_created DESC", [$username]);
                 if($findWishlists->num_rows > 0){
                     while($row = $findWishlists->fetch_assoc()){
                         $id = $row["id"];
@@ -103,7 +103,7 @@ if(isset($_POST["submit_button"])){
                         }
                         echo "
                         <a class='wishlist-grid-item' href='view-wishlist.php?id=$id'>
-                            <div class='items-list preview' style='background-image: url(images/site-images/themes/desktop-backgrounds/$background_image);'>
+                            <div class='items-list preview' style='background-image: url(images/site-images/themes/desktop-thumbnails/$background_image);'>
                                 <div class='item-container'>
                                     <img src='images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                                     <div class='item-description'>
@@ -127,186 +127,3 @@ if(isset($_POST["submit_button"])){
     </div>
 </body>
 </html>
-<script src="includes/popup.js"></script>
-<script>
-    let name_input = document.querySelector("#wishlist_name");
-    name_input.addEventListener("focus", function(){
-        this.select();
-    });
-
-    let type_select = document.querySelector("#wishlist_type");
-    type_select.addEventListener("change", function(){
-        let current_year = new Date().getFullYear();
-        if(this.value == "Birthday"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Birthday Wishlist";
-            $(".popup-container.birthday").insertBefore(".popup-container.christmas");
-        }else if(this.value == "Christmas"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Christmas Wishlist";
-            $(".popup-container.christmas").insertBefore(".popup-container.birthday");
-        }
-        if(this.value != ""){
-            document.querySelector(".choose-theme-button").classList.remove("disabled");
-        }else{
-            document.querySelector(".choose-theme-button").classList.add("disabled");
-        }
-    });
-
-    let submit_button = document.querySelector("#submitButton");
-    // on submit, disable submit so user cannot press submit twice
-    document.querySelector("form").addEventListener("submit", function(e){
-        setTimeout( () => {
-            submit_button.setAttribute("disabled", "");
-            submit_button.value = "Creating...";
-            submit_button.style.cursor = "default";
-        });
-    });
-    $(document).ready(function() {
-        $(".theme-nav a").on("click", function(e){
-            e.preventDefault();
-            $(".theme-nav a").removeClass("active");
-            $(".theme-picture img").addClass("hidden");
-            if($(this).hasClass("desktop")){
-                $(".theme-nav a.desktop").addClass("active");
-                $(".theme-picture img.desktop").removeClass("hidden");
-            }else{
-                $(".theme-nav a.mobile").addClass("active");
-                $(".theme-picture img.mobile").removeClass("hidden");
-            }
-        });
-
-        $selected_desktop_theme = "";
-        $selected_mobile_theme = "";
-        $(".select-theme").on("click", function(e){
-            e.preventDefault();
-            $type = $("#wishlist_type").val().toLowerCase();
-            $popup_container = ".popup-container."+$type + " ";
-            $background_image = $(this).data("background-image");
-            $background_id = $(this).data("background-id");
-            $default_gift_wrap = $(this).data("default-gift-wrap");
-            $($popup_container+".theme-content").addClass("hidden");
-            $($popup_container+".gift-wrap-content").removeClass("hidden");
-            $(this).closest(".popup-container").addClass("hidden");
-            $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("recommended");
-            $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().click();
-            $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().addClass("recommended");
-            $($popup_container+".image-dropdown.background .options .option .value[data-background-id="+$background_id+"]").parent().click();
-        });
-
-        $(".image-dropdown .selected-option").on("click", function(e){
-            e.preventDefault();
-            if($(this).closest(".image-dropdown").find(".options").hasClass("hidden")){
-                $(".image-dropdown .options").addClass("hidden");
-                $(this).closest(".image-dropdown").find(".options").removeClass("hidden");
-                $(this).closest(".popup-content").addClass("fixed");
-            }else{
-                $(this).closest(".image-dropdown").find(".options").addClass("hidden");
-                $(this).closest(".popup-content").removeClass("fixed");
-            }
-            if($(this).closest(".image-dropdown").find(".options .option.selected")[0] != null){
-                $(this).closest(".image-dropdown").find(".options .option.selected")[0].scrollIntoView({ block: "end" });
-            }
-        });
-
-        $(window).on("click", function(e){
-            $open_dropdowns = $(".image-dropdown .options:not(.hidden)");
-            if(!e.target.classList.contains("image-dropdown") && e.target.closest(".image-dropdown") == null){
-                $open_dropdowns.addClass("hidden");
-                $open_dropdowns.first().closest(".popup-content").removeClass("fixed");
-            }
-        });
-
-        $(".options .option").on("click", function(e){
-            e.preventDefault();
-            $type = $("#wishlist_type").val().toLowerCase();
-            $popup_container = ".popup-container."+$type + " ";
-            if($(this).closest(".image-dropdown").hasClass("gift-wrap")){
-                $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("selected");
-                $(this).addClass("selected");
-                $wrap_id = $(this).find(".value").data("wrap-id");
-                $wrap_image = $(this).find(".value").data("wrap-image");
-                $number_of_files = parseInt($(this).find(".value").data("number-of-files"));
-                $selected_option = $($popup_container+".image-dropdown.gift-wrap .selected-option");
-                $selected_option.find(".value").text($(this).find(".value").text());
-                $selected_option.find(".value").data("wrap-id", $wrap_id);
-                $selected_option.find(".value").data("wrap-image", $wrap_image);
-                $selected_option.find(".preview-image").html("<img src='images/site-images/themes/gift-wraps/"+$wrap_image+"/1.png' />");
-                $file_count = 1;
-                $($popup_container+"img.gift-wrap").each(function(){
-                    if($file_count > $number_of_files) $file_count = 1;
-                    $(this).attr("src", "images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png")
-                    $file_count++;
-                });
-                $(this).closest(".options").addClass("hidden");
-                $(this).closest(".popup-content").removeClass("fixed");
-            }else if($(this).closest(".image-dropdown").hasClass("background")){
-                $($popup_container+".image-dropdown.background .options .option").removeClass("selected");
-                $(this).addClass("selected");
-                $background_id = $(this).find(".value").data("background-id");
-                $background_image = $(this).find(".value").data("background-image");
-                $default_gift_wrap = $(this).find(".value").data("default-gift-wrap");
-                $selected_option = $($popup_container+".image-dropdown.background .selected-option");
-                $selected_option.find(".value").text($(this).find(".value").text());
-                $selected_option.find(".value").data("background-id", $background_id);
-                $selected_option.find(".value").data("background-image", $background_image);
-                $selected_option.find(".preview-image").html("<img src='images/site-images/themes/desktop-backgrounds/"+$background_image+"' />");
-                $(this).closest(".popup").addClass("theme-background");
-                if($(this).closest(".popup").outerWidth() <= 600){
-                    $(this).closest(".popup").css("background-image", "url('images/site-images/themes/mobile-backgrounds/"+$background_image+"')");
-                }else{
-                    $(this).closest(".popup").css("background-image", "url('images/site-images/themes/desktop-backgrounds/"+$background_image+"')");
-                }
-                $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("recommended");
-                $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().click();
-                $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$default_gift_wrap+"]").parent().addClass("recommended");
-                $(this).closest(".options").addClass("hidden");
-                $(this).closest(".popup-content").removeClass("fixed");
-            }
-        });
-
-        $(window).on("resize", function(e){
-            if($("#wishlist_type").val() != null){
-                $type = $("#wishlist_type").val().toLowerCase();
-                $popup_container = ".popup-container."+$type + " ";
-                $current_background = $($popup_container+".popup").css("background-image");
-                if($($popup_container+".popup").outerWidth() <= 600){
-                    if($($popup_container+".popup").css("background-image") != ""){
-                        $($popup_container+".popup").css("background-image", $current_background.replace("desktop", "mobile"));
-                    }
-                }else{
-                    if($($popup_container+".popup").css("background-image") != ""){
-                        $($popup_container+".popup").css("background-image", $current_background.replace("mobile", "desktop"));
-                    }
-                }
-            }
-        });
-
-        $(".back-to").on("click", function(e){
-            e.preventDefault();
-            $type = $("#wishlist_type").val().toLowerCase();
-            $popup_container = ".popup-container."+$type + " ";
-            $($popup_container+".theme-content").removeClass("hidden");
-            $($popup_container+".gift-wrap-content").addClass("hidden");
-            $(this).closest(".popup").removeClass("theme-background");
-            $(this).closest(".popup").css("background-image", "");
-        });
-        $(".continue-button").on("click", function(e){
-            e.preventDefault();
-            $type = $("#wishlist_type").val().toLowerCase();
-            $popup_container = ".popup-container."+$type + " ";
-            $selected_background = $($popup_container+".image-dropdown.background .selected-option");
-            $background_id = $selected_background.find(".value").data("background-id");
-            $("#theme_background_id").val($background_id);
-            $background_image = $selected_background.find(".value").data("background-image");
-            $(".theme-background-display").html("<label>Background:</label><img src='images/site-images/themes/desktop-backgrounds/"+$background_image+"' />");
-            $selected_gift_wrap = $($popup_container+".image-dropdown.gift-wrap .selected-option");
-            $gift_wrap_id = $selected_gift_wrap.find(".value").data("wrap-id");
-            $("#theme_gift_wrap_id").val($gift_wrap_id);
-            $gift_wrap_clone = $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$gift_wrap_id+"]").parent().clone(true);
-            $gift_wrap_clone.find(".value").remove();
-            $gift_wrap_clone.find(".recommended").remove();
-            $(".theme-gift-wrap-display").html("<label>Gift Wrap:</label>"+$gift_wrap_clone.html());
-            $($popup_container).addClass("hidden");
-            $(".choose-theme-button").text("Change Theme");
-        });
-    });
-</script>

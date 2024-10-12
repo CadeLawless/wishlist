@@ -105,9 +105,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         h2.items-list-title {
             position: relative;
         }
-        .popup.fullscreen .gift-wrap-content .popup-content {
-            max-height: calc(100% - 184px);
-        }
         #container .background-theme.mobile-background {
             display: none;
         }
@@ -119,19 +116,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 display: none;
             }
         }
-        @media (max-width: 460px){
-            .popup.fullscreen .gift-wrap-content .popup-content {
-                max-height: calc(100% - 223px);
-            }
-        }
-        @media (max-width: 284px){
-            .popup.fullscreen .gift-wrap-content .popup-content {
-                max-height: calc(100% - 254px);
-            }
-        }
     </style>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
@@ -145,13 +132,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <?php echo $wishlistTitle; ?>
                     <div class="icon-options wishlist-options">
                         <div class="copy-link">
-                            <a class="button secondary" href="#">Copy Link to Wish List</a>
+                            <a class="button secondary" href="#"><?php require("images/site-images/icons/copy-link.php"); ?>Copy Link to Wish List</a>
                         </div>
-                        <a class="icon-container popup-button" href="#"><div class="icon edit"></div><div class="inline-label">Rename</div></a>
+                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/edit.php"); ?><div class="inline-label">Rename</div></a>
                         <div class='popup-container hidden'>
                             <div class='popup'>
                                 <div class='close-container'>
-                                    <img src='images/site-images/menu-close.png' class='close-button'>
+                                    <a href='#' class='close-button'>
+                                    <?php require("images/site-images/menu-close.php"); ?>
+                                    </a>
                                 </div>
                                 <div class='popup-content'>
                                 <h2 style="margin-top: 0;">Rename Wish List</h2>
@@ -163,27 +152,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                             <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
                                         </div>
                                         <div class="large-input">
-                                            <p class="center"><input type="submit" name="rename_submit_button" id="submitButton" value="Rename" /></p>
+                                            <p class="center"><input type="submit" class="button text" name="rename_submit_button" id="submitButton" value="Rename" /></p>
                                         </div>
                                     </div>
                                 </form>
                                 </div>
                             </div>
                         </div>
-                        <a class="icon-container popup-button choose-theme-button" href="#"><div class="icon swap"></div><div class="inline-label">Change Theme</div></a>
+                        <a class="icon-container popup-button choose-theme-button" href="#"><?php require("images/site-images/icons/swap-theme.php"); ?><div class="inline-label">Change Theme</div></a>
                         <?php
                         write_theme_popup(type: strtolower($type), swap: true);
                         ?>
-                        <a class="icon-container popup-button" href="#"><div class="icon trashcan"></div><div class="inline-label">Delete</div></a>
+                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/delete-trashcan.php"); ?><div class="inline-label">Delete</div></a>
                         <div class='popup-container delete-wishlist-popup hidden'>
                             <div class='popup'>
                                 <div class='close-container'>
-                                    <img src='images/site-images/menu-close.png' class='close-button'>
+                                    <a href='#' class='close-button'>
+                                    <?php require("images/site-images/menu-close.php"); ?>
+                                    </a>
                                 </div>
                                 <div class='popup-content'>
                                     <label>Are you sure you want to delete this wishlist?</label>
                                     <p><?php echo $wishlistTitle; ?></p>
-                                    <p class='center'><a class='red_button no-button'>No</a><a class='green_button' href='delete-wishlist.php?id=<?php echo $wishlistID; ?>'>Yes</a></p>
+                                    <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='delete-wishlist.php?id=<?php echo $wishlistID; ?>'>Yes</a></p>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +186,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $findItems = $db->select("SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? AND wishlists.username = ? ORDER BY $priority_order$price_order date_added DESC", [$wishlistID, $username]);
             echo "
             <div class='items-list-container'>
-                <h2 class='transparent-background items-list-title' id='paginate-top'>All Items<a href='add-item.php' class='icon-container add-item'><div class='icon plus'></div><div class='inline-label'>Add</div></a></h2>";
+                <h2 class='transparent-background items-list-title' id='paginate-top'>All Items<a href='add-item.php' class='icon-container add-item'>";
+                require("images/site-images/icons/plus.php");
+                echo "<div class='inline-label'>Add</div></a></h2>";
                 if($findItems->num_rows > 0){
                     require("includes/write-filters.php");
                 }
@@ -210,9 +203,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </body>
 </html>
 <script src="includes/popup.js"></script>
+<script>$type = "wisher"; $key_url = "<?php echo ""; ?>";</script>
 <script src="includes/page-change.js"></script>
 <script src="includes/choose-theme.js"></script>
-<script>$type = "wisher";</script>
 <script src="includes/filter-change.js"></script>
 <script>
     $(document).ready(function(){

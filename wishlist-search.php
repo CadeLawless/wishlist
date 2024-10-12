@@ -39,7 +39,7 @@ if(isset($_POST["submit_button"])){
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Wishlist | Search</title>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <h1 class="center">Wishlist Search</h1>

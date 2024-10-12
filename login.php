@@ -59,7 +59,7 @@ if(isset($_POST["submit_button"])){
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Wishlist | Login</title>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require "includes/background.php"; ?>
         <p class="center"><img class="logo login" src="images/site-images/logo.png" alt="Wish List" /></p>

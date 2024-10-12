@@ -53,8 +53,10 @@ if(isset($_POST["submit_button"])){
         $findDuplicates = $db->select("SELECT id FROM wishlists WHERE type = ? AND wishlist_name = ? AND username = ?", [$wishlist_type, $wishlist_name, $username]);
         $duplicateValue = $findDuplicates->num_rows;
 
+        $today = date("Y-m-d H:i:s");
+
         // create new christmas wishlist for user
-        if($db->write("INSERT INTO wishlists(type, wishlist_name, theme_background_id, theme_gift_wrap_id, year, duplicate, username, secret_key) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [$wishlist_type, $wishlist_name, $theme_background_id, $theme_gift_wrap_id, $year, $duplicateValue, $username, $secret_key])){
+        if($db->write("INSERT INTO wishlists(type, wishlist_name, theme_background_id, theme_gift_wrap_id, year, duplicate, username, secret_key, date_created) VALUES(?, ?, ?, ?, ?, ?, ?, ?, '$today')", [$wishlist_type, $wishlist_name, $theme_background_id, $theme_gift_wrap_id, $year, $duplicateValue, $username, $secret_key])){
             $wishlistID = $db->insert_id();
             header("Location: view-wishlist.php?id=$wishlistID");
         }
@@ -71,14 +73,14 @@ if(isset($_POST["submit_button"])){
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title><?php echo $name; ?>'s Wishlists</title>
+    <title>Create a Wish List</title>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
             <div>
-                <h1 style="margin-top: 0;">New Wish List</h1>
+                <h1>New Wish List</h1>
                 <form method="POST" action="">
                     <?php echo $errorMsg ?? ""; ?>
                     <div class="flex form-flex">
@@ -132,10 +134,10 @@ if(isset($_POST["submit_button"])){
     type_select.addEventListener("change", function(){
         let current_year = new Date().getFullYear();
         if(this.value == "Birthday"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Birthday Wishlist";
+            name_input.value = "<?php echo $name; ?>'s " + current_year + " Birthday Wish List";
             $(".popup-container.birthday").insertBefore(".popup-container.christmas");
         }else if(this.value == "Christmas"){
-            name_input.value = "<?php echo $name; ?>'s " + current_year + " Christmas Wishlist";
+            name_input.value = "<?php echo $name; ?>'s " + current_year + " Christmas Wish List";
             $(".popup-container.christmas").insertBefore(".popup-container.birthday");
         }
         if(this.value != ""){
