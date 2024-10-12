@@ -4,11 +4,15 @@ $currentPage = $_SERVER["REQUEST_URI"];
 <div class="header-container">
     <div class="header">
         <div class="title">
-            <a class="nav-title" href="index.php"><img class="logo" src="images/site-images/logo.png" alt="Wish List" /></a>
+            <a class="nav-title" href="index.php"><?php require("images/site-images/logo.php"); ?></a>
+            <a href="#" class="dark-mode-link"><?php require("images/site-images/icons/dark-mode.php"); ?></a>
+            <a href="#" class="light-mode-link"><?php require("images/site-images/icons/light-mode.php"); ?></a>
         </div>
         <div class="menu">
-            <img src="images/site-images/hamburger-menu.png" class="hamburger-menu" />
-            <img src="images/site-images/menu-close.png" class="close-menu hidden" />
+            <?php
+            require("images/site-images/hamburger-menu.php");
+            require("images/site-images/menu-close.php");
+            ?>
             <div class="menu-links">
                 <a class="nav-link<?php if($currentPage == "/wishlist/index.php") echo " active"; ?>" href="index.php">Home<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist.php") echo " active"; ?>" href="create-wishlist.php">Create Wishlist<div class="underline"></div></a>

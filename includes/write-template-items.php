@@ -7,7 +7,7 @@ $priorities = [
 ];
 
 $gift_wrap = 1;
-
+$today = date("Y-m-d H:i:s");
 while($row = $selectQuery->fetch_assoc()){
     $id = $row["id"];
     $item_name = htmlspecialchars($row["name"]);
@@ -26,8 +26,8 @@ while($row = $selectQuery->fetch_assoc()){
         $purchased = $row["purchased"] == "Yes" ? true : false;
         if($gift_wrap == $number_of_wraps) $gift_wrap = 1;
     }
-    $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_added"])));
-    $date_modified = $row["date_modified"] == NULL ? "" : htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_modified"])));
+    $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($today)));
+    $date_modified = $row["date_modified"] == NULL ? "" : htmlspecialchars(date("n/j/Y g:i A", strtotime($today)));
     $price_date = $date_modified == "" ? htmlspecialchars(date("n/j/Y", strtotime($date_added))) : htmlspecialchars(date("n/j/Y", strtotime($date_modified)));
     if($type == "wisher"){
         echo "<div class='item-container'>";
@@ -44,8 +44,12 @@ while($row = $selectQuery->fetch_assoc()){
             <div class='line'><h4 class='notes-label'>Notes: </h4><span>$notes_short</span></div>
             <div class='line'><h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span></div>
             <div class='icon-options item-options $type-item-options'>
-                <a class='icon-container popup-button template' href='#'><div class='icon view'></div><div class='inline-label'>View</div></a>
-                <a class='icon-container template' href='$link' target='_blank'><div class='icon link'></div><div class='inline-label'>Website Link</div></a>
+                <a class='icon-container popup-button template' href='#'>";
+                require("images/site-images/icons/view.php");
+                echo "<div class='inline-label'>View</div></a>
+                <a class='icon-container template' href='$link' target='_blank'>";
+                require("images/site-images/icons/link.php");
+                echo "<div class='inline-label'>Website Link</div></a>
                 </div>
                 <br>
                 <div class='center'>

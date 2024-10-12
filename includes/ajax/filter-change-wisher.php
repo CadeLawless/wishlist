@@ -5,5 +5,6 @@ require "../setup.php";
 $wishlistID = $_SESSION["wisher_wishlist_id"];
 $type = "wisher";
 
+$ajax = true;
 require("../filter-change-ajax.php");
 ?>

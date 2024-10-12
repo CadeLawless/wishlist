@@ -7,7 +7,9 @@
         <img class='background-theme desktop-background hidden' src="" />
         <img class='background-theme mobile-background hidden' src="" />
             <div class='close-container'>
-                <img src='images/site-images/menu-close.png' class='close-button' />
+                <a href='#' class='close-button'>
+                <?php require("images/site-images/menu-close.php"); ?>
+                </a>
             </div>
             <div class="theme-content">
                 <h2 class="theme-header" style="margin-top: 0;">Choose a Background</h2>
@@ -30,7 +32,9 @@
                                 <div class='popup-container second center-items individual-theme-popup hidden'>
                                     <div class='popup'>
                                         <div class='close-container'>
-                                            <img src='images/site-images/menu-close.png' class='close-button' />
+                                            <a href='#' class='close-button'>";
+                                            require("images/site-images/menu-close.php");
+                                            echo "</a>
                                         </div>
                                         <div class='popup-content'>
                                             <h2 style='margin-top: 0'>$background_name</h2>
@@ -76,11 +80,13 @@
                                 <span class="value"></span>
                                 <span class="preview-image desktop-image"></span>
                                 <span class="preview-image mobile-image"></span>
-                                <span class="popup-plus"></span>
+                                <span class="popup-plus"><?php require("images/site-images/icons/plus.php"); ?></span>
                             </div>
                             <div class="options hidden">
                                 <div class='close-container options-close'>
-                                    <img src='images/site-images/menu-close.png' class='close-button' />
+                                    <a href='#' class='close-button'>
+                                    <?php require("images/site-images/menu-close.php"); ?>
+                                    </a>
                                 </div>
                                 <div class="options-content">
                                 <?php
@@ -109,11 +115,13 @@
                             <div class="selected-option">
                                 <span class="value"></span>
                                 <span class="preview-image"></span>
-                                <span class="popup-plus"></span>
+                                <span class="popup-plus"><?php require("images/site-images/icons/plus.php"); ?></span>
                             </div>
                             <div class="options hidden">
                                 <div class='close-container options-close'>
-                                    <img src='images/site-images/menu-close.png' class='close-button' />
+                                    <a href='#' class='close-button'>
+                                    <?php require("images/site-images/menu-close.php"); ?>
+                                    </a>
                                 </div>
                                 <div class="options-content">
                                 <?php

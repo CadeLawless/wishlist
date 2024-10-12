@@ -6,8 +6,12 @@ $wishlist_id = match($type){
     "buyer" => $_SESSION["buyer_wishlist_id"],
     default => "",
 };
+$wishlist_key = $_GET["key"] ?? "";
 if($wishlist_id == "") header("Location: index.php");
-$_SESSION["home"] = "$host.php?id=$wishlist_id&pageno=$pageNumber#paginate-top";
+$_SESSION["home"] = match($type){
+    "wisher" => "view-wishlist.php?id=$wishlist_id&pageno=$pageNumber#paginate-top",
+    "buyer" => "buyer-view.php?key=$wishlist_key&pageno=$pageNumber#paginate-top",
+};
 $username = $_SESSION["username"];
 if($type == "wisher"){
     $sort_priority = $_SESSION["wisher_sort_priority"];

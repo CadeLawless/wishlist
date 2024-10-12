@@ -10,7 +10,7 @@ $_SESSION["type"] = "buyer";
 
 // get wishlist key from URL
 $wishlistKey = $_GET["key"] ?? "";
-if($wishlistKey == "") header("Location: wishlist-search.php");
+if($wishlistKey == "") header("Location: index.php");
 
 // find wishlist based off of key
 $findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
@@ -73,11 +73,17 @@ $_SESSION["buyer_sort_price"] = $sort_price;
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <title><?php echo $wishlistTitle; ?></title>
     <style>
+        #body {
+            padding-top: 100px;
+        }
         h1 {
             display: inline-block;
         }
         h2.items-list-title {
             position: relative;
+        }
+        .header .title {
+            flex-basis: 100%;
         }
         .menu-links, .hamburger-menu, .close-menu {
             display: none !important;
@@ -108,7 +114,7 @@ $_SESSION["buyer_sort_price"] = $sort_price;
         }
     </style>
 </head>
-<body>
+<?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
@@ -134,13 +140,15 @@ $_SESSION["buyer_sort_price"] = $sort_price;
 <?php include "includes/footer.php"; ?>
 </html>
 <script src="includes/popup.js"></script>
+<script>$type = "buyer"; $key_url = "<?php echo "key=$wishlistKey&"; ?>";</script>
 <script src="includes/page-change.js"></script>
-<script>$type = "buyer";</script>
 <script src="includes/filter-change.js"></script>
 <script>
-    // confetti on mark as purchased
-    for(const button of document.querySelectorAll(".purchase-button")){
-        button.addEventListener("click", function(){
+    $(document).ready(function(){
+        // confetti on mark as purchased
+        $(document.body).on("click", ".purchase-button", function(e){
+            e.preventDefault();
+            let button = this;
             let item_id = button.id.split("-")[1];
             setTimeout(function(){
                 window.location = "purchase-item.php?id=" + item_id;
@@ -199,5 +207,5 @@ $_SESSION["buyer_sort_price"] = $sort_price;
                 disableForReducedMotion: true,
             });
         });
-    }
+    });
 </script>
