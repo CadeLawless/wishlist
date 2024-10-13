@@ -21,6 +21,8 @@ while($row = $selectQuery->fetch_assoc()){
     $item_name_short = htmlspecialchars(substr($row["name"], 0, 25));
     if(strlen($row["name"]) > 25) $item_name_short .= "...";
     $price = htmlspecialchars($row["price"]);
+    $quantity = $row["quantity"] != "" ? htmlspecialchars($row["quantity"]) : "";
+    $unlimited = $row["unlimited"] == "Yes" ? true : false;
     $link = htmlspecialchars($row["link"]);
     $image = htmlspecialchars($row["image"]);
     $priority = htmlspecialchars($row["priority"]);
@@ -30,6 +32,8 @@ while($row = $selectQuery->fetch_assoc()){
     $notes_short = $row["notes"] == "" ? "None" : $notes_short;
     if(strlen($row["notes"]) > 30) $notes_short .= "...";
     if($type == "buyer"){
+        $quanity_purchased = htmlspecialchars($row["quantity_purchased"]);
+        $quantity = $quantity - $quanity_purchased;
         $purchased = $row["purchased"] == "Yes" ? true : false;
         if($gift_wrap == $number_of_wraps) $gift_wrap = 1;
     }
@@ -65,6 +69,10 @@ while($row = $selectQuery->fetch_assoc()){
         <div class='item-description'>
             <div class='line'><h3>$item_name_short</h3></div>
             <div class='line'><h4>Price: $$price <span class='price-date'>(as of $price_date)</span></h4></div>
+            <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> ";
+            echo $unlimited ? "Unlimited" : $quantity;
+            echo "
+            </div>
             <div class='line'><h4 class='notes-label'>Notes: </h4><span>$notes_short</span></div>
             <div class='line'><h4 class='notes-label'>Priority: </h4><span>($priority) $priorities[$priority]</span></div>
             <div class='icon-options item-options $type-item-options'>
@@ -122,26 +130,35 @@ while($row = $selectQuery->fetch_assoc()){
             }elseif($type == "buyer"){
                 echo "</div>";
                 if(!$purchased){
-                    echo "
-                    <div style='margin-top: 18px;' class='center'>
-                        <input class='purchased-button popup-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label>
-                        <div class='popup-container purchased-popup-$id hidden'>
-                            <div class='popup'>
-                                <div class='close-container'>
-                                    <a href='#' class='close-button'>";
-                                    require("$image_folder/site-images/menu-close.php");
-                                    echo "</a>
-                                </div>
-                                <div class='popup-content'>
-                                    <label>Are you sure you want to mark this item as purchased?</label>
-                                    <p>";
-                                    echo htmlspecialchars($row["name"]);
-                                    echo "</p>
-                                    <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary purchase-button' href='#' id='purchase-$id'>Yes</a></p>
+                    if($unlimited == "Yes"){
+                        echo "
+                        <br>
+                        <div class='center'>
+                            <h4 class='center'>If you buy this item, there is no need to mark it as purchased.</h4>
+                            <span class='unmark-msg'>This item has an unlimited quanity needed.</span>
+                        </div>";
+                    }else{
+                        echo "
+                        <div style='margin-top: 18px;' class='center'>
+                            <input class='purchased-button popup-button' type='checkbox' id='$id'><label for='$id'> Mark as Purchased</label>
+                            <div class='popup-container purchased-popup-$id hidden'>
+                                <div class='popup'>
+                                    <div class='close-container'>
+                                        <a href='#' class='close-button'>";
+                                        require("$image_folder/site-images/menu-close.php");
+                                        echo "</a>
+                                    </div>
+                                    <div class='popup-content'>
+                                        <label>Are you sure you want to mark this item as purchased?</label>
+                                        <p>";
+                                        echo htmlspecialchars($row["name"]);
+                                        echo "</p>
+                                        <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary purchase-button' href='#' id='purchase-$id'>Yes</a></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>";
+                        </div>";
+                    }
                 }else{
                     echo "
                     <br>

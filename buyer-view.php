@@ -151,7 +151,7 @@ $_SESSION["buyer_sort_price"] = $sort_price;
             let button = this;
             let item_id = button.id.split("-")[1];
             setTimeout(function(){
-                window.location = "purchase-item.php?id=" + item_id;
+                window.location = "purchase-item.php?id=" + item_id+"&pageno="+document.querySelector(".page-number").textContent;
             }, 3000);
             button.style.pointerEvents = "none";
             var windowWidth = window.innerWidth;
