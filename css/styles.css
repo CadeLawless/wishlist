@@ -580,6 +580,9 @@ body.dark .dark-mode-link {
 .flex{
     display: flex;
 }
+.flex.flex-center {
+    align-items: center;
+}
 .flex > div {
     flex-grow: 1;
 }
@@ -626,6 +629,24 @@ label.normal-text {
 input, textarea, select {
     box-sizing: border-box;
     font-size: 1rem;
+}
+#quantity {
+    flex-basis: 50px;
+    flex-grow: 1;
+}
+#unlimited + label {
+    display: inline-flex;
+    height: 43px;
+    align-items: center;
+    margin-top: 5px;
+}
+.quantity-container {
+    column-gap: 10px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+.quantity-container input {
+    margin: 5px 0 0 !important;
 }
 input:not([type=radio], [type=checkbox], [type=submit], [class=price-input]), select, textarea {
     width: 100%;
@@ -740,12 +761,16 @@ textarea {
     outline: 1px solid red;
 }
 .error-msg {
-    color: red;
+    color: var(--text);
     font-size: 14px;
-    margin: -18px 0 0;
+    margin: -18px 0 4px;
+    flex-basis: 100%;
+}
+.quantity-container .error-msg {
+    margin: 4px 0;
 }
 .invalid ~ span {
-    display: block;
+    display: block !important;
 }
 
 /* popup css */
@@ -919,10 +944,10 @@ textarea {
     height: 35px;
 }
 .close-container:hover .close-button, .close-container:hover .close-button svg {
-    height: 25px;
-    width: 25px;
+    height: 15px;
+    width: 15px;
 }
-.popup.image-popup .close-container:hover .close-button {
+.popup.image-popup .close-container:hover .close-button, .popup.image-popup .close-container:hover .close-button svg {
     height: 25px;
     width: 25px;
 }

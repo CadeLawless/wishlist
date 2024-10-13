@@ -13,6 +13,8 @@ if($background_image == "") header("Location: view-wishlist.php?id=$wishlistID")
 // intialize form field variables
 $item_name = "";
 $price = "";
+$quantity = "1";
+$unlimited = "No";
 $link = "";
 $filename = "";
 $notes = "";
@@ -21,16 +23,7 @@ $priority_options = ["1", "2", "3", "4"];
 
 // if submit button is clicked
 if(isset($_POST["submit_button"])){
-    $errors = false;
-    $errorTitle = "<b>The form could not be submitted due to the following errors:</b>";
-    $errorList = "";
-    $item_name = errorCheck("name", "Item Name", "Yes", $errors, $errorList);
-    $price = errorCheck("price", "Item Price", "Yes", $errors, $errorList);
-    patternCheck("/(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$/", $price, $errors, $errorList, "Item Price must match U.S. currency format: 9,999.00");
-    $link = errorCheck("link", "Item URL", "Yes", $errors, $errorList);
-    $notes = errorCheck("notes", "Not Required");
-    $priority = errorCheck("priority", "How much do you want this item", "Yes", $errors, $errorList);
-    validOptionCheck($priority, "How much do you want this item", $priority_options, $errors, $errorList);
+    require("includes/item-form-submit-vars.php");
     $filename = "";
     if(!$errors){
         if(isset($_FILES["item_image"]["name"])){
@@ -69,8 +62,8 @@ if(isset($_POST["submit_button"])){
     }
     $date_added = date("Y-m-d H:i:s");
     if(!$errors){
-        if($db->write("INSERT INTO items(wishlist_id, name, price, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", [$wishlistID, $item_name, $price, $link, $filename, $notes, $priority])){
-            //header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
+        if($db->write("INSERT INTO items(wishlist_id, name, price, quantity, unlimited, link, image, notes, priority, purchased, date_added) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, 'No', '$date_added')", [$wishlistID, $item_name, $price, $quantity, $unlimited, $link, $filename, $notes, $priority])){
+            header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
             // echo $db->error();
@@ -123,45 +116,10 @@ if(isset($_POST["submit_button"])){
                 <?php if(isset($errorMsg)) echo $errorMsg?>
                 <form method="POST" action="" enctype="multipart/form-data">
                     <div class="flex form-flex">
-                        <div class="large-input">
-                            <label for="name">Item Name:<br></label>
-                            <textarea required name="name" id="name" autocapitalize="words" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
-                        </div>
-                        <div class="large-input">
-                            <label for="price">Item Price:<br></label>
-                            <div id="price-input-container">
-                                <span class="dollar-sign-input flex">
-                                    <label for="price"><span class="dollar-sign">$</span></label>
-                                    <input type="text" inputmode="decimal" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
-                                </span>
-                                <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
-                            </div>
-                        </div>
-                        <div class="large-input">
-                            <label for="link">Item URL:<br></label>
-                            <input required type="text" name="link" id="link" value="<?php echo $link?>" placeholder="https://example.com">
-                        </div>
-                        <div class="large-input">
-                            <label for="image">Item Image:<br></label>
-                            <a class="file-input">Choose Item Image</a>
-                            <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
-                            <div class="<?php if($filename == "") echo "hidden"; ?>" id="preview_container">
-                                <img id="preview" src="">
-                            </div>
-                        </div>
-                        <div class="large-input">
-                            <label for="notes">Item Notes:<br></label>
-                            <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo $notes?></textarea>
-                        </div>
-                        <div class="large-input">
-                            <label for="priority">How much do you want this item?</label><br>
-                            <select id="priority" name="priority">
-                                <option value="1" <?php if($priority == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
-                                <option value="2" <?php if($priority == "2") echo "selected"; ?>>(2) I really want this item</option>
-                                <option value="3" <?php if($priority == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
-                                <option value="4" <?php if($priority == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
-                            </select>
-                        </div>
+                        <?php
+                        $add = true;
+                        require("includes/item-form.php");
+                        ?>
                         <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Add Item"></p>
                     </div>
                 </form>
@@ -172,47 +130,4 @@ if(isset($_POST["submit_button"])){
 <?php include "includes/footer.php"; ?>
 </html>
 <script src="scripts/autosize-master/autosize-master/dist/autosize.js"></script>
-<script>
-    // autosize textareas
-    for(const textarea of document.querySelectorAll("textarea")){
-        autosize(textarea);
-    }
-
-    // on click of file input button, open file picker
-    document.querySelector(".file-input").addEventListener("click", function(e){
-        e.preventDefault();
-        document.querySelector("#image").click();
-    });
-
-    // show image preview on change
-    document.querySelector("#image").addEventListener("change", function(){
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                document.querySelector("#preview").setAttribute('src', e.target.result);
-            }
-
-            reader.readAsDataURL(this.files[0]);
-            document.querySelector("#preview_container").classList.remove("hidden");
-            document.querySelector(".file-input").textContent = "Change Item Image";
-        }else{
-            document.querySelector("#preview_container").classList.add("hidden");
-            document.querySelector(".file-input").textContent = "Choose Item Image";
-        }
-    });
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            $('#preview_container').show();
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                $('#preview').attr('src', e.target.result);
-            }
-
-            reader.readAsDataURL(input.files[0]);
-        }else{
-            $('#preview_container').hide();
-        }
-    }
-</script>
+<script src="includes/item-form.js"></script>
