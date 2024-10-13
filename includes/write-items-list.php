@@ -15,6 +15,18 @@ $image_folder = match($ajax){
 $wrap_folder_get_count = new FilesystemIterator("$image_folder/site-images/themes/gift-wraps/$wrap_image", FilesystemIterator::SKIP_DOTS);
 $number_of_wraps = iterator_count($wrap_folder_get_count);
 
+echo "
+<div class='popup-container image-popup-container hidden'>
+    <div class='popup image-popup'>
+        <div class='close-container transparent-background'>
+            <a href='#' class='close-button'>";
+            require("$image_folder/site-images/menu-close.php");
+            echo "</a>
+        </div>
+        <img class='popup-image' src='' alt='wishlist item image'>
+    </div>
+</div>";
+
 while($row = $selectQuery->fetch_assoc()){
     $id = $row["id"];
     $item_name = htmlspecialchars($row["name"]);
@@ -51,18 +63,8 @@ while($row = $selectQuery->fetch_assoc()){
         }
         if($type == "wisher" || ($type == "buyer" && !$purchased)){
             echo "
-            <div class='item-image-container popup-button'>
+            <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='images/item-images/$wishlist_id/$image?t=" . time() . "' alt='wishlist item image'>
-            </div>
-            <div class='popup-container image-popup-container hidden'>
-                <div class='popup image-popup'>
-                    <div class='close-container transparent-background'>
-                        <a href='#' class='close-button'>";
-                        require("$image_folder/site-images/menu-close.php");
-                        echo "</a>
-                    </div>
-                    <img class='popup-image' src='images/item-images/$wishlist_id/$image?t=" . time() . "' alt='wishlist item image'>
-                </div>
             </div>";
         }
         echo "
