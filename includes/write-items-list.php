@@ -129,6 +129,29 @@ while($row = $selectQuery->fetch_assoc()){
                         </div>
                     </div>
                 </div>";
+                /* if(!$unlimited){
+                    echo "
+                    <div style='margin-top: 18px;' class='center'>
+                        <a class='button secondary popup-button' href='#'>Unmark as purchased</a>
+                        <div class='popup-container hidden'>
+                            <div class='popup'>
+                                <div class='close-container'>
+                                    <a href='#' class='close-button'>";
+                                    require("$image_folder/site-images/menu-close.php");
+                                    echo "</a>
+                                </div>
+                                <div class='popup-content'>
+                                    <p>If this item has been purchased, unmarking this item will make it available for others to mark as purchased again.</p>
+                                    <label>Are you sure you want to unmark this item as purchased?</label>
+                                    <p>";
+                                    echo htmlspecialchars($row["name"]);
+                                    echo "</p>
+                                    <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary' href='unmark-item.php?id=$id&pageno=$pageNumber'>Yes</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>";
+                } */
             }elseif($type == "buyer"){
                 echo "</div>";
                 if(!$purchased){
@@ -166,7 +189,7 @@ while($row = $selectQuery->fetch_assoc()){
                     <br>
                     <div class='center'>
                         <h4 class='center'>This item has been purchased!</h4>
-                        <span class='unmark-msg'>If you need to unmark an item as purchased, reach out to {$_SESSION["name"]} or a family member.</span>
+                        <span class='unmark-msg'>If you need to unmark an item as purchased, email <a href='mailto:support@cadelawless.com'>support@cadelawless.com</a> for help.</span>
                     </div>";
                 }
             }
