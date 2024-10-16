@@ -78,6 +78,7 @@ if(isset($_POST["submit_button"])){
         <?php require("includes/header.php"); ?>
         <div id="container">
             <h1 class="center"><?php echo $name; ?>'s Wish Lists</h1>
+            <p class="center" style="margin: 0 0 36px;"><a class="button primary" href="create-wishlist.php">Create a New Wish List</a></p>
             <div class="wishlist-grid">
                 <?php
                 $findWishlists = $db->select("SELECT id, type, wishlist_name, duplicate, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE username = ? ORDER BY date_created DESC", [$username]);
@@ -119,6 +120,8 @@ if(isset($_POST["submit_button"])){
                             <div class='wishlist-name'><span>$list_name$duplicate</span></div>
                         </a>";
                     }
+                }else{
+                    echo "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any wish lists created yet</p>";
                 }
                 ?>
             </div>
