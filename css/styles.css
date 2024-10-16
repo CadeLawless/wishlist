@@ -19,6 +19,7 @@ body {
     --background-lighter: #eeeee6;
     --background-hover: #eeeee6;
     --background-darker: #cbcbc3;
+    --primary-link: #3e5646;
     --primary: #3e5646;
     --primary-hover: #27372d;
     --secondary: #cbddd1;
@@ -30,6 +31,7 @@ body {
     --transparent-background-more: #ffffff5e;
     --icon-background: #e7e7e7;
     --icon-background-hover: #b9b9b9;
+    --icon-background-hover-second: #b9b9b9;
     --bar-text-placeholder: #c9c9c9;
     --contrast: white;
     --input-background: #ffffffc4;
@@ -43,6 +45,7 @@ body.dark {
     --background-lighter: #161609;
     --background-hover: #55554a;
     --background-darker: #1b221d;
+    --primary-link: #a2c6ae;
     --secondary: #abbdb1;
     --secondary-hover: #88958c;
     --transparent-background: #222b25e6;
@@ -50,6 +53,7 @@ body.dark {
     --transparent-background-more: #222b2580;
     --icon-background: #323232;
     --icon-background-hover: #575757;
+    --icon-background-hover-second: #344439;
     --bar-text-placeholder: #c9c9c9;
     --contrast: black;
     --input-background: #3a3a3ac2;
@@ -174,7 +178,7 @@ h4 {
     margin: 0;
 }
 a {
-    color: var(--primary);
+    color: var(--primary-link);
 }
 label {
     font-weight: bold;
@@ -456,7 +460,7 @@ body.dark .dark-mode-link {
     height: 20px;
 }
 .icon-container.add-item:hover {
-    background-color: var(--icon-background-hover);
+    background-color: var(--icon-background-hover-second);
 }
 .password-input {
     position: relative;
