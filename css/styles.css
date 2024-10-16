@@ -458,6 +458,33 @@ body.dark .dark-mode-link {
 .icon-container.add-item:hover {
     background-color: var(--icon-background-hover);
 }
+.password-input {
+    position: relative;
+}
+#password {
+    padding-right: 36px;
+}
+.password-view, .password-view .icon {
+    width: 25px;
+    height: 25px;
+}
+.password-view {
+    position: absolute;
+    top: 13px;
+    right: 10px;
+}
+.password-view .icon {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    pointer-events: auto;
+}
+.password-view .icon path {
+    fill: var(--text);
+}
+.password-view:hover .icon path {
+    fill: var(--text-hover);
+}
 .copy-link svg {
     width: 25px;
     height: 25px;
@@ -769,7 +796,7 @@ textarea {
 .quantity-container .error-msg {
     margin: 4px 0;
 }
-.invalid ~ span {
+.invalid ~ span.error-msg {
     display: block !important;
 }
 
@@ -1640,7 +1667,7 @@ img.gift-wrap {
     margin-bottom: 0;
 }
 #login-form {
-    max-width: 300px;
+    max-width: 400px;
     margin: auto;
 }
 #login-form label {
