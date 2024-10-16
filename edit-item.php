@@ -24,6 +24,7 @@ if($findItemInformation->num_rows > 0){
         $link = htmlspecialchars($row["link"]);
         $image_name = htmlspecialchars($row["image"]);
         $priority = htmlspecialchars($row["priority"]);
+        $purchased = $row["purchased"];
     }
 }
 $priority_options = ["1", "2", "3", "4"];
@@ -79,7 +80,8 @@ if(isset($_POST["submit_button"])){
                 unlink($original_path);
             }
         }
-        if($db->write("UPDATE items SET name = ?, price = ?, quantity = ?, unlimited = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified' WHERE id = ?", [$item_name, $price, $quantity, $unlimited, $link, $filename, $notes, $priority, $itemID])){
+        $purchased = $unlimited == "Yes" ? "No" : $purchased;
+        if($db->write("UPDATE items SET name = ?, price = ?, quantity = ?, unlimited = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified', purchased = ? WHERE id = ?", [$item_name, $price, $quantity, $unlimited, $link, $filename, $notes, $priority, $purchased, $itemID])){
             header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
