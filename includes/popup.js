@@ -25,7 +25,8 @@ $(document).ready(function() {
             }
         }
     });
-    $(document.body).on("click", ".no-button", function() {
+    $(document.body).on("click", ".no-button", function(e) {
+        e.preventDefault();
         $("body").removeClass("fixed");
         this.closest(".popup-container").classList.add("hidden");
     });
