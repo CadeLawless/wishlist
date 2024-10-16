@@ -42,7 +42,7 @@ if(isset($_POST["submit_button"])){
         if($db->write("INSERT INTO wishlist_users (name, username, password, session, session_expiration) VALUES(?,?,?,?,?)", [$name, $username, $hashed_password, session_id(), $expire_date])){
             $cookie_time = (3600 * 24 * 365); // 1 year
             setcookie("wishlist_session_id", session_id(), time() + $cookie_time);
-            $_SESSION["logged_in"] = true;
+            $_SESSION["wishlist_logged_in"] = true;
             $_SESSION["username"] = $username;
             header("Location: index.php");
         }else{
