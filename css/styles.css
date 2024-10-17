@@ -1382,6 +1382,48 @@ img.gift-wrap {
     background-color: var(--transparent-background);
     padding: 10px;
 }
+.theme-header.background-header {
+    background-color: var(--background);
+}
+.default-background {
+    display: block;
+    background-color: var(--background);
+    border: 1px solid var(--text);
+    width: 93%;
+    height: 160px;
+    margin: auto;
+}
+.theme-image.default-background {
+    width: 90%;
+    max-width: 288px;
+}
+.theme-results .default-background {
+    height: 100%;
+}
+.default-background-option {
+    width: 99%;
+    height: 99%;
+}
+.theme-results .mobile-background-display .default-background {
+    width: 100px;
+    height: 140px;
+}
+.mobile-theme-image.default-background{
+    height: 300px;
+    max-width: 200px;
+}
+.preview-image.desktop-image .default-background {
+    width: 50px;
+    height: 28px;
+}
+.preview-image.mobile-image .default-background {
+    width: 24px;
+    height: 34px;
+}
+.preview-image.mobile-background-image .default-background {
+    max-width: 200px;
+    height: 286px;
+}
 .theme-dropdown.background-dropdown {
     padding-bottom: 5px;
 }
@@ -1712,37 +1754,6 @@ img.gift-wrap {
         flex-direction: column;
     }
 }
-@media (max-width: 804px){
-    .popup {
-        width: 90%;
-    }
-}
-@media (max-width: 780px){
-    .items-list {
-        grid-template-columns: 1fr;
-        grid-auto-columns: 1fr;
-        justify-items: center;
-    }
-    .items-list .item-container {
-        height: auto;
-        width: 340px;
-    }
-    .item-container.add-placeholder {
-        margin: auto;
-    }
-    .item-description {
-        position: relative;
-        height: auto;
-    }
-    .image-dropdown .options-content {
-        grid-template-columns: 1fr;
-        grid-auto-columns: 1fr;
-    }
-    .theme-list {
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
-    }
-}
 @media (max-width: 815px){
     .header .title {
         flex-basis: calc(100% - 85px);
@@ -1830,6 +1841,50 @@ img.gift-wrap {
         padding-top: 75px;
     }
 }
+@media (max-width: 804px){
+    .popup {
+        width: 90%;
+    }
+}
+@media (max-width: 780px){
+    .items-list {
+        grid-template-columns: 1fr;
+        grid-auto-columns: 1fr;
+        justify-items: center;
+    }
+    .items-list .item-container {
+        height: auto;
+        width: 340px;
+    }
+    .item-container.add-placeholder {
+        margin: auto;
+    }
+    .item-description {
+        position: relative;
+        height: auto;
+    }
+    .image-dropdown .options-content {
+        grid-template-columns: 1fr;
+        grid-auto-columns: 1fr;
+    }
+    .theme-list {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+    }
+    .default-background-option {
+        height: 290px;
+    }  
+    .default-background-option .default-background {
+        height: 245px;
+    }  
+    .desktop-theme-image.default-background {
+        height: 275px;
+        max-width: none;
+    }
+    .theme:hover > .theme-image.default-background {
+        height: 275px;
+    }
+}
 @media (max-width: 600px){
     .theme-picture img {
         max-height: 170px;
@@ -1883,6 +1938,14 @@ img.gift-wrap {
     .theme-popup-container .background-theme.desktop-background {
         display: none;
     }
+    .theme:hover > .theme-image.default-background {
+        max-width: 200px;
+        height: 300px;
+    }
+    .default-background-option {
+        height: auto;
+        padding-bottom: 10px !important;
+    }  
 }
 @media (max-width: 530px){
     .continue-button {
@@ -1890,9 +1953,6 @@ img.gift-wrap {
     }
     .gift-wrap-header {
         margin-bottom: 55px;
-    }
-    .popup.fullscreen .gift-wrap-content .popup-content {
-        max-height: calc(100% - 184px);
     }
     #container .theme-popup-container .background-theme.mobile-background {
         min-width: 380px;
@@ -1967,8 +2027,8 @@ img.gift-wrap {
     }
 }
 @media (max-width: 296px){
-    .popup.fullscreen .gift-wrap-content .popup-content {
-        max-height: calc(100% - 189px);
+    .mobile-theme-image.default-background {
+        height: 95vw;
     }
 }
 @media (max-width: 247px){

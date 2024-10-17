@@ -9,7 +9,6 @@ require "includes/wishlist-setup.php";
 $itemID = $_GET["id"] ?? "";
 if($itemID == "") header("Location: index.php");
 $background_image = $_SESSION["wisher_background_image"] ?? "";
-if($background_image == "") header("Location: view-wishlist.php?id=$wishlistID");
 
 // find item information
 $findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", [$itemID]);
@@ -126,8 +125,10 @@ if(isset($_POST["submit_button"])){
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
-            <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-            <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+            <?php if($background_image != ""){ ?>
+                <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+            <?php } ?>
             <p style="padding-top: 15px;"><a class="button accent" href="<?php echo $_SESSION["home"]; ?>">Back to List</a></p>
             <div class="center"><h1 class="transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <div class="form-container">

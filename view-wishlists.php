@@ -90,11 +90,15 @@ if(isset($_POST["submit_button"])){
                         $duplicate = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
                         $theme_background_id = $row["theme_background_id"];
                         $theme_gift_wrap_id = $row["theme_gift_wrap_id"];
-                        $findBackground = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
-                        if($findBackground->num_rows > 0){
-                            while($bg_row = $findBackground->fetch_assoc()){
-                                $background_image = $bg_row["theme_image"];
+                        if($theme_background_id != 0){
+                            $findBackground = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
+                            if($findBackground->num_rows > 0){
+                                while($bg_row = $findBackground->fetch_assoc()){
+                                    $background_image = $bg_row["theme_image"];
+                                }
                             }
+                        }else{
+                            $background_image = "";
                         }
                         $findGiftWrap = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_gift_wrap_id]);
                         if($findGiftWrap->num_rows > 0){
@@ -104,7 +108,9 @@ if(isset($_POST["submit_button"])){
                         }
                         echo "
                         <a class='wishlist-grid-item' href='view-wishlist.php?id=$id'>
-                            <div class='items-list preview' style='background-image: url(images/site-images/themes/desktop-thumbnails/$background_image);'>
+                            <div class='items-list preview' style='";
+                            echo $background_image == "" ? "" : "background-image: url(images/site-images/themes/desktop-thumbnails/$background_image);";
+                            echo "'>
                                 <div class='item-container'>
                                     <img src='images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                                     <div class='item-description'>

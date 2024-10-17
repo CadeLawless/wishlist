@@ -12,12 +12,39 @@
                 </a>
             </div>
             <div class="theme-content">
-                <h2 class="theme-header" style="margin-top: 0;">Choose a Background</h2>
+                <h2 class="theme-header background-header" style="margin-top: 0;">Choose a Background</h2>
                 <div class='popup-content choose-theme-popup'>
                     <div class="theme-list">
                         <?php
                         $findBackgrounds = $db->query("SELECT * FROM themes WHERE theme_type = 'Background' AND theme_tag = '$type_title' ORDER BY theme_name ASC");
                         if($findBackgrounds->num_rows > 0){
+                            echo "
+                            <a class='theme popup-button' href='#'>
+                                <div class='theme-image desktop-theme-image default-background'></div>
+                                <div class='theme-image mobile-theme-image default-background'></div>
+                                <div class='hover-title'>Default</div>
+                            </a>
+                            <div class='popup-container second center-items individual-theme-popup hidden'>
+                                <div class='popup'>
+                                    <div class='close-container'>
+                                        <a href='#' class='close-button'>";
+                                        require("images/site-images/menu-close.php");
+                                        echo "</a>
+                                    </div>
+                                    <div class='popup-content'>
+                                        <h2 style='margin-top: 0'>Default</h2>
+                                        <div class='theme-nav'>
+                                            <a href='#' class='desktop active'>Desktop</a>
+                                            <a href='#' class='mobile'>Mobile</a>
+                                        </div>
+                                        <div class='theme-picture'>
+                                            <div style='background-color: var(--background); height: 300px; width: 100%; border: 1px solid var(--text);' class='desktop'></div>
+                                            <div style='background-color: var(--background); height: 300px; width: 100%; max-width: 200px; border: 1px solid var(--text);' class='mobile hidden'></div>
+                                        </div>
+                                        <p class='center'><a class='select-theme button primary' data-default-gift-wrap='0' data-background-id='0' data-background-image='default' href='#'>Select Background</a></p>
+                                    </div>
+                                </div>
+                            </div>";
                             while($row = $findBackgrounds->fetch_assoc()){
                                 $background_id = $row["theme_id"];
                                 $background_name = $row["theme_name"];
@@ -91,6 +118,14 @@
                                 <div class="options-content">
                                 <?php
                                 if($findBackgrounds->num_rows > 0){
+                                    echo "
+                                    <div class='option default-background-option'>
+                                        <span class='value' data-background-image='default' data-background-id='0' data-default-gift-wrap='";
+                                        echo $type == "birthday" ? "28" : "60";
+                                        echo "'>Default</span>
+                                        <span class='preview-image desktop-background-image'><span class='default-background'></span></span>
+                                        <span class='preview-image mobile-background-image'><span class='default-background'></span></span>
+                                    </div>";
                                     foreach($findBackgrounds as $row){
                                         $background_id = $row["theme_id"];
                                         $background_name = $row["theme_name"];
