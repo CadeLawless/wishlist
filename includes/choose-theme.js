@@ -2,13 +2,13 @@ $(document).ready(function() {
     $(".theme-nav a").on("click", function(e){
         e.preventDefault();
         $(".theme-nav a").removeClass("active");
-        $(".theme-picture img").addClass("hidden");
+        $(".theme-picture img, .theme-picture > div").addClass("hidden");
         if($(this).hasClass("desktop")){
             $(".theme-nav a.desktop").addClass("active");
-            $(".theme-picture img.desktop").removeClass("hidden");
+            $(".theme-picture img.desktop, .theme-picture > div.desktop").removeClass("hidden");
         }else{
             $(".theme-nav a.mobile").addClass("active");
-            $(".theme-picture img.mobile").removeClass("hidden");
+            $(".theme-picture img.mobile, .theme-picture > div.mobile").removeClass("hidden");
         }
     });
 
@@ -87,10 +87,17 @@ $(document).ready(function() {
             $selected_option.find(".value").text($(this).find(".value").text());
             $selected_option.find(".value").data("background-id", $background_id);
             $selected_option.find(".value").data("background-image", $background_image);
-            $selected_option.find(".preview-image.desktop-image").html("<img src='images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
-            $selected_option.find(".preview-image.mobile-image").html("<img src='images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
-            $(this).closest(".popup").find(".background-theme.desktop-background").attr("src", "images/site-images/themes/desktop-backgrounds/"+$background_image);
-            $(this).closest(".popup").find(".background-theme.mobile-background").attr("src", "images/site-images/themes/mobile-backgrounds/"+$background_image);
+            if($background_id != "0"){
+                $selected_option.find(".preview-image.desktop-image").html("<img src='images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
+                $selected_option.find(".preview-image.mobile-image").html("<img src='images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
+                $(this).closest(".popup").find(".background-theme.desktop-background").attr("src", "images/site-images/themes/desktop-backgrounds/"+$background_image);
+                $(this).closest(".popup").find(".background-theme.mobile-background").attr("src", "images/site-images/themes/mobile-backgrounds/"+$background_image);
+            }else{
+                $selected_option.find(".preview-image.desktop-image").html("<span class='default-background'></span>");
+                $selected_option.find(".preview-image.mobile-image").html("<span class='default-background'></span>");
+                $(this).closest(".popup").find(".background-theme.desktop-background").attr("src", "");
+                $(this).closest(".popup").find(".background-theme.mobile-background").attr("src", "");
+            }
             $(this).closest(".popup").find(".background-theme.desktop-background").removeClass("hidden");
             $(this).closest(".popup").find(".background-theme.mobile-background").removeClass("hidden");
             $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("recommended");
@@ -117,9 +124,15 @@ $(document).ready(function() {
         $type = $("#wishlist_type").val().toLowerCase();
         $popup_container = ".popup-container."+$type + " ";
         $selected_background = $($popup_container+".image-dropdown.background .selected-option");
+        $background_id = $selected_background.find(".value").data("background-id");
         $background_image = $selected_background.find(".value").data("background-image");
-        $(".theme-background-display.desktop-background-display").html("<label>Background:</label><img src='images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
-        $(".theme-background-display.mobile-background-display").html("<label>Background:</label><img src='images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
+        if($background_id != "0"){
+            $(".theme-background-display.desktop-background-display").html("<label>Background:</label><img src='images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
+            $(".theme-background-display.mobile-background-display").html("<label>Background:</label><img src='images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
+        }else{
+            $(".theme-background-display.desktop-background-display").html("<label>Background:</label><div class='default-background'></div>");
+            $(".theme-background-display.mobile-background-display").html("<label>Background:</label><div class='default-background'></div>");
+        }
         $selected_gift_wrap = $($popup_container+".image-dropdown.gift-wrap .selected-option");
         $gift_wrap_id = $selected_gift_wrap.find(".value").data("wrap-id");
         $gift_wrap_clone = $($popup_container+".image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$gift_wrap_id+"]").parent().clone(true);

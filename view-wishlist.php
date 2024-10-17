@@ -28,11 +28,13 @@ if($findWishlistInfo->num_rows > 0){
         $secret_key = $row["secret_key"];
         $theme_background_id = $row["theme_background_id"];
         $theme_gift_wrap_id = $row["theme_gift_wrap_id"];
-        $findBackground = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
-        if($findBackground->num_rows > 0){
-            while($bg_row = $findBackground->fetch_assoc()){
-                $background_image = $bg_row["theme_image"];
-                $_SESSION["wisher_background_image"] = $background_image;
+        if($theme_background_id != 0){
+            $findBackground = $db->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
+            if($findBackground->num_rows > 0){
+                while($bg_row = $findBackground->fetch_assoc()){
+                    $background_image = $bg_row["theme_image"];
+                    $_SESSION["wisher_background_image"] = $background_image;
+                }
             }
         }
     }
@@ -123,8 +125,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <?php require("includes/header.php"); ?>
         <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
         <div id="container">
-            <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-            <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+            <?php if($theme_background_id != 0){ ?>
+                <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+            <?php } ?>
             <p style="padding-top: 15px;"><a class="button accent" href="view-wishlists.php">Back to All Wish Lists</a></p>
 
             <div class="center">
