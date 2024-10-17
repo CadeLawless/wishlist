@@ -72,27 +72,28 @@ if(isset($_POST["submit_button"])){
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">
-        <?php require "includes/background.php"; ?>
-        <p class="center"><img class="logo login" src="images/site-images/logo.png" alt="Wish List" /></p>
-        <?php if(isset($error_msg)) echo $error_msg; ?>
-        <form id="login-form" method="POST" action="">
-            <div class="large-input center">
-                <label for="username">Username: </label><br>
-                <input required type="text" value="<?php echo $username; ?>" name="username" id="username">
-                <span class="error-msg hidden">Username must include</span>
-            </div>
-            <div class="large-input center">
-                <label for="password">Password: </label><br>
-                <input required type="password" name="password" id="password">
-                <span class="error-msg hidden">Password must include</span>
-            </div>
-            <div class="large-input">
-                <input type="checkbox" id="remember_me" name="remember_me" <?php if($remember_me == "Yes") echo "checked"; ?> />
-                <label style="float: none; font-weight: normal;" for="remember_me">Remember me</label>
-            </div>
-            <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Login"></p>
-            <p style="font-size: 14px" class="large-input center">Dont have an account? <a href="create-an-account.php">Create one here</a></p>
-        </form>
+        <div id="container">
+            <p class="center"><img class="logo login" src="images/site-images/logo.png" alt="Wish List" /></p>
+            <?php if(isset($error_msg)) echo $error_msg; ?>
+            <form id="login-form" style="max-width: 300px;" method="POST" action="">
+                <div class="large-input center">
+                    <label for="username">Username: </label><br>
+                    <input required type="text" value="<?php echo $username; ?>" name="username" id="username">
+                    <span class="error-msg hidden">Username must include</span>
+                </div>
+                <div class="large-input center">
+                    <label for="password">Password: </label><br>
+                    <input required type="password" name="password" id="password">
+                    <span class="error-msg hidden">Password must include</span>
+                </div>
+                <div class="large-input">
+                    <input type="checkbox" id="remember_me" name="remember_me" <?php if($remember_me == "Yes") echo "checked"; ?> />
+                    <label style="float: none; font-weight: normal;" for="remember_me">Remember me</label>
+                </div>
+                <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Login"></p>
+                <p style="font-size: 14px" class="large-input center">Dont have an account? <a href="create-an-account.php">Create one here</a></p>
+            </form>
+        </div>
     </div>
 </body>
 <?php include "includes/footer.php"; ?>
