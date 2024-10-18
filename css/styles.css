@@ -126,7 +126,7 @@ body {
     min-width: 65vh;
 }
 #container .theme-popup-container .background-theme.desktop-background {
-    min-width: 1800px;
+    min-width: 1320px;
     min-height: 1000px;
 }
 footer {
@@ -1978,6 +1978,9 @@ img.gift-wrap {
 @media (max-width: 475px){
     .wishlist-grid, .items-list-container {
         margin-bottom: 55px;
+    }
+    #login-form {
+        margin-bottom: 50px;
     }
 }
 @media (max-width: 450px){
