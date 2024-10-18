@@ -114,8 +114,8 @@ body {
     padding-top: 0;
 }
 .desktop-background {
-    min-width: 2000px;
-    min-height: 1125px;
+    min-width: 1500px;
+    min-height: 845px;
 }
 .mobile-background {
     min-width: 500px;
