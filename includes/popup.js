@@ -29,6 +29,9 @@ $(document).ready(function() {
         e.preventDefault();
         $("body").removeClass("fixed");
         this.closest(".popup-container").classList.add("hidden");
+        if($(this).hasClass("double-no")){
+            $(this).closest(".popup-container").prev().closest(".popup-container").addClass("hidden");
+        }
     });
 
     $(window).on("click", function(e){
