@@ -99,6 +99,7 @@
                     } ?>
                     </div>
                 </h2>
+                <div class='theme-header'>Gift wraps will be displayed over any purchased item images. You will never see the gift wraps. Only the people who purchase items off your wish list will see them.</div>
                 <div class='popup-content no-margin-top'>
                     <div class="theme-dropdown background-dropdown">
                         <strong>Background:</strong>
