@@ -203,7 +203,7 @@ $_SESSION["buyer_sort_price"] = $sort_price;
                     ],
                 },
                 scalar: 3,
-                zIndex: 100,
+                zIndex: 1002,
                 disableForReducedMotion: true,
             });
         });
