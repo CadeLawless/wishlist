@@ -30,7 +30,7 @@ echo "
 while($row = $selectQuery->fetch_assoc()){
     $id = $row["id"];
     $item_name = htmlspecialchars($row["name"]);
-    $item_name_short = htmlspecialchars(substr($row["name"], 0, 25));
+    $item_name_short = htmlspecialchars(mb_substr($row["name"], 0, 25));
     if(strlen($row["name"]) > 25) $item_name_short .= "...";
     $price = htmlspecialchars($row["price"]);
     $quantity = $row["quantity"] != "" ? htmlspecialchars($row["quantity"]) : "";
@@ -39,7 +39,7 @@ while($row = $selectQuery->fetch_assoc()){
     $image = htmlspecialchars($row["image"]);
     $priority = htmlspecialchars($row["priority"]);
     $notes = htmlspecialchars($row["notes"]);
-    $notes_short = htmlspecialchars(substr($row["notes"], 0, 30));
+    $notes_short = htmlspecialchars(mb_substr($row["notes"], 0, 30));
     $notes = $row["notes"] == "" ? "None" : $notes;
     $notes_short = $row["notes"] == "" ? "None" : $notes_short;
     if(strlen($row["notes"]) > 30) $notes_short .= "...";
