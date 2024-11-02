@@ -18,9 +18,11 @@ $currentPage = $_SERVER["REQUEST_URI"];
                 <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist.php") echo " active"; ?>" href="create-wishlist.php">Create Wishlist<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlist/view-wishlists.php") echo " active"; ?>" href="view-wishlists.php">View Wishlists<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link">
-                    <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
-                    <span><?php echo $name; ?></span>
-                    <span class="dropdown-arrow"><?php require("images/site-images/dropdown-arrow.php"); ?></span>
+                    <div class="outer-link">
+                        <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
+                        <span><?php echo $name; ?></span>
+                        <span class="dropdown-arrow"><?php require("images/site-images/dropdown-arrow.php"); ?></span>
+                    </div>
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
                         <a class="dropdown-menu-link" href="view-profile.php">View Profile</a>
