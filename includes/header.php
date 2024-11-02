@@ -20,7 +20,7 @@ $currentPage = $_SERVER["REQUEST_URI"];
                 <div class="nav-link dropdown-link profile-link">
                     <div class="outer-link">
                         <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
-                        <span><?php echo $name; ?></span>
+                        <span>My Account</span>
                         <span class="dropdown-arrow"><?php require("images/site-images/dropdown-arrow.php"); ?></span>
                     </div>
                     <div class="underline"></div>
