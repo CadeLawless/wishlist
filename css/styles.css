@@ -217,7 +217,7 @@ label {
     align-items: center;
 }
 .header .title {
-    flex-basis: calc(100% - 560px);
+    flex-basis: calc(100% - 615px);
     display: grid;
     grid-template-columns: auto auto;
     grid-auto-rows: auto;
@@ -1815,7 +1815,7 @@ img.gift-wrap {
         flex-direction: column;
     }
 }
-@media (max-width: 815px){
+@media (max-width: 870px){
     .header .title {
         flex-basis: calc(100% - 85px);
     }
