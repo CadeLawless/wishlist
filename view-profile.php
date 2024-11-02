@@ -8,6 +8,9 @@ require "../PHPMailer/php-mailer-setup/php-mailer.php";
 $password_changed = isset($_SESSION["password_changed"]) ? true : false;
 if($password_changed) unset($_SESSION["password_changed"]);
 
+$name_updated = isset($_SESSION["name_updated"]) ? true : false;
+if($name_updated) unset($_SESSION["name_updated"]);
+
 $email_needs_verified = isset($_SESSION["email_needs_verified"]) ? true : false;
 if($email_needs_verified) unset($_SESSION["email_needs_verified"]);
 
@@ -203,6 +206,21 @@ if(isset($_POST["forgot_password_submit_button"])){
         <?php require("includes/header.php"); ?>
         <div id="container">
             <?php
+            if($name_updated){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p>Name updated successfully.</p>
+                        </div>
+                    </div>
+                </div>";
+            }
             if($password_changed){
                 echo "
                 <div class='popup-container'>
