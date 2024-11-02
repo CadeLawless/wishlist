@@ -58,7 +58,7 @@ $(document).ready(function() {
         }
     });
 
-    $(".image-popup-button").on("click", function(e){
+    $(document.body).on("click", ".image-popup-button", function(e){
         e.preventDefault();
         $new_src = $(this).find(".item-image").attr("src");
         $popup = $(".image-popup-container").first();

@@ -10,7 +10,7 @@ $_SESSION["type"] = "buyer";
 
 // get wishlist key from URL
 $wishlistKey = $_GET["key"] ?? "";
-if($wishlistKey == "") header("Location: index.php");
+if($wishlistKey == "") header("Location: no-wishlist-found.php");
 
 // find wishlist based off of key
 $findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
@@ -40,6 +40,8 @@ if($findWishlistInfo->num_rows > 0){
             }
         }
     }
+}else{
+    header("Location: no-wishlist-found.php");
 }
 
 $pageno = $_GET["pageno"] ?? 1;

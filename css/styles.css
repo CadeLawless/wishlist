@@ -14,11 +14,12 @@ body {
     --text-hover: #3e4346;
     --text-light-hover: #3e4346;
     --text-lighter: #727d84;
+    --text-transparent: #292c2e4f;
     --text-disabled: #727d84;
     --background: #f6f6e9;
     --background-lighter: #eeeee6;
     --background-hover: #eeeee6;
-    --background-darker: #cbcbc3;
+    --background-darker: #e9e9db;
     --primary-link: #3e5646;
     --primary: #3e5646;
     --primary-hover: #27372d;
@@ -40,6 +41,7 @@ body.dark {
     --text: #d1d4d6;
     --text-hover: #a8aaac;
     --text-lighter: #a2a6a8;
+    --text-transparent: #d1d4d64f;
     --text-disabled: #494d4f;
     --background: #222b25;
     --background-lighter: #161609;
@@ -266,6 +268,7 @@ label {
     font-size: 20px;
     text-decoration: none;
     position: relative;
+    cursor: pointer;
     transition: color 0.2s, background-color 0.2s;
 }
 .dark-mode-link, .light-mode-link {
@@ -293,6 +296,62 @@ body.dark .dark-mode-link {
     padding: 8px 16px;
     background-color: var(--text);
     border: 1.5px solid var(--text)
+}
+.menu .nav-link.profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.profile-icon, .profile-icon svg {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+}
+.dropdown-arrow, .dropdown-arrow svg {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+.dropdown-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.profile-link svg path {
+    fill: var(--text-lighter);
+}
+.profile-link span {
+    font-size: inherit;
+    color: inherit;
+}
+.menu .nav-link.profile-link:hover svg path {
+    fill: var(--text);
+}
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 20px);
+    white-space: nowrap;
+    right: 0;
+    border-radius: 6px;
+    box-shadow: var(--text-transparent) 0px 0px 3px;
+}
+.dropdown-menu-link {
+    padding: 10px 20px;
+    background-color: var(--background);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 18px;
+    display: block;
+    transition: background-color 0.2s;
+}
+.dropdown-menu .dropdown-menu-link:first-of-type {
+    border-radius: 6px 6px 0 0;
+}
+.dropdown-menu .dropdown-menu-link:last-of-type {
+    border-radius: 0 0 6px 6px;
+}
+.dropdown-menu-link:hover {
+    background-color: var(--background-hover);
 }
 .menu .nav-link.active, .menu .nav-link:hover {
     color: var(--text);
@@ -777,6 +836,7 @@ textarea {
     background-color: #FFC7C7;
     border-color: #CB0000;
     animation: fadein 0.5s;
+    scroll-margin-top: 30px;
     transition: 0.5s;
 }
 .submit-error * {
