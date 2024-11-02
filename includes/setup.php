@@ -18,10 +18,13 @@ if(!$logged_in) header("Location: login.php");
 $username = $_SESSION["username"] ?? "";
 
 // find name based off of username
-$findName = $db->select("SELECT name, dark FROM wishlist_users WHERE username = ?", [$username]);
+$findName = $db->select("SELECT name, email, unverified_email, dark FROM wishlist_users WHERE username = ?", [$username]);
 if($findName->num_rows > 0){
     while($row = $findName->fetch_assoc()){
         $name = htmlspecialchars($row["name"]);
+        $user_fullname = $row["name"];
+        $user_email = $row["email"];
+        $email_verified = $row["unverified_email"] == "" ? true : false;
         $_SESSION["name"] = $name;
         $dark = $row["dark"] == "Yes" ? true : false;
     }

@@ -1,7 +1,7 @@
 <?php
 function errorCheck($input, $inputName, $required="No", &$errors="", &$error_list=""){
     if(isset($_POST[$input]) && trim($_POST[$input]) != ""){
-        return trim($_POST[$input]);
+        return htmlspecialchars_decode(trim($_POST[$input]));
     }else{
         if($required == "Yes"){
             $errors = true;
@@ -26,5 +26,16 @@ function patternCheck($regex, $input, &$errors, &$error_list, $msg) {
         $errors = true;
         $error_list .= "<li>$msg</li>";
     }
+}
+
+// function that generates random string
+function generateRandomString($length) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+    }
+    return $randomString;
 }
 ?>
