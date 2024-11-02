@@ -297,10 +297,11 @@ body.dark .dark-mode-link {
     background-color: var(--text);
     border: 1.5px solid var(--text)
 }
-.menu .nav-link.profile-link {
+.menu .nav-link.profile-link .outer-link {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    font-size: 20px;
 }
 .profile-icon, .profile-icon svg {
     display: inline-block;
@@ -1818,6 +1819,19 @@ img.gift-wrap {
     .header .title {
         flex-basis: calc(100% - 85px);
     }
+    .dropdown-menu {
+        position: relative;
+        flex-basis: 100%;
+        box-shadow: none;
+        top: 0;
+        white-space: normal;
+        border-radius: 0;
+    }
+    .dropdown-menu-link {
+        font-size: 20px;
+        padding: 20px 0;
+        border-radius: 0 !important;
+    }
     .hamburger-menu {
         display: block;
     }
@@ -1856,6 +1870,21 @@ img.gift-wrap {
         padding-top: 20px;
         padding-bottom: 20px;
     }
+    .nav-link.dropdown-link {
+        justify-content: center;
+        flex-wrap: wrap;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    .menu .nav-link.profile-link .outer-link {
+        padding: 20px 0;
+        justify-content: center;
+        width: 100%;
+        transition: background-color 0.2s;
+    }
+    .menu .nav-link.profile-link .outer-link:hover {
+        background-color: var(--background-hover);
+    }
     .menu .nav-link.logout {
         background-color: var(--background);
         color: var(--text-lighter);
@@ -1863,6 +1892,9 @@ img.gift-wrap {
     }
     .menu .nav-link:hover, .menu .nav-link.logout:hover {
         background-color: var(--background-hover);
+    }
+    .nav-link.dropdown-link:hover {
+        background-color: transparent;
     }
     .menu .nav-link:first-of-type {
         padding-left: 35px;
