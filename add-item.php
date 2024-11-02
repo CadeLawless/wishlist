@@ -26,6 +26,16 @@ if(isset($_POST["submit_button"])){
     $filename = "";
     if(!$errors){
         if(isset($_FILES["item_image"]["name"])){
+            $phpFileUploadErrors = array(
+                0 => 'There is no error, the file uploaded with success',
+                1 => 'The uploaded file exceeds the max file size allowed',
+                2 => 'The uploaded file exceeds the max file size allowed',
+                3 => 'The uploaded file was only partially uploaded',
+                4 => 'No file was uploaded',
+                6 => 'Missing a temporary folder',
+                7 => 'Failed to write file to disk.',
+                8 => 'A PHP extension stopped the file upload.',
+            );
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
                 if(!is_dir("images/item-images/$wishlistID")){
@@ -42,6 +52,10 @@ if(isset($_POST["submit_button"])){
                     if(file_exists($path_filename)){
                         $errors = true;
                         $errorList .= "<li>You already have an item with the name ". htmlspecialchars($filename) ." in this wishlist. Please choose a different name.</li>";
+                    }
+                    if(!move_uploaded_file($temp_name, $path_filename)){
+                        $errors = true;
+                        $errorList .= "<li>Item Image file upload failed: " . $phpFileUploadErrors[$_FILES["item_image"]["error"]] . "</li>";
                     }
                 }else{
                     $errors = true;
