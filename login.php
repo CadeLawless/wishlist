@@ -8,6 +8,8 @@ require("includes/classes.php");
 require("includes/error-functions.php");
 $db = new DB();
 
+if(isset($_SESSION["wishlist_logged_in"])) header("Location: index.php");
+
 // initialize form field variables
 $username = "";
 $password = "";
