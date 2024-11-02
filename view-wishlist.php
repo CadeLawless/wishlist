@@ -136,7 +136,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <?php echo $wishlistTitle; ?>
                     <div class="icon-options wishlist-options">
                         <div class="copy-link">
-                            <a class="button secondary" href="#"><?php require("images/site-images/icons/copy-link.php"); ?>Copy Link to Wish List</a>
+                            <a class="button secondary" href="#"><?php require("images/site-images/icons/copy-link.php"); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                         </div>
                         <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/edit.php"); ?><div class="inline-label">Rename</div></a>
                         <div class='popup-container hidden'>
@@ -226,9 +226,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     document.querySelector(".copy-link a").addEventListener("click", function(e){
         e.preventDefault();
         navigator.clipboard.writeText("https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>");
-        this.textContent = "Copied!";
+        this.querySelector("svg").classList.add("hidden");
+        this.querySelector(".copy-link-text").textContent = "Copied!";
         setTimeout(() => {
-            this.textContent = "Copy Link to Wish List";
+            this.querySelector("svg").classList.remove("hidden");
+            this.querySelector(".copy-link-text").textContent = "Copy Link to Wish List";
         }, 1300);
     });
 </script>
