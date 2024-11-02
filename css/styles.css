@@ -365,6 +365,9 @@ body.dark .dark-mode-link {
     top: calc(100% + 10px);
     border-bottom: 1.5px solid var(--text);
 }
+.menu .nav-link.profile-link .underline {
+    top: calc(100% + 7px);
+}
 .menu .nav-link.active .underline, .menu .nav-link:hover .underline{
     display: block;
 }
