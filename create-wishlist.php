@@ -25,16 +25,6 @@ if(isset($_POST["submit_button"])){
     $wishlist_name = errorCheck("wishlist_name", "Name", "Yes", $errors, $errorList);
 
     if(!$errors){
-        // function that generates random string
-        function generateRandomString($length) {
-            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $charactersLength = strlen($characters);
-            $randomString = '';
-            for ($i = 0; $i < $length; $i++) {
-                $randomString .= $characters[random_int(0, $charactersLength - 1)];
-            }
-            return $randomString;
-        }
 
         // generate random key for wishlist
         $unique = false;
