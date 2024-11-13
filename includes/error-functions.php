@@ -28,6 +28,19 @@ function patternCheck($regex, $input, &$errors, &$error_list, $msg) {
     }
 }
 
+// encodes url and validates it
+function validate_url($url) {
+    if($url != ""){
+        $path = parse_url($url, PHP_URL_PATH);
+        $encoded_path = array_map('urlencode', explode('/', $path));
+        $url = str_replace($path, implode('/', $encoded_path), $url);
+
+        return filter_var($url, FILTER_VALIDATE_URL) ? true : false;
+    }else{
+        return true;
+    }
+}
+
 // function that generates random string
 function generateRandomString($length) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

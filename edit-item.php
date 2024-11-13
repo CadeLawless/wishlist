@@ -15,14 +15,14 @@ $findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", [$itemID]
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
         $original_item_name = $row["name"];
-        $item_name = htmlspecialchars($original_item_name);
-        $notes = htmlspecialchars($row["notes"]);
-        $price = htmlspecialchars($row["price"]);
-        $quantity = htmlspecialchars($row["quantity"]);
+        $item_name = $original_item_name;
+        $notes = $row["notes"];
+        $price = $row["price"];
+        $quantity = $row["quantity"];
         $unlimited = $row["unlimited"];
-        $link = htmlspecialchars($row["link"]);
-        $image_name = htmlspecialchars($row["image"]);
-        $priority = htmlspecialchars($row["priority"]);
+        $link = $row["link"];
+        $image_name = $row["image"];
+        $priority = $row["priority"];
         $purchased = $row["purchased"];
     }
 }

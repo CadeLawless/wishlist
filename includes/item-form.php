@@ -1,13 +1,13 @@
 <div class="large-input">
     <label for="name">Item Name:<br></label>
-    <textarea required name="name" id="name" autocapitalize="words" rows="1" placeholder="New Gaming PC"><?php echo $item_name?></textarea>
+    <textarea required name="name" id="name" autocapitalize="words" rows="1" placeholder="New Gaming PC"><?php echo htmlspecialchars($item_name); ?></textarea>
 </div>
 <div class="small-input">
     <label for="price">Item Price:<br></label>
     <div id="price-input-container">
         <span class="dollar-sign-input flex">
             <label for="price"><span class="dollar-sign">$</span></label>
-            <input type="text" inputmode="decimal" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo $price?>" id="price" class="price-input" required>
+            <input type="text" inputmode="decimal" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo htmlspecialchars($price); ?>" id="price" class="price-input" required>
         </span>
         <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
     </div>
@@ -15,7 +15,7 @@
 <div class="small-input">
     <label for="quantity">Quantity Needed:<br></label>
     <div class="flex flex-center quantity-container">
-        <input <?php if($unlimited == "No") echo "required"; ?> type="text" class="<?php if($unlimited == "Yes") echo "hidden"; ?>" name="quantity" id="quantity" inputmode="numeric" value="<?php echo $quantity?>" pattern="^\d+$" />
+        <input <?php if($unlimited == "No") echo "required"; ?> type="text" class="<?php if($unlimited == "Yes") echo "hidden"; ?>" name="quantity" id="quantity" inputmode="numeric" value="<?php echo htmlspecialchars($quantity); ?>" pattern="^\d+$" />
         <input type="checkbox" name="unlimited" value="Yes" <?php if($unlimited == "Yes") echo "checked"; ?> id="unlimited" />
         <label for="unlimited">Unlimited</label>
         <span class="error-msg hidden">Quantity must be a valid number</span>
@@ -23,7 +23,7 @@
 </div>
 <div class="large-input">
     <label for="link">Item URL:<br></label>
-    <input required type="text" name="link" id="link" value="<?php echo $link?>" placeholder="https://example.com">
+    <input required type="url" name="link" id="link" value="<?php echo htmlspecialchars($link); ?>" placeholder="https://example.com">
 </div>
 <div class="large-input">
     <label for="image">Item Image:<br></label>
@@ -41,7 +41,7 @@
 </div>
 <div class="large-input">
     <label for="notes">Item Notes:<br></label>
-    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo $notes?></textarea>
+    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo htmlspecialchars($notes); ?></textarea>
 </div>
 <div class="large-input">
     <label for="priority">How much do you want this item?</label><br>
