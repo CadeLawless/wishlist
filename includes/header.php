@@ -1,5 +1,5 @@
 <?php
-$currentPage = $_SERVER["REQUEST_URI"];
+$currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
 ?>
 <div class="header-container">
     <div class="header">
@@ -16,8 +16,8 @@ $currentPage = $_SERVER["REQUEST_URI"];
             <div class="menu-links">
                 <a class="nav-link<?php if($currentPage == "/wishlist/index.php") echo " active"; ?>" href="index.php">Home<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist.php") echo " active"; ?>" href="create-wishlist.php">Create Wishlist<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/wishlist/view-wishlists.php") echo " active"; ?>" href="view-wishlists.php">View Wishlists<div class="underline"></div></a>
-                <div class="nav-link dropdown-link profile-link">
+                <a class="nav-link<?php if(in_array($currentPage, ["/wishlist/view-wishlists.php", "/wishlist/view-wishlist.php", "/wishlist/add-item.php", "/wishlist/edit-item.php"])) echo " active"; ?>" href="view-wishlists.php">View Wishlists<div class="underline"></div></a>
+                <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/wishlist/admin-center.php", "/wishlist/view-profile.php", "/wishlist/backgrounds.php", "/wishlist/edit-user.php", "/wishlist/add-background.php","/wishlist/edit-background.php", "/wishlist/gift-wraps.php", "/wishlist/add-gift-wrap.php", "/wishlist/edit-gift-wrap.php", "/wishlist/wishlists.php"])) echo " active-page"; ?>">
                     <div class="outer-link">
                         <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
                         <span>My Account</span>
@@ -26,6 +26,9 @@ $currentPage = $_SERVER["REQUEST_URI"];
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
                         <a class="dropdown-menu-link" href="view-profile.php">View Profile</a>
+                        <?php if($admin){ ?>
+                            <a class="dropdown-menu-link" href="admin-center.php">Admin Center</a>
+                        <?php } ?>
                         <a class="dropdown-menu-link" href="logout.php">Log Out</a>
                     </div>
                 </div>
