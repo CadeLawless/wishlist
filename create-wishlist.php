@@ -65,6 +65,9 @@ if(isset($_POST["submit_button"])){
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Create a Wish List</title>
     <style>
+        #body {
+            padding-top: 84px;
+        }
         .form-container {
             margin: clamp(20px, 4vw, 60px) auto 30px;
             background-color: var(--background-darker);
