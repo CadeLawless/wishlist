@@ -64,48 +64,57 @@ if(isset($_POST["submit_button"])){
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title>Create a Wish List</title>
+    <style>
+        .form-container {
+            margin: clamp(20px, 4vw, 60px) auto 30px;
+            background-color: var(--background-darker);
+            max-width: 500px;
+        }
+    </style>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
             <div>
-                <h1>New Wish List</h1>
-                <form method="POST" action="">
-                    <?php echo $errorMsg ?? ""; ?>
-                    <div class="flex form-flex">
-                        <div class="large-input">
-                            <label for="wishlist_type">Type:<br/></label>
-                            <select required name="wishlist_type" id="wishlist_type">
-                                <option value="" disabled <?php if($wishlist_type == "") echo "selected"; ?>>Select an option</option>
-                                <option value="Birthday" <?php if($wishlist_type == "Birthday") echo "selected"; ?>>Birthday</option>
-                                <option value="Christmas" <?php if($wishlist_type == "Christmas") echo "selected"; ?>>Christmas</option>
-                            </select>
-                        </div>
-                        <div class="large-input">
-                            <label for="theme">Theme:</label><br />
-                            <a style="margin-bottom: 10px;" class="choose-theme-button button primary popup-button<?php if($wishlist_type == "") echo " disabled"; ?>" href="#">Choose a theme...<span class="inline-popup<?php if($wishlist_type != "") echo " hidden"; ?>">Please select a type</span></a>
-                            <?php
-                            write_theme_popup(type: "birthday");
-                            write_theme_popup(type: "christmas");
-                            ?>
-                            <div class="theme-results">
-                                <div class="theme-background-display desktop-background-display"></div>
-                                <div class="theme-background-display mobile-background-display"></div>
-                                <div class="theme-gift-wrap-display"></div>
+                <div class="form-container">
+                    <h1>New Wish List</h1>
+                    <form method="POST" action="">
+                        <?php echo $errorMsg ?? ""; ?>
+                        <div class="flex form-flex">
+                            <div class="large-input">
+                                <label for="wishlist_type">Type:<br/></label>
+                                <select required name="wishlist_type" id="wishlist_type">
+                                    <option value="" disabled <?php if($wishlist_type == "") echo "selected"; ?>>Select an option</option>
+                                    <option value="Birthday" <?php if($wishlist_type == "Birthday") echo "selected"; ?>>Birthday</option>
+                                    <option value="Christmas" <?php if($wishlist_type == "Christmas") echo "selected"; ?>>Christmas</option>
+                                </select>
                             </div>
-                            <input type="hidden" id="theme_background_id" name="theme_background_id" value="<?php echo $theme_background_id; ?>" />
-                            <input type="hidden" id="theme_gift_wrap_id" name="theme_gift_wrap_id" value="<?php echo $theme_gift_wrap_id; ?>" />
+                            <div class="large-input">
+                                <label for="theme">Theme:</label><br />
+                                <a style="margin-bottom: 10px;" class="choose-theme-button button primary popup-button<?php if($wishlist_type == "") echo " disabled"; ?>" href="#">Choose a theme...<span class="inline-popup<?php if($wishlist_type != "") echo " hidden"; ?>">Please select a type</span></a>
+                                <?php
+                                write_theme_popup(type: "birthday");
+                                write_theme_popup(type: "christmas");
+                                ?>
+                                <div class="theme-results">
+                                    <div class="theme-background-display desktop-background-display"></div>
+                                    <div class="theme-background-display mobile-background-display"></div>
+                                    <div class="theme-gift-wrap-display"></div>
+                                </div>
+                                <input type="hidden" id="theme_background_id" name="theme_background_id" value="<?php echo $theme_background_id; ?>" />
+                                <input type="hidden" id="theme_gift_wrap_id" name="theme_gift_wrap_id" value="<?php echo $theme_gift_wrap_id; ?>" />
+                            </div>
+                            <div class="large-input">
+                                <label for="wishlist_name">Name:<br/></label>
+                                <input required type="text" id="wishlist_name" autocapitalize="words" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name); ?>" />
+                            </div>
+                            <div class="large-input">
+                                <p class="center"><input type="submit" class="button text" name="submit_button" id="submitButton" value="Create" /></p>
+                            </div>
                         </div>
-                        <div class="large-input">
-                            <label for="wishlist_name">Name:<br/></label>
-                            <input required type="text" id="wishlist_name" autocapitalize="words" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name); ?>" />
-                        </div>
-                        <div class="large-input">
-                            <p class="center"><input type="submit" class="button text" name="submit_button" id="submitButton" value="Create" /></p>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
             <?php include "includes/footer.php"; ?>
         </div>
