@@ -5,7 +5,7 @@ $(document).ready(function() {
     let searchParams;
     // paginate arrow click
     $(document.body).on("click", ".paginate-arrow", function(e) {
-        $items_list = $(".items-list.main");
+        $items_list = $type == "wisher" || $type == "buyer" ? $(".items-list.main") : $(".results-table");
         e.preventDefault();
         let pageno, id, key;
         searchParams = new URLSearchParams(window.location.search);

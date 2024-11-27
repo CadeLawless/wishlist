@@ -9,6 +9,7 @@ $type = $_GET["type"];
 $host = match($type){
     "wisher" => "view-wishlist",
     "buyer" => "buyer-view",
+    "users" => "admin-center",
     default => "",
 };
 $wrap_image = $_SESSION["buyer_wrap_image"] ?? "";
@@ -17,6 +18,12 @@ $ajax = true;
 //Getting value of "search" variable from "script.js".
 if(isset($_POST["new_page"])) {
     require("../ajax-find-sql.php");
-    require("../write-items-list.php");
+    if(in_array($type, ["wisher", "buyer"])){
+        require("../write-items-list.php");
+    }elseif($type == "users"){
+        require("../write-users-table.php");
+    }elseif($type == "backgrounds"){
+        require("../write-backgrounds-table.php");
+    }
 }
 ?>

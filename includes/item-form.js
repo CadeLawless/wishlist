@@ -4,26 +4,28 @@ for(const textarea of document.querySelectorAll("textarea")){
 }
 
 // on click of file input button, open file picker
-document.querySelector(".file-input").addEventListener("click", function(e){
+$(".file-input").on("click", function(e){
     e.preventDefault();
-    document.querySelector("#image").click();
+    $(this).next().click();
 });
 
 // show image preview on change
-document.querySelector("#image").addEventListener("change", function(){
+$("#image, .file-input + input").on("change", function(){
+    $input = $(this);
     if (this.files && this.files[0]) {
         var reader = new FileReader();
 
         reader.onload = function (e) {
-            document.querySelector("#preview").setAttribute('src', e.target.result);
+            console.log($(this).next());
+            $input.next().find("img").attr("src", e.target.result);
         }
 
         reader.readAsDataURL(this.files[0]);
-        document.querySelector("#preview_container").classList.remove("hidden");
-        document.querySelector(".file-input").textContent = "Change Item Image";
+        this.nextElementSibling.classList.remove("hidden");
+        this.previousElementSibling.textContent = "Change Image";
     }else{
-        document.querySelector("#preview_container").classList.add("hidden");
-        document.querySelector(".file-input").textContent = "Choose Item Image";
+        this.nextElementSibling.classList.add("hidden");
+        this.previousElementSibling.textContent = "Choose Image";
     }
 });
 function readURL(input) {

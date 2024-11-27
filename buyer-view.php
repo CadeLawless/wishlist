@@ -12,6 +12,9 @@ $_SESSION["type"] = "buyer";
 $wishlistKey = $_GET["key"] ?? "";
 if($wishlistKey == "") header("Location: no-wishlist-found.php");
 
+$item_purchased = isset($_SESSION["purchased"]) ? true : false;
+if($item_purchased) unset($_SESSION["purchased"]);
+
 // find wishlist based off of key
 $findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
 if($findWishlistInfo->num_rows > 0){
@@ -120,6 +123,23 @@ $_SESSION["buyer_sort_price"] = $sort_price;
     <div id="body">
         <?php require("includes/header.php"); ?>
         <div id="container">
+            <?php
+            if($item_purchased){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Thank you for purchasing an item off $name's wish list! It has been wrapped and placed under the tree (or at the end of the list).</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            ?>
             <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
             <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
@@ -132,7 +152,7 @@ $_SESSION["buyer_sort_price"] = $sort_price;
                     require("includes/write-filters.php");
                 }
                 echo "<div class='items-list-sub-container'>";
-                paginate(type: "buyer", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC, $priority_order$price_order date_added DESC", itemsPerPage: 12, pageNumber: $pageno, wishlist_id: $wishlistID, wishlist_key: $wishlistKey);
+                paginate(type: "buyer", db: $db, query: "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY purchased ASC, $priority_order$price_order date_added DESC", itemsPerPage: 12, pageNumber: $pageno, values: [$wishlistID], wishlist_id: $wishlistID, wishlist_key: $wishlistKey);
                 echo "</div>";
                 ?>
             </div>

@@ -37,6 +37,12 @@ while($row = $selectQuery->fetch_assoc()){
     $unlimited = $row["unlimited"] == "Yes" ? true : false;
     $link = htmlspecialchars($row["link"]);
     $image = htmlspecialchars($row["image"]);
+    $image_path = "$image_folder/item-images/$wishlist_id/{$row["image"]}";
+    if(!file_exists($image_path)){
+        $image_path = "images/site-images/default-photo.png";
+    }else{
+        $image_path = "images/item-images/$wishlist_id/$image";
+    }
     $priority = htmlspecialchars($row["priority"]);
     $notes = htmlspecialchars($row["notes"]);
     $notes_short = htmlspecialchars(mb_substr($row["notes"], 0, 30));
@@ -64,7 +70,7 @@ while($row = $selectQuery->fetch_assoc()){
         if($type == "wisher" || ($type == "buyer" && !$purchased)){
             echo "
             <div class='item-image-container image-popup-button'>
-                <img class='item-image' src='images/item-images/$wishlist_id/$image?t=" . time() . "' alt='wishlist item image'>
+                <img class='item-image' src='$image_path?t=" . time() . "' alt='wishlist item image'>
             </div>";
         }
         echo "
@@ -144,7 +150,7 @@ while($row = $selectQuery->fetch_assoc()){
                                                 echo "</p>
                                                 <p class='center'>
                                                     <a class='button secondary no-button double-no' href='#'>No</a>
-                                                    <a class='button primary popup-button' href='#'>Yes</a>
+                                                    <a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>
                                                 </p>
                                                 </div>
                                             </div>
