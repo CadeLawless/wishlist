@@ -192,6 +192,7 @@
                     $pageNumber = 1;
                     $itemsPerPage = 12;
                     $type = "buyer";
+                    $values = [$wishlist_id];
                     $query = "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY CASE WHEN name = 'Item 1' THEN 1 WHEN name = 'Item 2' THEN 2 WHEN name = 'Item 3' THEN 3 WHEN name = 'Item 4' THEN 4 WHEN name = 'Item 5' THEN 5 ELSE 6 END";
                     require("paginate-sql.php");
                     if($selectQuery->num_rows > 0){

@@ -31,6 +31,7 @@ if($findQuantityInfo->num_rows > 0){
 
     // delete item from list
     if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE id = ?", [$new_quantity_purchased, $purchased, $itemID])){
+        $_SESSION["purchased"] = true;
         header("Location: buyer-view.php?key=$wishlist_key&pageno=$pageno#paginate-top");
     }else{
         echo "<script>alert('Something went wrong while trying to delete this item from your wish list')</script>";

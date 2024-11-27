@@ -31,11 +31,11 @@
     <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
     <?php if($add){ ?>
         <div class="<?php if($filename == "") echo "hidden"; ?>" id="preview_container">
-            <img id="preview" src="">
+            <img class="preview" src="">
         </div>
     <?php }else{ ?>
         <div id="preview_container">
-            <img id="preview" src="images/item-images/<?php echo "$wishlistID/$image_name"; ?>">
+            <img class="preview" src="images/item-images/<?php echo "$wishlistID/$image_name"; ?>">
         </div>
     <?php } ?>
 </div>

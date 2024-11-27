@@ -12,11 +12,19 @@ function errorCheck($input, $inputName, $required="No", &$errors="", &$error_lis
 }
 
 // function that checks if select and radio inputs are valid, checking if they are in a valid array
-function validOptionCheck($input, $inputName, $validArray, &$errors, &$error_list){
+function validOptionCheck($input, $inputName, $validArray, &$errors, &$error_list, $multidimensional=false, $key=""){
     if($input != ""){
-        if(!in_array($input, $validArray)){
-            $errors = true;
-            $error_list .= "<li>Please select a valid option for <em>$inputName</em></li>";
+        if(!$multidimensional){
+            if(!in_array($input, $validArray)){
+                $errors = true;
+                $error_list .= "<li>Please select a valid option for <em>$inputName</em></li>";
+            }
+        }else{
+            $value_index = array_search($input, array_column($validArray, $key));
+            if($value_index === FALSE){
+                $errors = true;
+                $error_list .= "<li>Please select a valid option for <em>$inputName</em></li>";
+            }
         }
     }
 }
@@ -51,4 +59,16 @@ function generateRandomString($length) {
     }
     return $randomString;
 }
+
+// file upload error reporting array
+$phpFileUploadErrors = array(
+    0 => 'There is no error, the file uploaded with success',
+    1 => 'The uploaded file exceeds the max file size allowed',
+    2 => 'The uploaded file exceeds the max file size allowed',
+    3 => 'The uploaded file was only partially uploaded',
+    4 => 'No file was uploaded',
+    6 => 'Missing a temporary folder',
+    7 => 'Failed to write file to disk.',
+    8 => 'A PHP extension stopped the file upload.',
+);
 ?>

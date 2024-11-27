@@ -9,8 +9,10 @@ $type = $_GET["type"];
 $host = match($type){
     "wisher" => "view-wishlist",
     "buyer" => "buyer-view",
+    "users" => "admin-center",
     default => "",
 };
+$ajax = true;
 
 //Getting value of "search" variable from "script.js".
 if(isset($_POST["new_page"])) {

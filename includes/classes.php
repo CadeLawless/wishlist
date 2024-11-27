@@ -56,31 +56,79 @@ class DB{
         }
     }
 }
-function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", $wishlist_id="", $wishlist_key=""){
+function paginate(string $type, DB $db, string $query, int $itemsPerPage, int $pageNumber, array $values, string $username="", string $wishlist_id="", string $wishlist_key=""){
+    global $ajax;
     require("paginate-sql.php");
     if($selectQuery->num_rows > 0){
         if($type == "wisher")  echo "<div class='center'><h3 class='wishlist-total'>Current Wishlist Total: $$total_price</h3></div>";
         $numberOfItemsOnPage = $selectQuery->num_rows;
-        if($type == "wisher"){
-            $numberOfItems = $db->select($query, [$wishlist_id, $username])->num_rows;
-        }else if($type == "buyer"){
-            $numberOfItems = $db->select($query, [$wishlist_id])->num_rows;
-        }
+        $numberOfItems = $db->select($query, $values)->num_rows;
         $totalPages = ceil($numberOfItems / $itemsPerPage);
         $home = match($type){
             "wisher" => "view-wishlist.php?id=$wishlist_id&",
             "buyer" => "buyer-view.php?key=$wishlist_key&",
-        };
-        global $ajax;
-        $image_folder = match($ajax){
-            true => "../../images",
-            default => "images",
+            "users" => "admin-center.php",
+            "backgrounds" => "backgrounds.php",
+            default => "",
         };
 
-        if($numberOfItems > $numberOfItemsOnPage){
+        $row_label = match($type){
+            "buyer", "wisher" => "items",
+            "users" => "users",
+            "backgrounds" => "backgrounds",
+            default => "things",
+        };
+
+        if(in_array($type, ["wisher", "buyer"])){
+            if($numberOfItems > $numberOfItemsOnPage){
+                echo "
+                <div class='center'>
+                    <div class='paginate-container'>
+                        <a class='paginate-arrow paginate-first";
+                        if($pageNumber <= 1) echo " disabled";
+                        echo "' href='#'>";
+                        require("$image_folder/site-images/first.php");
+                        echo "</a>
+                        <a class='paginate-arrow paginate-previous";
+                        if($pageNumber <= 1) echo " disabled";
+                        echo "' href='#'>";
+                        require("$image_folder/site-images/prev.php");
+                        echo "</a>
+                        <div class='paginate-title'><span class='page-number'>$pageNumber</span>/<span class='last-page'>$totalPages</span></div>
+                        <a class='paginate-arrow paginate-next";
+                        if($pageNumber >= $totalPages) echo " disabled";
+                        echo "' href='#'>";
+                        require("$image_folder/site-images/prev.php");
+                        echo "</a>
+                        <a class='paginate-arrow paginate-last";
+                        if($pageNumber == $totalPages) echo " disabled";
+                        echo "'>";
+                        require("$image_folder/site-images/first.php");
+                        echo "</a>
+                    </div>
+                </div>";
+            }
+            echo "<div class='items-list main'>";
+            require("write-items-list.php");
             echo "
-            <div class='center'>
-                <div class='paginate-container'>
+            </div>";
+        }else{
+            echo "<div class='results-table'>";
+            if($type == "users"){
+                require("write-users-table.php");
+            }elseif($type == "backgrounds"){
+                require("write-backgrounds-table.php");
+            }
+            echo "</div>";
+        }
+        echo "<div class='paginate-container-div center'>";
+            if(in_array($type, ["users", "backgrounds"])){
+                echo "
+                <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " $row_label</div>";
+            }
+            echo "<div class='paginate-container bottom'>";
+                if($numberOfItems > $numberOfItemsOnPage){
+                    echo "
                     <a class='paginate-arrow paginate-first";
                     if($pageNumber <= 1) echo " disabled";
                     echo "' href='#'>";
@@ -101,42 +149,13 @@ function paginate($type, $db, $query, $itemsPerPage, $pageNumber, $username="", 
                     if($pageNumber == $totalPages) echo " disabled";
                     echo "'>";
                     require("$image_folder/site-images/first.php");
-                    echo "</a>
-                </div>
-            </div>";
-        }
-        echo "<div class='items-list main'>";
-        require("write-items-list.php");
-        echo "
-        </div>
-        <div class='center'>
-            <div class='paginate-container bottom'>";
-                if($numberOfItems > $numberOfItemsOnPage){
-                    echo "
-                    <a class='paginate-arrow paginate-first";
-                    if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'>";
-                    require("$image_folder/site-images/first.php");
-                    echo "</a>
-                    <a class='paginate-arrow paginate-previous";
-                    if($pageNumber <= 1) echo " disabled";
-                    echo "' href='#'>";
-                    require("$image_folder/site-images/prev.php");
-                    echo "</a>
-                    <div class='paginate-title'><span class='page-number'>$pageNumber</span>/$totalPages</div>
-                    <a class='paginate-arrow paginate-next";
-                    if($pageNumber >= $totalPages) echo " disabled";
-                    echo "' href='#'>";
-                    require("$image_folder/site-images/prev.php");
-                    echo "</a>
-                    <a class='paginate-arrow paginate-last";
-                    if($pageNumber == $totalPages) echo " disabled";
-                    echo "'>";
-                    require("$image_folder/site-images/first.php");
                     echo "</a>";
                 }
+                if(in_array($type, ["wisher", "buyer"])){
+                    echo "
+                    <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " $row_label</div>";
+                }
                 echo "
-                <div class='paginate-count'>Showing <span class='count-showing'>" . ($offset + 1) . "-" . ($numberOfItemsOnPage+$offset) . "</span> of " . $numberOfItems . " items</div>
             </div>
         </div>";
     }else{
