@@ -15,6 +15,11 @@ if(!is_int($pageno) && !ctype_digit($pageno)) $pageno = 1;
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>Wish List | Backgrounds</title>
+    <style>
+        #container {
+            padding: 0 10px 110px;
+        }
+    </style>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">

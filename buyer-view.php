@@ -134,7 +134,9 @@ $_SESSION["buyer_sort_price"] = $sort_price;
                             echo "</a>
                         </div>
                         <div class='popup-content'>
-                            <p><label>Thank you for purchasing an item off $name's wish list! It has been wrapped and placed under the tree (or at the end of the list).</label></p>
+                            <p><label>Thank you for purchasing an item off $name's wish list! It has been wrapped and placed ";
+                            echo $type == "Christmas" ? "under the tree (or at the end of the list)" : "at the end of the list";
+                            echo ".</label></p>
                         </div>
                     </div>
                 </div>";

@@ -15,6 +15,11 @@ if(!is_int($pageno) && !ctype_digit($pageno)) $pageno = 1;
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>Wish List | Admin Center</title>
+    <style>
+        #container {
+            padding: 0 10px 110px;
+        }
+    </style>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">
@@ -26,7 +31,7 @@ if(!is_int($pageno) && !ctype_digit($pageno)) $pageno = 1;
                 <div class="content">
                 <h2 style="margin: 0;" class="items-list-title">All Users</h2>
                     <?php
-                    paginate(type: "users", db: $db, query: "SELECT name, username, email, role FROM wishlist_users", itemsPerPage: 2, pageNumber: $pageno, values: []);
+                    paginate(type: "users", db: $db, query: "SELECT name, username, email, role FROM wishlist_users", itemsPerPage: 10, pageNumber: $pageno, values: []);
                     ?>
                 </div>
             </div>

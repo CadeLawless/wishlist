@@ -1582,7 +1582,7 @@ img.gift-wrap {
     padding: 10px;
 }
 .theme-header.background-header {
-    background-color: var(--background);
+    background-color: var(--background-darker);
 }
 .default-background {
     display: block;
