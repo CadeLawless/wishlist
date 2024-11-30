@@ -2,7 +2,6 @@
 $pageNumber = $_POST["new_page"];
 $itemsPerPage = match($type){
     "wisher", "buyer" => 12,
-    "users" => 2,
     default => 10,
 };
 $wishlist_id = match($type){

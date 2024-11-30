@@ -61,7 +61,7 @@ if(isset($_POST["email_submit_button"])){
             // echo $db->error;
         }
     }else{
-        $error_msg = "<div class='submit-error'>$error_title<ul>$error_list</ul></div><br>";
+        $email_error_msg = "<div class='submit-error'>$error_title<ul>$error_list</ul></div><br>";
     }
 }
 

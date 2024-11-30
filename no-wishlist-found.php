@@ -10,7 +10,7 @@ ini_set("display_errors", 1);
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Wish List | Email Verification</title>
+    <title>Wish List | No Wish List Found</title>
     <style>
         #body {
             padding-top: 84px;
