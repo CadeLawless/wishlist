@@ -9,6 +9,7 @@ $(document).ready(function() {
         e.preventDefault();
         let pageno, id, key;
         searchParams = new URLSearchParams(window.location.search);
+        $key_url = "key=" + searchParams.get("key") + "&";
         if(searchParams.has("pageno")){
             pageno = searchParams.get("pageno");
         }else{

@@ -4,12 +4,23 @@ $itemsPerPage = match($type){
     "wisher", "buyer" => 12,
     default => 10,
 };
+
+if($type == "buyer"){
+    $wishlist_key = $_GET["key"] ?? "";
+    if($wishlist_key == "") header("Location: no-wishlist-found.php");
+    $findWishlistInfo = $db->select("SELECT id FROM wishlists WHERE secret_key = ?", [$wishlist_key]);
+    if($findWishlistInfo->num_rows > 0){
+        while($row = $findWishlistInfo->fetch_assoc()){
+            $_SESSION["buyer_wishlist_id"] = $row["id"];
+        }
+    }
+}
+
 $wishlist_id = match($type){
     "wisher" => $_SESSION["wisher_wishlist_id"],
     "buyer" => $_SESSION["buyer_wishlist_id"],
     default => "",
 };
-$wishlist_key = $_GET["key"] ?? "";
 if(in_array($type, ["wisher", "buyer"]) && $wishlist_id == "") header("Location: index.php");
 $_SESSION["home"] = match($type){
     "wisher" => "view-wishlist.php?id=$wishlist_id&pageno=$pageNumber#paginate-top",
