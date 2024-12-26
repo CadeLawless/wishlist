@@ -164,7 +164,7 @@ $_SESSION["buyer_sort_price"] = $sort_price;
 <?php include "includes/footer.php"; ?>
 </html>
 <script src="includes/popup.js"></script>
-<script>$type = "buyer"; $key_url = "<?php echo "key=$wishlistKey&"; ?>";</script>
+<script>$type = "buyer";</script>
 <script src="includes/page-change.js"></script>
 <script src="includes/filter-change.js"></script>
 <script>
