@@ -475,7 +475,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </body>
 </html>
 <script src="includes/popup.js"></script>
-<script>$type = "wisher"; $key_url = "<?php echo ""; ?>";</script>
+<script>$type = "wisher"; $key_url = "";</script>
 <script src="includes/page-change.js"></script>
 <script src="includes/choose-theme.js"></script>
 <script src="includes/filter-change.js"></script>
