@@ -27,7 +27,7 @@ if($findQuantityInfo->num_rows > 0){
 
     $new_quantity_purchased = $quanity_purchased + 1;
 
-    $purchased = ($new_quantity_purchased == $quantity && $unlimited == "No") ? "Yes" : "No";
+    $purchased = ($new_quantity_purchased >= $quantity && $unlimited == "No") ? "Yes" : "No";
 
     // delete item from list
     if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE id = ?", [$new_quantity_purchased, $purchased, $itemID])){

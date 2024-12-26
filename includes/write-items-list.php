@@ -53,6 +53,7 @@ while($row = $selectQuery->fetch_assoc()){
     if($type == "buyer"){
         $quanity_purchased = htmlspecialchars($row["quantity_purchased"]);
         $quantity = $quantity - $quanity_purchased;
+        if($quantity < 0) $quantity = 0;
         if($gift_wrap == $number_of_wraps) $gift_wrap = 1;
     }
     $date_added = htmlspecialchars(date("n/j/Y g:i A", strtotime($row["date_added"])));
