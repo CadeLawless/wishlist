@@ -22,7 +22,8 @@ $(document).ready(function() {
         }else if($(this).hasClass("paginate-next")){
             new_pageno = parseInt(pageno) + 1;
         }else if($(this).hasClass("paginate-last")){
-            new_pageno = $(".last-page").text();
+            new_pageno = parseInt($(".last-page").first().text());
+            console.log(new_pageno);
         }
 
         $.ajax({
@@ -51,7 +52,7 @@ $(document).ready(function() {
                 }else{
                     $(".paginate-first, .paginate-previous").addClass("disabled");
                 }
-                if(new_pageno != parseInt($(".last-page").text())){
+                if(new_pageno != parseInt($(".last-page").first().text())){
                     $(".paginate-next, .paginate-last").removeClass("disabled");
                 }else{
                     $(".paginate-next, .paginate-last").addClass("disabled");
