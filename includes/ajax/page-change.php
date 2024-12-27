@@ -10,6 +10,7 @@ $host = match($type){
     "wisher" => "view-wishlist",
     "buyer" => "buyer-view",
     "users" => "admin-center",
+    "backgrounds" => "backgrounds.php",
     default => "",
 };
 $wrap_image = $_SESSION["buyer_wrap_image"] ?? "";

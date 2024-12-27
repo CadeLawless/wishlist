@@ -13,6 +13,6 @@ if($findWishlistInfo->num_rows > 0){
         $wishlistTitle = htmlspecialchars($row["wishlist_name"]);
     }
 }else{
-    header("Location: index.php");
+    header("Location: no-access.php");
 }
 ?>

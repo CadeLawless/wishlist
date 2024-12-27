@@ -71,7 +71,7 @@ if(isset($_POST["submit_button"])){
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Wishlist | Login</title>
+    <title>Wish List | Login</title>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">
