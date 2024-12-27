@@ -29,6 +29,7 @@ echo "
 
 while($row = $selectQuery->fetch_assoc()){
     $id = $row["id"];
+    $copy_id = $row["copy_id"];
     $item_name = htmlspecialchars($row["name"]);
     $item_name_short = htmlspecialchars(mb_substr($row["name"], 0, 25));
     if(strlen($row["name"]) > 25) $item_name_short .= "...";
@@ -126,37 +127,87 @@ while($row = $selectQuery->fetch_assoc()){
                                 require("$image_folder/site-images/menu-close.php");
                                 echo "</a>
                             </div>
-                            <div class='popup-content'>
-                                <label>Are you sure you want to delete this item?</label>
-                                <p>" . htmlspecialchars($row["name"]) . "</p>
-                                <div style='margin: 16px 0;' class='center'>
-                                    <a class='button secondary no-button' href='#'>No</a>";
-                                if(!$purchased){
-                                    echo "<a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>";
+                            <div class='popup-content'>";
+                                if($copy_id == ""){
+                                    echo "
+                                    <label>Are you sure you want to delete this item?</label>
+                                    <p>" . htmlspecialchars($row["name"]) . "</p>
+                                    <div style='margin: 16px 0;' class='center'>
+                                        <a class='button secondary no-button' href='#'>No</a>";
+                                    if(!$purchased){
+                                        echo "<a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>";
+                                    }else{
+                                        echo "
+                                        <a class='button primary popup-button' href='#'>Yes</a>
+                                        <div class='popup-container hidden'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>";
+                                                    require("$image_folder/site-images/menu-close.php");
+                                                    echo "</a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <p><strong>NOTE: This item has already been marked as purchased.</strong></p>
+                                                    <label>Are you REALLY sure you want to delete this item?</label>
+                                                    <div style='margin: 16px 0;'>";
+                                                    echo htmlspecialchars($row["name"]);
+                                                    echo "</p>
+                                                    <p class='center'>
+                                                        <a class='button secondary no-button double-no' href='#'>No</a>
+                                                        <a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>
+                                                    </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
                                 }else{
                                     echo "
-                                    <a class='button primary popup-button' href='#'>Yes</a>
-                                    <div class='popup-container hidden'>
-                                        <div class='popup'>
-                                            <div class='close-container'>
-                                                <a href='#' class='close-button'>";
-                                                require("$image_folder/site-images/menu-close.php");
-                                                echo "</a>
-                                            </div>
-                                            <div class='popup-content'>
-                                                <p><strong>NOTE: This item has already been marked as purchased.</strong></p>
-                                                <label>Are you REALLY sure you want to delete this item?</label>
-                                                <div style='margin: 16px 0;'>";
-                                                echo htmlspecialchars($row["name"]);
-                                                echo "</p>
-                                                <p class='center'>
-                                                    <a class='button secondary no-button double-no' href='#'>No</a>
-                                                    <a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>
-                                                </p>
+                                    <label>This item has been copied to or from other wish list(s). Do you want to delete it from this list only or from ALL lists?</label>
+                                    <p>" . htmlspecialchars($row["name"]) . "</p>
+                                    <div style='margin: 16px 0;' class='center'>
+                                        <a class='button secondary popup-button' style='margin-right: 30px;' href='#'>Delete from this list only</a>
+                                        <div class='popup-container hidden'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>";
+                                                    require("$image_folder/site-images/menu-close.php");
+                                                    echo "</a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <label>Are you sure you want to delete this item from this wish list only?</label>
+                                                    <div style='margin: 16px 0;'>";
+                                                    echo htmlspecialchars($row["name"]);
+                                                    echo "</p>
+                                                    <p class='center'>
+                                                        <a class='button secondary no-button double-no' href='#'>No</a>
+                                                        <a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber'>Yes</a>
+                                                    </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>";
+                                        <a class='button secondary popup-button' href='#'>Delete from ALL lists</a>
+                                        <div class='popup-container hidden'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>";
+                                                    require("$image_folder/site-images/menu-close.php");
+                                                    echo "</a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <label>Are you sure you want to delete this item from ALL lists?</label>
+                                                    <div style='margin: 16px 0;'>";
+                                                    echo htmlspecialchars($row["name"]);
+                                                    echo "</p>
+                                                    <p class='center'>
+                                                        <a class='button secondary no-button double-no' href='#'>No</a>
+                                                        <a class='button primary' href='delete-item.php?id=$id&pageno=$pageNumber&deleteAll=yes'>Yes</a>
+                                                    </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
                                 }
                                 echo "
                                 </div>

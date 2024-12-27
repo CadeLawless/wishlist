@@ -834,6 +834,16 @@ body.dark .dark-mode-link {
     border: 2px solid var(--text);
     border-radius: 15px;
 }
+.alert {
+    padding: 8px;
+    border: 1px solid var(--text);
+    border-radius: 6px;
+    margin-bottom: 18px;
+}
+.alert.warning {
+    color: var(--text);
+    background-color: var(--background-darker);
+}
 .form-flex {
     width: 100%;
     max-width: 600px;
@@ -1952,6 +1962,10 @@ img.gift-wrap {
 }
 .select-item-container:hover {
     background-color: var(--background-hover);
+}
+.select-item-container.already-in-list {
+    opacity: 0.5;
+    pointer-events: none;
 }
 .option-checkbox {
     justify-self: end;

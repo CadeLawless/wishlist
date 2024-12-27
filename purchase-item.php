@@ -12,7 +12,7 @@ $itemID = $_GET["id"] ?? "";
 $pageno = $_GET["pageno"] ?? 1;
 
 // find quantity and quantity purchased so far
-$findQuantityInfo = $db->select("SELECT wishlist_id, quantity, unlimited, quantity_purchased FROM items WHERE id = ?", [$itemID]);
+$findQuantityInfo = $db->select("SELECT wishlist_id, copy_id, quantity, unlimited, quantity_purchased FROM items WHERE id = ?", [$itemID]);
 if($findQuantityInfo->num_rows > 0){
     while($row = $findQuantityInfo->fetch_assoc()){
         $wishlist_id = $row["wishlist_id"];
@@ -23,14 +23,18 @@ if($findQuantityInfo->num_rows > 0){
         $quantity = $row["quantity"];
         $unlimited = $row["unlimited"];
         $quanity_purchased = $row["quantity_purchased"];
+        $copy_id = $row["copy_id"];
     }
 
     $new_quantity_purchased = $quanity_purchased + 1;
 
     $purchased = ($new_quantity_purchased >= $quantity && $unlimited == "No") ? "Yes" : "No";
 
+    $where_column = $copy_id != "" ? "copy_id" : "id";
+    $values = $copy_id != "" ? [$new_quantity_purchased, $purchased, $copy_id] : [$new_quantity_purchased, $purchased, $itemID];
+
     // delete item from list
-    if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE id = ?", [$new_quantity_purchased, $purchased, $itemID])){
+    if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE $where_column = ?", $values)){
         $_SESSION["purchased"] = true;
         header("Location: buyer-view.php?key=$wishlist_key&pageno=$pageno#paginate-top");
     }else{
