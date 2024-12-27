@@ -16,7 +16,7 @@ if(isset($_POST["submit_button"])){
     $errors = false;
     $error_title = "<b>Search failed due to the following errors:<b>";
     $errorList = "";
-    $key = errorCheck("key", "Wishlist Secret Key", "Yes", $errors, $errorList);
+    $key = errorCheck("key", "Wish List Secret Key", "Yes", $errors, $errorList);
     if(!$errors){
         $checkKey = $db->select("SELECT secret_key FROM wishlists WHERE secret_key = ?", [$key]);
         if($checkKey->num_rows > 0){
@@ -37,16 +37,16 @@ if(isset($_POST["submit_button"])){
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Wishlist | Search</title>
+    <title>Wish List | Search</title>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">
         <?php require("includes/header.php"); ?>
-        <h1 class="center">Wishlist Search</h1>
+        <h1 class="center">Wish List Search</h1>
         <form id="login-form" method="POST" action="">
             <?php if(isset($error_msg)) echo $error_msg; ?>
             <div class="large-input center">
-                <label for="key">Wishlist Secret Key: </label><br>
+                <label for="key">Wish List Secret Key: </label><br>
                 <input required type="text" value="<?php echo $key; ?>" name="key" id="key">
             </div>
             <p class="large-input center"><input type="submit" name="submit_button" value="Search"></p>

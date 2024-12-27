@@ -69,7 +69,7 @@ if(isset($_POST["submit_button"])){
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
-    <title>Wishlist | Forgot Password</title>
+    <title>Wish List | Forgot Password</title>
 </head>
 <?php require("includes/body-open-tag.php"); ?>
     <div id="body">

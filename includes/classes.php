@@ -60,7 +60,7 @@ function paginate(string $type, DB $db, string $query, int $itemsPerPage, int $p
     global $ajax;
     require("paginate-sql.php");
     if($selectQuery->num_rows > 0){
-        if($type == "wisher")  echo "<div class='center'><h3 class='wishlist-total'>Current Wishlist Total: $$total_price</h3></div>";
+        if($type == "wisher")  echo "<div class='center'><h3 class='wishlist-total'>Current Wish List Total: $$total_price</h3></div>";
         $numberOfItemsOnPage = $selectQuery->num_rows;
         $numberOfItems = $db->select($query, $values)->num_rows;
         $totalPages = ceil($numberOfItems / $itemsPerPage);
@@ -102,7 +102,7 @@ function paginate(string $type, DB $db, string $query, int $itemsPerPage, int $p
                         echo "</a>
                         <a class='paginate-arrow paginate-last";
                         if($pageNumber == $totalPages) echo " disabled";
-                        echo "'>";
+                        echo "' href='#'>";
                         require("$image_folder/site-images/first.php");
                         echo "</a>
                     </div>
@@ -147,7 +147,7 @@ function paginate(string $type, DB $db, string $query, int $itemsPerPage, int $p
                     echo "</a>
                     <a class='paginate-arrow paginate-last";
                     if($pageNumber == $totalPages) echo " disabled";
-                    echo "'>";
+                    echo "' href='#'>";
                     require("$image_folder/site-images/first.php");
                     echo "</a>";
                 }
