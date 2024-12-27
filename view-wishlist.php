@@ -121,50 +121,64 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 $items_to_copy = [];
                 while($row = $findWishListItems->fetch_assoc()){
                     $item_id = $row["id"];
+                    $item_copy_id = $row["copy_id"];
                     if(isset($_POST["item_$item_id"])){
-                        if(!in_array($row, $items_to_copy)) array_push($items_to_copy, $row);
-                        ${"copy_from_item_$item_id"} = "Yes";
+                        if($copy_id != ""){
+                            $findCopyInCurrentList = $db->select("SELECT copy_id FROM items WHERE copy_id = ? AND wishlist_id = ?", [$item_copy_id, $wishlistID]);
+                            $alreadyInList = $findCopyInCurrentList->num_rows > 0;
+                        }else{
+                            $alreadyInList = false;
+                        }
+                        if(!$alreadyInList){
+                            if(!in_array($row, $items_to_copy)) array_push($items_to_copy, $row);
+                            ${"copy_from_item_$item_id"} = "Yes";
+                        }
                     }
                 }
                 if(count($items_to_copy) > 0){
                     foreach($items_to_copy as $item){
-                        $original_item_image = $item["image"];
-                        $item_image = $original_item_image;
-                        if(!is_dir("images/item-images/$wishlistID")){
-                            mkdir("images/item-images/$wishlistID/");
-                        }
-                        if(file_exists("images/item-images/$wishlistID/$item_image")){
-                            $file_exists = true;
-                            $i = 1;
-                            while($file_exists){
-                                $file_array = explode(".", $item_image);
-                                $image_name = $file_array[0];
-                                $image_ext = $file_array[1];
-                                $new_item_image = $image_name . $i;
-                                if(!file_exists("images/item-images/$wishlistID/$new_item_image.$image_ext")){
-                                    $file_exists = false;
-                                    $item_image = "$new_item_image.$image_ext";
-                                }else{
-                                    $i++;
+                        $item_id = $item["id"];
+                        if($db->write("UPDATE items SET copy_id = ? WHERE id = ?", [$item_id, $item_id])){
+                            $original_item_image = $item["image"];
+                            $item_image = $original_item_image;
+                            if(!is_dir("images/item-images/$wishlistID")){
+                                mkdir("images/item-images/$wishlistID/");
+                            }
+                            if(file_exists("images/item-images/$wishlistID/$item_image")){
+                                $file_exists = true;
+                                $i = 1;
+                                while($file_exists){
+                                    $file_array = explode(".", $item_image);
+                                    $image_name = $file_array[0];
+                                    $image_ext = $file_array[1];
+                                    $new_item_image = $image_name . $i;
+                                    if(!file_exists("images/item-images/$wishlistID/$new_item_image.$image_ext")){
+                                        $file_exists = false;
+                                        $item_image = "$new_item_image.$image_ext";
+                                    }else{
+                                        $i++;
+                                    }
                                 }
                             }
-                        }
-                        $from_file = "images/item-images/$other_wishlist_copy_from/$original_item_image";
-                        $to_file = "images/item-images/$wishlistID/$item_image";
-                        $file_errors = false;
-                        if(!copy($from_file, $to_file)){
-                            $errors = true;
-                            $file_errors = true;
-                            $file_error = error_get_last();
-                            $error_type = $file_error["type"];
-                            $error_message = $file_error["message"];
-                            $errorList .= "<li>New item image ($item_image) file upload failed.<ul><li>Error Type: $error_type</li><li>Error Message: $error_message</li></ul></li>";
-                        }
-                        $date_added = date("Y-m-d H:i:s");
-                        if(!$file_errors){
-                            if(!$db->write("INSERT INTO items (wishlist_id, name, notes, price, quantity, unlimited, link, image, priority, quantity_purchased, purchased, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [$wishlistID, $item["name"], $item["notes"], $item["price"], $item["quantity"], $item["unlimited"], $item["link"], $item_image, $item["priority"], $item["quantity_purchased"], $item["purchased"], $date_added])){
-                                echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
+                            $from_file = "images/item-images/$other_wishlist_copy_from/$original_item_image";
+                            $to_file = "images/item-images/$wishlistID/$item_image";
+                            $file_errors = false;
+                            if(!copy($from_file, $to_file)){
+                                $errors = true;
+                                $file_errors = true;
+                                $file_error = error_get_last();
+                                $error_type = $file_error["type"];
+                                $error_message = $file_error["message"];
+                                $errorList .= "<li>New item image ($item_image) file upload failed.<ul><li>Error Type: $error_type</li><li>Error Message: $error_message</li></ul></li>";
                             }
+                            $date_added = date("Y-m-d H:i:s");
+                            if(!$file_errors){
+                                if(!$db->write("INSERT INTO items (wishlist_id, copy_id, name, notes, price, quantity, unlimited, link, image, priority, quantity_purchased, purchased, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [$wishlistID, $item_id, $item["name"], $item["notes"], $item["price"], $item["quantity"], $item["unlimited"], $item["link"], $item_image, $item["priority"], $item["quantity_purchased"], $item["purchased"], $date_added])){
+                                    echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
+                                }
+                            }
+                        }else{
+                            echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
                         }
                     }
                 }else{
@@ -195,50 +209,64 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 $items_to_copy = [];
                 while($row = $findItems->fetch_assoc()){
                     $item_id = $row["id"];
+                    $item_copy_id = $row["copy_id"];
                     if(isset($_POST["item_$item_id"])){
-                        if(!in_array($row, $items_to_copy)) array_push($items_to_copy, $row);
-                        ${"copy_to_item_$item_id"} = "Yes";
+                        if($item_copy_id != ""){
+                            $findCopyInOtherList = $db->select("SELECT copy_id FROM items WHERE copy_id = ? AND wishlist_id = ?", [$item_copy_id, $other_wishlist_copy_to]);
+                            $alreadyInList = $findCopyInOtherList->num_rows > 0;
+                        }else{
+                            $alreadyInList = false;
+                        }
+                        if(!$alreadyInList){
+                            if(!in_array($row, $items_to_copy)) array_push($items_to_copy, $row);
+                            ${"copy_to_item_$item_id"} = "Yes";
+                        }
                     }
                 }
                 if(count($items_to_copy) > 0){
                     foreach($items_to_copy as $item){
-                        $original_item_image = $item["image"];
-                        $item_image = $original_item_image;
-                        if(!is_dir("images/item-images/$other_wishlist_copy_to")){
-                            mkdir("images/item-images/$other_wishlist_copy_to/");
-                        }
-                        if(file_exists("images/item-images/$other_wishlist_copy_to/$item_image")){
-                            $file_exists = true;
-                            $i = 1;
-                            while($file_exists){
-                                $file_array = explode(".", $item_image);
-                                $image_name = $file_array[0];
-                                $image_ext = $file_array[1];
-                                $new_item_image = $image_name . $i;
-                                if(!file_exists("images/item-images/$other_wishlist_copy_to/$new_item_image.$image_ext")){
-                                    $file_exists = false;
-                                    $item_image = "$new_item_image.$image_ext";
-                                }else{
-                                    $i++;
+                        $item_id = $item["id"];
+                        if($db->write("UPDATE items SET copy_id = ? WHERE id = ?", [$item_id, $item_id])){
+                            $original_item_image = $item["image"];
+                            $item_image = $original_item_image;
+                            if(!is_dir("images/item-images/$other_wishlist_copy_to")){
+                                mkdir("images/item-images/$other_wishlist_copy_to/");
+                            }
+                            if(file_exists("images/item-images/$other_wishlist_copy_to/$item_image")){
+                                $file_exists = true;
+                                $i = 1;
+                                while($file_exists){
+                                    $file_array = explode(".", $item_image);
+                                    $image_name = $file_array[0];
+                                    $image_ext = $file_array[1];
+                                    $new_item_image = $image_name . $i;
+                                    if(!file_exists("images/item-images/$other_wishlist_copy_to/$new_item_image.$image_ext")){
+                                        $file_exists = false;
+                                        $item_image = "$new_item_image.$image_ext";
+                                    }else{
+                                        $i++;
+                                    }
                                 }
                             }
-                        }
-                        $from_file = "images/item-images/$wishlistID/$original_item_image";
-                        $to_file = "images/item-images/$other_wishlist_copy_to/$item_image";
-                        $file_errors = false;
-                        if(!copy($from_file, $to_file)){
-                            $errors = true;
-                            $file_errors = true;
-                            $file_error = error_get_last();
-                            $error_type = $file_error["type"];
-                            $error_message = $file_error["message"];
-                            $errorList .= "<li>New item image ($item_image) file upload failed.<ul><li>Error Type: $error_type</li><li>Error Message: $error_message</li></ul></li>";
-                        }
-                        $date_added = date("Y-m-d H:i:s");
-                        if(!$file_errors){
-                            if(!$db->write("INSERT INTO items (wishlist_id, name, notes, price, quantity, unlimited, link, image, priority, quantity_purchased, purchased, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [$other_wishlist_copy_to, $item["name"], $item["notes"], $item["price"], $item["quantity"], $item["unlimited"], $item["link"], $item_image, $item["priority"], $item["quantity_purchased"], $item["purchased"], $date_added])){
-                                echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
+                            $from_file = "images/item-images/$wishlistID/$original_item_image";
+                            $to_file = "images/item-images/$other_wishlist_copy_to/$item_image";
+                            $file_errors = false;
+                            if(!copy($from_file, $to_file)){
+                                $errors = true;
+                                $file_errors = true;
+                                $file_error = error_get_last();
+                                $error_type = $file_error["type"];
+                                $error_message = $file_error["message"];
+                                $errorList .= "<li>New item image ($item_image) file upload failed.<ul><li>Error Type: $error_type</li><li>Error Message: $error_message</li></ul></li>";
                             }
+                            $date_added = date("Y-m-d H:i:s");
+                            if(!$file_errors){
+                                if(!$db->write("INSERT INTO items (wishlist_id, copy_id, name, notes, price, quantity, unlimited, link, image, priority, quantity_purchased, purchased, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [$other_wishlist_copy_to, $item_id, $item["name"], $item["notes"], $item["price"], $item["quantity"], $item["unlimited"], $item["link"], $item_image, $item["priority"], $item["quantity_purchased"], $item["purchased"], $date_added])){
+                                    echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
+                                }
+                            }
+                        }else{
+                            echo "<script>alert('Something went wrong while trying to copy item(s) over');</script>";
                         }
                     }
                 }else{
@@ -368,7 +396,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                         <?php echo $copyFromErrorMsg ?? ""; ?>
                                         <form method="POST" action="">
                                             <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                            <select id="other_wishlist_copy_from" name="other_wishlist_copy_from" required>
+                                            <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" required>
                                                 <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
                                                 <?php
                                                 foreach($other_wishlist_options as $opt){
@@ -382,9 +410,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                             </select>
                                             <div class="other-items copy-from<?php if($other_wishlist_copy_from == "") echo " hidden"; ?>">
                                                 <label>Select Items:</label><br />
-                                                <div class="item-checkboxes other-list">
+                                                <div class="item-checkboxes">
                                                     <?php
                                                     $copy_from = true;
+                                                    $other_wishlist_id = $other_wishlist_copy_from;
                                                     require("includes/find-other-items.php");
                                                     ?>
                                                 </div>
@@ -408,7 +437,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                         <h2>Copy Items to Another Wish List</h2>
                                         <form method="POST" action="">
                                             <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                            <select id="other_wishlist_copy_to" name="other_wishlist_copy_to" required>
+                                            <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" required>
                                                 <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
                                                 <?php
                                                 foreach($other_wishlist_options as $opt){
@@ -425,6 +454,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                 <div class="item-checkboxes">
                                                     <?php
                                                     $copy_from = false;
+                                                    $other_wishlist_id = $other_wishlist_copy_to;
                                                     require("includes/find-other-items.php");
                                                     ?>
                                                 </div>
@@ -489,31 +519,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $(this).select();
         });
 
-        $item_checkboxes = $(".item-checkboxes.other-list");
-        $("#other_wishlist_copy_from").on("change", function(e) {
-            $id = $(this).val();
+        $(".copy-select").on("change", function(e) {
+            $select = $(this);
+            $id = $select.val();
+            $copy_from = $select.attr("id") == "other_wishlist_copy_from" ? "Yes" : "No";
 
             $.ajax({
                 type: "POST",
                 url: "includes/ajax/other-wishlist-change.php",
                 data: {
                     wishlist_id: $id,
+                    copy_from: $copy_from,
                 },
                 success: function(html) {
-                    $(".other-items.copy-from").removeClass("hidden");
-                    $item_checkboxes.html(html);
+                    $select.next().removeClass("hidden");
+                    $select.next().find(".item-checkboxes").html(html);
                 }
             });
-        });
-
-        $("#other_wishlist_copy_to").on("change", function(){
-            $(".other-items.copy-to").removeClass("hidden");
         });
 
         $(document.body).on("click", ".select-item-container", function(e){
             e.preventDefault();
             $checkbox = $(this).find("input")[0];
-            $all_checkboxes =  $(this).parent().find(".option-checkbox > input:not(.check-all)");
+            $all_checkboxes =  $(this).parent().find(".option-checkbox > input:not(.check-all, .already-in-list)");
             if($checkbox.checked){
                 $checkbox.checked = false;
                 if($checkbox.classList.contains("check-all")){
