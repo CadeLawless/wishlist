@@ -14,11 +14,13 @@ $background_image = $_SESSION["wisher_background_image"] ?? "";
 $findItemInformation = $db->select("SELECT * FROM items WHERE id = ?", [$itemID]);
 if($findItemInformation->num_rows > 0){
     while($row = $findItemInformation->fetch_assoc()){
+        $copy_id = $row["copy_id"];
         $original_item_name = $row["name"];
         $item_name = $original_item_name;
         $notes = $row["notes"];
         $price = $row["price"];
         $quantity = $row["quantity"];
+        $original_quantity = $quantity;
         $unlimited = $row["unlimited"];
         $link = $row["link"];
         $image_name = $row["image"];
@@ -27,6 +29,25 @@ if($findItemInformation->num_rows > 0){
     }
 }
 $priority_options = ["1", "2", "3", "4"];
+
+// check for other items with same copy id
+if($copy_id != ""){
+    $findOtherCopies = $db->select("SELECT wishlist_id FROM items WHERE copy_id = ?", [$copy_id]);
+    $numberOfOtherCopies = $findOtherCopies->num_rows - 1;
+    $otherCopies = $numberOfOtherCopies > 0 ? true : false;
+    $otherWishlists = [];
+    if($numberOfOtherCopies > 0){
+        while($row = $findOtherCopies->fetch_assoc()){
+            $other_wishlist_id = $row["wishlist_id"];
+            array_push($otherWishlists, $other_wishlist_id);
+        }
+    }else{
+        $otherWishlists = [$wishlistID];
+    }
+}else{
+    $otherCopies = false;
+    $otherWishlists = [$wishlistID];
+}
 
 $pageno = $_GET["pageno"] ?? 1;
 
@@ -48,13 +69,13 @@ if(isset($_POST["submit_button"])){
             );
             $allowed = ["jpg", "jpeg", "png", "webp"];
             if($_FILES["item_image"]["name"] != ""){
-                $target_dir = "images/item-images/$wishlistID/";
                 $file = $_FILES['item_image']['name'];
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 $ext = strtolower($ext);
                 if(in_array($ext, $allowed)){
                     $filename = substr(preg_replace("/[^a-zA-Z0-9\-\s]/", "", $item_name), 0, 200) . ".$ext";
                     $temp_name = $_FILES['item_image']['tmp_name'];
+                    $target_dir = "images/item-images/$wishlistID/";
                     $path_filename = $target_dir.$filename;
                     if(file_exists($path_filename)){
                         unlink($path_filename);
@@ -62,6 +83,26 @@ if(isset($_POST["submit_button"])){
                     if(!move_uploaded_file($temp_name, $path_filename)){
                         $errors = true;
                         $errorList .= "<li>Item Image file upload failed: " . $phpFileUploadErrors[$_FILES["item_image"]["error"]] . "</li>";
+                    }else{
+                        if(count($otherWishlists) > 0){
+                            foreach($otherWishlists as $other){
+                                if($other != $wishlistID){
+                                    $other_target_dir = "images/item-images/$other/";
+                                    $other_path_filename = $other_target_dir.$filename;
+                                    if(file_exists($other_path_filename)){
+                                        unlink($other_path_filename);
+                                    }
+                                    if(!copy($path_filename, $other_path_filename)){
+                                        $errors = true;
+                                        $file_error = error_get_last();
+                                        $error_type = $file_error["type"];
+                                        $error_message = $file_error["message"];
+                                        $errorList .= "<li>New item image ($item_name) file upload failed.<ul><li>Error Type: $error_type</li><li>Error Message: $error_message</li></ul></li>";
+                                    }
+        
+                                }
+                            }
+                        }
                     }
                 }else{
                     $errors = true;
@@ -73,14 +114,24 @@ if(isset($_POST["submit_button"])){
     $date_modified = date("Y-m-d H:i:s");
     if(!$errors){
         if($filename != $image_name){
-            $target_dir = "images/item-images/$wishlistID/";
-            $original_path = $target_dir.$image_name;
-            if(file_exists($original_path)){
-                unlink($original_path);
+            if(count($otherWishlists) > 0){
+                foreach($otherWishlists as $other){
+                    $target_dir = "images/item-images/$other/";
+                    $original_path = $target_dir.$image_name;
+                    if(file_exists($original_path)){
+                        unlink($original_path);
+                    }
+                }
             }
         }
-        $purchased = $unlimited == "Yes" ? "No" : $purchased;
-        if($db->write("UPDATE items SET name = ?, price = ?, quantity = ?, unlimited = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified', purchased = ? WHERE id = ?", [$item_name, $price, $quantity, $unlimited, $link, $filename, $notes, $priority, $purchased, $itemID])){
+        if($unlimited == "Yes"){
+            $purchased = "No";
+        }else{
+            $purchased = $quantity > $original_quantity ? "No" : $purchased;
+        }
+        $where_column = $otherCopies ? "copy_id" : "id";
+        $item_id_sql = $otherCopies ? $copy_id : $itemID;
+        if($db->write("UPDATE items SET name = ?, price = ?, quantity = ?, unlimited = ?, link = ?, image = ?, notes = ?, priority = ?, date_modified = '$date_modified', purchased = ? WHERE $where_column = ?", [$item_name, $price, $quantity, $unlimited, $link, $filename, $notes, $priority, $purchased, $item_id_sql])){
             header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to add this item')</script>";
@@ -133,10 +184,16 @@ if(isset($_POST["submit_button"])){
             <div class="center"><h1 class="transparent-background"><?php echo $wishlistTitle; ?></h1></div>
             <div class="form-container">
                 <h2>Edit Item</h2>
-                <?php if(isset($errorMsg)) echo $errorMsg?>
                 <form method="POST" action="" enctype="multipart/form-data">
                     <div class="flex form-flex">
                         <?php
+                        if(isset($errorMsg)) echo $errorMsg;
+                        if($otherCopies){
+                            echo "
+                            <div class='alert warning'>
+                                <div class='alert-content'>Note: This item has been copied to or from $numberOfOtherCopies other wish list(s). Any changes made here will be made for the item on these wish lists as well.</div>
+                            </div>";
+                        }
                         $add = false;
                         require("includes/item-form.php");
                         ?>
