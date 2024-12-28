@@ -1,6 +1,4 @@
 <?php
-// get wishlist id from SESSION
-$wishlistID = $_SESSION["wisher_wishlist_id"] ?? false;
 if(!$wishlistID) header("Location: index.php");
 
 // find wishlist year and type

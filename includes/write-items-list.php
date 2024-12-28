@@ -139,7 +139,7 @@ while($row = $selectQuery->fetch_assoc()){
                                     }else{
                                         echo "
                                         <a class='button primary popup-button' href='#'>Yes</a>
-                                        <div class='popup-container hidden'>
+                                        <div class='popup-container first hidden'>
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>";
