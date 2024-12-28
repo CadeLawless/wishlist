@@ -157,16 +157,27 @@ a.template, .popup-button.template {
 }
 h1 {
     margin-top: 20px;
-    padding: 15px 40px;
     text-align: center;
     font-size: 32px;
 }
-h1.transparent-background, h2.transparent-background {
+:is(h1, h2, .wishlist-header).transparent-background {
     background-color: var(--transparent-background);
     border-radius: 5px;
 }
-h1.transparent-background {
-    min-width: 345px;
+:is(h1, .wishlist-header).transparent-background {
+    min-width: min(345px, 100%);
+    max-width: 100%;
+    display: inline-block;
+}
+.wishlist-header {
+    padding: 15px 0;
+    margin: 20px 0;
+}
+.wishlist-header h1 {
+    margin: 0;
+}
+.wishlist-header > :is(h1, div:not(.popup-container)){
+    padding: 0 40px;
 }
 h2, h2 div {
     font-size: 24px;
@@ -562,6 +573,15 @@ body.dark .dark-mode-link {
 }
 
 /* wishlist options */
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0;
+    padding: 0 40px;
+}
 .icon-options {
     display: flex;
     flex-wrap: wrap;
@@ -594,8 +614,9 @@ body.dark .dark-mode-link {
     gap: 4px;
 }
 .copy-link {
-    flex-basis: 100%;
+    margin-bottom: 25px;
     text-align: center;
+    min-height: 41px;
 }
 .icon {
     position: relative;
@@ -1016,7 +1037,7 @@ textarea {
 .popup-container {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     position: fixed;
     z-index: 1001;
     bottom: 0;
@@ -1032,8 +1053,8 @@ textarea {
     background-color: var(--transparent-background);
 }
 .popup {
-    width: 40%;
-    margin: 250px 15px 0;
+    width: clamp(min(500px, 100%), 40%, 100%);
+    margin: 0 15px;
     background-color: var(--background-darker);
     padding: 5px;
     position: relative;
@@ -1229,6 +1250,25 @@ textarea {
     font-weight: normal;
     z-index: 1;
     position: relative;
+}
+.flex-button {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+}
+.flex-button span {
+    color: white;
+    pointer-events: none;
+}
+.flex-button svg {
+    width: 25px;
+    height: 25px;
+    pointer-events: none;
+}
+.flex-button svg path {
+    fill: white;
+    transition: fill 0.5s;
 }
 .button.primary {
     background-color: var(--primary);
@@ -1997,11 +2037,6 @@ img.gift-wrap {
         max-height: 50vh;
     }
 }
-@media (max-width: 1204px){
-    .popup {
-        width: 60%;
-    }
-}
 @media (max-width: 1120px){
     .sidebar-main {
         flex-direction: column;
@@ -2147,11 +2182,6 @@ img.gift-wrap {
     }
     #container .background-theme {
         padding-top: 75px;
-    }
-}
-@media (max-width: 804px){
-    .popup {
-        width: 90%;
     }
 }
 @media (max-width: 800px){   
