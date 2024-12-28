@@ -29,6 +29,7 @@
     <label for="image">Item Image:<br></label>
     <a class="file-input">Choose Item Image</a>
     <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
+    <input type="text" placeholder="Or paste an image here..." id="paste-image" />
     <?php if($add){ ?>
         <div class="<?php if($filename == "") echo "hidden"; ?>" id="preview_container">
             <img class="preview" src="">
@@ -38,6 +39,7 @@
             <img class="preview" src="images/item-images/<?php echo "$wishlistID/$image_name"; ?>">
         </div>
     <?php } ?>
+
 </div>
 <div class="large-input">
     <label for="notes">Item Notes:<br></label>

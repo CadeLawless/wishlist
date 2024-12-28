@@ -9,6 +9,14 @@ $(".file-input").on("click", function(e){
     $(this).next().click();
 });
 
+$("#paste-image").on("paste input", function(e){
+    if(e.originalEvent.clipboardData != null){
+        $(".file-input + input")[0].files = e.originalEvent.clipboardData.files;
+        $(".file-input + input").trigger("change");
+    }else{
+        $(this).val("");
+    }
+});
 // show image preview on change
 $("#image, .file-input + input").on("change", function(){
     $input = $(this);
@@ -16,15 +24,16 @@ $("#image, .file-input + input").on("change", function(){
         var reader = new FileReader();
 
         reader.onload = function (e) {
-            console.log($(this).next());
-            $input.next().find("img").attr("src", e.target.result);
+            //console.log($(this).next());
+            $("#preview_container").find("img").attr("src", e.target.result);
         }
 
         reader.readAsDataURL(this.files[0]);
-        this.nextElementSibling.classList.remove("hidden");
+        document.querySelector("#preview_container").classList.remove("hidden");
         this.previousElementSibling.textContent = "Change Image";
     }else{
-        this.nextElementSibling.classList.add("hidden");
+        document.querySelector("#preview_container").classList.add("hidden");
+        $("#paste-image").val("");
         this.previousElementSibling.textContent = "Choose Image";
     }
 });
