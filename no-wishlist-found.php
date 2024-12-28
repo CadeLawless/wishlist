@@ -46,7 +46,7 @@ ini_set("display_errors", 1);
         <?php require("includes/header.php"); ?>
         <div id="container">
             <div class="form-container">
-                <h3>No wish list found</h3>
+                <h3>Wish list not found or visibility is set to hidden</h3>
                 <p><a class="button primary" href="index.php">Go home</a></p>
             </div>
         </div>

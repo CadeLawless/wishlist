@@ -16,9 +16,11 @@ $findQuantityInfo = $db->select("SELECT wishlist_id, copy_id, quantity, unlimite
 if($findQuantityInfo->num_rows > 0){
     while($row = $findQuantityInfo->fetch_assoc()){
         $wishlist_id = $row["wishlist_id"];
-        $findKey = $db->select("SELECT secret_key FROM wishlists WHERE id = ?", [$wishlist_id])->fetch_all(MYSQLI_BOTH);
+        $findKey = $db->select("SELECT secret_key, visibility, complete FROM wishlists WHERE id = ?", [$wishlist_id])->fetch_all(MYSQLI_BOTH);
         if(!empty($findKey)){
             $wishlist_key = $findKey[0]["secret_key"];
+            $visibility = $findKey[0]["visibility"];
+            $complete = $findKey[0]["complete"];
         }
         $quantity = $row["quantity"];
         $unlimited = $row["unlimited"];
@@ -34,12 +36,16 @@ if($findQuantityInfo->num_rows > 0){
     $values = $copy_id != "" ? [$new_quantity_purchased, $purchased, $copy_id] : [$new_quantity_purchased, $purchased, $itemID];
 
     // delete item from list
-    if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE $where_column = ?", $values)){
-        $_SESSION["purchased"] = true;
-        header("Location: buyer-view.php?key=$wishlist_key&pageno=$pageno#paginate-top");
+    if($visibility == "Public" && $complete == "No"){
+        if($db->write("UPDATE items SET quantity_purchased = ?, purchased = ? WHERE $where_column = ?", $values)){
+            $_SESSION["purchased"] = true;
+            header("Location: buyer-view.php?key=$wishlist_key&pageno=$pageno#paginate-top");
+        }else{
+            echo "<script>alert('Something went wrong while trying to delete this item from your wish list')</script>";
+            // echo $db->error();
+        }
     }else{
-        echo "<script>alert('Something went wrong while trying to delete this item from your wish list')</script>";
-        // echo $db->error();
+        header("Location: $home");
     }
 }else{
     header("Location: $home");
