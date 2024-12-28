@@ -16,7 +16,9 @@ $(document).ready(function() {
     // hide popup if x button or no button is clicked
     $(document.body).on("click", ".close-container:not(.options-close)", function(e) {
         e.preventDefault();
-        $("body").removeClass("fixed");
+        if(!$(this).closest(".popup-container").hasClass("first") && !$(this).closest(".popup-container").hasClass("second")){
+            $("body").removeClass("fixed");
+        }
         this.closest(".popup-container").classList.add("hidden");
         for(const popup of this.closest(".popup-container").querySelectorAll(".popup:not(.first, .second)")){
             popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right", "hidden");
@@ -27,7 +29,9 @@ $(document).ready(function() {
     });
     $(document.body).on("click", ".no-button", function(e) {
         e.preventDefault();
-        $("body").removeClass("fixed");
+        if(!$(this).closest(".popup-container").hasClass("first") && !$(this).closest(".popup-container").hasClass("second")){
+            $("body").removeClass("fixed");
+        }
         this.closest(".popup-container").classList.add("hidden");
         if($(this).hasClass("double-no")){
             $(this).closest(".popup-container").prev().closest(".popup-container").addClass("hidden");
