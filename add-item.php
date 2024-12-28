@@ -4,6 +4,7 @@ ini_set("allow_url_fopen", 1);
 require "includes/setup.php";
 
 // gets wishlist id from session and wishlist info from database
+$wishlistID = $_SESSION["wisher_wishlist_id"] ?? false;
 require "includes/wishlist-setup.php";
 
 $pageno = $_GET["pageno"] ?? 1;
@@ -125,7 +126,11 @@ if(isset($_POST["submit_button"])){
                 <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
             <p style="padding-top: 15px;"><a class="button accent" href="<?php echo $_SESSION["home"]; ?>">Back to List</a></p>
-            <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
+            <div class="center">
+                <div class="wishlist-header center transparent-background">
+                    <h1><?php echo $wishlistTitle; ?></h1>
+                </div>
+            </div>
             <div class="form-container">
                 <h2>Add Item</h2>
                 <?php if(isset($errorMsg)) echo $errorMsg?>

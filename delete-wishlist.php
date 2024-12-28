@@ -3,6 +3,7 @@
 require "includes/setup.php";
 
 // gets wishlist id from session and wishlist info from database
+$wishlistID = $_GET["id"] ?? false;
 require "includes/wishlist-setup.php";
 
 // delete list database

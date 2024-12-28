@@ -19,8 +19,23 @@ $ajax = false;
 $copy_from_success = isset($_SESSION["copy_from_success"]) ? true : false;
 if($copy_from_success) unset($_SESSION["copy_from_success"]);
 
+$wishlist_hidden = isset($_SESSION["wishlist_hidden"]) ? true : false;
+if($wishlist_hidden) unset($_SESSION["wishlist_hidden"]);
+
+$wishlist_public = isset($_SESSION["wishlist_public"]) ? true : false;
+if($wishlist_public) unset($_SESSION["wishlist_public"]);
+
+$wishlist_complete = isset($_SESSION["wishlist_complete"]) ? true : false;
+if($wishlist_complete) unset($_SESSION["wishlist_complete"]);
+
+$wishlist_reactivated = isset($_SESSION["wishlist_reactivated"]) ? true : false;
+if($wishlist_reactivated) unset($_SESSION["wishlist_reactivated"]);
+
+$item_deleted = isset($_SESSION["item_deleted"]) ? true : false;
+if($item_deleted) unset($_SESSION["item_deleted"]);
+
 // find wishlist year and type
-$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, secret_key, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE username = ? AND id = ?", [$username, $wishlistID]);
+$findWishlistInfo = $db->select("SELECT id, type, wishlist_name, year, duplicate, secret_key, theme_background_id, theme_gift_wrap_id, visibility, complete FROM wishlists WHERE username = ? AND id = ?", [$username, $wishlistID]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $year = $row["year"];
@@ -40,6 +55,8 @@ if($findWishlistInfo->num_rows > 0){
                 }
             }
         }
+        $visibility = $row["visibility"];
+        $complete = $row["complete"];
     }
 }else{
     header("Location: no-access.php");
@@ -339,6 +356,81 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     </div>
                 </div>";
             }
+            if($wishlist_hidden){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Wish list is now hidden</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            if($wishlist_public){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Wish list is now public</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            if($wishlist_complete){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Wish list successfully marked as complete</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            if($wishlist_reactivated){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Wish list successfully reactivated</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            if($item_deleted){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require("images/site-images/menu-close.php");
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Item deleted successfully</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
             ?>
 
             <?php if($theme_background_id != 0){ ?>
@@ -348,140 +440,218 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <p style="padding-top: 15px;"><a class="button accent" href="view-wishlists.php">Back to All Wish Lists</a></p>
 
             <div class="center">
-                <h1 class="center transparent-background">
-                    <?php echo $wishlistTitle; ?>
-                    <div class="icon-options wishlist-options">
-                        <div class="copy-link">
-                            <a class="button secondary" href="#"><?php require("images/site-images/icons/copy-link.php"); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
-                        </div>
-                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/edit.php"); ?><div class="inline-label">Rename</div></a>
-                        <div class='popup-container hidden'>
-                            <div class='popup'>
-                                <div class='close-container'>
-                                    <a href='#' class='close-button'>
-                                    <?php require("images/site-images/menu-close.php"); ?>
-                                    </a>
-                                </div>
-                                <div class='popup-content'>
-                                <h2 style="margin-top: 0;">Rename Wish List</h2>
-                                <form method="POST" action="">
-                                    <?php echo $errorMsg ?? ""; ?>
-                                    <div class="flex form-flex">
-                                        <div class="large-input">
-                                            <label for="wishlist_name">Name:<br/></label>
-                                            <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
-                                        </div>
-                                        <div class="large-input">
-                                            <p class="center"><input type="submit" class="button text" name="rename_submit_button" id="submitButton" value="Rename" /></p>
-                                        </div>
-                                    </div>
-                                </form>
-                                </div>
+                <div class="wishlist-header center transparent-background">
+                    <h1><?php echo $wishlistTitle; ?></h1>
+                    <div class="flex-row">
+                        <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Complete" : "Not Complete"; ?></div>
+                        <div><strong>Visibility:</strong> <?php echo htmlspecialchars($visibility); ?></div>
+                    </div>
+                    <a class="button primary flex-button popup-button" href="#">
+                        <?php require("images/site-images/icons/settings.php"); ?>
+                        <span>Wish List Options</span>
+                    </a>
+                    <div class='popup-container hidden'>
+                        <div class='popup'>
+                            <div class='close-container'>
+                                <a href='#' class='close-button'>
+                                <?php require("images/site-images/menu-close.php"); ?>
+                                </a>
                             </div>
-                        </div>
-                        <a class="icon-container popup-button choose-theme-button" href="#"><?php require("images/site-images/icons/swap-theme.php"); ?><div class="inline-label">Change Theme</div></a>
-                        <?php
-                        write_theme_popup(type: strtolower($type), swap: true);
-                        if(count($other_wishlist_options) > 0){ ?>
-                            <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/copy-from.php"); ?><div class="inline-label">Copy From...</div></a>
-                            <div class='popup-container center-items<?php if(!isset($copyFromErrorMsg)) echo " hidden"; ?>'>
-                                <div class='popup'>
-                                    <div class='close-container'>
-                                        <a href='#' class='close-button'>
-                                        <?php require("images/site-images/menu-close.php"); ?>
-                                        </a>
+                            <div class='popup-content'>
+                                <div class="copy-link">
+                                    <a class="button secondary" href="#"><?php require("images/site-images/icons/copy-link.php"); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                </div>
+                                <div class="icon-options wishlist-options">
+                                    <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/edit.php"); ?><div class="inline-label">Rename</div></a>
+                                    <div class='popup-container first hidden'>
+                                        <div class='popup'>
+                                            <div class='close-container'>
+                                                <a href='#' class='close-button'>
+                                                <?php require("images/site-images/menu-close.php"); ?>
+                                                </a>
+                                            </div>
+                                            <div class='popup-content'>
+                                            <h2 style="margin-top: 0;">Rename Wish List</h2>
+                                            <form method="POST" action="">
+                                                <?php echo $errorMsg ?? ""; ?>
+                                                <div class="flex form-flex">
+                                                    <div class="large-input">
+                                                        <label for="wishlist_name">Name:<br/></label>
+                                                        <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
+                                                    </div>
+                                                    <div class="large-input">
+                                                        <p class="center"><input type="submit" class="button text" name="rename_submit_button" id="submitButton" value="Rename" /></p>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class='popup-content'>
-                                        <h2>Copy Items From Another Wish List</h2>
-                                        <?php echo $copyFromErrorMsg ?? ""; ?>
-                                        <form method="POST" action="">
-                                            <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                            <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" required>
-                                                <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
-                                                <?php
-                                                foreach($other_wishlist_options as $opt){
-                                                    $other_id = $opt["id"];
-                                                    $other_name = htmlspecialchars($opt["name"]);
-                                                    echo "<option value='$other_id'";
-                                                    if($other_id == $other_wishlist_copy_from) echo " selected";
-                                                    echo ">$other_name</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                            <div class="other-items copy-from<?php if($other_wishlist_copy_from == "") echo " hidden"; ?>">
-                                                <label>Select Items:</label><br />
-                                                <div class="item-checkboxes">
-                                                    <?php
-                                                    $copy_from = true;
-                                                    $other_wishlist_id = $other_wishlist_copy_from;
-                                                    require("includes/find-other-items.php");
-                                                    ?>
+                                    <a class="icon-container popup-button choose-theme-button" href="#"><?php require("images/site-images/icons/swap-theme.php"); ?><div class="inline-label">Change Theme</div></a>
+                                    <?php
+                                    write_theme_popup(type: strtolower($type), swap: true);
+                                    if(count($other_wishlist_options) > 0){ ?>
+                                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/copy-from.php"); ?><div class="inline-label">Copy From...</div></a>
+                                        <div class='popup-container first center-items<?php if(!isset($copyFromErrorMsg)) echo " hidden"; ?>'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>
+                                                    <?php require("images/site-images/menu-close.php"); ?>
+                                                    </a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <h2>Copy Items From Another Wish List</h2>
+                                                    <?php echo $copyFromErrorMsg ?? ""; ?>
+                                                    <form method="POST" action="">
+                                                        <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
+                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" required>
+                                                            <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
+                                                            <?php
+                                                            foreach($other_wishlist_options as $opt){
+                                                                $other_id = $opt["id"];
+                                                                $other_name = htmlspecialchars($opt["name"]);
+                                                                echo "<option value='$other_id'";
+                                                                if($other_id == $other_wishlist_copy_from) echo " selected";
+                                                                echo ">$other_name</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                        <div class="other-items copy-from<?php if($other_wishlist_copy_from == "") echo " hidden"; ?>">
+                                                            <label>Select Items:</label><br />
+                                                            <div class="item-checkboxes">
+                                                                <?php
+                                                                $copy_from = true;
+                                                                $other_wishlist_id = $other_wishlist_copy_from;
+                                                                require("includes/find-other-items.php");
+                                                                ?>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                    
                                                 </div>
                                             </div>
-                                        </form>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        <?php }
-                        if($findItems->num_rows > 0){ ?>
-                            <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/copy-to.php"); ?><div class="inline-label">Copy To...</div></a>
-                            <div class='popup-container center-items hidden'>
-                                <div class='popup'>
-                                    <div class='close-container'>
-                                        <a href='#' class='close-button'>
-                                        <?php require("images/site-images/menu-close.php"); ?>
-                                        </a>
-                                    </div>
-                                    <div class='popup-content'>
-                                        <h2>Copy Items to Another Wish List</h2>
-                                        <form method="POST" action="">
-                                            <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                            <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" required>
-                                                <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
-                                                <?php
-                                                foreach($other_wishlist_options as $opt){
-                                                    $other_id = $opt["id"];
-                                                    $other_name = htmlspecialchars($opt["name"]);
-                                                    echo "<option value='$other_id'";
-                                                    if($other_id == $other_wishlist_copy_to) echo " selected";
-                                                    echo ">$other_name</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                            <div class="other-items copy-to<?php if($other_wishlist_copy_to == "") echo " hidden"; ?>">
-                                                <label>Select Items:</label><br />
-                                                <div class="item-checkboxes">
-                                                    <?php
-                                                    $copy_from = false;
-                                                    $other_wishlist_id = $other_wishlist_copy_to;
-                                                    require("includes/find-other-items.php");
-                                                    ?>
+                                        </div>
+                                    <?php }
+                                    if($findItems->num_rows > 0){ ?>
+                                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/copy-to.php"); ?><div class="inline-label">Copy To...</div></a>
+                                        <div class='popup-container first center-items hidden'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>
+                                                    <?php require("images/site-images/menu-close.php"); ?>
+                                                    </a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <h2>Copy Items to Another Wish List</h2>
+                                                    <form method="POST" action="">
+                                                        <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
+                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" required>
+                                                            <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
+                                                            <?php
+                                                            foreach($other_wishlist_options as $opt){
+                                                                $other_id = $opt["id"];
+                                                                $other_name = htmlspecialchars($opt["name"]);
+                                                                echo "<option value='$other_id'";
+                                                                if($other_id == $other_wishlist_copy_to) echo " selected";
+                                                                echo ">$other_name</option>";
+                                                            }
+                                                            ?>
+                                                        </select>
+                                                        <div class="other-items copy-to<?php if($other_wishlist_copy_to == "") echo " hidden"; ?>">
+                                                            <label>Select Items:</label><br />
+                                                            <div class="item-checkboxes">
+                                                                <?php
+                                                                $copy_from = false;
+                                                                $other_wishlist_id = $other_wishlist_copy_to;
+                                                                require("includes/find-other-items.php");
+                                                                ?>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                    
                                                 </div>
                                             </div>
-                                        </form>
-                                        
+                                        </div>
+                                    <?php }
+                                    if($complete == "No"){ ?>
+                                        <a class="icon-container popup-button" href="#">
+                                            <?php
+                                            if($visibility == "Public"){
+                                                require("images/site-images/icons/hide-view.php");
+                                            }else{
+                                                require("images/site-images/icons/view.php");
+                                            }    
+                                            ?>
+                                            <div class="inline-label"><?php echo $visibility == "Public" ? "Hide" : "Make Public"; ?></div>
+                                        </a>
+                                        <div class='popup-container first hidden'>
+                                            <div class='popup'>
+                                                <div class='close-container'>
+                                                    <a href='#' class='close-button'>
+                                                        <?php require("images/site-images/menu-close.php"); ?>
+                                                    </a>
+                                                </div>
+                                                <div class='popup-content'>
+                                                    <p>
+                                                        <?php
+                                                        if($visibility == "Public"){
+                                                            echo "Making this wish list hidden means that the list will no longer be open for others to look at or mark items as purchased.";
+                                                        }else{
+                                                            echo "Making this wish list public means that the list will be open for others to look at and mark items as purchased.";
+                                                        }
+                                                        ?>        
+                                                    </p>
+                                                    <label>Are you sure you want to <?php echo $visibility == "Public" ? "hide this wish list" : "make this wish list public"; ?>?</label>
+                                                    <p><?php echo $wishlistTitle; ?></p>
+                                                    <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='<?php echo $visibility == "Public" ? "hide" : "show"; ?>-wishlist.php?id=<?php echo $wishlistID; ?>&pageno=<?php echo $pageno; ?>'>Yes</a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                    <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/checkmark.php"); ?><div class="inline-label"><?php echo $complete == "No" ? "Mark as Complete" : "Reactivate"; ?></div></a>
+                                    <div class='popup-container first hidden'>
+                                        <div class='popup'>
+                                            <div class='close-container'>
+                                                <a href='#' class='close-button'>
+                                                <?php require("images/site-images/menu-close.php"); ?>
+                                                </a>
+                                            </div>
+                                            <div class='popup-content'>
+                                                <p>
+                                                    <?php
+                                                    if($complete == "No"){
+                                                        echo "Marking this wish list as complete means the event has passed and the list will no longer be open for others to look at or mark items as purchased.<br />";
+                                                    }else{
+                                                        echo "Reactivating this wish list means the list will now be open for others to look at and mark items as purchased again.<br />";
+                                                    }
+                                                    ?>
+                                                </p>
+                                                <label>Are you sure you want to <?php echo $complete == "No" ? "mark this wish list as complete" : "reactivate this wish list"; ?>?</label>
+                                                <p><?php echo $wishlistTitle; ?></p>
+                                                <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='<?php echo $complete == "No" ? "complete" : "reactivate"; ?>-wishlist.php?id=<?php echo $wishlistID; ?>&pageno=<?php echo $pageno; ?>'>Yes</a></p>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        <?php } ?>
-                        <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/delete-trashcan.php"); ?><div class="inline-label">Delete</div></a>
-                        <div class='popup-container delete-wishlist-popup hidden'>
-                            <div class='popup'>
-                                <div class='close-container'>
-                                    <a href='#' class='close-button'>
-                                    <?php require("images/site-images/menu-close.php"); ?>
-                                    </a>
-                                </div>
-                                <div class='popup-content'>
-                                    <label>Are you sure you want to delete this wishlist?</label>
-                                    <p><?php echo $wishlistTitle; ?></p>
-                                    <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='delete-wishlist.php?id=<?php echo $wishlistID; ?>'>Yes</a></p>
+                                    <a class="icon-container popup-button" href="#"><?php require("images/site-images/icons/delete-trashcan.php"); ?><div class="inline-label">Delete</div></a>
+                                    <div class='popup-container first delete-wishlist-popup hidden'>
+                                        <div class='popup'>
+                                            <div class='close-container'>
+                                                <a href='#' class='close-button'>
+                                                <?php require("images/site-images/menu-close.php"); ?>
+                                                </a>
+                                            </div>
+                                            <div class='popup-content'>
+                                                <label>Are you sure you want to delete this wish list?</label>
+                                                <p><?php echo $wishlistTitle; ?></p>
+                                                <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='delete-wishlist.php?id=<?php echo $wishlistID; ?>&pageno=<?php echo $pageno; ?>'>Yes</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </h1>
+                </div>
             </div>
             <?php
             require("includes/sort.php");

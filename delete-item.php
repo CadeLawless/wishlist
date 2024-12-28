@@ -3,6 +3,7 @@
 require "includes/setup.php";
 
 // gets wishlist id from session and wishlist info from database
+$wishlistID = $_SESSION["wisher_wishlist_id"] ?? false;
 require "includes/wishlist-setup.php";
 
 // get item id from URL
@@ -32,11 +33,13 @@ if($deleteAll == "yes" && $copy_id != ""){
 if($db->write("DELETE FROM items WHERE $where_sql", $values)){
     if(file_exists("images/item-images/$wishlistID/$image")){
         if(unlink("images/item-images/$wishlistID/$image")){
+            $_SESSION["item_deleted"] = true;
             header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
         }else{
             echo "<script>alert('Something went wrong while trying to delete this item from your wishlist')</script>";
         }
     }else{
+        $_SESSION["item_deleted"] = true;
         header("Location: view-wishlist.php?id=$wishlistID&pageno=$pageno");
     }
 }else{

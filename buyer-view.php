@@ -16,7 +16,7 @@ $item_purchased = isset($_SESSION["purchased"]) ? true : false;
 if($item_purchased) unset($_SESSION["purchased"]);
 
 // find wishlist based off of key
-$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ?", [$wishlistKey]);
+$findWishlistInfo = $db->select("SELECT id, username, year, type, duplicate, wishlist_name, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE secret_key = ? AND visibility = 'Public' AND complete = 'No'", [$wishlistKey]);
 if($findWishlistInfo->num_rows > 0){
     while($row = $findWishlistInfo->fetch_assoc()){
         $wishlistID = $row["id"];
@@ -144,7 +144,11 @@ $_SESSION["buyer_sort_price"] = $sort_price;
             ?>
             <img class='background-theme desktop-background' src="images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
             <img class='background-theme mobile-background' src="images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
-            <div class="center"><h1 class="center transparent-background"><?php echo $wishlistTitle; ?></h1></div>
+            <div class="center">
+                <div class="wishlist-header center transparent-background">
+                    <h1><?php echo $wishlistTitle; ?></h1>
+                </div>
+            </div>
             <div class='items-list-container'>
                 <h2 class="transparent-background items-list-title" id='paginate-top' class='center'>All Items</h2>
                 <?php
