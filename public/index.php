@@ -13,12 +13,12 @@ session_start();
 $requestUrl = $_SERVER['REQUEST_URI'];
 
 // Strip the base directory
-$requestUrl = str_replace('/wishlist1', '', $requestUrl);
+$requestUrl = str_replace('/wishlist', '', $requestUrl);
 
 $router = new Router();
 $router->add('GET', ['/', '/index'], [App\Controllers\HomeController::class, 'index']);
-$router->add('GET', ['/login'], [App\Controllers\LoginController::class, 'showForm']);
-$router->add('POST', ['/login'], [App\Controllers\LoginController::class, 'handleForm']);
+$router->add('GET', '/login', [App\Controllers\LoginController::class, 'showForm']);
+$router->add('POST', '/login', [App\Controllers\LoginController::class, 'handleForm']);
 $router->add('GET', '/logout', [App\Controllers\LogoutController::class, 'logout']);
 $router->add('POST', '/change-theme', [App\Controllers\AjaxController::class, 'changeTheme']);
 $router->add('GET', '/create-wishlist', [App\Controllers\CreateWishListController::class, 'showForm']);

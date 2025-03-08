@@ -17,7 +17,7 @@ class LogoutController extends Controller
         session_destroy();
         setcookie("PHPSESSID", "", 1);
         //var_dump($_SESSION);
-        header("Location: /wishlist1/login");
+        header("Location: /wishlist/login");
     }
 }
 

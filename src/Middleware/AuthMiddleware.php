@@ -12,7 +12,7 @@ class AuthMiddleware
 
         if (!$logged_in) {
             // Redirect to login page if not authenticated
-            header('Location: /wishlist1/login');
+            header('Location: /wishlist/login');
             exit;
         }else{
             $user->setInformation();

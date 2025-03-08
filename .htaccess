@@ -1,7 +1,7 @@
 RewriteEngine On
-RewriteBase /wishlist1/
+RewriteBase /wishlist/
 
-# Redirect the root (localhost/wishlist1) to public/index.php
+# Redirect the root (localhost/wishlist) to public/index.php
 RewriteRule ^$ public/index.php [QSA,L]
 
 # Check if the requested file exists
