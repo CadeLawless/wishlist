@@ -1,0 +1,20 @@
+{
+    "name": "clawl/wishlist1",
+    "description": "A PHP web application for managing wish lists",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cade Lawless",
+            "email": "clawless05@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Core\\": "src/Core/",
+            "App\\": "src/App/",
+            "Helpers\\": "src/Helpers",
+            "Middleware\\": "src/Middleware"
+        }
+    }
+}
