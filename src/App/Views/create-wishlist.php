@@ -4,7 +4,7 @@ require(__DIR__ . "/includes/nav.php");
 
 $formFields = $formValidation->getExtractableFormFields();
 extract($formFields);
-$siteImageFolder = "$homeDir/wishlist1/public/assets/images/site-images";
+$siteImageFolder = "$homeDir/wishlist/public/assets/images/site-images";
 ?>
 
 <div id="container">
@@ -104,6 +104,6 @@ $siteImageFolder = "$homeDir/wishlist1/public/assets/images/site-images";
 
 <?php require(__DIR__ . "/includes/footer.php"); ?>
 
-<script src="/wishlist1/public/assets/js/popup.js"></script>
-<script src="/wishlist1/public/assets/js/choose-theme.js"></script>
-<?php require("$homeDir/wishlist1/public/assets/js/create-wishlist-js.php"); ?>
+<script src="/wishlist/public/assets/js/popup.js"></script>
+<script src="/wishlist/public/assets/js/choose-theme.js"></script>
+<?php require("$homeDir/wishlist/public/assets/js/create-wishlist-js.php"); ?>

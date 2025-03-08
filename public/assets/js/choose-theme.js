@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $siteImageFolderPath = "/wishlist1/public/assets/images/site-images";
+    $siteImageFolderPath = "/wishlist/public/assets/images/site-images";
 
     $backgroundAjaxRequests = [];
     function showThemeBackgrounds() {
@@ -8,7 +8,7 @@ $(document).ready(function() {
         $backgroundAjaxRequests.push(
             $.ajax({
                 type: "POST",
-                url: "/wishlist1/show-theme-backgrounds",
+                url: "/wishlist/show-theme-backgrounds",
                 data: {
                     type: $type,
                 },
@@ -30,7 +30,7 @@ $(document).ready(function() {
         $backgroundDropdownAjaxRequests.push(
             $.ajax({
                 type: "POST",
-                url: "/wishlist1/show-theme-background-options",
+                url: "/wishlist/show-theme-background-options",
                 data: {
                     type: $type,
                 },
@@ -52,7 +52,7 @@ $(document).ready(function() {
         $giftWrapDropdownAjaxRequests.push(
             $.ajax({
                 type: "POST",
-                url: "/wishlist1/show-theme-gift-wrap-options",
+                url: "/wishlist/show-theme-gift-wrap-options",
                 data: {
                     type: $type,
                 },
