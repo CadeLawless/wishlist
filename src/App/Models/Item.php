@@ -52,9 +52,9 @@ class Item extends Model
         if(count($items) > 0){
             echo "<div class='items-list'>";
             
-            $siteImageFolderServerPath = "$this->homeDir/wishlist/public/assets/images/site-images";
-            $siteImageFolderWebPath = "/wishlist/public/assets/images/site-images";
-            $itemImageFolderWebPath = "/wishlist/public/assets/images/item-images";
+            $siteImageFolderServerPath = "$this->homeDir/assets/images/site-images";
+            $siteImageFolderWebPath = "/assets/images/site-images";
+            $itemImageFolderWebPath = "/assets/images/item-images";
 
             $wrap_folder_get_count = new FilesystemIterator("$siteImageFolderServerPath/themes/gift-wraps/$wrapImage", FilesystemIterator::SKIP_DOTS);
             $number_of_wraps = iterator_count($wrap_folder_get_count);

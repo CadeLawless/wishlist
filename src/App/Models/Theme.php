@@ -8,7 +8,7 @@ use FilesystemIterator;
 class Theme extends Model
 {
     protected string $table = 'themes';
-    protected string $siteImageFolderWebPath = "/wishlist/public/assets/images/site-images";
+    protected string $siteImageFolderWebPath = "/assets/images/site-images";
 
 
     public function getBackgrounds(string $type): array
@@ -19,7 +19,7 @@ class Theme extends Model
 
     public function getThemeBackgrounds(string $homeDir): void
     {
-        $siteImageFolderServerPath = "$homeDir/wishlist/public/assets/images/site-images";
+        $siteImageFolderServerPath = "$homeDir/assets/images/site-images";
         if (isset($_POST["type"])) {
             $type = $_POST["type"];
             $findBackgrounds = $this->getBackgrounds(type: $type);
@@ -126,7 +126,7 @@ class Theme extends Model
 
     public function getThemeGiftWrapDropdownOptions(string $homeDir): void
     {
-        $siteImageFolderServerPath = "$homeDir/wishlist/public/assets/images/site-images";
+        $siteImageFolderServerPath = "$homeDir/assets/images/site-images";
         if (isset($_POST["type"])) {
             $type = $_POST["type"];
             $findGiftWraps = $this->select("SELECT * FROM $this->table WHERE theme_type = 'Gift Wrap' AND theme_tag = ? ORDER BY theme_name ASC", [$type]);

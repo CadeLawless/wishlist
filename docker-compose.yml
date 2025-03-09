@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  php-apache:
+    image: php:8.1-apache
+    build:
+      dockerfile: Dockerfile
+    container_name: wishlist-php-app
+    ports:
+      - "8082:80"  # Map container port 80 to local 8080
+    volumes:
+      - ./public:/var/www/html  # Maps your public folder to the container's document root
+      - ./src:/var/www/src      # If you have source code outside the public folder
+    environment:
+      - MYSQL_HOST=host.docker.internal  # Connects to MySQL on your local machine (if running outside Docker)
+      - MYSQL_PORT=3306
+
+  # Optional: Use existing phpMyAdmin instance
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8083:80"  # Access phpMyAdmin at http://localhost:8081
+    environment:
+      PMA_HOST: host.docker.internal  # Connects to MySQL on local machine
+      MYSQL_ROOT_PASSWORD: millieBean0514  # Replace with your root password
+    depends_on:
+      - php-apache

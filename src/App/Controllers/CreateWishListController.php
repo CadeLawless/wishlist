@@ -81,7 +81,7 @@ class CreateWishListController extends Controller
                 $this->user->username
             )){
                 $wishlistID = $wishList->getLastInsertID();
-                header("Location: /wishlist/view-wishlist?id=$wishlistID"); 
+                header("Location: /view-wishlist?id=$wishlistID"); 
             }
         }
     }

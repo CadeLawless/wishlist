@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'host' => 'localhost',
+    'host' => 'host.docker.internal',
     'dbname' => 'wishlist',
     'user' => 'root',
     'password' => 'millieBean0514'

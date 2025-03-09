@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'century-gothic';
-    src: url('/wishlist/public/assets/font/centurygothic.ttf');
+    src: url('/assets/font/centurygothic.ttf');
 }
 @font-face {
     font-family: 'century-gothic-bold';
-    src: url('/wishlist/public/assets/font/centurygothic_bold.ttf');
+    src: url('/assets/font/centurygothic_bold.ttf');
 }
 
 /* site colors */

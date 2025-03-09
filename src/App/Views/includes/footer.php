@@ -15,7 +15,7 @@
       $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
       $.ajax({
         type: "POST",
-        url: "/wishlist/change-theme",
+        url: "/change-theme",
         data: {
             dark: $dark,
         },

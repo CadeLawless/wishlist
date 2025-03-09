@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Set the base directory to 'public'
+    RewriteBase /
+
+    # Redirect the root (localhost/wishlist) to public/index.php
+    RewriteRule ^$ index.php [QSA,L]
+
+    # Check if the requested file exists (either a file or a directory)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+
+    # If the file exists, serve it directly
+    RewriteRule ^(.*)$ $1 [L]
+
+    # Redirect any other URLs to public/index.php
+    RewriteRule ^(.+)$ index.php [QSA,L]
+</IfModule>
