@@ -1,7 +1,7 @@
 <?php require(__DIR__ . "/includes/header.php"); ?>
 
 <div id="container">
-    <p class="center login-logo"><?php require("$homeDir/assets/images/site-images/logo.php"); ?></p>
+    <p class="center login-logo"><?php require("$homeDir/wishlist/public/assets/images/site-images/logo.php"); ?></p>
     <form id="login-form" style="max-width: 350px;" method="POST" action="">
         <?php
         $formValidation->printErrorMessage();

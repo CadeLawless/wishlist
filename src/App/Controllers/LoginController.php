@@ -56,7 +56,7 @@ class LoginController extends Controller
                 if($user->setRememberMeSession(username: $this->username, rememberMe: $this->rememberMe)){
                     $_SESSION["wishlist_logged_in"] = true;
                     $_SESSION["username"] = $this->username->value;
-                    header('Location: /');
+                    header('Location: /wishlist/');
                 }else{
                     $this->rememberMe->setErrors(message: "Something went wrong while trying to log you in");
                 }
