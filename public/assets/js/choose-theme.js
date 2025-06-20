@@ -68,6 +68,14 @@ $(document).ready(function() {
     }
 
     $("#wishlist_type").on("change", function(){
+        $(".theme-background-display.desktop-background-display").html("");
+        $(".theme-background-display.mobile-background-display").html("");
+        $(".theme-gift-wrap-display").html("");
+        $(".popup-container .theme-content").removeClass("hidden");
+        $(".popup-container .gift-wrap-content").addClass("hidden");
+        $(".popup-container .popup .background-theme.desktop-background").attr("src", "");
+        $(".popup-container .popup .background-theme.mobile-background").attr("src", "");
+        $(".choose-theme-button").text("Choose a theme...");
         $(".theme-list").html = "Loading...";
         $(".image-dropdown.background .options-content").html = "Loading...";
         $(".image-dropdown.gift-wrap .options-content").html = "Loading...";
@@ -194,6 +202,7 @@ $(document).ready(function() {
         e.preventDefault();
         $selected_background = $(".popup-container .image-dropdown.background .selected-option");
         $background_id = $selected_background.find(".value").data("background-id");
+        $("#theme_background_id").val($background_id);
         $background_image = $selected_background.find(".value").data("background-image");
         if($background_id != "0"){
             $(".theme-background-display.desktop-background-display").html("<label>Background:</label><img src='" + $siteImageFolderPath + "/themes/desktop-thumbnails/"+$background_image+"' />");
@@ -204,11 +213,12 @@ $(document).ready(function() {
         }
         $selected_gift_wrap = $(".popup-container .image-dropdown.gift-wrap .selected-option");
         $gift_wrap_id = $selected_gift_wrap.find(".value").data("wrap-id");
+        $("#theme_gift_wrap_id").val($background_id);
         $gift_wrap_clone = $(".popup-container .image-dropdown.gift-wrap .options .option .value[data-wrap-id="+$gift_wrap_id+"]").parent().clone(true);
         $gift_wrap_clone.find(".value").remove();
         $gift_wrap_clone.find(".recommended").remove();
         $(".theme-gift-wrap-display").html("<label>Gift Wrap:</label>"+$gift_wrap_clone.html());
-        $($popup_container).addClass("hidden");
+        $(".popup-container").addClass("hidden");
         $(".choose-theme-button").text("Change Theme");
         $("body").removeClass("fixed");
     });

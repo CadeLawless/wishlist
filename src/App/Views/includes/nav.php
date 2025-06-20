@@ -15,7 +15,7 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
             ?>
             <div class="menu-links">
                 <a class="nav-link<?php if($currentPage == "/wishlist/") echo " active"; ?>" href="/wishlist/index">Home<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist") echo " active"; ?>" href="/create-wishlist">Create Wishlist<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist") echo " active"; ?>" href="/wishlist/create-wishlist">Create Wishlist<div class="underline"></div></a>
                 <a class="nav-link<?php if(in_array($currentPage, ["/wishlist/view-wishlists", "/wishlist/view-wishlist", "/wishlist/add-item", "/wishlist/edit-item"])) echo " active"; ?>" href="/wishlist/view-wishlists">View Wishlists<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/wishlist/admin-center", "/wishlist/view-profile", "/wishlist/backgrounds", "/wishlist/edit-user", "/wishlist/add-background","/wishlist/edit-background", "/wishlist/gift-wraps", "/wishlist/add-gift-wrap", "/wishlist/edit-gift-wrap", "/wishlist/wishlists"])) echo " active-page"; ?>">
                     <div class="outer-link">

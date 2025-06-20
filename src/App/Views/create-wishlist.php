@@ -20,8 +20,8 @@ $siteImageFolder = "$homeDir/wishlist/public/assets/images/site-images";
                     <a style="margin-bottom: 10px;" class="choose-theme-button button primary popup-button<?php if($wishlist_type->value == "") echo " disabled"; ?>" href="#">Choose a theme...<span class="inline-popup<?php if($wishlist_type->value != "") echo " hidden"; ?>">Please select a type</span></a>
                     <div class='popup-container first hidden'>
                         <div class='popup fullscreen theme-popup-container'>
-                        <img class='background-theme desktop-background hidden' src="" />
-                        <img class='background-theme mobile-background hidden' src="" />
+                            <img class='background-theme desktop-background hidden' src="" />
+                            <img class='background-theme mobile-background hidden' src="" />
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
                                 <?php require("$siteImageFolder/menu-close.php"); ?>
@@ -82,6 +82,7 @@ $siteImageFolder = "$homeDir/wishlist/public/assets/images/site-images";
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                     <div class="theme-results">
                         <div class="theme-background-display desktop-background-display"></div>

@@ -22,9 +22,12 @@ $router->add('POST', '/login', [App\Controllers\LoginController::class, 'handleF
 $router->add('GET', '/logout', [App\Controllers\LogoutController::class, 'logout']);
 $router->add('POST', '/change-theme', [App\Controllers\AjaxController::class, 'changeTheme']);
 $router->add('GET', '/create-wishlist', [App\Controllers\CreateWishListController::class, 'showForm']);
+$router->add('POST', '/create-wishlist', [App\Controllers\CreateWishListController::class, 'handleForm']);
 $router->add('POST', '/show-theme-backgrounds', [App\Controllers\AjaxController::class, 'fetchThemeBackgrounds']);
 $router->add('POST', '/show-theme-background-options', [App\Controllers\AjaxController::class, 'fetchThemeBackgroundDropdownOptions']);
 $router->add('POST', '/show-theme-gift-wrap-options', [App\Controllers\AjaxController::class, 'fetchThemeGiftWrapDropdownOptions']);
+$router->add('GET', '/view-wishlist', [App\Controllers\ViewWishListController::class, 'viewWishList']);
+$router->add('GET', '/view-wishlists', [App\Controllers\ViewWishListsController::class, 'viewWishLists']);
 
 if(in_array($requestUrl, ["/login", "/create-an-account"])){
     $router->dispatch($requestUrl);

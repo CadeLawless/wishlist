@@ -47,6 +47,7 @@ class User extends Model
         if(count($findUserInfo) > 0){
             foreach($findUserInfo as $row){
                 $this->name = htmlspecialchars($row["name"]);
+                $this->username = $username;
                 $_SESSION["name"] = $this->name;
                 $this->admin = $row["role"] == "Admin" ? true : false;
                 $this->fullname = $row["name"];

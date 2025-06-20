@@ -28,6 +28,7 @@ body {
     --accent: #c7a000;
     --accent-hover: #997b00;
     --transparent-background: #ffffffe3;
+    --transparent-background-darker: #ffffffe3;
     --transparent-background-hover: #c1bdbde3;
     --transparent-background-more: #ffffff5e;
     --icon-background: #e7e7e7;
@@ -51,6 +52,7 @@ body.dark {
     --secondary: #abbdb1;
     --secondary-hover: #88958c;
     --transparent-background: #222b25e6;
+    --transparent-background-darker: #161c1887;
     --transparent-background-hover: #58675ee6;
     --transparent-background-more: #222b2580;
     --icon-background: #323232;
@@ -851,7 +853,7 @@ body.dark .dark-mode-link {
     margin: 0 auto 120px;
     max-width: 800px;
     padding: 0 20px;
-    background-color: var(--transparent-background);
+    background-color: var(--transparent-background-darker);
     border: 2px solid var(--text);
     border-radius: 15px;
 }

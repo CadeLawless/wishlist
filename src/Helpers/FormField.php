@@ -26,7 +26,7 @@ class FormField
 
     public function printFormField(bool $inputOnly = false): void
     {
-        if(!$inputOnly)
+        if(!$inputOnly){
             echo "<div class='$this->size-input'>";
             if(!in_array($this->type, ["checkbox", "radio", "hidden"])){
                 echo "
@@ -34,70 +34,73 @@ class FormField
                 if($this->required) echo " <span class='required-field'>*</span>";
                 echo "</label><br />";
             }
-            switch($this->type){
-                case "text":
-                case "password":
-                case "date":
-                case "number":
-                case "time":
-                case "url":
-                case "email":
-                case "search":
-                    echo "<input type='$this->type' id='$this->name' name='$this->name' value='" . htmlspecialchars($this->value) . "' autocapitalize='" . htmlspecialchars($this->autoCapitalize) . "'";
-                    if($this->type == "date") echo " max='9999-12-31'";
-                    if($this->pattern != "") echo " pattern='$this->pattern'";
-                    if($this->required) echo " required";
-                    echo " />";
-                    break;
-                case "select":
-                    echo "<select id='$this->name' name='$this->name'";
-                    if($this->required) echo " required";
-                    echo ">
-                        <option disabled value=''";
-                        if($this->value == "") echo " selected";
-                        echo ">Select an option</option>";
-                        if(count($this->options) > 0){
-                            foreach($this->options as $option){
-                                $optionValue = $option["value"];
-                                $optionDisplay = $option["display"];
-                                echo "<option value='" . htmlspecialchars($optionValue) . "'";
-                                if($this->value == $optionValue) echo " selected";
-                                echo ">" . htmlspecialchars($optionDisplay) . "</option>";
-                            }
+        }
+        switch($this->type){
+            case "text":
+            case "password":
+            case "date":
+            case "number":
+            case "time":
+            case "url":
+            case "email":
+            case "search":
+            case "hidden":
+                echo "<input type='$this->type' id='$this->name' name='$this->name' value='" . htmlspecialchars($this->value) . "'";
+                if($this->autoCapitalize != "") echo "autocapitalize='" . htmlspecialchars($this->autoCapitalize) . "'";
+                if($this->type == "date") echo " max='9999-12-31'";
+                if($this->pattern != "") echo " pattern='$this->pattern'";
+                if($this->required) echo " required";
+                echo " />";
+                break;
+            case "select":
+                echo "<select id='$this->name' name='$this->name'";
+                if($this->required) echo " required";
+                echo ">
+                    <option disabled value=''";
+                    if($this->value == "") echo " selected";
+                    echo ">Select an option</option>";
+                    if(count($this->options) > 0){
+                        foreach($this->options as $option){
+                            $optionValue = $option["value"];
+                            $optionDisplay = $option["display"];
+                            echo "<option value='" . htmlspecialchars($optionValue) . "'";
+                            if($this->value == $optionValue) echo " selected";
+                            echo ">" . htmlspecialchars($optionDisplay) . "</option>";
                         }
-                    echo "</select>";
-                    break;
-                case "checkbox":
-                    echo "
-                    <div class='flex-checkbox'>
-                        <input type='checkbox' value='Yes' id='$this->name' name='$this->name'";
-                        if($this->value == "Yes") echo " checked";
-                        if($this->required) echo " required";
-                        echo " />
-                        <span class='checkbox-label-container'>
-                            <label class='normal-text' for='$this->name'>$this->label</label>
-                        </span>
-                    </div>";
-                    break;
-                case "radio":
-                    if(count($this->radioValues) > 0){
-                        echo "<div class='flex-radio-group $this->radioDirection'>";
-                        $counter = 1;
-                        foreach($this->radioValues as $val){
-                            $id = $this->name . "_$counter";
-                            echo "
-                            <div class='radio-input'>
-                                <input type='radio' id='$id' name='$this->name' value='" . htmlspecialchars($val) . "'";
-                                if($this->required) echo " required";
-                                echo " />
-                                <label for='$id' class='normal-text'>" . htmlspecialchars($val) . "</label>
-                            </div>";
-                            $counter++;
-                        }
-                        echo "</div>";
                     }
-                    break;
-            }
+                echo "</select>";
+                break;
+            case "checkbox":
+                echo "
+                <div class='flex-checkbox'>
+                    <input type='checkbox' value='Yes' id='$this->name' name='$this->name'";
+                    if($this->value == "Yes") echo " checked";
+                    if($this->required) echo " required";
+                    echo " />
+                    <span class='checkbox-label-container'>
+                        <label class='normal-text' for='$this->name'>$this->label</label>
+                    </span>
+                </div>";
+                break;
+            case "radio":
+                if(count($this->radioValues) > 0){
+                    echo "<div class='flex-radio-group $this->radioDirection'>";
+                    $counter = 1;
+                    foreach($this->radioValues as $val){
+                        $id = $this->name . "_$counter";
+                        echo "
+                        <div class='radio-input'>
+                            <input type='radio' id='$id' name='$this->name' value='" . htmlspecialchars($val) . "'";
+                            if($this->required) echo " required";
+                            echo " />
+                            <label for='$id' class='normal-text'>" . htmlspecialchars($val) . "</label>
+                        </div>";
+                        $counter++;
+                    }
+                    echo "</div>";
+                }
+                break;
+        }
         if(!$inputOnly) echo "</div>";
     }
 

@@ -150,7 +150,16 @@ class Theme extends Model
                     </div>";
                 }
             }
-}
+        }
+    }
+
+    public function getThemeAttribute(string|null $themeID): string
+    {
+        $findBackground = $this->select("SELECT theme_image FROM themes WHERE theme_id = ?", [$themeID]);
+        if(count($findBackground) > 0){
+            return $findBackground[0]["theme_image"];
+        }
+        return "";
     }
 }
 
