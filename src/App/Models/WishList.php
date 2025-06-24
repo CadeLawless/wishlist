@@ -66,7 +66,7 @@ class WishList extends Model
     }
 
     public function printWishLists(User $user){
-        $findWishlists = $this->select("SELECT id, type, wishlist_name, duplicate, theme_background_id, theme_gift_wrap_id FROM wishlists WHERE username = ? ORDER BY date_created DESC", [$user->username]);
+        $findWishlists = $this->select("SELECT id, type, wishlist_name, duplicate, theme_background_id, theme_gift_wrap_id FROM $this->table WHERE username = ? ORDER BY date_created DESC", [$user->username]);
         if(count($findWishlists) > 0){
             $theme = new Theme();
             foreach($findWishlists as $row){
@@ -105,6 +105,34 @@ class WishList extends Model
         }else{
             echo "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any wish lists created yet</p>";
         }
+    }
+
+    public function getWishListInfo(User|null $user, string $wishlistID): array|false
+    {
+        $findWishlistInfo = $this->select("SELECT id, type, wishlist_name, year, duplicate, secret_key, theme_background_id, theme_gift_wrap_id, visibility, complete FROM $this->table WHERE username = ? AND id = ?", [$user->username, $wishlistID]);
+        if(count($findWishlistInfo) > 0){
+            $wishList = ["wishlistID" => $wishlistID];
+            foreach($findWishlistInfo as $row){
+                $wishList["year"] = $row["year"];
+                $wishList["type"] = $row["type"];
+                $wishList["duplicate"] = $row["duplicate"] == 0 ? "" : " ({$row["duplicate"]})";
+                $wishList["wishlist_name"] = $row["wishlist_name"];
+                $wishList["wishlistTitle"] = htmlspecialchars($wishList["wishlist_name"] );
+                $wishList["secret_key"] = $row["secret_key"];
+                $wishList["theme_background_id"] = $row["theme_background_id"];
+                $wishList["theme_gift_wrap_id"] = $row["theme_gift_wrap_id"];
+                if($wishList["theme_background_id"] != 0){
+                    $theme = new Theme();
+                    $wishList["background_image"] = $theme->getThemeAttribute($wishList["theme_background_id"]);
+                    $_SESSION["wisher_background_image"] = $wishList["background_image"];
+                }
+                $wishList["visibility"] = $row["visibility"];
+                $wishList["complete"] = $row["complete"];
+                return $wishList;
+            }
+        }
+
+        return false;
     }
 }
 

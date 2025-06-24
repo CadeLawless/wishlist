@@ -18,7 +18,7 @@ class Router
         }
     }
 
-    public function dispatch(string $uri, User $user=null): void
+    public function dispatch(string $uri, User|null $user=null): void
     {
         $serverMethod = $_SERVER['REQUEST_METHOD'];
         $uri = parse_url($uri, PHP_URL_PATH);
