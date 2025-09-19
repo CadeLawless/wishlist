@@ -17,11 +17,11 @@ abstract class Model
         }
     }
 
-    public function select(string $query, array $values=[]): array
+    public function select(string $query, array $values=[], bool $singleResult=false): array
     {
         if($selectStatement = $this->db->prepare($query)){
             $selectStatement->execute($values);
-            return $selectStatement->get_result()->fetch_all(MYSQLI_BOTH);
+            return $singleResult ? $selectStatement->get_result()->fetch_assoc() : $selectStatement->get_result()->fetch_all(MYSQLI_BOTH);
         }else{
             //echo $db->error;
             return [];

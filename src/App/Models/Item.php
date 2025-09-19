@@ -28,6 +28,48 @@ class Item extends Model
         ];
     }
 
+    public static function buildBaseQuery(string $wishlistID, string $username, array $filters=[], array $sorts=[]): array
+    {
+        $params = [];
+        $filtersSQL = "1 =1";
+        $sortsSQL = "items.wishlist_id";
+        
+        if(count($filters) > 0){
+            $filtersSQL = implode(
+                " AND ",
+                array_map(
+                    function($val, $key){
+                        return "$key = ?";
+                    },
+                    $filters,
+                    array_keys($filters)
+                )
+            );
+
+            $params = $filters;
+        }
+
+        if(count($sorts) > 0){
+            $sortsSQL = implode(", ", $sorts);
+        }
+
+        $sql = "
+        SELECT
+            *,
+            items.id as id
+        FROM items
+        LEFT JOIN wishlists
+            ON items.wishlist_id = wishlists.id
+        WHERE
+            items.wishlist_id = ?
+            AND wishlists.username = ?
+            $filtersSQL
+        ORDER BY
+        $sortsSQL, date_added DESC";
+
+        return [$sql, $params];
+    }
+
     public function writeTemplateItems(string $wrapID): void
     {
         $theme = new Theme();

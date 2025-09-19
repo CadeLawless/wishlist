@@ -27,6 +27,7 @@ $router->add('POST', '/show-theme-backgrounds', [App\Controllers\AjaxController:
 $router->add('POST', '/show-theme-background-options', [App\Controllers\AjaxController::class, 'fetchThemeBackgroundDropdownOptions']);
 $router->add('POST', '/show-theme-gift-wrap-options', [App\Controllers\AjaxController::class, 'fetchThemeGiftWrapDropdownOptions']);
 $router->add('GET', '/view-wishlist', [App\Controllers\ViewWishListController::class, 'viewWishList']);
+$router->add('POST', '/item-page-change', [App\Controllers\AjaxController::class, 'fetchPaginatedResults']);
 $router->add('GET', '/view-wishlists', [App\Controllers\ViewWishListsController::class, 'viewWishLists']);
 
 if(in_array($requestUrl, ["/login", "/create-an-account"])){
