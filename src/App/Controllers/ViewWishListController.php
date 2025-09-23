@@ -19,16 +19,24 @@ class ViewWishListController extends Controller
     private FormField $copy_from_select_all;
     private FormField $other_wishlist_copy_to;
     private FormField $copy_to_select_all;
+    private string $wishListID;
 
     public function __construct(User|null $user)
     {
         parent::__construct($user);
+
+        $this->wishListID = $_GET["wishlistID"] ?? "";
+        $username = $user->username ?? "";
+
+        $wishList = new WishList();
+        $otherWishLists = $wishList->fetchOtherWishLists($username, $this->wishListID);
+
         $this->formValidation = new FormValidation();
         $this->other_wishlist_copy_from = new FormField(
             formValidation: $this->formValidation,
             name: "other_wishlist_copy_from",
             type: "select",
-            options: [],
+            options: $otherWishLists,
             required: true,
             label: "Other Wish List"
         );
@@ -42,7 +50,7 @@ class ViewWishListController extends Controller
             formValidation: $this->formValidation,
             name: "other_wishlist_copy_to",
             type: "select",
-            options: [],
+            options: $otherWishLists,
             required: true,
             label: "Other Wish List"
         );

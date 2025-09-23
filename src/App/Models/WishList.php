@@ -134,6 +134,25 @@ class WishList extends Model
 
         return false;
     }
+
+    public function fetchOtherWishLists(string $username, string $wishlistID): array
+    {
+        $otherWishLists = [];
+        $findOtherWishLists = $this->select(
+            query: "SELECT wishlist_name, id FROM $this->table WHERE username = ? AND id <> ?",
+            values: [$username, $wishlistID]
+        );
+        if(count($findOtherWishLists) > 0){
+            foreach($findOtherWishLists as $row){
+                $other_id = $row["id"];
+                $other_name = $row["wishlist_name"];
+                $other_array = ["id" => $other_id, "name" => $other_name];
+                if(!in_array($other_array, $otherWishLists)) array_push($otherWishLists, $other_array);
+            }
+        }
+
+        return $otherWishLists;
+    }
 }
 
 ?>

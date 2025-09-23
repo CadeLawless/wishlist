@@ -1,23 +1,4 @@
 <?php
-$ajax = false;
-
-$pageno = $_GET["pageno"] ?? 1;
-
-// initialize copy to other wish list form field variables
-$other_wishlist_copy_from = "";
-$copy_from_select_all = "Yes";
-$other_wishlist_copy_to = "";
-$copy_to_select_all = "Yes";
-$other_wishlist_options = [];
-$findOtherWishLists = $db->select("SELECT wishlist_name, id FROM wishlists WHERE username = ? AND id <> ?", [$username, $wishlistID]);
-if($findOtherWishLists->num_rows > 0){
-    while($row = $findOtherWishLists->fetch_assoc()){
-        $other_id = $row["id"];
-        $other_name = $row["wishlist_name"];
-        $other_array = ["id" => $other_id, "name" => $other_name];
-        if(!in_array($other_array, $other_wishlist_options)) array_push($other_wishlist_options, $other_array);
-    }
-}
 $findItems = $db->select("SELECT * FROM items WHERE wishlist_id = ?", [$wishlistID]);
 
 // initialize filter variables
