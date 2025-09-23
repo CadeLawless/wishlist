@@ -1,9 +1,4 @@
 <?php
-
-$pageno = $_GET["pageno"] ?? 1;
-
-$_SESSION["home"] = "view-wishlist.php?id=$wishlistID&pageno=$pageno#paginate-top";
-
 $ajax = false;
 
 $pageno = $_GET["pageno"] ?? 1;
