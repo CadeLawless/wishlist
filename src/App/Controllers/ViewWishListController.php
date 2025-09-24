@@ -64,14 +64,13 @@ class ViewWishListController extends Controller
     public function viewWishList(): void
     {
         // get wishlist id from SESSION/URL
-        $wishlistID = $_GET["id"] ?? false;
-        if(!$wishlistID) header("Location: index");
-        $_SESSION["wisher_wishlist_id"] = $wishlistID;
+        if($this->wishListID === "") header("Location: index");
+        $_SESSION["wisher_wishlist_id"] = $this->wishListID;
         $_SESSION["type"] = "wisher";
 
         $pageno = $_GET["pageno"] ?? 1;
 
-        $_SESSION["home"] = "view-wishlist.php?id=$wishlistID&pageno=$pageno#paginate-top";
+        $_SESSION["home"] = "view-wishlist.php?id=$this->wishListID&pageno=$pageno#paginate-top";
 
         $sort_priority = $_SESSION["wisher_sort_priority"] ?? "";
         $sort_price = $_SESSION["wisher_sort_price"] ?? "";
@@ -91,7 +90,7 @@ class ViewWishListController extends Controller
         $popupManager = new PopupManager($popupNames);
 
         $wishList = new WishList();
-        $wishListInfo = $wishList->getWishListInfo($this->user, $wishlistID);
+        $wishListInfo = $wishList->getWishListInfo($this->user, $this->wishListID);
         if($wishListInfo === false) header("Location: index");
 
         $this->view('view-wishlist', ['title' => 'View Wish List', 'wishlistInfo' => $wishListInfo]);

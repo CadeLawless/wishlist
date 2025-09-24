@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Core\Model;
 use Helpers\Paginator;
+use Helpers\SortBuilder;
 use App\Models\Theme;
 use FilesystemIterator;
 
@@ -414,21 +415,18 @@ class Item extends Model
 
         extract($_POST);
 
-        $sorts = [];
+        $sortBuilder = new SortBuilder();
+        $sortBuilder->add("priority", $sort_priority);
+        $sortBuilder->add("price", $sort_price);
 
-        if($sort_priority != ""){
-            $sorts[] = "priority " . ($sort_priority == "1" ? "ASC" : "DESC");
-        }
+        $sorts = $sortBuilder->getSorts();
 
-        if($sort_price != ""){
-            $sorts[] = "priority " . ($sort_price == "1" ? "ASC" : "DESC");
-        }
 
         list($sql, $params) = Item::buildBaseQuery(wishlistID: $wishlistID, username: $username, sorts: $sorts);
 
         $paginator = (new Paginator($sql, $params))
             ->setLimit(12)
-            ->setPage($_GET["page"]);
+            ->setPage($_GET["page"] ?? 1);
 
         $data = $paginator->getData();
         $info = $paginator->getPaginationInfo();
