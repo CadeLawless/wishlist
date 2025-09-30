@@ -30,7 +30,17 @@ class Item extends Model
         ];
     }
 
-    public static function buildBaseQuery(string $wishlistID, string $username, array $filters=[], array $sorts=[]): array
+    public function getItemsFromWishList(string $wishListID): array
+    {
+        return $this->select(query: "SELECT * FROM items WHERE wishlist_id = ?", values: [$wishListID]);
+    }
+
+    public static function buildBaseQuery(
+        string $wishlistID,
+        string $username,
+        array $filters=[],
+        array $sorts=[]
+    ): array
     {
         $params = [];
         $filtersSQL = "1 =1";
@@ -392,28 +402,16 @@ class Item extends Model
 
     }
 
-    public function getPaginatedResults(): void
+    public function getPaginatedResults(
+        string $type,
+        string $wishlistID,
+        string $username,
+        string $sort_priority,
+        string $sort_price,
+        string $page
+    ): array
     {
-        $userType = $_SESSION["type"] ?? false;
-        if($userType === false){
-            echo json_encode(["status" => "error", "message" => "No user type found"]);
-            exit;
-        }
-
-        $wishlistID = $_SESSION["{$userType}_wishlist_id"] ?? false;
-        if($wishlistID === false){
-            echo json_encode(["status" => "error", "message" => "No wish list found"]);
-            exit;
-        }
-
-        $username = $_SESSION["username"] ?? false;
-
-        if(!isset($_POST["page"]) || !isset($_POST["sort_priority"]) || !isset($_POST["sort_price"])){
-            echo json_encode(["status" => "error", "message" => "Invalid POST variables"]);
-            exit;
-        }
-
-        extract($_POST);
+        
 
         $sortBuilder = new SortBuilder();
         $sortBuilder->add("priority", $sort_priority);
@@ -426,19 +424,19 @@ class Item extends Model
 
         $paginator = (new Paginator($sql, $params))
             ->setLimit(12)
-            ->setPage($_GET["page"] ?? 1);
+            ->setPage($page);
 
         $data = $paginator->getData();
         $info = $paginator->getPaginationInfo();
 
         ob_start();
-        $item->writeItemsGrid(
+        $this->writeItemsGrid(
             items: $data,
-            type: "wisher"
+            type: $type
         );
         $results = ob_get_clean();
 
-        echo json_encode([
+        return [
             "status" => "success",
             "message" => "",
             "html" => $results,
@@ -446,7 +444,7 @@ class Item extends Model
             "total" => $info["totalRows"],
             "paginationInfo" => "{$info['start']}-{$info['end']} of {$info['totalRows']}",
             "filters" => ""
-        ]);
+        ];
     }
 }
 

@@ -1,15 +1,4 @@
 <?php
-$findItems = $db->select("SELECT * FROM items WHERE wishlist_id = ?", [$wishlistID]);
-
-// initialize filter variables
-require("includes/filter-options.php");
-$sort_priority = $_SESSION["wisher_sort_priority"] ?? "";
-$sort_price = $_SESSION["wisher_sort_price"] ?? "";
-$_SESSION["wisher_sort_priority"] = $sort_priority;
-$_SESSION["wisher_sort_price"] = $sort_price;
-
-$wishlist_name_input = $wishlist_name;
-
 // if filter is changed
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(isset($_POST["theme_submit_button"])){

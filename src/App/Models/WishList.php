@@ -124,7 +124,7 @@ class WishList extends Model
                 if($wishList["theme_background_id"] != 0){
                     $theme = new Theme();
                     $wishList["background_image"] = $theme->getThemeAttribute($wishList["theme_background_id"]);
-                    $_SESSION["wisher_background_image"] = $wishList["background_image"];
+                    
                 }
                 $wishList["visibility"] = $row["visibility"];
                 $wishList["complete"] = $row["complete"];

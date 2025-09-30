@@ -7,6 +7,7 @@ use Core\Controller;
 use Helpers\PopupManager;
 
 use App\Models\WishList;
+use App\Models\Item;
 
 use Helpers\FormValidation;
 use Helpers\FormField;
@@ -15,56 +16,80 @@ use App\Models\User;
 class ViewWishListController extends Controller
 {
     private formValidation $formValidation;
-    private FormField $other_wishlist_copy_from;
-    private FormField $copy_from_select_all;
-    private FormField $other_wishlist_copy_to;
-    private FormField $copy_to_select_all;
+    private FormField $otherWishListCopyFrom;
+    private FormField $copyFromSelectAll;
+    private FormField $otherWishListCopyTo;
+    private FormField $copyToSelectAll;
+    private FormField $wishListNameInput;
+    private string $wisherSortPriority;
+    private string $wisherSortPrice;
+    private array $sortOptions = ["", "1", "2"];
     private string $wishListID;
+    public array $wishListItems;
+    private array|bool $wishListInfo;
 
     public function __construct(User|null $user)
     {
         parent::__construct($user);
 
+        $this->wisherSortPriority = $_SESSION["wisherSortPriority"] ?? "";
+        $this->wisherSortPrice = $_SESSION["wisherSortPrice"] ?? "";
+
         $this->wishListID = $_GET["wishlistID"] ?? "";
         $username = $user->username ?? "";
 
+        $item = new Item($this->homeDirectory);
+        $this->wishListItems = $item->getItemsFromWishList($this->wishListID);
+
         $wishList = new WishList();
+        $this->wishListInfo = $wishList->getWishListInfo(user: $user, wishlistID: $this->wishListID);
+
         $otherWishLists = $wishList->fetchOtherWishLists($username, $this->wishListID);
 
         $this->formValidation = new FormValidation();
-        $this->other_wishlist_copy_from = new FormField(
+        $this->otherWishListCopyFrom = new FormField(
             formValidation: $this->formValidation,
-            name: "other_wishlist_copy_from",
+            name: "otherWishListCopyFrom",
             type: "select",
             options: $otherWishLists,
             required: true,
             label: "Other Wish List"
         );
-        $this->copy_from_select_all = new FormField(
+        $this->copyFromSelectAll = new FormField(
             formValidation: $this->formValidation,
-            name: "copy_from_select_all",
+            name: "copyFromSelectAll",
             type: "checkbox",
             required: false,
         );
-        $this->other_wishlist_copy_to = new FormField(
+        $this->otherWishListCopyTo = new FormField(
             formValidation: $this->formValidation,
-            name: "other_wishlist_copy_to",
+            name: "otherWishListCopyTo",
             type: "select",
             options: $otherWishLists,
             required: true,
             label: "Other Wish List"
         );
-        $this->copy_to_select_all = new FormField(
+        $this->copyToSelectAll = new FormField(
             formValidation: $this->formValidation,
-            name: "copy_to_select_all",
+            name: "copyToSelectAll",
             type: "checkbox",
             required: false,
         );
+        $this->wishListNameInput = new FormField(
+            formValidation: $this->formValidation,
+            name: 'wishListNameInput',
+            type: 'text',
+            value: $this->wishListInfo === false ? "" : $this->wishListInfo["wishlist_name"],
+            required: true,
+            label: 'Name',
+            autoCapitalize: 'words'
+        );
+
     }
     public function viewWishList(): void
     {
         // get wishlist id from SESSION/URL
-        if($this->wishListID === "") header("Location: index");
+        if($this->wishListID === "" || $this->wishListInfo === false) header("Location: index");
         $_SESSION["wisher_wishlist_id"] = $this->wishListID;
         $_SESSION["type"] = "wisher";
 
@@ -89,11 +114,7 @@ class ViewWishListController extends Controller
         ];
         $popupManager = new PopupManager($popupNames);
 
-        $wishList = new WishList();
-        $wishListInfo = $wishList->getWishListInfo($this->user, $this->wishListID);
-        if($wishListInfo === false) header("Location: index");
-
-        $this->view('view-wishlist', ['title' => 'View Wish List', 'wishlistInfo' => $wishListInfo]);
+        $this->view('view-wishlist', ['title' => 'View Wish List', 'wishListInfo' => $this->wishListInfo]);
     }
 }
 
