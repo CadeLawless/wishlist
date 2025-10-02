@@ -15,7 +15,10 @@ use App\Models\User;
 
 class ViewWishListController extends Controller
 {
-    private formValidation $formValidation;
+    private formValidation $themeFormValidation;
+    private formValidation $renameFormValidation;
+    private formValidation $copyFromFormValidation;
+    private formValidation $copyToFormValidation;
     private FormField $otherWishListCopyFrom;
     private FormField $copyFromSelectAll;
     private FormField $otherWishListCopyTo;
@@ -46,9 +49,12 @@ class ViewWishListController extends Controller
 
         $otherWishLists = $wishList->fetchOtherWishLists($username, $this->wishListID);
 
-        $this->formValidation = new FormValidation();
+        $this->themeFormValidation = new FormValidation();
+        $this->renameFormValidation = new FormValidation();
+        $this->copyFromFormValidation = new FormValidation();
+        $this->copyToFormValidation = new FormValidation();
         $this->otherWishListCopyFrom = new FormField(
-            formValidation: $this->formValidation,
+            formValidation: $this->copyFromFormValidation,
             name: "otherWishListCopyFrom",
             type: "select",
             options: $otherWishLists,
@@ -56,13 +62,13 @@ class ViewWishListController extends Controller
             label: "Other Wish List"
         );
         $this->copyFromSelectAll = new FormField(
-            formValidation: $this->formValidation,
+            formValidation: $this->copyFromFormValidation,
             name: "copyFromSelectAll",
             type: "checkbox",
             required: false,
         );
         $this->otherWishListCopyTo = new FormField(
-            formValidation: $this->formValidation,
+            formValidation: $this->copyToFormValidation,
             name: "otherWishListCopyTo",
             type: "select",
             options: $otherWishLists,
@@ -70,13 +76,13 @@ class ViewWishListController extends Controller
             label: "Other Wish List"
         );
         $this->copyToSelectAll = new FormField(
-            formValidation: $this->formValidation,
+            formValidation: $this->copyToFormValidation,
             name: "copyToSelectAll",
             type: "checkbox",
             required: false,
         );
         $this->wishListNameInput = new FormField(
-            formValidation: $this->formValidation,
+            formValidation: $this->renameFormValidation,
             name: 'wishListNameInput',
             type: 'text',
             value: $this->wishListInfo === false ? "" : $this->wishListInfo["wishlist_name"],
@@ -86,6 +92,7 @@ class ViewWishListController extends Controller
         );
 
     }
+
     public function viewWishList(): void
     {
         // get wishlist id from SESSION/URL
@@ -115,6 +122,55 @@ class ViewWishListController extends Controller
         $popupManager = new PopupManager($popupNames);
 
         $this->view('view-wishlist', ['title' => 'View Wish List', 'wishListInfo' => $this->wishListInfo]);
+    }
+
+    public function handleForms(): void
+    {
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if(isset($_POST["theme_submit_button"])){
+                $this->handleThemeForm();
+            }
+            
+            if(isset($_POST["rename_submit_button"])){
+                $this->handleRenameForm();
+            }
+
+            if(isset($_POST["copy_from_submit"])){
+                $this->handleCopyFromForm();
+            }
+
+            if(isset($_POST["copy_to_submit"])){
+                $this->handleCopyToForm();
+            }
+        }
+    }
+
+    public function handleThemeForm(): void
+    {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["theme_submit_button"])){
+
+        }
+    }
+
+    public function handleRenameForm(): void
+    {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["rename_submit_button"])){
+
+        }
+    }
+
+    public function handleCopyFromForm(): void
+    {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["copy_from_submit"])){
+
+        }
+    }
+
+    public function handleCopyToForm(): void
+    {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["copy_to_submit"])){
+
+        }
     }
 }
 
