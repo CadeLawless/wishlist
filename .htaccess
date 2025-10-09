@@ -4,20 +4,11 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^(css|js|images|scripts)/.*$ - [L]
 
-# Only redirect to OOP app for specific new routes
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} ^/(login|register|logout|wishlist|profile|admin|buyer|forgot-password|reset-password|verify-email)(/.*)?$
-RewriteRule ^(.*)$ public/index.php [QSA,L]
-
-# Legacy PHP file redirects (for backward compatibility) - only if accessing new routes
-RewriteRule ^login\.php$ /login [R=301,L]
-RewriteRule ^create-an-account\.php$ /register [R=301,L]
-RewriteRule ^view-wishlists\.php$ /wishlist [R=301,L]
-RewriteRule ^view-wishlist\.php$ /wishlist [R=301,L]
-RewriteRule ^create-wishlist\.php$ /wishlist/create [R=301,L]
-RewriteRule ^add-item\.php$ /wishlist [R=301,L]
-RewriteRule ^buyer-view\.php$ /buyer [R=301,L]
+# For now, let's keep the original app working and access OOP app directly
+# Comment out redirects to avoid conflicts
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$ public/index.php [QSA,L]
 
 # Security headers
 <IfModule mod_headers.c>
