@@ -9,8 +9,8 @@ class EmailService
 
     public function __construct()
     {
-        $this->fromEmail = Config::get('app.email.from', 'noreply@wishlist.com');
-        $this->fromName = Config::get('app.email.name', 'Wish List');
+        $this->fromEmail = \App\Core\Config::get('app.email.from', 'noreply@wishlist.com');
+        $this->fromName = \App\Core\Config::get('app.email.name', 'Wish List');
     }
 
     public function sendVerificationEmail(string $email, string $username): bool
@@ -55,7 +55,7 @@ class EmailService
 
     private function generateVerificationLink(string $username): string
     {
-        $baseUrl = Config::get('app.url');
+        $baseUrl = \App\Core\Config::get('app.url');
         $token = $this->generateToken($username);
         
         return $baseUrl . '/verify-email?token=' . $token . '&user=' . urlencode($username);
@@ -63,13 +63,13 @@ class EmailService
 
     private function generateResetLink(string $token): string
     {
-        $baseUrl = Config::get('app.url');
+        $baseUrl = \App\Core\Config::get('app.url');
         return $baseUrl . '/reset-password?token=' . $token;
     }
 
     private function generateToken(string $data): string
     {
-        return hash('sha256', $data . time() . Config::get('app.key', 'default-secret-key'));
+        return hash('sha256', $data . time() . \App\Core\Config::get('app.key', 'default-secret-key'));
     }
 
     private function getVerificationEmailTemplate(string $username, string $link): string
@@ -151,7 +151,7 @@ class EmailService
                     <li>Customize your lists with themes</li>
                 </ul>
                 <p style='text-align: center; margin: 30px 0;'>
-                    <a href='" . Config::get('app.url') . "' style='background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
+                    <a href='" . \App\Core\Config::get('app.url') . "' style='background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
                 </p>
                 <p>If you have any questions, feel free to reach out to us.</p>
                 <hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'>
