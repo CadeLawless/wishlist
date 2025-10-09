@@ -20,6 +20,5 @@ RewriteRule ^(.+)$ public/index.php [QSA,L]
 
 # Hide sensitive files
 <FilesMatch "\.(env|log|ini)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
