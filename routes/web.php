@@ -5,7 +5,11 @@ use App\Controllers\HomeController;
 use App\Controllers\WishlistController;
 use App\Controllers\ItemController;
 use App\Controllers\BuyerController;
+use App\Controllers\TestController;
 use App\Core\Router;
+
+// Test route
+Router::get('/test', [TestController::class, 'index']);
 
 // Guest routes (login, register, etc.)
 Router::get('/login', [AuthController::class, 'login']);
