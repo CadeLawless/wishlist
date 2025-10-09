@@ -10,11 +10,11 @@
 </head>
 <body class="<?php echo $user['dark'] ? 'dark' : ''; ?>">
     <div id="body">
-        <?php include 'components/header.php'; ?>
+        <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
             <?php echo $content; ?>
         </div>
     </div>
-    <?php include 'components/footer.php'; ?>
+    <?php include __DIR__ . '/../components/footer.php'; ?>
 </body>
 </html>
