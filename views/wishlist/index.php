@@ -4,26 +4,30 @@
     <?php
     if(count($wishlists) > 0){
         foreach($wishlists as $wishlist){
-            $id = $wishlist->id;
-            $type = $wishlist->type;
-            $list_name = $wishlist->wishlist_name;
-            $duplicate = $wishlist->duplicate == 0 ? "" : " ({$wishlist->duplicate})";
-            $theme_background_id = $wishlist->theme_background_id;
-            $theme_gift_wrap_id = $wishlist->theme_gift_wrap_id;
+            $id = $wishlist['id'];
+            $type = $wishlist['type'];
+            $list_name = $wishlist['wishlist_name'];
+            $duplicate = $wishlist['duplicate'] == 0 ? "" : " ({$wishlist['duplicate']})";
+            $theme_background_id = $wishlist['theme_background_id'];
+            $theme_gift_wrap_id = $wishlist['theme_gift_wrap_id'];
             
             $background_image = "";
             if($theme_background_id != 0){
-                $theme = $wishlist->theme();
+                // Get theme image from database
+                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
+                $theme = $stmt->get_result()->fetch_assoc();
                 if($theme) {
-                    $background_image = $theme->theme_image;
+                    $background_image = $theme['theme_image'];
                 }
             }
             
             $wrap_image = "";
             if($theme_gift_wrap_id != 0){
-                $wrap_theme = $wishlist->theme();
+                // Get gift wrap image from database
+                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_gift_wrap_id]);
+                $wrap_theme = $stmt->get_result()->fetch_assoc();
                 if($wrap_theme) {
-                    $wrap_image = $wrap_theme->theme_image;
+                    $wrap_image = $wrap_theme['theme_image'];
                 }
             }
             
