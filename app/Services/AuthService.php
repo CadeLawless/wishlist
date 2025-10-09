@@ -15,7 +15,8 @@ class AuthService
 
     public function login(string $username, string $password, bool $remember = false): bool
     {
-        if (!$this->user->authenticate($username, $password)) {
+        $user = User::findByUsernameOrEmail($username);
+        if (!$user || !password_verify($password, $user['password'])) {
             return false;
         }
 
@@ -26,23 +27,23 @@ class AuthService
 
         // Set session variables
         $_SESSION['wishlist_logged_in'] = true;
-        $_SESSION['username'] = $this->user->username;
-        $_SESSION['name'] = $this->user->name;
-        $_SESSION['user_email'] = $this->user->email;
-        $_SESSION['user_id'] = $this->user->id;
-        $_SESSION['admin'] = $this->user->isAdmin();
-        $_SESSION['dark'] = $this->user->dark === 'Yes';
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['admin'] = $user['role'] === 'Admin';
+        $_SESSION['dark'] = $user['dark'] === 'Yes';
 
         // Handle remember me
         if ($remember) {
             $expireDate = date('Y-m-d H:i:s', strtotime('+1 year'));
-            $this->user->setSession(session_id(), $expireDate);
+            User::updateSession($user['id'], session_id(), $expireDate);
             
             // Set cookie
             $cookieTime = 3600 * 24 * 365; // 1 year
             setcookie('wishlist_session_id', session_id(), time() + $cookieTime);
         } else {
-            $this->user->clearSession();
+            User::updateSession($user['id'], null, null);
         }
 
         return true;
