@@ -15,7 +15,16 @@ class Request
     public function __construct()
     {
         $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $this->path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $fullPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        
+        // Remove the base path /wishlist/ from the path
+        $basePath = '/wishlist';
+        if (strpos($fullPath, $basePath) === 0) {
+            $this->path = substr($fullPath, strlen($basePath)) ?: '/';
+        } else {
+            $this->path = $fullPath;
+        }
+        
         $this->query = $_GET ?? [];
         $this->post = $_POST ?? [];
         $this->files = $_FILES ?? [];

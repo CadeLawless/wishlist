@@ -44,6 +44,12 @@ class Router
         $method = $request->method();
         $path = $request->path();
 
+        // Debug output
+        if (isset($_GET['debug'])) {
+            echo "Debug: Method = $method, Path = $path<br>";
+            echo "Total routes: " . count(self::$routes) . "<br>";
+        }
+
         foreach (self::$routes as $route) {
             if ($route->matches($method, $path)) {
                 // Apply middleware
@@ -69,7 +75,16 @@ class Router
                     
                     // Pass route parameters to controller method
                     if (!empty($params)) {
-                        return call_user_func_array([$controllerInstance, $method], array_values($params));
+                        $convertedParams = [];
+                        foreach (array_values($params) as $param) {
+                            // Convert numeric strings to integers
+                            if (is_numeric($param)) {
+                                $convertedParams[] = (int) $param;
+                            } else {
+                                $convertedParams[] = $param;
+                            }
+                        }
+                        return call_user_func_array([$controllerInstance, $method], $convertedParams);
                     } else {
                         return $controllerInstance->$method();
                     }
