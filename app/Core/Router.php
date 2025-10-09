@@ -66,7 +66,13 @@ class Router
                 if (is_array($handler) && count($handler) === 2) {
                     [$controller, $method] = $handler;
                     $controllerInstance = new $controller();
-                    return $controllerInstance->$method($request);
+                    
+                    // Pass route parameters to controller method
+                    if (!empty($params)) {
+                        return call_user_func_array([$controllerInstance, $method], array_values($params));
+                    } else {
+                        return $controllerInstance->$method();
+                    }
                 } elseif (is_callable($handler)) {
                     return call_user_func($handler, $request);
                 }
