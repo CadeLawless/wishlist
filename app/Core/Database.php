@@ -25,7 +25,7 @@ class Database
                 }
                 
                 self::$connection->set_charset($config['charset']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 die("Database connection failed: " . $e->getMessage());
             }
         }
