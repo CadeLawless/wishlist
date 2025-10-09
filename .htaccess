@@ -1,0 +1,33 @@
+RewriteEngine On
+
+# Redirect all requests to public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/index.php [QSA,L]
+
+# Handle static files (CSS, JS, images) - serve them directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(css|js|images|scripts)/.*$ - [L]
+
+# Legacy PHP file redirects (for backward compatibility)
+RewriteRule ^login\.php$ /login [R=301,L]
+RewriteRule ^create-an-account\.php$ /register [R=301,L]
+RewriteRule ^view-wishlists\.php$ /wishlist [R=301,L]
+RewriteRule ^view-wishlist\.php$ /wishlist [R=301,L]
+RewriteRule ^create-wishlist\.php$ /wishlist/create [R=301,L]
+RewriteRule ^add-item\.php$ /wishlist [R=301,L]
+RewriteRule ^buyer-view\.php$ /buyer [R=301,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Hide sensitive files
+<FilesMatch "\.(env|log|ini)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
