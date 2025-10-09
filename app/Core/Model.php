@@ -4,141 +4,55 @@ namespace App\Core;
 
 abstract class Model
 {
-    protected string $table;
-    protected string $primaryKey = 'id';
-    protected array $fillable = [];
-    protected array $guarded = [];
-    protected Database $db;
+    protected static string $table;
+    protected static string $primaryKey = 'id';
 
-    public function __construct()
+    public static function all(): array
     {
-        $this->db = Database::getInstance();
+        $stmt = Database::query("SELECT * FROM " . static::$table);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function find($id): ?static
+    public static function find(int $id): ?array
     {
-        $data = $this->db->table($this->table)
-            ->where($this->primaryKey, $id)
-            ->first();
+        $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE " . static::$primaryKey . " = ?", [$id]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
+    }
 
-        if (!$data) {
-            return null;
+    public static function where(string $column, string $operator, $value): array
+    {
+        $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE {$column} {$operator} ?", [$value]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function create(array $data): int
+    {
+        $columns = implode(', ', array_keys($data));
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        $sql = "INSERT INTO " . static::$table . " ({$columns}) VALUES ({$placeholders})";
+        Database::query($sql, array_values($data));
+        return Database::lastInsertId();
+    }
+
+    public static function update(int $id, array $data): bool
+    {
+        $set = [];
+        foreach ($data as $column => $value) {
+            $set[] = "{$column} = ?";
         }
-
-        return $this->fill($data);
+        $set = implode(', ', $set);
+        $sql = "UPDATE " . static::$table . " SET {$set} WHERE " . static::$primaryKey . " = ?";
+        $params = array_values($data);
+        $params[] = $id;
+        $stmt = Database::query($sql, $params);
+        return $stmt->affected_rows > 0;
     }
 
-    public function where(string $column, $operator, $value = null): Database
+    public static function delete(int $id): bool
     {
-        return $this->db->table($this->table)->where($column, $operator, $value);
-    }
-
-    public function all(): array
-    {
-        $data = $this->db->table($this->table)->get();
-        return array_map([$this, 'fill'], $data);
-    }
-
-    public function create(array $data): static
-    {
-        $data = $this->filterFillable($data);
-        $this->db->table($this->table)->insert($data);
-        
-        $id = $this->db->lastInsertId();
-        return $this->find($id);
-    }
-
-    public function update(array $data): bool
-    {
-        $data = $this->filterFillable($data);
-        return $this->db->table($this->table)
-            ->where($this->primaryKey, $this->{$this->primaryKey})
-            ->update($data);
-    }
-
-    public function delete(): bool
-    {
-        return $this->db->table($this->table)
-            ->where($this->primaryKey, $this->{$this->primaryKey})
-            ->delete();
-    }
-
-    public function save(): bool
-    {
-        if (isset($this->{$this->primaryKey})) {
-            return $this->update($this->toArray());
-        } else {
-            $data = $this->toArray();
-            unset($data[$this->primaryKey]);
-            $this->db->table($this->table)->insert($data);
-            $this->{$this->primaryKey} = $this->db->lastInsertId();
-            return true;
-        }
-    }
-
-    public function fill(array $data): static
-    {
-        foreach ($data as $key => $value) {
-            if (in_array($key, $this->fillable) || empty($this->fillable)) {
-                $this->$key = $value;
-            }
-        }
-        return $this;
-    }
-
-    public function toArray(): array
-    {
-        $data = [];
-        foreach ($this->fillable as $field) {
-            if (isset($this->$field)) {
-                $data[$field] = $this->$field;
-            }
-        }
-        return $data;
-    }
-
-    protected function filterFillable(array $data): array
-    {
-        if (!empty($this->fillable)) {
-            return array_intersect_key($data, array_flip($this->fillable));
-        }
-        
-        if (!empty($this->guarded)) {
-            return array_diff_key($data, array_flip($this->guarded));
-        }
-        
-        return $data;
-    }
-
-    public function __get(string $name)
-    {
-        return $this->$name ?? null;
-    }
-
-    public function __set(string $name, $value): void
-    {
-        $this->$name = $value;
-    }
-
-    public function __isset(string $name): bool
-    {
-        return isset($this->$name);
-    }
-
-    // Relationship methods
-    public function hasMany(string $model, string $foreignKey, string $localKey = null): array
-    {
-        $localKey = $localKey ?? $this->primaryKey;
-        $relatedModel = new $model();
-        
-        return $relatedModel->where($foreignKey, $this->$localKey)->get();
-    }
-
-    public function belongsTo(string $model, string $foreignKey, string $localKey = null): ?static
-    {
-        $localKey = $localKey ?? $this->primaryKey;
-        $relatedModel = new $model();
-        
-        return $relatedModel->find($this->$foreignKey);
+        $sql = "DELETE FROM " . static::$table . " WHERE " . static::$primaryKey . " = ?";
+        $stmt = Database::query($sql, [$id]);
+        return $stmt->affected_rows > 0;
     }
 }

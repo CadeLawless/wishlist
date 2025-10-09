@@ -6,107 +6,46 @@ use App\Core\Model;
 
 class User extends Model
 {
-    protected string $table = 'wishlist_users';
-    protected array $fillable = [
-        'username', 'name', 'email', 'password', 'role', 'dark', 
-        'unverified_email', 'session', 'session_expiration'
-    ];
+    protected static string $table = 'wishlist_users';
+    protected static string $primaryKey = 'id';
 
-    public function authenticate(string $username, string $password): bool
+    public static function findByUsernameOrEmail(string $identifier): ?array
     {
-        $user = $this->where('username', $username)
-            ->orWhere('email', $username)
-            ->first();
-
-        if ($user && password_verify($password, $user->password)) {
-            $this->fill($user->toArray());
-            return true;
-        }
-
-        return false;
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE username = ? OR email = ?", [$identifier, $identifier]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function createUser(array $data): static
+    public static function findBySessionId(string $sessionId): ?array
     {
-        // Hash password
-        if (isset($data['password'])) {
-            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        }
-
-        // Set default values
-        $data['role'] = $data['role'] ?? 'User';
-        $data['dark'] = $data['dark'] ?? 'No';
-
-        return $this->create($data);
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE session = ? AND session_expiration > NOW()", [$sessionId]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function updatePassword(string $password): bool
+    public static function updateSession(int $userId, ?string $sessionId, ?string $expiration): bool
     {
-        return $this->update(['password' => password_hash($password, PASSWORD_DEFAULT)]);
+        return self::update($userId, ['session' => $sessionId, 'session_expiration' => $expiration]);
     }
 
-    public function setSession(string $sessionId, string $expiration = null): bool
+    public static function findByEmail(string $email): ?array
     {
-        $data = ['session' => $sessionId];
-        if ($expiration) {
-            $data['session_expiration'] = $expiration;
-        }
-        return $this->update($data);
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE email = ?", [$email]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function clearSession(): bool
+    public static function findByVerificationToken(string $token): ?array
     {
-        return $this->update([
-            'session' => null,
-            'session_expiration' => null
-        ]);
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE verification_token = ? AND verification_expires_at > NOW()", [$token]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function isAdmin(): bool
+    public static function findByResetToken(string $token): ?array
     {
-        return $this->role === 'Admin';
-    }
-
-    public function isEmailVerified(): bool
-    {
-        return empty($this->unverified_email);
-    }
-
-    public function setUnverifiedEmail(string $email): bool
-    {
-        return $this->update(['unverified_email' => $email]);
-    }
-
-    public function verifyEmail(): bool
-    {
-        if ($this->unverified_email) {
-            $this->update([
-                'email' => $this->unverified_email,
-                'unverified_email' => null
-            ]);
-            return true;
-        }
-        return false;
-    }
-
-    public function wishlists()
-    {
-        return $this->hasMany(Wishlist::class, 'username', 'username');
-    }
-
-    public function findByUsernameOrEmail(string $identifier): ?static
-    {
-        return $this->where('username', $identifier)
-            ->orWhere('email', $identifier)
-            ->first();
-    }
-
-    public function findBySession(string $sessionId): ?static
-    {
-        $user = $this->where('session', $sessionId)
-            ->where('session_expiration', '>', date('Y-m-d H:i:s'))
-            ->first();
-
-        return $user;
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE reset_token = ? AND reset_expires_at > NOW()", [$token]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 }

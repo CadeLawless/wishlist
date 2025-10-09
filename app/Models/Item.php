@@ -3,127 +3,37 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\Database;
 
 class Item extends Model
 {
-    protected string $table = 'items';
-    protected array $fillable = [
-        'wishlist_id', 'copy_id', 'name', 'notes', 'price', 'quantity',
-        'unlimited', 'link', 'image', 'priority', 'quantity_purchased',
-        'purchased', 'date_added'
-    ];
+    protected static string $table = 'items';
 
-    public function createItem(array $data): static
+    public static function findByWishlistId(int $wishlistId, string $orderBy = 'date_added DESC'): array
     {
-        // Set default values
-        $data['quantity'] = $data['quantity'] ?? 1;
-        $data['unlimited'] = $data['unlimited'] ?? 'No';
-        $data['priority'] = $data['priority'] ?? '1';
-        $data['quantity_purchased'] = $data['quantity_purchased'] ?? 0;
-        $data['purchased'] = $data['purchased'] ?? 'No';
-        $data['date_added'] = date('Y-m-d H:i:s');
-        
-        return $this->create($data);
+        $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE wishlist_id = ? ORDER BY {$orderBy}", [$wishlistId]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function updateItem(array $data): bool
+    public static function findByCopyIdAndWishlistId(int $copyId, int $wishlistId): ?array
     {
-        return $this->update($data);
+        $stmt = Database::query("SELECT copy_id FROM " . static::$table . " WHERE copy_id = ? AND wishlist_id = ?", [$copyId, $wishlistId]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function purchase(int $quantity = 1): bool
+    public static function getPaginatedItems(int $wishlistId, string $username, string $orderBy, int $limit, int $offset): array
     {
-        $newQuantityPurchased = $this->quantity_purchased + $quantity;
-        $isFullyPurchased = $newQuantityPurchased >= $this->quantity;
-        
-        return $this->update([
-            'quantity_purchased' => $newQuantityPurchased,
-            'purchased' => $isFullyPurchased ? 'Yes' : 'No'
-        ]);
+        $sql = "SELECT i.* FROM items i JOIN wishlists w ON i.wishlist_id = w.id WHERE i.wishlist_id = ? AND w.username = ? ORDER BY {$orderBy} LIMIT ? OFFSET ?";
+        $stmt = Database::query($sql, [$wishlistId, $username, $limit, $offset]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function unpurchase(int $quantity = 1): bool
+    public static function countItems(int $wishlistId, string $username): int
     {
-        $newQuantityPurchased = max(0, $this->quantity_purchased - $quantity);
-        
-        return $this->update([
-            'quantity_purchased' => $newQuantityPurchased,
-            'purchased' => 'No'
-        ]);
-    }
-
-    public function isPurchased(): bool
-    {
-        return $this->purchased === 'Yes';
-    }
-
-    public function isUnlimited(): bool
-    {
-        return $this->unlimited === 'Yes';
-    }
-
-    public function getRemainingQuantity(): int
-    {
-        if ($this->isUnlimited()) {
-            return -1; // Unlimited
-        }
-        
-        return max(0, (int)$this->quantity - (int)$this->quantity_purchased);
-    }
-
-    public function getTotalPrice(): float
-    {
-        if ($this->price && $this->quantity) {
-            return (float)$this->price * (int)$this->quantity;
-        }
-        return 0;
-    }
-
-    public function getPurchasedPrice(): float
-    {
-        if ($this->price && $this->quantity_purchased) {
-            return (float)$this->price * (int)$this->quantity_purchased;
-        }
-        return 0;
-    }
-
-    public function wishlist()
-    {
-        return $this->belongsTo(Wishlist::class, 'wishlist_id', 'id');
-    }
-
-    public function getImagePath(): string
-    {
-        if ($this->image) {
-            return "images/item-images/{$this->wishlist_id}/{$this->image}";
-        }
-        return "images/site-images/default-photo.png";
-    }
-
-    public function hasValidLink(): bool
-    {
-        return !empty($this->link) && filter_var($this->link, FILTER_VALIDATE_URL);
-    }
-
-    public function getPriorityClass(): string
-    {
-        switch ($this->priority) {
-            case '1': return 'priority-high';
-            case '2': return 'priority-medium';
-            case '3': return 'priority-low';
-            case '4': return 'priority-very-low';
-            default: return 'priority-medium';
-        }
-    }
-
-    public function getPriorityText(): string
-    {
-        switch ($this->priority) {
-            case '1': return 'High';
-            case '2': return 'Medium';
-            case '3': return 'Low';
-            case '4': return 'Very Low';
-            default: return 'Medium';
-        }
+        $sql = "SELECT COUNT(i.id) FROM items i JOIN wishlists w ON i.wishlist_id = w.id WHERE i.wishlist_id = ? AND w.username = ?";
+        $stmt = Database::query($sql, [$wishlistId, $username]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int) $result['COUNT(i.id)'];
     }
 }

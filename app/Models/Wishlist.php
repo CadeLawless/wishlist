@@ -3,135 +3,35 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\Database;
 
 class Wishlist extends Model
 {
-    protected string $table = 'wishlists';
-    protected array $fillable = [
-        'type', 'wishlist_name', 'theme_background_id', 'theme_gift_wrap_id',
-        'year', 'duplicate', 'username', 'secret_key', 'visibility', 'complete',
-        'date_created'
-    ];
+    protected static string $table = 'wishlists';
 
-    public function createWishlist(array $data): static
+    public static function findByUserAndId(string $username, int $id): ?array
     {
-        // Generate unique secret key
-        $data['secret_key'] = $this->generateSecretKey();
-        
-        // Set year based on current date
-        $currentYear = date('Y');
-        $data['year'] = date('m/d/Y') >= "12/25/$currentYear" ? $currentYear + 1 : $currentYear;
-        
-        // Check for duplicates
-        $duplicateCount = $this->where('type', $data['type'])
-            ->where('wishlist_name', $data['wishlist_name'])
-            ->where('username', $data['username'])
-            ->count();
-        $data['duplicate'] = $duplicateCount;
-        
-        // Set default values
-        $data['visibility'] = $data['visibility'] ?? 'Public';
-        $data['complete'] = $data['complete'] ?? 'No';
-        $data['date_created'] = date('Y-m-d H:i:s');
-        
-        return $this->create($data);
+        $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE username = ? AND id = ?", [$username, $id]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function updateName(string $name): bool
+    public static function findOtherWishlists(string $username, int $currentWishlistId): array
     {
-        return $this->update(['wishlist_name' => $name]);
+        $stmt = Database::query("SELECT wishlist_name, id FROM " . static::$table . " WHERE username = ? AND id <> ?", [$username, $currentWishlistId]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function updateTheme(int $backgroundId, int $giftWrapId): bool
+    public static function findBySecretKey(string $key): ?array
     {
-        return $this->update([
-            'theme_background_id' => $backgroundId,
-            'theme_gift_wrap_id' => $giftWrapId
-        ]);
+        $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE secret_key = ?", [$key]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
-    public function toggleVisibility(): bool
+    public static function findDuplicates(string $type, string $wishlistName, string $username): int
     {
-        $newVisibility = $this->visibility === 'Public' ? 'Hidden' : 'Public';
-        return $this->update(['visibility' => $newVisibility]);
-    }
-
-    public function toggleComplete(): bool
-    {
-        $newComplete = $this->complete === 'No' ? 'Yes' : 'No';
-        return $this->update(['complete' => $newComplete]);
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->visibility === 'Public';
-    }
-
-    public function isComplete(): bool
-    {
-        return $this->complete === 'Yes';
-    }
-
-    public function items()
-    {
-        return $this->hasMany(Item::class, 'wishlist_id', 'id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'username', 'username');
-    }
-
-    public function theme()
-    {
-        return $this->belongsTo(Theme::class, 'theme_background_id', 'theme_id');
-    }
-
-    public function getTotalPrice(): float
-    {
-        $items = $this->items();
-        $total = 0;
-        
-        foreach ($items as $item) {
-            if ($item->price && $item->quantity) {
-                $total += (float)$item->price * (int)$item->quantity;
-            }
-        }
-        
-        return $total;
-    }
-
-    public function getDisplayName(): string
-    {
-        $duplicate = $this->duplicate > 0 ? " ({$this->duplicate})" : "";
-        return $this->wishlist_name . $duplicate;
-    }
-
-    private function generateSecretKey(): string
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        
-        do {
-            $randomString = '';
-            for ($i = 0; $i < 10; $i++) {
-                $randomString .= $characters[random_int(0, $charactersLength - 1)];
-            }
-        } while ($this->where('secret_key', $randomString)->first());
-        
-        return $randomString;
-    }
-
-    public function findBySecretKey(string $secretKey): ?static
-    {
-        return $this->where('secret_key', $secretKey)->first();
-    }
-
-    public function findByUserAndId(string $username, int $id): ?static
-    {
-        return $this->where('username', $username)
-            ->where('id', $id)
-            ->first();
+        $stmt = Database::query("SELECT id FROM " . static::$table . " WHERE type = ? AND wishlist_name = ? AND username = ?", [$type, $wishlistName, $username]);
+        return $stmt->get_result()->num_rows;
     }
 }
