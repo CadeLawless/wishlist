@@ -1,14 +1,18 @@
 RewriteEngine On
+RewriteBase /wishlist/
 
-# Handle static files (CSS, JS, images) - serve them directly
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^(css|js|images|scripts)/.*$ - [L]
+# Redirect the root (localhost/wishlist) to public/index.php
+RewriteRule ^$ public/index.php [QSA,L]
 
-# For now, let's keep the original app working and access OOP app directly
-# Comment out redirects to avoid conflicts
-# RewriteCond %{REQUEST_FILENAME} !-f
-# RewriteCond %{REQUEST_FILENAME} !-d
-# RewriteRule ^(.*)$ public/index.php [QSA,L]
+# Check if the requested file exists
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+
+# If the file exists, serve it directly
+RewriteRule ^(.*)$ $1 [L]
+
+# Redirect any other URLs to public/index.php
+RewriteRule ^(.+)$ public/index.php [QSA,L]
 
 # Security headers
 <IfModule mod_headers.c>
