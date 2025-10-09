@@ -40,29 +40,40 @@ class AuthController extends Controller
     {
         $this->requireGuest();
 
-        $data = $this->request->input();
-        $errors = $this->validationService->validateLogin($data);
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            $errors = $this->validationService->validateLogin($data);
 
-        if ($this->validationService->hasErrors($errors)) {
+            if ($this->validationService->hasErrors($errors)) {
+                return $this->view('auth/login', [
+                    'username' => $data['username'] ?? '',
+                    'password' => '',
+                    'remember_me' => isset($data['remember_me']),
+                    'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
+
+            $remember = isset($data['remember_me']);
+            
+            if ($this->authService->login($data['username'], $data['password'], $remember)) {
+                return $this->redirect('/wishlist/');
+            }
+
             return $this->view('auth/login', [
                 'username' => $data['username'] ?? '',
                 'password' => '',
-                'remember_me' => isset($data['remember_me']),
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'remember_me' => $remember,
+                'error_msg' => '<div class="submit-error"><strong>Login failed due to the following errors:</strong><ul><li>Username/email or password is incorrect</li></ul></div>'
             ], 'auth');
         }
 
-        $remember = isset($data['remember_me']);
-        
-        if ($this->authService->login($data['username'], $data['password'], $remember)) {
-            return $this->redirect('/');
-        }
-
+        // Show login form for GET requests
         return $this->view('auth/login', [
-            'username' => $data['username'] ?? '',
+            'username' => '',
             'password' => '',
-            'remember_me' => $remember,
-            'error_msg' => '<div class="submit-error"><strong>Login failed due to the following errors:</strong><ul><li>Username/email or password is incorrect</li></ul></div>'
+            'remember_me' => false,
+            'error_msg' => ''
         ], 'auth');
     }
 
