@@ -24,11 +24,9 @@ class HomeController extends Controller
         $this->requireAuth();
         
         $user = $this->auth();
-        $wishlists = $this->wishlistService->getUserWishlists($user['username']);
         
         $data = [
             'user' => $user,
-            'wishlists' => $wishlists,
             'account_created' => $this->request->get('account_created', false)
         ];
 

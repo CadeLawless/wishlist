@@ -39,6 +39,21 @@ class WishlistController extends Controller
         return $this->view('wishlist/index', $data);
     }
 
+    public function wishlists(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlists = $this->wishlistService->getUserWishlists($user['username']);
+        
+        $data = [
+            'user' => $user,
+            'wishlists' => $wishlists
+        ];
+
+        return $this->view('wishlist/index', $data);
+    }
+
     public function show(int $id): Response
     {
         $this->requireAuth();
