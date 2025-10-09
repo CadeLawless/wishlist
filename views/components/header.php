@@ -4,7 +4,7 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
 <div class="header-container">
     <div class="header">
         <div class="title">
-            <a class="nav-title" href="/"><?php require("images/site-images/logo.php"); ?></a>
+            <a class="nav-title" href="/wishlist/"><?php require("images/site-images/logo.php"); ?></a>
             <a href="#" class="dark-mode-link"><?php require("images/site-images/icons/dark-mode.php"); ?></a>
             <a href="#" class="light-mode-link"><?php require("images/site-images/icons/light-mode.php"); ?></a>
         </div>
@@ -14,9 +14,9 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
             require("images/site-images/menu-close.php");
             ?>
             <div class="menu-links">
-                <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/index.php") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/wishlist/" || $currentPage == "/wishlist") echo " active"; ?>" href="/wishlist/">Home<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlist/create") echo " active"; ?>" href="/wishlist/create">Create Wishlist<div class="underline"></div></a>
-                <a class="nav-link<?php if(in_array($currentPage, ["/wishlist", "/wishlist/", "/wishlist/1", "/wishlist/2"])) echo " active"; ?>" href="/wishlist">View Wishlists<div class="underline"></div></a>
+                <a class="nav-link<?php if(in_array($currentPage, ["/wishlist", "/wishlist/", "/wishlist/1", "/wishlist/2"])) echo " active"; ?>" href="/wishlist/">View Wishlists<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
                     <div class="outer-link">
                         <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
@@ -25,11 +25,11 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
                     </div>
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
-                        <a class="dropdown-menu-link" href="/profile">View Profile</a>
+                        <a class="dropdown-menu-link" href="/wishlist/profile">View Profile</a>
                         <?php if($user['admin']){ ?>
-                            <a class="dropdown-menu-link" href="/admin">Admin Center</a>
+                            <a class="dropdown-menu-link" href="/wishlist/admin">Admin Center</a>
                         <?php } ?>
-                        <a class="dropdown-menu-link" href="/logout">Log Out</a>
+                        <a class="dropdown-menu-link" href="/wishlist/logout">Log Out</a>
                     </div>
                 </div>
             </div>
