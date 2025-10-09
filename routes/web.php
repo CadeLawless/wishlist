@@ -7,91 +7,51 @@ use App\Controllers\ItemController;
 use App\Controllers\BuyerController;
 use App\Core\Router;
 
-// Register middleware
-Router::middleware('auth', function($request) {
-    $middleware = new \App\Middleware\AuthMiddleware();
-    return $middleware($request);
-});
-
-Router::middleware('guest', function($request) {
-    $middleware = new \App\Middleware\GuestMiddleware();
-    return $middleware($request);
-});
-
-Router::middleware('admin', function($request) {
-    $middleware = new \App\Middleware\AdminMiddleware();
-    return $middleware($request);
-});
-
 // Guest routes (login, register, etc.)
-Router::get('/login', [AuthController::class, 'showLogin'])->middleware('guest');
-Router::post('/login', [AuthController::class, 'login'])->middleware('guest');
-Router::get('/register', [AuthController::class, 'showRegister'])->middleware('guest');
-Router::post('/register', [AuthController::class, 'register'])->middleware('guest');
-Router::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->middleware('guest');
-Router::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('guest');
-Router::get('/reset-password', [AuthController::class, 'showResetPassword'])->middleware('guest');
-Router::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest');
-Router::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('guest');
+Router::get('/login', [AuthController::class, 'login']);
+Router::post('/login', [AuthController::class, 'login']);
+Router::get('/register', [AuthController::class, 'register']);
+Router::post('/register', [AuthController::class, 'register']);
+Router::get('/forgot-password', [AuthController::class, 'forgotPassword']);
+Router::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Router::get('/reset-password', [AuthController::class, 'resetPassword']);
+Router::post('/reset-password', [AuthController::class, 'resetPassword']);
+Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
 
-// Logout (accessible to authenticated users)
-Router::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+// Logout
+Router::post('/logout', [AuthController::class, 'logout']);
 
-// Authenticated routes
-Router::get('/', [HomeController::class, 'index'])->middleware('auth');
+// Home route
+Router::get('/', [HomeController::class, 'index']);
 
 // Wishlist routes
-Router::get('/wishlist', [WishlistController::class, 'index'])->middleware('auth');
-Router::get('/wishlist/create', [WishlistController::class, 'create'])->middleware('auth');
-Router::post('/wishlist', [WishlistController::class, 'store'])->middleware('auth');
-Router::get('/wishlist/{id}', [WishlistController::class, 'show'])->middleware('auth');
-Router::get('/wishlist/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');
-Router::post('/wishlist/{id}', [WishlistController::class, 'update'])->middleware('auth');
-Router::delete('/wishlist/{id}', [WishlistController::class, 'delete'])->middleware('auth');
-Router::post('/wishlist/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility'])->middleware('auth');
-Router::post('/wishlist/{id}/toggle-complete', [WishlistController::class, 'toggleComplete'])->middleware('auth');
+Router::get('/wishlist', [WishlistController::class, 'index']);
+Router::get('/wishlist/create', [WishlistController::class, 'create']);
+Router::post('/wishlist', [WishlistController::class, 'store']);
+Router::get('/wishlist/{id}', [WishlistController::class, 'show']);
+Router::get('/wishlist/{id}/edit', [WishlistController::class, 'edit']);
+Router::post('/wishlist/{id}', [WishlistController::class, 'update']);
+Router::delete('/wishlist/{id}', [WishlistController::class, 'delete']);
+Router::post('/wishlist/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility']);
+Router::post('/wishlist/{id}/toggle-complete', [WishlistController::class, 'toggleComplete']);
 
 // Item routes
-Router::get('/wishlist/{wishlistId}/item/create', [ItemController::class, 'create'])->middleware('auth');
-Router::post('/wishlist/{wishlistId}/item', [ItemController::class, 'store'])->middleware('auth');
-Router::get('/wishlist/{wishlistId}/item/{itemId}/edit', [ItemController::class, 'edit'])->middleware('auth');
-Router::post('/wishlist/{wishlistId}/item/{itemId}', [ItemController::class, 'update'])->middleware('auth');
-Router::delete('/wishlist/{wishlistId}/item/{itemId}', [ItemController::class, 'delete'])->middleware('auth');
-Router::post('/wishlist/{wishlistId}/item/{itemId}/purchase', [ItemController::class, 'purchase'])->middleware('auth');
+Router::get('/wishlist/{wishlistId}/item/create', [ItemController::class, 'create']);
+Router::post('/wishlist/{wishlistId}/item', [ItemController::class, 'store']);
+Router::get('/wishlist/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit']);
+Router::post('/wishlist/{wishlistId}/item/{id}', [ItemController::class, 'update']);
+Router::delete('/wishlist/{wishlistId}/item/{id}', [ItemController::class, 'delete']);
+Router::post('/wishlist/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased']);
 
-// Public buyer routes (no authentication required)
-Router::get('/buyer/{secretKey}', [BuyerController::class, 'show']);
-Router::post('/buyer/{secretKey}/item/{itemId}/purchase', [BuyerController::class, 'purchaseItem']);
+// Buyer routes
+Router::get('/buyer/{key}', [BuyerController::class, 'show']);
+Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);
 
-// Legacy route compatibility (redirect old URLs to new structure)
-Router::get('/view-wishlists.php', function($request) {
-    return \App\Core\Response::redirect('/wishlist');
-});
+// Profile routes
+Router::get('/profile', [AuthController::class, 'profile']);
+Router::post('/profile', [AuthController::class, 'updateProfile']);
 
-Router::get('/view-wishlist.php', function($request) {
-    $id = $request->get('id');
-    if ($id) {
-        return \App\Core\Response::redirect("/wishlist/{$id}");
-    }
-    return \App\Core\Response::redirect('/wishlist');
-});
-
-Router::get('/create-wishlist.php', function($request) {
-    return \App\Core\Response::redirect('/wishlist/create');
-});
-
-Router::get('/add-item.php', function($request) {
-    $wishlistId = $request->get('wishlist_id');
-    if ($wishlistId) {
-        return \App\Core\Response::redirect("/wishlist/{$wishlistId}/item/create");
-    }
-    return \App\Core\Response::redirect('/wishlist');
-});
-
-Router::get('/buyer-view.php', function($request) {
-    $key = $request->get('key');
-    if ($key) {
-        return \App\Core\Response::redirect("/buyer/{$key}");
-    }
-    return \App\Core\Response::redirect('/');
-});
+// Admin routes
+Router::get('/admin', [AuthController::class, 'admin']);
+Router::get('/admin/users', [AuthController::class, 'adminUsers']);
+Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
