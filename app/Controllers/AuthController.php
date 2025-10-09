@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Request;
+use App\Core\Response;
 use App\Services\AuthService;
 use App\Services\ValidationService;
 use App\Services\EmailService;
