@@ -1,15 +1,12 @@
 RewriteEngine On
 RewriteBase /wishlist/
 
+# Handle static files (CSS, JS, images) - serve them directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(css|js|images|scripts)/.*$ - [L]
+
 # Redirect the root (localhost/wishlist) to public/index.php
 RewriteRule ^$ public/index.php [QSA,L]
-
-# Check if the requested file exists
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-
-# If the file exists, serve it directly
-RewriteRule ^(.*)$ $1 [L]
 
 # Redirect any other URLs to public/index.php
 RewriteRule ^(.+)$ public/index.php [QSA,L]
