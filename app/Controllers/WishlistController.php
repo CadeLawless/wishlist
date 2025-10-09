@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Response;
 use App\Services\AuthService;
 use App\Services\WishlistService;
 use App\Services\ValidationService;
