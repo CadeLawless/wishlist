@@ -1,16 +1,16 @@
 RewriteEngine On
 
-# Redirect all requests to public/index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/public/
-RewriteRule ^(.*)$ public/index.php [QSA,L]
-
 # Handle static files (CSS, JS, images) - serve them directly
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^(css|js|images|scripts)/.*$ - [L]
 
-# Legacy PHP file redirects (for backward compatibility)
+# Only redirect to OOP app for specific new routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/(login|register|logout|wishlist|profile|admin|buyer|forgot-password|reset-password|verify-email)(/.*)?$
+RewriteRule ^(.*)$ public/index.php [QSA,L]
+
+# Legacy PHP file redirects (for backward compatibility) - only if accessing new routes
 RewriteRule ^login\.php$ /login [R=301,L]
 RewriteRule ^create-an-account\.php$ /register [R=301,L]
 RewriteRule ^view-wishlists\.php$ /wishlist [R=301,L]
