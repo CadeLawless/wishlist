@@ -4,13 +4,14 @@ namespace App\Core;
 
 class View
 {
-    private string $viewsPath = 'views/';
+    private string $viewsPath;
     private array $shared = [];
 
     public function __construct()
     {
+        $this->viewsPath = __DIR__ . '/../../views/';
         $this->shared = [
-            'app' => Config::get('app'),
+            'app' => \App\Core\Config::get('app'),
             'user' => $this->getCurrentUser(),
             'flash' => $this->getFlashMessages()
         ];
