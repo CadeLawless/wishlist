@@ -20,8 +20,8 @@ class Config
         }
 
         // Load config files
-        self::$config['app'] = require 'config/app.php';
-        self::$config['database'] = require 'config/database.php';
+        self::$config['app'] = require __DIR__ . '/../../config/app.php';
+        self::$config['database'] = require __DIR__ . '/../../config/database.php';
     }
 
     public static function get(string $key, $default = null)

@@ -5,10 +5,10 @@ return [
     'connections' => [
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', 'localhost'),
-            'database' => env('DB_NAME', 'wishlist'),
-            'username' => env('DB_USER', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'host' => $_ENV['DB_HOST'] ?? 'localhost',
+            'database' => $_ENV['DB_NAME'] ?? 'wishlist',
+            'username' => $_ENV['DB_USER'] ?? 'root',
+            'password' => $_ENV['DB_PASSWORD'] ?? '',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'options' => [
