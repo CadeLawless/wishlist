@@ -31,7 +31,7 @@ Router::get('/', [HomeController::class, 'index']);
 // Wishlist routes
 Router::get('/wishlist', [WishlistController::class, 'index']);
 Router::get('/wishlist/create', [WishlistController::class, 'create']);
-Router::get('/wishlist/wishlists', [WishlistController::class, 'wishlists']);
+Router::get('/wishlists', [WishlistController::class, 'wishlists']);
 Router::post('/wishlist', [WishlistController::class, 'store']);
 Router::get('/wishlist/{id}', [WishlistController::class, 'show']);
 Router::get('/wishlist/{id}/edit', [WishlistController::class, 'edit']);
