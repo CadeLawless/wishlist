@@ -25,9 +25,7 @@ class WishlistService
 
     public function getUserWishlists(string $username): array
     {
-        return $this->wishlist->where('username', $username)
-            ->orderBy('date_created', 'DESC')
-            ->get();
+        return Wishlist::where('username', '=', $username);
     }
 
     public function getWishlistById(string $username, int $id): ?Wishlist
@@ -100,15 +98,18 @@ class WishlistService
 
     public function getWishlistItems(int $wishlistId, array $filters = []): array
     {
-        $query = $this->item->where('wishlist_id', $wishlistId);
+        // Build SQL query with filters
+        $sql = "SELECT * FROM items WHERE wishlist_id = ?";
+        $params = [$wishlistId];
         
-        // Apply filters
         if (isset($filters['priority'])) {
-            $query = $query->where('priority', $filters['priority']);
+            $sql .= " AND priority = ?";
+            $params[] = $filters['priority'];
         }
         
         if (isset($filters['purchased'])) {
-            $query = $query->where('purchased', $filters['purchased']);
+            $sql .= " AND purchased = ?";
+            $params[] = $filters['purchased'];
         }
         
         // Apply sorting
@@ -116,21 +117,22 @@ class WishlistService
         $sortOrder = $filters['sort_order'] ?? 'DESC';
         
         if ($sortBy === 'priority') {
-            $query = $query->orderBy('priority', 'ASC');
+            $sql .= " ORDER BY priority ASC";
         } elseif ($sortBy === 'price') {
-            $query = $query->orderBy('price', $sortOrder);
+            $sql .= " ORDER BY price {$sortOrder}";
         } else {
-            $query = $query->orderBy('date_added', $sortOrder);
+            $sql .= " ORDER BY date_added {$sortOrder}";
         }
         
-        return $query->get();
+        $stmt = \App\Core\Database::query($sql, $params);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getItem(int $wishlistId, int $itemId): ?Item
     {
-        return $this->item->where('wishlist_id', $wishlistId)
-            ->where('id', $itemId)
-            ->first();
+        $stmt = \App\Core\Database::query("SELECT * FROM items WHERE wishlist_id = ? AND id = ?", [$wishlistId, $itemId]);
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ? new Item($result) : null;
     }
 
     public function updateItem(int $wishlistId, int $itemId, array $data): bool
@@ -212,12 +214,17 @@ class WishlistService
 
     public function searchWishlists(string $query, string $username = null): array
     {
-        $searchQuery = $this->wishlist->where('wishlist_name', 'LIKE', "%{$query}%");
+        $sql = "SELECT * FROM wishlists WHERE wishlist_name LIKE ?";
+        $params = ["%{$query}%"];
         
         if ($username) {
-            $searchQuery = $searchQuery->where('username', $username);
+            $sql .= " AND username = ?";
+            $params[] = $username;
         }
         
-        return $searchQuery->orderBy('date_created', 'DESC')->get();
+        $sql .= " ORDER BY date_created DESC";
+        
+        $stmt = \App\Core\Database::query($sql, $params);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 }
