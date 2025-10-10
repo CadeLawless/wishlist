@@ -157,6 +157,21 @@ class ValidationService
         return $errors;
     }
 
+    public function validateWishlistName(string $name): array
+    {
+        $errors = [];
+
+        if (empty($name)) {
+            $errors['wishlist_name'][] = 'Wishlist name is required.';
+        } elseif (strlen($name) < 2) {
+            $errors['wishlist_name'][] = 'Wishlist name must be at least 2 characters.';
+        } elseif (strlen($name) > 100) {
+            $errors['wishlist_name'][] = 'Wishlist name must not exceed 100 characters.';
+        }
+
+        return $errors;
+    }
+
     public function hasErrors(array $errors): bool
     {
         return !empty(array_filter($errors));

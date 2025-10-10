@@ -52,57 +52,6 @@ class WishlistService
         return $this->wishlist->findBySecretKey($secretKey);
     }
 
-    public function updateWishlistName(int $id, string $name): bool
-    {
-        $wishlist = $this->wishlist->find($id);
-        if ($wishlist) {
-            return $wishlist->updateName($name);
-        }
-        return false;
-    }
-
-    public function updateWishlistTheme(int $id, int $backgroundId, int $giftWrapId): bool
-    {
-        $wishlist = $this->wishlist->find($id);
-        if ($wishlist) {
-            return $wishlist->updateTheme($backgroundId, $giftWrapId);
-        }
-        return false;
-    }
-
-    public function toggleVisibility(int $id): bool
-    {
-        $wishlist = $this->wishlist->find($id);
-        if ($wishlist) {
-            return $wishlist->toggleVisibility();
-        }
-        return false;
-    }
-
-    public function toggleComplete(int $id): bool
-    {
-        $wishlist = $this->wishlist->find($id);
-        if ($wishlist) {
-            return $wishlist->toggleComplete();
-        }
-        return false;
-    }
-
-    public function deleteWishlist(int $id): bool
-    {
-        $wishlist = $this->wishlist->find($id);
-        if ($wishlist) {
-            // Delete all items first
-            $items = $wishlist->items();
-            foreach ($items as $item) {
-                $item->delete();
-            }
-            
-            // Delete wishlist
-            return $wishlist->delete();
-        }
-        return false;
-    }
 
     public function addItem(int $wishlistId, array $data): ?Item
     {
@@ -242,14 +191,6 @@ class WishlistService
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function updateWishlistName(int $id, string $name): bool
-    {
-        $stmt = \App\Core\Database::query(
-            "UPDATE wishlists SET wishlist_name = ? WHERE id = ?",
-            [$name, $id]
-        );
-        return $stmt->affected_rows > 0;
-    }
 
     public function updateWishlistTheme(int $id, int $backgroundId, int $giftWrapId): bool
     {
