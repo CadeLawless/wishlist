@@ -63,26 +63,44 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
         }
 
-        $filters = [
-            'sort_by' => $this->request->get('sort_by', 'date_added'),
-            'sort_order' => $this->request->get('sort_order', 'DESC'),
-            'priority' => $this->request->get('priority'),
-            'purchased' => $this->request->get('purchased')
-        ];
+        // Get pagination number
+        $pageno = $this->request->get('pageno', 1);
+        
+        // Get other wishlists for copy functionality
+        $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
+        
+        // Get sorting/filter preferences from session
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+        
+        $_SESSION['wisher_wishlist_id'] = $id;
+        $_SESSION['home'] = "/wishlist/view-wishlist.php?id=$id&pageno=$pageno#paginate-top";
+        $_SESSION['type'] = 'wisher';
 
-        $items = $this->wishlistService->getWishlistItems($id, $filters);
-        $stats = $this->wishlistService->getWishlistStats($id);
+        $filters = [
+            'sort_priority' => $_SESSION['wisher_sort_priority'] ?? '',
+            'sort_price' => $_SESSION['wisher_sort_price'] ?? ''
+        ];
+        
+        // Build SQL order clause based on filters
+        $priorityOrder = $filters['sort_priority'] ? "priority ASC, " : "";
+        $priceOrder = $filters['sort_price'] ? "price {$filters['sort_price']}, " : "";
+
+        // Get items with sorting
+        $items = $this->wishlistService->getWishlistItems($id, []);
         
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
             'items' => $items,
-            'stats' => $stats,
+            'other_wishlists' => $otherWishlists,
+            'pageno' => $pageno,
             'filters' => $filters,
-            'pageno' => $this->request->get('pageno', 1)
+            'wishlist_id' => $id
         ];
 
         return $this->view('wishlist/show', $data);

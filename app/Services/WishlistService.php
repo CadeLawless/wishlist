@@ -28,9 +28,23 @@ class WishlistService
         return Wishlist::where('username', '=', $username);
     }
 
-    public function getWishlistById(string $username, int $id): ?Wishlist
+    public function getWishlistById(string $username, int $id): ?array
     {
-        return $this->wishlist->findByUserAndId($username, $id);
+        $stmt = \App\Core\Database::query(
+            "SELECT * FROM wishlists WHERE username = ? AND id = ?", 
+            [$username, $id]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
+    }
+
+    public function getOtherWishlists(string $username, int $excludeId): array
+    {
+        $stmt = \App\Core\Database::query(
+            "SELECT wishlist_name, id FROM wishlists WHERE username = ? AND id <> ?", 
+            [$username, $excludeId]
+        );
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getWishlistBySecretKey(string $secretKey): ?Wishlist
