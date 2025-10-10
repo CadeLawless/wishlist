@@ -615,8 +615,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 });
             });
 
-            // Pagination AJAX functionality
-            $(".paginate-arrow").on("click", function(e) {
+            // Pagination AJAX functionality - use event delegation
+            $(document).on("click", ".paginate-arrow", function(e) {
                 e.preventDefault();
                 
                 if ($(this).hasClass("disabled")) {
