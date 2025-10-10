@@ -267,17 +267,14 @@ class AuthController extends Controller
         // Check authentication without redirecting for AJAX requests
         $user = $this->authService->getCurrentUser();
         if (!$user) {
-            error_log('Dark mode toggle: User not authenticated');
             return new Response('unauthorized', 401);
         }
         
         $dark = $this->request->input('dark');
-        error_log('Dark mode toggle: User ID = ' . $user['id'] . ', Dark = ' . $dark);
         
         if ($dark === 'Yes' || $dark === 'No') {
             try {
-                $result = User::update($user['id'], ['dark' => $dark]);
-                error_log('Dark mode toggle: Update result = ' . ($result ? 'true' : 'false'));
+                User::update($user['id'], ['dark' => $dark]);
                 
                 // Also update the session
                 $_SESSION['dark'] = $dark === 'Yes';
@@ -288,7 +285,6 @@ class AuthController extends Controller
             }
         }
         
-        error_log('Dark mode toggle: Invalid data = ' . $dark);
         return new Response('invalid_data', 400);
     }
 }

@@ -17,11 +17,10 @@
                 dark: $dark,
             },
             success: function(response) {
-                console.log('Dark mode toggle response:', response);
+                // Dark mode toggle successful
             },
             error: function(xhr, status, error) {
                 console.error('Dark mode toggle failed:', error);
-                console.error('Response:', xhr.responseText);
             }
         });
     });
