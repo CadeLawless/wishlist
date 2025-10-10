@@ -537,10 +537,10 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                         <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
                                     </div>
                                     <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/next.php'); ?>
+                                        <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
                                     </a>
                                     <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/last.php'); ?>
+                                        <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
                                     </a>
                                 </div>
                             </div>
