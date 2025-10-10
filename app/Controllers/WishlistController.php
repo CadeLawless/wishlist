@@ -679,17 +679,78 @@ class WishlistController extends Controller
     {
         $html = '';
         
+        // Add "All Items" checkbox
+        $html .= "
+        <div class='checkboxes-container'>
+            <div class='select-item-container select-all'>
+                <div class='option-title'>All Items</div>
+                <div class='option-checkbox'>
+                    <input type='checkbox' name='copy_" . ($copyFrom ? "from" : "to") . "_select_all' class='check-all' />
+                </div>
+            </div>";
+        
+        $copyCounter = 0;
+        
         foreach ($items as $item) {
             $itemName = htmlspecialchars($item['name']);
             $itemId = $item['id'];
-            $checked = $copyFrom ? 'checked' : '';
+            $itemCopyId = $item['copy_id'];
+            $itemImage = $item['image'];
+            
+            // Check if item already exists in the target wishlist (by copy_id)
+            $alreadyInList = false;
+            if ($itemCopyId) {
+                if ($copyFrom) {
+                    // For copy from: check if this copy_id exists in current wishlist
+                    $stmt = \App\Core\Database::query(
+                        "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
+                        [$itemCopyId, $wishlistId]
+                    );
+                    $result = $stmt->get_result()->fetch_assoc();
+                    $alreadyInList = $result['count'] > 0;
+                } else {
+                    // For copy to: check if this copy_id exists in the source wishlist
+                    $stmt = \App\Core\Database::query(
+                        "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
+                        [$itemCopyId, $wishlistId]
+                    );
+                    $result = $stmt->get_result()->fetch_assoc();
+                    $alreadyInList = $result['count'] > 0;
+                }
+            }
+            
+            if ($alreadyInList) {
+                $copyCounter++;
+            }
+            
+            // Determine image path
+            $imagePath = "images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
+            if (!file_exists($imagePath)) {
+                $imagePath = "images/site-images/default-photo.png";
+            }
+            
+            $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
+            $checkboxClass = $alreadyInList ? 'already-in-list' : '';
+            $disabled = $alreadyInList ? 'disabled' : '';
+            $alreadyInListText = $alreadyInList ? ' (Already in list)' : '';
             
             $html .= "
-            <div class='select-item-container'>
-                <input type='checkbox' class='option-checkbox' name='item_{$itemId}' value='{$itemId}' {$checked}>
-                <label>{$itemName}</label>
+            <div class='{$containerClass}'>
+                <div class='option-image'>
+                    <img src='{$imagePath}?t=" . time() . "' alt='wishlist item image'>
+                </div>
+                <div class='option-title'>{$itemName}{$alreadyInListText}</div>
+                <div class='option-checkbox'>
+                    <input type='checkbox' class='{$checkboxClass}' name='item_{$itemId}' {$disabled} />
+                </div>
             </div>";
         }
+        
+        $html .= "
+        </div>
+        <p class='center" . ($copyCounter == count($items) ? ' hidden' : '') . "'>
+            <input type='submit' class='button text' name='copy_" . ($copyFrom ? "from" : "to") . "_submit' value='Copy Items' />
+        </p>";
         
         return $html;
     }
