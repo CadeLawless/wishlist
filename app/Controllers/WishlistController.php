@@ -144,6 +144,7 @@ class WishlistController extends Controller
         $user = $this->auth();
         
         $data = [
+            'title' => 'Create a Wish List',
             'user' => $user,
             'wishlist_type' => $this->request->input('wishlist_type', ''),
             'wishlist_name' => $this->request->input('wishlist_name', ''),
