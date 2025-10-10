@@ -217,16 +217,13 @@ class ThemePopupHelper
                             ["name" => "Book Collection", "description" => "Your recipients will love the presentation."]
                         ];
                         
-                        echo "<div class='items-list preview' style='position: relative; z-index: 1; width: 100%; max-width: 340px; margin: 0 auto;'>";
+                        echo "<div class='items-list'>";
                         
                         foreach($sampleItems as $index => $item) {
                             $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
                             
-                            echo "<div class='item-container' style='width: 340px; margin-bottom: 20px;'>
+                            echo "<div class='item-container'>
                                 <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
-                                <div class='item-image-container'>
-                                    <div class='default-background' style='width: 100%; height: 110px; background-color: var(--background); border: 1px solid var(--text); display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 14px;'>Sample Item Image</div>
-                                </div>
                                 <div class='item-description'>
                                     <div class='line'><h3>" . htmlspecialchars($item["name"]) . "</h3></div>
                                     <div class='line'><p>" . htmlspecialchars($item["description"]) . "</p></div>
