@@ -520,6 +520,20 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 
         </div>
     </div>
+    
+    <!-- Image Popup Container -->
+    <div class='popup-container image-popup-container hidden'>
+        <div class='popup image-popup'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>
+                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                </a>
+            </div>
+            <div class='popup-content'>
+                <img class='popup-image' src='' alt='Full size item image'>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 <script src="public/js/popups.js"></script>
@@ -529,7 +543,4 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="public/js/wishlist-filters.js"></script>
 <script src="public/js/wishlist-pagination.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
-<script src="includes/page-change.js"></script>
-<script src="includes/choose-theme.js"></script>
-<script src="includes/filter-change.js"></script>
 
