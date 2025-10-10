@@ -642,6 +642,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         type: "POST",
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
+                        dataType: "json",
                         success: function(response) {
                             // Parse JSON response
                             var data = JSON.parse(response);
