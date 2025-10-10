@@ -519,47 +519,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 </body>
 </html>
-<script src="/wishlist/includes/popup.js"></script>
-<script>
-// Fix popup opening logic while preserving original close handlers
-$(document).ready(function() {
-    // Override only the popup opening, let original popup.js handle closing
-    $(document.body).off("click", ".popup-button:not(.disabled)").on("click", ".popup-button:not(.disabled)", function(e) {
-        let button = this;
-        e.preventDefault();
-        
-        // Add fixed class to body
-        $("body").addClass("fixed");
-        
-        // Find and show the popup using the original logic
-        if(button.tagName == "INPUT"){
-            button.nextElementSibling.nextElementSibling.firstElementChild.classList.add("active");
-            button.nextElementSibling.nextElementSibling.classList.remove("hidden");
-        }else{
-            button.nextElementSibling.firstElementChild.classList.add("active");
-            button.nextElementSibling.classList.remove("hidden");
-        }
-    });
-    
-    // Debug close handlers
-    $(document.body).on("click", ".close-container", function(e) {
-        console.log('Close button clicked!');
-        console.log('Popup container classes:', this.closest(".popup-container").className);
-        console.log('Is first:', this.closest(".popup-container").classList.contains("first"));
-        console.log('Is second:', this.closest(".popup-container").classList.contains("second"));
-    });
-    
-    $(window).on("click", function(e) {
-        console.log('Window clicked, target:', e.target);
-        console.log('Is popup button:', e.target.classList.contains("popup-button"));
-        console.log('Closest popup container:', e.target.closest(".popup-container"));
-    });
-});
-</script>
+<script src="public/js/popups.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
-<script src="/wishlist/includes/page-change.js"></script>
-<script src="/wishlist/includes/choose-theme.js"></script>
-<script src="/wishlist/includes/filter-change.js"></script>
+<script src="includes/page-change.js"></script>
+<script src="includes/choose-theme.js"></script>
+<script src="includes/filter-change.js"></script>
 <script>
         $(document).ready(function(){
             // Copy link functionality
