@@ -1,7 +1,8 @@
 <?php
 // Wishlist data
 $wishlistID = $wishlist['id'];
-$wishlist_name = htmlspecialchars($wishlist['wishlist_name']);
+$wishlist_name_input = $wishlist['wishlist_name'];
+$wishlist_name = htmlspecialchars($wishlist_name_input);
 $wishlistTitle = $wishlist_name;
 $year = $wishlist['year'];
 $type = $wishlist['type'];
@@ -53,8 +54,6 @@ $sort_priority = $_SESSION['wisher_sort_priority'] ?? "";
 $sort_price = $_SESSION['wisher_sort_price'] ?? "";
 $_SESSION['wisher_sort_priority'] = $sort_priority;
 $_SESSION['wisher_sort_price'] = $sort_price;
-
-$wishlist_name_input = $wishlist_name;
 
 // Build SQL order clause based on filters
 $priority_order = $sort_priority ? "priority ASC, " : "";
@@ -249,39 +248,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     
                                     <!-- Theme change popup -->
                                     <a class="icon-container popup-button choose-theme-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/swap-theme.php'); ?><div class="inline-label">Change Theme</div></a>
-                                    <div class='popup-container first hidden'>
-                                        <div class='popup'>
-                                            <div class='close-container'>
-                                                <a href='#' class='close-button'>
-                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
-                                                </a>
-                                            </div>
-                                            <div class='popup-content'>
-                                            <h2 style="margin-top: 0;">Change Theme</h2>
-                                            <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/theme">
-                                                <div class="flex form-flex">
-                                                    <div class="large-input">
-                                                        <label for="theme_background_id">Background:<br/></label>
-                                                        <select id="theme_background_id" name="theme_background_id" required>
-                                                            <option value="0">No Background</option>
-                                                            <!-- Theme options would be populated here -->
-                                                        </select>
-                                                    </div>
-                                                    <div class="large-input">
-                                                        <label for="theme_gift_wrap_id">Gift Wrap:<br/></label>
-                                                        <select id="theme_gift_wrap_id" name="theme_gift_wrap_id" required>
-                                                            <option value="0">No Gift Wrap</option>
-                                                            <!-- Theme options would be populated here -->
-                                                        </select>
-                                                    </div>
-                                                    <div class="large-input">
-                                                        <p class="center"><input type="submit" class="button text" name="theme_submit_button" id="submitButton" value="Update Theme" /></p>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <?php echo \App\Helpers\ThemePopupHelper::renderThemePopup(strtolower($type), true); ?>
                                     
                                     <?php if(count($other_wishlist_options) > 0){ ?>
                                         <!-- Copy From popup -->
@@ -556,5 +523,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="public/js/checkbox-selection.js"></script>
 <script src="public/js/wishlist-filters.js"></script>
 <script src="public/js/wishlist-pagination.js"></script>
+<script src="public/js/choose-theme.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 

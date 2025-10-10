@@ -102,8 +102,10 @@ class ThemePopupHelper
                         if(!$swap){
                             echo "<a class='button primary continue-button' href='#'>Continue</a>";
                         }else{
+                            // Get the current wishlist ID from the URL or session
+                            $wishlistId = $_GET['id'] ?? $_SESSION['wisher_wishlist_id'] ?? '';
                             echo "
-                            <form action='' method='POST' style='display: inline;'>
+                            <form action='/wishlist/$wishlistId/theme' method='POST' style='display: inline;'>
                                 <input type='hidden' id='theme_background_id' name='theme_background_id' value='' />
                                 <input type='hidden' id='theme_gift_wrap_id' name='theme_gift_wrap_id' value='' />
                                 <input type='submit' class='button primary continue-button' value='Confirm Change' name='theme_submit_button' />
