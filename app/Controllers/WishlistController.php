@@ -73,7 +73,7 @@ class WishlistController extends Controller
         }
 
         // Get pagination number
-        $pageno = $this->request->get('pageno', 1);
+        $pageno = (int) $this->request->get('pageno', 1);
         
         // Get other wishlists for copy functionality
         $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
@@ -84,7 +84,7 @@ class WishlistController extends Controller
         }
         
         $_SESSION['wisher_wishlist_id'] = $id;
-        $_SESSION['home'] = "/wishlist/view-wishlist.php?id=$id&pageno=$pageno#paginate-top";
+        $_SESSION['home'] = "/wishlist/{$id}?pageno={$pageno}#paginate-top";
         $_SESSION['type'] = 'wisher';
 
         $filters = [
@@ -92,19 +92,21 @@ class WishlistController extends Controller
             'sort_price' => $_SESSION['wisher_sort_price'] ?? ''
         ];
         
-        // Build SQL order clause based on filters
-        $priorityOrder = $filters['sort_priority'] ? "priority ASC, " : "";
-        $priceOrder = $filters['sort_price'] ? "price {$filters['sort_price']}, " : "";
-
-        // Get items with sorting
-        $items = $this->wishlistService->getWishlistItems($id, []);
+        // Get ALL items first (for total count and filtering)
+        $allItems = $this->wishlistService->getWishlistItems($id, []);
+        
+        // Apply pagination to get only 12 items per page
+        $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
+        $totalPages = $this->paginationService->getTotalPages($allItems);
         
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
-            'items' => $items,
+            'items' => $paginatedItems,
+            'all_items' => $allItems, // For total count display
             'other_wishlists' => $otherWishlists,
             'pageno' => $pageno,
+            'total_pages' => $totalPages,
             'filters' => $filters,
             'wishlist_id' => $id
         ];
@@ -479,16 +481,30 @@ class WishlistController extends Controller
             return new Response('Wishlist not found', 404);
         }
 
+        // Get filter parameters
+        $sortPriority = $this->request->input('sort_priority', '');
+        $sortPrice = $this->request->input('sort_price', '');
+        
+        // Validate filter options
+        $validOptions = ['', '1', '2'];
+        if (!in_array($sortPriority, $validOptions) || !in_array($sortPrice, $validOptions)) {
+            return new Response('<strong>Invalid filter. Please try again.</strong>', 400);
+        }
+        
         // Update session with filter preferences
         if (!isset($_SESSION)) {
             session_start();
         }
         
-        $_SESSION['wisher_sort_priority'] = $this->request->input('sort_priority', '');
-        $_SESSION['wisher_sort_price'] = $this->request->input('sort_price', '');
+        $_SESSION['wisher_sort_priority'] = $sortPriority;
+        $_SESSION['wisher_sort_price'] = $sortPrice;
 
+        // Get filtered items (reset to page 1 after filtering)
         $items = $this->wishlistService->getWishlistItems($id);
-        $html = $this->generateItemsHtml($items, $id, 1);
+        $paginatedItems = $this->paginationService->paginate($items, 1);
+        $totalPages = $this->paginationService->getTotalPages($items);
+        
+        $html = $this->generateItemsHtml($paginatedItems, $id, 1, $totalPages);
 
         return new Response($html);
     }

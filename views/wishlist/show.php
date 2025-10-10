@@ -439,27 +439,30 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 </div>
             </div>
 
-            <!-- Sort/Filter section -->
-            <div class="sort-filters">
-                <h3>Sort & Filter</h3>
-                <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/filter" id="filter-form">
-                    <div class="filter-options">
-                        <label>
-                            <input type="checkbox" name="sort_priority" value="Yes" <?php echo $sort_priority ? 'checked' : ''; ?>>
-                            Sort by Priority
-                        </label>
-                        <label>
-                            <input type="radio" name="sort_price" value="ASC" <?php echo $sort_price == 'ASC' ? 'checked' : ''; ?>>
-                            Price: Low to High
-                        </label>
-                        <label>
-                            <input type="radio" name="sort_price" value="DESC" <?php echo $sort_price == 'DESC' ? 'checked' : ''; ?>>
-                            Price: High to Low
-                        </label>
-                        <button type="submit" class="button secondary">Apply Filters</button>
+                    <!-- Sort/Filter section -->
+                    <div class="sort-filters">
+                        <h3>Sort & Filter</h3>
+                        <form class="filter-form center" method="POST" action="/wishlist/<?php echo $wishlistID; ?>/filter" id="filter-form">
+                            <div class="filter-inputs">
+                                <div class="filter-input">
+                                    <label for="sort-priority">Sort by Priority</label><br>
+                                    <select class="select-filter" id="sort-priority" name="sort_priority">
+                                        <option value="">None</option>
+                                        <option value="1" <?php echo $filters['sort_priority'] == "1" ? 'selected' : ''; ?>>Highest to Lowest</option>
+                                        <option value="2" <?php echo $filters['sort_priority'] == "2" ? 'selected' : ''; ?>>Lowest to Highest</option>
+                                    </select>
+                                </div>
+                                <div class="filter-input">
+                                    <label for="sort-price">Sort by Price</label><br>
+                                    <select class="select-filter" id="sort-price" name="sort_price">
+                                        <option value="">None</option>
+                                        <option value="1" <?php echo $filters['sort_price'] == "1" ? 'selected' : ''; ?>>Lowest to Highest</option>
+                                        <option value="2" <?php echo $filters['sort_price'] == "2" ? 'selected' : ''; ?>>Highest to Lowest</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            </div>
 
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
@@ -472,51 +475,81 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 
                 <div class='items-list-sub-container'>
                     <div class="items-list main">
-                        <?php if(count($items) > 0): ?>
-                            <?php foreach($items as $item): ?>
-                                <div class='item-container'>
-                                    <div class='item-image-container image-popup-button'>
-                                        <img class='item-image' src='/wishlist/images/item-images/<?php echo $wishlistID; ?>/<?php echo htmlspecialchars($item['image']); ?>?t=<?php echo time(); ?>' alt='wishlist item image'>
-                                    </div>
-                                    <div class='item-description'>
-                                        <div class='line'><h3><?php echo htmlspecialchars(substr($item['name'], 0, 25)) . (strlen($item['name']) > 25 ? '...' : ''); ?></h3></div>
-                                        <div class='line'><h4>Price: $<?php echo htmlspecialchars($item['price']); ?></h4></div>
-                                        <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity']); ?></div>
-                                        <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo htmlspecialchars(substr($item['notes'], 0, 30)) . (strlen($item['notes']) > 30 ? '...' : ''); ?></span></div>
-                                        <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>)</span></div>
-                                        <div class='icon-options item-options wisher-item-options'>
-                                            <a class='icon-container' href='/wishlist/edit-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $pageno; ?>'>
-                                                <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
-                                                <div class='inline-label'>Edit</div>
-                                            </a>
-                                            <a class='icon-container popup-button' href='#'>
-                                                <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
-                                                <div class='inline-label'>Delete</div>
-                                            </a>
+                                <?php if(count($items) > 0): ?>
+                                    <?php foreach($items as $item): ?>
+                                        <div class='item-container'>
+                                            <div class='item-image-container image-popup-button'>
+                                                <img class='item-image' src='/wishlist/images/item-images/<?php echo $wishlistID; ?>/<?php echo htmlspecialchars($item['image']); ?>?t=<?php echo time(); ?>' alt='wishlist item image'>
+                                            </div>
+                                            <div class='item-description'>
+                                                <div class='line'><h3><?php echo htmlspecialchars(substr($item['name'], 0, 25)) . (strlen($item['name']) > 25 ? '...' : ''); ?></h3></div>
+                                                <div class='line'><h4>Price: $<?php echo htmlspecialchars($item['price']); ?></h4></div>
+                                                <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity']); ?></div>
+                                                <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo htmlspecialchars(substr($item['notes'], 0, 30)) . (strlen($item['notes']) > 30 ? '...' : ''); ?></span></div>
+                                                <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>)</span></div>
+                                                <div class='icon-options item-options wisher-item-options'>
+                                                    <a class='icon-container' href='/wishlist/edit-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $pageno; ?>'>
+                                                        <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
+                                                        <div class='inline-label'>Edit</div>
+                                                    </a>
+                                                    <a class='icon-container popup-button' href='#'>
+                                                        <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
+                                                        <div class='inline-label'>Delete</div>
+                                                    </a>
+                                                    <div class='popup-container hidden'>
+                                                        <div class='popup'>
+                                                            <div class='close-container'>
+                                                                <a href='#' class='close-button'>
+                                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                                </a>
+                                                            </div>
+                                                            <div class='popup-content'>
+                                                                <label>Are you sure you want to delete this item?</label>
+                                                                <p><?php echo htmlspecialchars($item['name']); ?></p>
+                                                                <div style='margin: 16px 0;' class='center'>
+                                                                    <a class='button secondary no-button' href='#'>No</a>
+                                                                    <a class='button primary' href='/wishlist/delete-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $pageno; ?>'>Yes</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class='date-added center'><em>Date Added: <?php echo date("n/j/Y g:i A", strtotime($item['date_added'])); ?></em></p>
+                                            </div>
                                         </div>
-                                        <p class='date-added center'><em>Date Added: <?php echo date("n/j/Y g:i A", strtotime($item['date_added'])); ?></em></p>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="center">No items in this wishlist yet. <a href="/wishlist/add-item.php">Add your first item!</a></p>
+                                <?php endif; ?>
+                    </div>
+                    
+                            <!-- Pagination controls -->
+                            <?php if($total_pages > 1): ?>
+                            <div class="center">
+                                <div class="paginate-container">
+                                    <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
+                                        <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
+                                    </a>
+                                    <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
+                                        <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
+                                    </a>
+                                    <div class="paginate-title">
+                                        <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
                                     </div>
+                                    <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
+                                        <?php require(__DIR__ . '/../../images/site-images/next.php'); ?>
+                                    </a>
+                                    <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
+                                        <?php require(__DIR__ . '/../../images/site-images/last.php'); ?>
+                                    </a>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="center">No items in this wishlist yet. <a href="/wishlist/add-item.php">Add your first item!</a></p>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Pagination controls -->
-                    <div class="pagination-controls">
-                        <span class="paginate-arrow paginate-first disabled">First</span>
-                        <span class="paginate-arrow paginate-previous disabled">Previous</span>
-                        <span class="page-number current">1</span>
-                        <span class="paginate-arrow paginate-next">Next</span>
-                        <span class="paginate-arrow paginate-last">Last</span>
-                    </div>
-                    
-                    <div class="count-showing">Showing 1-12 of <?php echo count($items); ?> items</div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
                 </div>
             </div>
 
-            <?php include __DIR__ . '/../components/footer.php'; ?>
         </div>
     </div>
 </body>
@@ -527,69 +560,136 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/wishlist/includes/choose-theme.js"></script>
 <script src="/wishlist/includes/filter-change.js"></script>
 <script>
-$(document).ready(function(){
-    // Copy link functionality
-    document.querySelector(".copy-link a").addEventListener("click", function(e){
-        e.preventDefault();
-        navigator.clipboard.writeText("https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>");
-        this.querySelector("svg").classList.add("hidden");
-        this.querySelector(".copy-link-text").textContent = "Copied!";
-        setTimeout(() => {
-            this.querySelector("svg").classList.remove("hidden");
-            this.querySelector(".copy-link-text").textContent = "Copy Link to Wish List";
-        }, 1300);
-    });
+        $(document).ready(function(){
+            // Copy link functionality
+            document.querySelector(".copy-link a").addEventListener("click", function(e){
+                e.preventDefault();
+                navigator.clipboard.writeText("https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>");
+                this.querySelector("svg").classList.add("hidden");
+                this.querySelector(".copy-link-text").textContent = "Copied!";
+                setTimeout(() => {
+                    this.querySelector("svg").classList.remove("hidden");
+                    this.querySelector(".copy-link-text").textContent = "Copy Link to Wish List";
+                }, 1300);
+            });
 
-    // Copy select functionality
-    $(".copy-select").on("change", function(e) {
-        $select = $(this);
-        $id = $select.val();
-        $copy_from = $select.attr("id") == "other_wishlist_copy_from" ? "Yes" : "No";
+            // Copy select functionality
+            $(".copy-select").on("change", function(e) {
+                $select = $(this);
+                $id = $select.val();
+                $copy_from = $select.attr("id") == "other_wishlist_copy_from" ? "Yes" : "No";
 
-        $.ajax({
-            type: "POST",
-            url: "/wishlist/<?php echo $wishlistID; ?>/items",
-            data: {
-                wishlist_id: $id,
-                copy_from: $copy_from,
-            },
-            success: function(html) {
-                $select.next().removeClass("hidden");
-                $select.next().find(".item-checkboxes").html(html);
-            }
-        });
-    });
-
-    // Checkbox selection functionality
-    $(document.body).on("click", ".select-item-container", function(e){
-        e.preventDefault();
-        $checkbox = $(this).find("input")[0];
-        $all_checkboxes =  $(this).parent().find(".option-checkbox > input:not(.check-all, .already-in-list)");
-        if($checkbox.checked){
-            $checkbox.checked = false;
-            if($checkbox.classList.contains("check-all")){
-                $all_checkboxes.each(function(){
-                    $(this)[0].checked = false;
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlist/<?php echo $wishlistID; ?>/items",
+                    data: {
+                        wishlist_id: $id,
+                        copy_from: $copy_from,
+                    },
+                    success: function(html) {
+                        $select.next().removeClass("hidden");
+                        $select.next().find(".item-checkboxes").html(html);
+                    }
                 });
-            }
-        }else{
-            $checkbox.checked = true;
-            if($checkbox.classList.contains("check-all")){
+            });
+
+            // Checkbox selection functionality
+            $(document.body).on("click", ".select-item-container", function(e){
+                e.preventDefault();
+                $checkbox = $(this).find("input")[0];
+                $all_checkboxes =  $(this).parent().find(".option-checkbox > input:not(.check-all, .already-in-list)");
+                if($checkbox.checked){
+                    $checkbox.checked = false;
+                    if($checkbox.classList.contains("check-all")){
+                        $all_checkboxes.each(function(){
+                            $(this)[0].checked = false;
+                        });
+                    }
+                }else{
+                    $checkbox.checked = true;
+                    if($checkbox.classList.contains("check-all")){
+                        $all_checkboxes.each(function(){
+                            $(this)[0].checked = true;
+                        });
+                    }
+                }
+                $number_checked = 0;
                 $all_checkboxes.each(function(){
-                    $(this)[0].checked = true;
+                    if($(this)[0].checked) $number_checked++;
                 });
-            }
-        }
-        $number_checked = 0;
-        $all_checkboxes.each(function(){
-            if($(this)[0].checked) $number_checked++;
+                if($number_checked == $all_checkboxes.length){
+                    $(this).parent().find(".check-all")[0].checked = true;
+                }else{
+                    $(this).parent().find(".check-all")[0].checked = false;
+                }
+            });
+
+            // Filter form AJAX submission
+            $("#filter-form").on("submit", function(e) {
+                e.preventDefault();
+                
+                var formData = {
+                    sort_priority: $("#sort-priority").val(),
+                    sort_price: $("#sort-price").val()
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    url: "/wishlist/<?php echo $wishlistID; ?>/filter",
+                    data: formData,
+                    success: function(html) {
+                        $(".items-list.main").html(html);
+                        // Update URL without page refresh
+                        var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=1#paginate-top";
+                        history.pushState(null, null, newUrl);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Filter failed:', error);
+                        alert('Filter failed. Please try again.');
+                    }
+                });
+            });
+
+            // Pagination AJAX functionality
+            $(".paginate-arrow").on("click", function(e) {
+                e.preventDefault();
+                
+                if ($(this).hasClass("disabled")) {
+                    return;
+                }
+                
+                var currentPage = <?php echo $pageno; ?>;
+                var totalPages = <?php echo $total_pages; ?>;
+                var newPage = currentPage;
+                
+                if ($(this).hasClass("paginate-first")) {
+                    newPage = 1;
+                } else if ($(this).hasClass("paginate-previous")) {
+                    newPage = Math.max(1, currentPage - 1);
+                } else if ($(this).hasClass("paginate-next")) {
+                    newPage = Math.min(totalPages, currentPage + 1);
+                } else if ($(this).hasClass("paginate-last")) {
+                    newPage = totalPages;
+                }
+                
+                if (newPage !== currentPage) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
+                        data: { new_page: newPage },
+                        success: function(html) {
+                            $(".items-list.main").html(html);
+                            // Update URL without page refresh
+                            var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + newPage + "#paginate-top";
+                            history.pushState(null, null, newUrl);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Pagination failed:', error);
+                            alert('Pagination failed. Please try again.');
+                        }
+                    });
+                }
+            });
         });
-        if($number_checked == $all_checkboxes.length){
-            $(this).parent().find(".check-all")[0].checked = true;
-        }else{
-            $(this).parent().find(".check-all")[0].checked = false;
-        }
-    });
-});
 </script>
 
