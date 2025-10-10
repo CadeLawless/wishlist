@@ -12,7 +12,7 @@
       $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
       $.ajax({
             type: "POST",
-            url: "includes/ajax/dark-change.php",
+            url: "/wishlist/toggle-dark-mode",
             data: {
                 dark: $dark,
             },

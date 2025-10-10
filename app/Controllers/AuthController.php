@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Services\ValidationService;
 use App\Services\EmailService;
@@ -259,5 +260,21 @@ class AuthController extends Controller
         }
 
         return $this->redirect('/login')->withError('Email verification failed. Please try again.');
+    }
+
+    public function toggleDarkMode(): Response
+    {
+        $this->requireAuth();
+        
+        $dark = $this->request->input('dark');
+        if ($dark === 'Yes' || $dark === 'No') {
+            $user = $this->authService->getCurrentUser();
+            if ($user) {
+                User::update($user['id'], ['dark' => $dark]);
+                return new Response('success');
+            }
+        }
+        
+        return new Response('error', 400);
     }
 }

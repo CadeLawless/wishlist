@@ -60,3 +60,6 @@ Router::post('/profile', [AuthController::class, 'updateProfile']);
 Router::get('/admin', [AuthController::class, 'admin']);
 Router::get('/admin/users', [AuthController::class, 'adminUsers']);
 Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
+
+// Dark theme toggle
+Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
