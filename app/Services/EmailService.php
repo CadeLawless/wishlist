@@ -9,8 +9,8 @@ class EmailService
 
     public function __construct()
     {
-        $this->fromEmail = 'support@cadelawless.com';
-        $this->fromName = 'Wish List Support';
+        $this->fromEmail = \App\Core\Config::get('app.email.from');
+        $this->fromName = \App\Core\Config::get('app.email.from_name');
     }
 
     public function sendVerificationEmail(string $email, string $username): bool
@@ -53,14 +53,14 @@ class EmailService
             // Use Composer autoloaded PHPMailer
             $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
             
-            // Server settings
+            // Server settings from configuration
             $mail->isSMTP();
-            $mail->Host = 'smtp.ionos.com';
+            $mail->Host = \App\Core\Config::get('app.email.smtp_host');
             $mail->SMTPAuth = true;
-            $mail->Username = 'support@cadelawless.com';
-            $mail->Password = 'REDACTED';
-            $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
+            $mail->Username = \App\Core\Config::get('app.email.smtp_username');
+            $mail->Password = \App\Core\Config::get('app.email.smtp_password');
+            $mail->SMTPSecure = \App\Core\Config::get('app.email.smtp_encryption');
+            $mail->Port = \App\Core\Config::get('app.email.smtp_port');
             
             // Recipients
             $mail->setFrom($this->fromEmail, $this->fromName);
