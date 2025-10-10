@@ -102,52 +102,65 @@ class AuthController extends Controller
     {
         $this->requireGuest();
 
-        $data = $this->request->input();
-        $errors = $this->validationService->validateUser($data);
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            $errors = $this->validationService->validateUser($data);
 
-        // Add password confirmation validation
-        if (!empty($data['password']) && $data['password'] !== $data['password_confirmation']) {
-            $errors['password_confirmation'][] = 'Passwords do not match.';
-        }
+            // Add password confirmation validation
+            if (!empty($data['password']) && $data['password'] !== $data['password_confirmation']) {
+                $errors['password_confirmation'][] = 'Passwords do not match.';
+            }
 
-        if ($this->validationService->hasErrors($errors)) {
+            if ($this->validationService->hasErrors($errors)) {
+                return $this->view('auth/register', [
+                    'username' => $data['username'] ?? '',
+                    'name' => $data['name'] ?? '',
+                    'email' => $data['email'] ?? '',
+                    'password' => '',
+                    'password_confirmation' => '',
+                    'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
+
+            // Check if username or email already exists
+            $existingUser = $this->authService->getCurrentUser();
+            if ($existingUser) {
+                return $this->view('auth/register', [
+                    'username' => $data['username'] ?? '',
+                    'name' => $data['name'] ?? '',
+                    'email' => $data['email'] ?? '',
+                    'password' => '',
+                    'password_confirmation' => '',
+                    'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Username or email already exists</li></ul></div>'
+                ], 'auth');
+            }
+
+            if ($this->authService->register($data)) {
+                // Send verification email
+                $this->emailService->sendVerificationEmail($data['email'], $data['username']);
+                
+                return $this->redirect('/wishlist/login')->withSuccess('Registration successful! Please check your email to verify your account.');
+            }
+
             return $this->view('auth/register', [
                 'username' => $data['username'] ?? '',
                 'name' => $data['name'] ?? '',
                 'email' => $data['email'] ?? '',
                 'password' => '',
                 'password_confirmation' => '',
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Unable to create account. Please try again.</li></ul></div>'
             ], 'auth');
         }
 
-        // Check if username or email already exists
-        $existingUser = $this->authService->getCurrentUser();
-        if ($existingUser) {
-            return $this->view('auth/register', [
-                'username' => $data['username'] ?? '',
-                'name' => $data['name'] ?? '',
-                'email' => $data['email'] ?? '',
-                'password' => '',
-                'password_confirmation' => '',
-                'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Username or email already exists</li></ul></div>'
-            ], 'auth');
-        }
-
-        if ($this->authService->register($data)) {
-            // Send verification email
-            $this->emailService->sendVerificationEmail($data['email'], $data['username']);
-            
-            return $this->redirect('/login')->withSuccess('Registration successful! Please check your email to verify your account.');
-        }
-
+        // Show registration form for GET requests
         return $this->view('auth/register', [
-            'username' => $data['username'] ?? '',
-            'name' => $data['name'] ?? '',
-            'email' => $data['email'] ?? '',
+            'username' => '',
+            'name' => '',
+            'email' => '',
             'password' => '',
             'password_confirmation' => '',
-            'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Unable to create account. Please try again.</li></ul></div>'
+            'error_msg' => ''
         ], 'auth');
     }
 
