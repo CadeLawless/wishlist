@@ -451,6 +451,40 @@ class WishlistController extends Controller
 
     public function paginateItems(int $id): Response
     {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            header('Content-Type: application/json');
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Wishlist not found',
+                'html' => '',
+                'current' => 1,
+                'total' => 1,
+                'paginationInfo' => ''
+            ]);
+            exit;
+        }
+
+        $page = (int) $this->request->input('new_page', 1);
+        $items = $this->wishlistService->getWishlistItems($id);
+        $paginatedItems = $this->paginationService->paginate($items, $page);
+        $totalPages = $this->paginationService->getTotalPages($items);
+        $totalRows = count($items);
+
+        // Generate HTML for items only (no pagination controls)
+        $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
+        
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
+
         // Clear any output buffering first
         if (ob_get_level()) {
             ob_end_clean();
@@ -462,11 +496,11 @@ class WishlistController extends Controller
         
         $jsonData = [
             'status' => 'success',
-            'message' => 'Test response',
-            'html' => '<div>Test HTML</div>',
-            'current' => 1,
-            'total' => 1,
-            'paginationInfo' => 'Test pagination info'
+            'message' => 'Items loaded successfully',
+            'html' => $itemsHtml,
+            'current' => $page,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
         ];
         
         echo json_encode($jsonData);
