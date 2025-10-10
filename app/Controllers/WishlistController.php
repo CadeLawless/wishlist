@@ -451,19 +451,17 @@ class WishlistController extends Controller
 
     public function paginateItems(int $id): Response
     {
-        // Simple test - bypass all the complex logic
-        $jsonData = [
+        // Bypass Response class entirely - use direct output
+        header('Content-Type: application/json');
+        echo json_encode([
             'status' => 'success',
             'message' => 'Test response',
             'html' => '<div>Test HTML</div>',
             'current' => 1,
             'total' => 1,
             'paginationInfo' => 'Test pagination info'
-        ];
-        
-        error_log('Simple JSON test: ' . json_encode($jsonData));
-        
-        return new Response(json_encode($jsonData), 200, ['Content-Type' => 'application/json']);
+        ]);
+        exit;
     }
 
     public function filterItems(int $id): Response
