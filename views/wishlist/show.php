@@ -520,45 +520,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 </body>
 </html>
 <script src="/wishlist/includes/popup.js"></script>
-<!-- <script src="/wishlist/public/js/popup-manager.js"></script> -->
-<script>
-console.log('Popup.js loaded, testing click handler...');
-$(document).ready(function() {
-    console.log('Document ready, popup buttons found:', $('.popup-button').length);
-    $('.popup-button').on('click', function(e) {
-        console.log('Popup button clicked!', this);
-        
-        // Debug the popup.js logic
-        let button = this;
-        e.preventDefault();
-        
-        console.log('Button tagName:', button.tagName);
-        console.log('Button nextElementSibling:', button.nextElementSibling);
-        console.log('Button nextElementSibling.nextElementSibling:', button.nextElementSibling?.nextElementSibling);
-        
-        if(button.tagName == "INPUT"){
-            console.log('INPUT button path');
-            let popup = button.nextElementSibling.nextElementSibling.firstElementChild;
-            let container = button.nextElementSibling.nextElementSibling;
-            console.log('Popup element:', popup);
-            console.log('Container element:', container);
-            popup.classList.add("active");
-            container.classList.remove("hidden");
-        }else{
-            console.log('Regular button path');
-            let popup = button.nextElementSibling.firstElementChild;
-            let container = button.nextElementSibling;
-            console.log('Popup element:', popup);
-            console.log('Container element:', container);
-            popup.classList.add("active");
-            container.classList.remove("hidden");
-        }
-        
-        $("body").addClass("fixed");
-        console.log('Body fixed class added');
-    });
-});
-</script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script src="/wishlist/includes/page-change.js"></script>
 <script src="/wishlist/includes/choose-theme.js"></script>
