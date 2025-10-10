@@ -90,7 +90,10 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
         }
     </style>
 </head>
-<body class="<?php echo isset($_SESSION['dark']) && $_SESSION['dark'] ? 'dark' : ''; ?>">
+<body class="<?php echo isset($_SESSION['dark']) && $_SESSION['dark'] ? 'dark' : ''; ?>" 
+      data-current-page="<?php echo $pageno; ?>" 
+      data-total-pages="<?php echo $total_pages; ?>" 
+      data-base-url="/wishlist/<?php echo $wishlistID; ?>">
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
@@ -215,7 +218,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                             <div class='popup-content'>
                                 <div class="copy-link">
-                                    <a class="button secondary" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                                 </div>
                                 <div class="icon-options wishlist-options">
                                     <!-- Rename popup -->
@@ -294,7 +297,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <h2>Copy Items From Another Wish List</h2>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-from">
                                                         <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" required>
+                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -331,7 +334,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <h2>Copy Items to Another Wish List</h2>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-to">
                                                         <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" required>
+                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -447,7 +450,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             <div class="filter-inputs">
                                 <div class="filter-input">
                                     <label for="sort-priority">Sort by Priority</label><br>
-                                    <select class="select-filter" id="sort-priority" name="sort_priority">
+                                    <select class="select-filter" id="sort-priority" name="sort_priority" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
                                         <option value="">None</option>
                                         <option value="1" <?php echo $filters['sort_priority'] == "1" ? 'selected' : ''; ?>>Highest to Lowest</option>
                                         <option value="2" <?php echo $filters['sort_priority'] == "2" ? 'selected' : ''; ?>>Lowest to Highest</option>
@@ -455,7 +458,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 </div>
                                 <div class="filter-input">
                                     <label for="sort-price">Sort by Price</label><br>
-                                    <select class="select-filter" id="sort-price" name="sort_price">
+                                    <select class="select-filter" id="sort-price" name="sort_price" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
                                         <option value="">None</option>
                                         <option value="1" <?php echo $filters['sort_price'] == "1" ? 'selected' : ''; ?>>Lowest to Highest</option>
                                         <option value="2" <?php echo $filters['sort_price'] == "2" ? 'selected' : ''; ?>>Highest to Lowest</option>
@@ -520,227 +523,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 </body>
 </html>
 <script src="public/js/popups.js"></script>
+<script src="public/js/copy-link.js"></script>
+<script src="public/js/copy-select.js"></script>
+<script src="public/js/checkbox-selection.js"></script>
+<script src="public/js/wishlist-filters.js"></script>
+<script src="public/js/wishlist-pagination.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script src="includes/page-change.js"></script>
 <script src="includes/choose-theme.js"></script>
 <script src="includes/filter-change.js"></script>
-<script>
-        $(document).ready(function(){
-            // Copy link functionality
-            document.querySelector(".copy-link a").addEventListener("click", function(e){
-                e.preventDefault();
-                navigator.clipboard.writeText("https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>");
-                this.querySelector("svg").classList.add("hidden");
-                this.querySelector(".copy-link-text").textContent = "Copied!";
-                setTimeout(() => {
-                    this.querySelector("svg").classList.remove("hidden");
-                    this.querySelector(".copy-link-text").textContent = "Copy Link to Wish List";
-                }, 1300);
-            });
-
-            // Copy select functionality
-            $(".copy-select").on("change", function(e) {
-                $select = $(this);
-                $id = $select.val();
-                $copy_from = $select.attr("id") == "other_wishlist_copy_from" ? "Yes" : "No";
-
-                $.ajax({
-                    type: "POST",
-                    url: "/wishlist/<?php echo $wishlistID; ?>/items",
-                    data: {
-                        wishlist_id: $id,
-                        copy_from: $copy_from,
-                    },
-                    success: function(html) {
-                        $select.next().removeClass("hidden");
-                        $select.next().find(".item-checkboxes").html(html);
-                    }
-                });
-            });
-
-            // Checkbox selection functionality
-            $(document.body).on("click", ".select-item-container", function(e){
-                e.preventDefault();
-                $checkbox = $(this).find("input")[0];
-                $all_checkboxes =  $(this).parent().find(".option-checkbox > input:not(.check-all, .already-in-list)");
-                if($checkbox.checked){
-                    $checkbox.checked = false;
-                    if($checkbox.classList.contains("check-all")){
-                        $all_checkboxes.each(function(){
-                            $(this)[0].checked = false;
-                        });
-                    }
-                }else{
-                    $checkbox.checked = true;
-                    if($checkbox.classList.contains("check-all")){
-                        $all_checkboxes.each(function(){
-                            $(this)[0].checked = true;
-                        });
-                    }
-                }
-                $number_checked = 0;
-                $all_checkboxes.each(function(){
-                    if($(this)[0].checked) $number_checked++;
-                });
-                if($number_checked == $all_checkboxes.length){
-                    $(this).parent().find(".check-all")[0].checked = true;
-                }else{
-                    $(this).parent().find(".check-all")[0].checked = false;
-                }
-            });
-
-            // Filter change event (triggered when select values change)
-            $(".select-filter").on("change", function() {
-                console.log('Filter select changed');
-                
-                var formData = {
-                    sort_priority: $("#sort-priority").val(),
-                    sort_price: $("#sort-price").val()
-                };
-                
-                console.log('Filter data:', formData);
-                
-                $.ajax({
-                    type: "POST",
-                    url: "/wishlist/<?php echo $wishlistID; ?>/filter",
-                    data: formData,
-                    dataType: "json",
-                    success: function(data) {
-                        console.log('Filter AJAX success, received data:', data);
-                        
-                        if (data.status === 'success') {
-                            // Update items HTML
-                            $(".items-list.main").html(data.html);
-                            
-                            // Update pagination controls
-                            $('.page-number').text(data.current);
-                            $('.last-page').text(data.total);
-                            $('.count-showing').text(data.paginationInfo);
-                            
-                            // Update arrow states based on new page (always page 1 after filtering)
-                            var totalPages = parseInt(data.total);
-                            
-                            // First and Previous arrows should be disabled (we're on page 1)
-                            $('.paginate-first, .paginate-previous').each(function() {
-                                $(this).addClass('disabled');
-                            });
-                            
-                            // Next and Last arrows
-                            $('.paginate-next, .paginate-last').each(function() {
-                                if (totalPages <= 1) {
-                                    $(this).addClass('disabled');
-                                } else {
-                                    $(this).removeClass('disabled');
-                                }
-                            });
-                            
-                            // Update URL without page refresh
-                            var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=1#paginate-top";
-                            history.pushState(null, null, newUrl);
-                            
-                            // Update the pagination variables for next pagination
-                            currentPage = data.current;
-                            totalPages = data.total;
-                        } else {
-                            console.error('Filter error:', data.message);
-                            alert('Filter failed: ' + data.message);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Filter failed:', error);
-                        console.error('Response:', xhr.responseText);
-                        alert('Filter failed. Please try again.');
-                    }
-                });
-            });
-
-            // Initialize pagination variables
-            var currentPage = <?php echo $pageno; ?>;
-            var totalPages = <?php echo $total_pages; ?>;
-            
-            // Pagination AJAX functionality - use event delegation
-            $(document).on("click", ".paginate-arrow", function(e) {
-                e.preventDefault();
-                
-                console.log('Pagination arrow clicked:', $(this).attr('class'));
-                
-                if ($(this).hasClass("disabled")) {
-                    console.log('Arrow is disabled, ignoring click');
-                    return;
-                }
-                
-                var newPage = currentPage;
-                
-                console.log('Current page:', currentPage, 'Total pages:', totalPages);
-                
-                if ($(this).hasClass("paginate-first")) {
-                    newPage = 1;
-                } else if ($(this).hasClass("paginate-previous")) {
-                    newPage = Math.max(1, currentPage - 1);
-                } else if ($(this).hasClass("paginate-next")) {
-                    newPage = Math.min(totalPages, currentPage + 1);
-                } else if ($(this).hasClass("paginate-last")) {
-                    newPage = totalPages;
-                }
-                
-                if (newPage !== currentPage) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
-                        data: { new_page: newPage },
-                        dataType: "json",
-                        success: function(data) {
-                            // jQuery automatically parses JSON when dataType is "json"
-                            
-                            if (data.status === 'success') {
-                                // Update items HTML
-                                $(".items-list.main").html(data.html);
-                                
-                                // Update pagination controls
-                                $('.page-number').text(data.current);
-                                $('.last-page').text(data.total);
-                                $('.count-showing').text(data.paginationInfo);
-                                
-                                // Update arrow states based on new page
-                                var totalPages = parseInt(data.total);
-                                
-                                // First and Previous arrows
-                                $('.paginate-first, .paginate-previous').each(function() {
-                                    if (data.current <= 1) {
-                                        $(this).addClass('disabled');
-                                    } else {
-                                        $(this).removeClass('disabled');
-                                    }
-                                });
-                                
-                                // Next and Last arrows
-                                $('.paginate-next, .paginate-last').each(function() {
-                                    if (data.current >= totalPages) {
-                                        $(this).addClass('disabled');
-                                    } else {
-                                        $(this).removeClass('disabled');
-                                    }
-                                });
-                                
-                                // Update URL without page refresh
-                                var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + data.current + "#paginate-top";
-                                history.pushState(null, null, newUrl);
-                                
-                                // Update the pagination variables for next pagination
-                                currentPage = data.current;
-                                totalPages = data.total;
-                            } else {
-                                console.error('Pagination error:', data.message);
-                                alert('Pagination failed: ' + data.message);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Pagination failed:', error);
-                            alert('Pagination failed. Please try again.');
-                        }
-                    });
-                }
-            });
-        });
-</script>
 
