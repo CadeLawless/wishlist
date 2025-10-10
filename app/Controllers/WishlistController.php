@@ -457,24 +457,39 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return new Response('Wishlist not found', 404);
+            return new Response(json_encode([
+                'status' => 'error',
+                'message' => 'Wishlist not found',
+                'html' => '',
+                'current' => 1,
+                'total' => 1,
+                'paginationInfo' => ''
+            ]), 404, ['Content-Type' => 'application/json']);
         }
 
         $page = (int) $this->request->input('new_page', 1);
         $items = $this->wishlistService->getWishlistItems($id);
         $paginatedItems = $this->paginationService->paginate($items, $page);
         $totalPages = $this->paginationService->getTotalPages($items);
+        $totalRows = count($items);
 
-        // Generate HTML for items
+        // Generate HTML for items only (no pagination controls)
         $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
         
-        // Generate pagination controls HTML
-        $paginationHtml = $this->generatePaginationHtml($page, $totalPages, count($items));
-        
-        // Combine items and pagination
-        $html = $itemsHtml . $paginationHtml;
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
 
-        return new Response($html);
+        return new Response(json_encode([
+            'status' => 'success',
+            'message' => 'Items loaded successfully',
+            'html' => $itemsHtml,
+            'current' => $page,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
+        ]), 200, ['Content-Type' => 'application/json']);
     }
 
     public function filterItems(int $id): Response

@@ -642,36 +642,25 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         type: "POST",
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
-                        success: function(html) {
-                            // The response contains both items and pagination
-                            // Split at the pagination controls
-                            var paginationStart = html.indexOf('<div class="center">');
+                        success: function(response) {
+                            // Parse JSON response
+                            var data = JSON.parse(response);
                             
-                            if (paginationStart > 0) {
-                                // Split into items and pagination
-                                var itemsHtml = html.substring(0, paginationStart);
-                                var paginationHtml = html.substring(paginationStart);
+                            if (data.status === 'success') {
+                                // Update items HTML
+                                $(".items-list.main").html(data.html);
                                 
-                                // Update only the items (preserve container structure)
-                                $(".items-list.main").html(itemsHtml);
-                                
-                                // Parse the new pagination data from the response
-                                var $newPagination = $(paginationHtml);
-                                var newPageNumber = $newPagination.find('.page-number').text();
-                                var newLastPage = $newPagination.find('.last-page').text();
-                                var newCountShowing = $newPagination.find('.count-showing').text();
-                                
-                                // Update existing pagination controls in place
-                                $('.page-number').text(newPageNumber);
-                                $('.last-page').text(newLastPage);
-                                $('.count-showing').text(newCountShowing);
+                                // Update pagination controls
+                                $('.page-number').text(data.current);
+                                $('.last-page').text(data.total);
+                                $('.count-showing').text(data.paginationInfo);
                                 
                                 // Update arrow states based on new page
-                                var totalPages = parseInt(newLastPage);
+                                var totalPages = parseInt(data.total);
                                 
                                 // First and Previous arrows
                                 $('.paginate-first, .paginate-previous').each(function() {
-                                    if (newPage <= 1) {
+                                    if (data.current <= 1) {
                                         $(this).addClass('disabled');
                                     } else {
                                         $(this).removeClass('disabled');
@@ -680,20 +669,20 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 
                                 // Next and Last arrows
                                 $('.paginate-next, .paginate-last').each(function() {
-                                    if (newPage >= totalPages) {
+                                    if (data.current >= totalPages) {
                                         $(this).addClass('disabled');
                                     } else {
                                         $(this).removeClass('disabled');
                                     }
                                 });
+                                
+                                // Update URL without page refresh
+                                var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + data.current + "#paginate-top";
+                                history.pushState(null, null, newUrl);
                             } else {
-                                // Fallback: just update items if no pagination found
-                                $(".items-list.main").html(html);
+                                console.error('Pagination error:', data.message);
+                                alert('Pagination failed: ' + data.message);
                             }
-                            
-                            // Update URL without page refresh
-                            var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + newPage + "#paginate-top";
-                            history.pushState(null, null, newUrl);
                         },
                         error: function(xhr, status, error) {
                             console.error('Pagination failed:', error);
