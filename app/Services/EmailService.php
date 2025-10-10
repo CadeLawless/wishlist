@@ -9,15 +9,21 @@ class EmailService
 
     public function __construct()
     {
-        $this->fromEmail = \App\Core\Config::get('app.email.from', 'noreply@wishlist.com');
-        $this->fromName = \App\Core\Config::get('app.email.name', 'Wish List');
+        $this->fromEmail = 'support@cadelawless.com';
+        $this->fromName = 'Wish List Support';
     }
 
     public function sendVerificationEmail(string $email, string $username): bool
     {
-        $subject = 'Verify Your Email Address';
-        $verificationLink = $this->generateVerificationLink($username);
+        $subject = 'Verify Your Email for Wish List';
         
+        // Get the email_key from the database for this user
+        $user = \App\Models\User::findByUsernameOrEmail($username);
+        if (!$user || !isset($user['email_key'])) {
+            return false;
+        }
+        
+        $verificationLink = $this->generateVerificationLink($user['email_key'], $username);
         $message = $this->getVerificationEmailTemplate($username, $verificationLink);
         
         return $this->sendEmail($email, $subject, $message);
@@ -43,22 +49,23 @@ class EmailService
 
     private function sendEmail(string $to, string $subject, string $message): bool
     {
-        $headers = [
-            'From: ' . $this->fromName . ' <' . $this->fromEmail . '>',
-            'Reply-To: ' . $this->fromEmail,
-            'Content-Type: text/html; charset=UTF-8',
-            'X-Mailer: PHP/' . phpversion()
-        ];
-
-        return mail($to, $subject, $message, implode("\r\n", $headers));
+        // Use the existing PHPMailer setup
+        require_once __DIR__ . '/../../php-mailer.php';
+        
+        try {
+            send_email($to, $subject, $message, $this->fromName, $this->fromEmail);
+            return true;
+        } catch (\Exception $e) {
+            error_log('Email sending failed: ' . $e->getMessage());
+            return false;
+        }
     }
 
-    private function generateVerificationLink(string $username): string
+    private function generateVerificationLink(string $emailKey, string $username): string
     {
         $baseUrl = \App\Core\Config::get('app.url');
-        $token = $this->generateToken($username);
         
-        return $baseUrl . '/verify-email?token=' . $token . '&user=' . urlencode($username);
+        return $baseUrl . '/verify-email?key=' . $emailKey . '&username=' . urlencode($username);
     }
 
     private function generateResetLink(string $token): string
@@ -75,29 +82,16 @@ class EmailService
     private function getVerificationEmailTemplate(string $username, string $link): string
     {
         return "
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset='UTF-8'>
-            <title>Verify Your Email</title>
-        </head>
-        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-            <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
-                <h2 style='color: #2c3e50;'>Welcome to Wish List!</h2>
-                <p>Hello {$username},</p>
-                <p>Thank you for creating an account with Wish List. To complete your registration, please verify your email address by clicking the link below:</p>
-                <p style='text-align: center; margin: 30px 0;'>
-                    <a href='{$link}' style='background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Verify Email Address</a>
-                </p>
-                <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-                <p style='word-break: break-all; color: #666;'>{$link}</p>
-                <p>This link will expire in 24 hours.</p>
-                <p>If you didn't create an account with Wish List, please ignore this email.</p>
-                <hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'>
-                <p style='font-size: 12px; color: #666;'>This email was sent from Wish List. Please do not reply to this email.</p>
-            </div>
-        </body>
-        </html>";
+            <h2>Welcome to Wish List!</h2>
+            <p>Thank you for signing up for Wish List!</p>
+            <p>To complete your account registration, please verify your email address by clicking the button below:</p>
+            <a href='{$link}' 
+            style='display: inline-block; padding: 12px 24px; color: #ffffff; background-color: #3e5646; border-radius: 5px; text-decoration: none; font-weight: bold;'>
+                Verify My Email Address
+            </a>
+            <p style='margin-top: 20px;'>This link will expire in 24 hours, so please complete your verification as soon as possible.</p>
+            <p style='font-size: 12px;'>If you did not create a Wish List account, please ignore this email.</p>
+            <p style='font-size: 12px; margin-top: 20px;'>Thank you,<br>The Wish List Team</p>";
     }
 
     private function getPasswordResetEmailTemplate(string $username, string $link): string
