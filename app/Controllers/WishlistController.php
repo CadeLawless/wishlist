@@ -153,7 +153,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->createWishlist($user['username'], $data);
         
         if ($wishlist) {
-            return $this->redirect("/wishlist/{$wishlist->id}")->withSuccess('Wishlist created successfully!');
+            return $this->redirect("/wishlist/{$wishlist['id']}")->withSuccess('Wishlist created successfully!');
         }
 
         return $this->view('wishlist/create', [
@@ -180,7 +180,7 @@ class WishlistController extends Controller
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
-            'wishlist_name' => $this->request->input('wishlist_name', $wishlist->wishlist_name)
+            'wishlist_name' => $this->request->input('wishlist_name', $wishlist['wishlist_name'])
         ];
 
         return $this->view('wishlist/edit', $data);
@@ -232,7 +232,7 @@ class WishlistController extends Controller
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
         }
 
-        if ($this->wishlistService->deleteWishlist($id)) {
+        if ($this->wishlistService->deleteWishlistAndItems($id)) {
             return $this->redirect('/wishlist')->withSuccess('Wishlist deleted successfully!');
         }
 
@@ -250,8 +250,8 @@ class WishlistController extends Controller
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
         }
 
-        if ($this->wishlistService->toggleVisibility($id)) {
-            $message = $wishlist->isPublic() ? 'Wishlist is now hidden.' : 'Wishlist is now public.';
+        if ($this->wishlistService->toggleWishlistVisibility($id)) {
+            $message = $wishlist['public'] ? 'Wishlist is now hidden.' : 'Wishlist is now public.';
             return $this->redirect("/wishlist/{$id}")->withSuccess($message);
         }
 
@@ -269,8 +269,8 @@ class WishlistController extends Controller
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
         }
 
-        if ($this->wishlistService->toggleComplete($id)) {
-            $message = $wishlist->isComplete() ? 'Wishlist has been reactivated.' : 'Wishlist has been marked as complete.';
+        if ($this->wishlistService->toggleWishlistComplete($id)) {
+            $message = $wishlist['complete'] ? 'Wishlist has been reactivated.' : 'Wishlist has been marked as complete.';
             return $this->redirect("/wishlist/{$id}")->withSuccess($message);
         }
 

@@ -253,4 +253,18 @@ class WishlistService
             return false;
         }
     }
+
+    public function updateWishlistName(int $id, string $name): bool
+    {
+        try {
+            $stmt = \App\Core\Database::query(
+                "UPDATE wishlists SET wishlist_name = ? WHERE id = ?", 
+                [$name, $id]
+            );
+            return $stmt->affected_rows > 0;
+        } catch (\Exception $e) {
+            error_log('Update wishlist name failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
