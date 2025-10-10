@@ -40,6 +40,21 @@ Router::delete('/{id}', [WishlistController::class, 'delete']);
 Router::post('/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility']);
 Router::post('/{id}/toggle-complete', [WishlistController::class, 'toggleComplete']);
 
+// Wishlist management routes
+Router::post('/{id}/rename', [WishlistController::class, 'rename']);
+Router::post('/{id}/theme', [WishlistController::class, 'updateTheme']);
+Router::post('/{id}/copy-from', [WishlistController::class, 'copyFrom']);
+Router::post('/{id}/copy-to', [WishlistController::class, 'copyTo']);
+Router::post('/{id}/hide', [WishlistController::class, 'hide']);
+Router::post('/{id}/show', [WishlistController::class, 'showPublic']);
+Router::post('/{id}/complete', [WishlistController::class, 'complete']);
+Router::post('/{id}/reactivate', [WishlistController::class, 'reactivate']);
+
+// AJAX endpoints
+Router::post('/{id}/paginate', [WishlistController::class, 'paginateItems']);
+Router::post('/{id}/filter', [WishlistController::class, 'filterItems']);
+Router::post('/{id}/items', [WishlistController::class, 'getOtherWishlistItems']);
+
 // Item routes
 Router::get('/{wishlistId}/item/create', [ItemController::class, 'create']);
 Router::post('/{wishlistId}/item', [ItemController::class, 'store']);

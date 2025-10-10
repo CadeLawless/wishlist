@@ -8,6 +8,8 @@ use App\Services\AuthService;
 use App\Services\WishlistService;
 use App\Services\ValidationService;
 use App\Services\FileUploadService;
+use App\Services\PaginationService;
+use App\Services\ItemCopyService;
 
 class WishlistController extends Controller
 {
@@ -15,6 +17,8 @@ class WishlistController extends Controller
     private WishlistService $wishlistService;
     private ValidationService $validationService;
     private FileUploadService $fileUploadService;
+    private PaginationService $paginationService;
+    private ItemCopyService $itemCopyService;
 
     public function __construct()
     {
@@ -23,6 +27,8 @@ class WishlistController extends Controller
         $this->wishlistService = new WishlistService();
         $this->validationService = new ValidationService();
         $this->fileUploadService = new FileUploadService();
+        $this->paginationService = new PaginationService();
+        $this->itemCopyService = new ItemCopyService();
     }
 
     public function index(): Response
@@ -267,5 +273,307 @@ class WishlistController extends Controller
         }
 
         return $this->redirect("/wishlist/{$id}")->withError('Unable to update wishlist status.');
+    }
+
+    public function rename(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        $name = $this->request->input('wishlist_name');
+        $errors = $this->validationService->validateWishlistName($name);
+
+        if ($this->validationService->hasErrors($errors)) {
+            return $this->redirect("/wishlist/{$id}")->withError($this->validationService->formatErrorsForDisplay($errors));
+        }
+
+        if ($this->wishlistService->updateWishlistName($id, $name)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist renamed successfully!');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to rename wishlist. Please try again.');
+    }
+
+    public function updateTheme(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        $backgroundId = (int) $this->request->input('theme_background_id');
+        $giftWrapId = (int) $this->request->input('theme_gift_wrap_id');
+
+        if ($this->wishlistService->updateWishlistTheme($id, $backgroundId, $giftWrapId)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Theme updated successfully!');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to update theme. Please try again.');
+    }
+
+    public function copyFrom(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        $fromWishlistId = (int) $this->request->input('other_wishlist_copy_from');
+        $itemIds = $this->request->input('item_ids', []);
+
+        if (empty($itemIds)) {
+            return $this->redirect("/wishlist/{$id}")->withError('Please select at least one item to copy.');
+        }
+
+        $copiedCount = $this->itemCopyService->copyItems($fromWishlistId, $id, $itemIds);
+
+        if ($copiedCount > 0) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to this wishlist!");
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to copy items. Please try again.');
+    }
+
+    public function copyTo(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        $toWishlistId = (int) $this->request->input('other_wishlist_copy_to');
+        $itemIds = $this->request->input('item_ids', []);
+
+        if (empty($itemIds)) {
+            return $this->redirect("/wishlist/{$id}")->withError('Please select at least one item to copy.');
+        }
+
+        $copiedCount = $this->itemCopyService->copyItems($id, $toWishlistId, $itemIds);
+
+        if ($copiedCount > 0) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to the other wishlist!");
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to copy items. Please try again.');
+    }
+
+    public function hide(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        if ($this->wishlistService->toggleWishlistVisibility($id)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now hidden.');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to hide wishlist. Please try again.');
+    }
+
+    public function showPublic(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        if ($this->wishlistService->toggleWishlistVisibility($id)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now public.');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to make wishlist public. Please try again.');
+    }
+
+    public function complete(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        if ($this->wishlistService->toggleWishlistComplete($id)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist has been marked as complete.');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
+    }
+
+    public function reactivate(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+        }
+
+        if ($this->wishlistService->toggleWishlistComplete($id)) {
+            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist has been reactivated.');
+        }
+
+        return $this->redirect("/wishlist/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
+    }
+
+    public function paginateItems(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return new Response('Wishlist not found', 404);
+        }
+
+        $page = (int) $this->request->input('new_page', 1);
+        $items = $this->wishlistService->getWishlistItems($id);
+        $paginatedItems = $this->paginationService->paginate($items, $page);
+
+        // Generate HTML for items (this would use the same template as the main view)
+        $html = $this->generateItemsHtml($paginatedItems, $id, $page);
+
+        return new Response($html);
+    }
+
+    public function filterItems(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+        
+        if (!$wishlist) {
+            return new Response('Wishlist not found', 404);
+        }
+
+        // Update session with filter preferences
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+        
+        $_SESSION['wisher_sort_priority'] = $this->request->input('sort_priority', '');
+        $_SESSION['wisher_sort_price'] = $this->request->input('sort_price', '');
+
+        $items = $this->wishlistService->getWishlistItems($id);
+        $html = $this->generateItemsHtml($items, $id, 1);
+
+        return new Response($html);
+    }
+
+    public function getOtherWishlistItems(int $id): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $otherWishlistId = (int) $this->request->input('wishlist_id');
+        $copyFrom = $this->request->input('copy_from') === 'Yes';
+
+        $items = $this->itemCopyService->getWishlistItems($otherWishlistId);
+        $html = $this->generateItemCheckboxes($items, $otherWishlistId, $copyFrom);
+
+        return new Response($html);
+    }
+
+    private function generateItemsHtml(array $items, int $wishlistId, int $page): string
+    {
+        $html = '';
+        
+        foreach ($items as $item) {
+            $html .= $this->generateItemHtml($item, $wishlistId, $page);
+        }
+        
+        return $html;
+    }
+
+    private function generateItemHtml(array $item, int $wishlistId, int $page): string
+    {
+        $itemName = htmlspecialchars($item['name']);
+        $itemNameShort = htmlspecialchars(substr($item['name'], 0, 25));
+        if (strlen($item['name']) > 25) $itemNameShort .= '...';
+        
+        $price = htmlspecialchars($item['price']);
+        $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity']);
+        $notes = htmlspecialchars(substr($item['notes'], 0, 30));
+        if (strlen($item['notes']) > 30) $notes .= '...';
+        
+        $imagePath = "/wishlist/images/item-images/{$wishlistId}/{$item['image']}?t=" . time();
+        $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
+
+        return "
+        <div class='item-container'>
+            <div class='item-image-container image-popup-button'>
+                <img class='item-image' src='{$imagePath}' alt='wishlist item image'>
+            </div>
+            <div class='item-description'>
+                <div class='line'><h3>{$itemNameShort}</h3></div>
+                <div class='line'><h4>Price: \${$price}</h4></div>
+                <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> {$quantity}</div>
+                <div class='line'><h4 class='notes-label'>Notes: </h4><span>{$notes}</span></div>
+                <div class='line'><h4 class='notes-label'>Priority: </h4><span>({$item['priority']})</span></div>
+                <div class='icon-options item-options wisher-item-options'>
+                    <a class='icon-container' href='/wishlist/edit-item.php?id={$item['id']}&pageno={$page}'>
+                        <svg><!-- edit icon --></svg>
+                        <div class='inline-label'>Edit</div>
+                    </a>
+                    <a class='icon-container popup-button' href='#'>
+                        <svg><!-- delete icon --></svg>
+                        <div class='inline-label'>Delete</div>
+                    </a>
+                </div>
+                <p class='date-added center'><em>Date Added: {$dateAdded}</em></p>
+            </div>
+        </div>";
+    }
+
+    private function generateItemCheckboxes(array $items, int $wishlistId, bool $copyFrom): string
+    {
+        $html = '';
+        
+        foreach ($items as $item) {
+            $itemName = htmlspecialchars($item['name']);
+            $itemId = $item['id'];
+            $checked = $copyFrom ? 'checked' : '';
+            
+            $html .= "
+            <div class='select-item-container'>
+                <input type='checkbox' class='option-checkbox' name='item_{$itemId}' value='{$itemId}' {$checked}>
+                <label>{$itemName}</label>
+            </div>";
+        }
+        
+        return $html;
     }
 }

@@ -241,4 +241,75 @@ class WishlistService
         $stmt = \App\Core\Database::query($sql, $params);
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function updateWishlistName(int $id, string $name): bool
+    {
+        $stmt = \App\Core\Database::query(
+            "UPDATE wishlists SET wishlist_name = ? WHERE id = ?",
+            [$name, $id]
+        );
+        return $stmt->affected_rows > 0;
+    }
+
+    public function updateWishlistTheme(int $id, int $backgroundId, int $giftWrapId): bool
+    {
+        $stmt = \App\Core\Database::query(
+            "UPDATE wishlists SET theme_background_id = ?, theme_gift_wrap_id = ? WHERE id = ?",
+            [$backgroundId, $giftWrapId, $id]
+        );
+        return $stmt->affected_rows > 0;
+    }
+
+    public function toggleWishlistVisibility(int $id): bool
+    {
+        // Get current visibility
+        $stmt = \App\Core\Database::query("SELECT visibility FROM wishlists WHERE id = ?", [$id]);
+        $result = $stmt->get_result()->fetch_assoc();
+        
+        if (!$result) {
+            return false;
+        }
+        
+        $newVisibility = $result['visibility'] === 'Public' ? 'Hidden' : 'Public';
+        
+        $stmt = \App\Core\Database::query(
+            "UPDATE wishlists SET visibility = ? WHERE id = ?",
+            [$newVisibility, $id]
+        );
+        return $stmt->affected_rows > 0;
+    }
+
+    public function toggleWishlistComplete(int $id): bool
+    {
+        // Get current complete status
+        $stmt = \App\Core\Database::query("SELECT complete FROM wishlists WHERE id = ?", [$id]);
+        $result = $stmt->get_result()->fetch_assoc();
+        
+        if (!$result) {
+            return false;
+        }
+        
+        $newComplete = $result['complete'] === 'Yes' ? 'No' : 'Yes';
+        
+        $stmt = \App\Core\Database::query(
+            "UPDATE wishlists SET complete = ? WHERE id = ?",
+            [$newComplete, $id]
+        );
+        return $stmt->affected_rows > 0;
+    }
+
+    public function deleteWishlistAndItems(int $id): bool
+    {
+        try {
+            // Delete all items first
+            $stmt = \App\Core\Database::query("DELETE FROM items WHERE wishlist_id = ?", [$id]);
+            
+            // Delete wishlist
+            $stmt = \App\Core\Database::query("DELETE FROM wishlists WHERE id = ?", [$id]);
+            return $stmt->affected_rows > 0;
+        } catch (\Exception $e) {
+            error_log('Delete wishlist failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
