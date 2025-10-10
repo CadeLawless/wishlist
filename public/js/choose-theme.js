@@ -1,9 +1,6 @@
 $(document).ready(function() {
-    console.log("choose-theme.js loaded");
-    
     $(".theme-nav a").on("click", function(e){
         e.preventDefault();
-        console.log("Theme nav clicked:", $(this).hasClass("desktop") ? "desktop" : "mobile");
         $(".theme-nav a").removeClass("active");
         $(".theme-picture img, .theme-picture > div").addClass("hidden");
         if($(this).hasClass("desktop")){
@@ -17,10 +14,8 @@ $(document).ready(function() {
 
     $(".select-theme").on("click", function(e){
         e.preventDefault();
-        console.log("Select theme clicked");
         $type = $("#wishlist_type").val().toLowerCase();
         $popup_container = ".popup-container."+$type + " ";
-        console.log("Looking for popup container:", $popup_container);
         $background_image = $(this).data("background-image");
         $background_id = $(this).data("background-id");
         $default_gift_wrap = $(this).data("default-gift-wrap");
@@ -74,9 +69,12 @@ $(document).ready(function() {
             $selected_option.find(".value").data("wrap-image", $wrap_image);
             $selected_option.find(".preview-image").html("<img src='images/site-images/themes/gift-wraps/"+$wrap_image+"/1.png' />");
             $file_count = 1;
+            console.log("Updating gift wrap images with:", $wrap_image, "Number of files:", $number_of_files);
             $($popup_container+"img.gift-wrap").each(function(){
                 if($file_count > $number_of_files) $file_count = 1;
-                $(this).attr("src", "images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png")
+                var newSrc = "images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png";
+                console.log("Setting gift wrap image src to:", newSrc);
+                $(this).attr("src", newSrc);
                 $file_count++;
             });
             $(this).closest(".options").addClass("hidden");

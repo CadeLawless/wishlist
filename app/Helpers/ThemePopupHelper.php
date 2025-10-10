@@ -197,11 +197,14 @@ class ThemePopupHelper
                             </div>
                         </div>
                         <?php
-                        // Simple preview items for theme demonstration
-                        echo "<div class='items-list'>
+                        // Template preview items with gift wrap functionality
+                        // Use the same default gift wrap IDs as the original system
+                        $defaultWrapImage = $type == "birthday" ? "28" : "60"; // Default gift wrap IDs
+                        echo "<div class='items-list preview'>
                             <div class='item-container'>
                                 <div class='item-image-container'>
                                     <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
+                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/1.png' class='gift-wrap' alt='gift wrap'>
                                 </div>
                                 <div class='item-description'>
                                     <div class='line'><h3>Sample Item 1</h3></div>
@@ -212,11 +215,23 @@ class ThemePopupHelper
                             <div class='item-container'>
                                 <div class='item-image-container'>
                                     <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
+                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/2.png' class='gift-wrap' alt='gift wrap'>
                                 </div>
                                 <div class='item-description'>
                                     <div class='line'><h3>Sample Item 2</h3></div>
                                     <div class='line'><h4>Price: $15.50</h4></div>
                                     <div class='line'><p>Gift wraps will appear on purchased items.</p></div>
+                                </div>
+                            </div>
+                            <div class='item-container'>
+                                <div class='item-image-container'>
+                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
+                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/3.png' class='gift-wrap' alt='gift wrap'>
+                                </div>
+                                <div class='item-description'>
+                                    <div class='line'><h3>Sample Item 3</h3></div>
+                                    <div class='line'><h4>Price: $42.00</h4></div>
+                                    <div class='line'><p>Different gift wrap variations will cycle through.</p></div>
                                 </div>
                             </div>
                         </div>";

@@ -14,7 +14,6 @@ $(document).ready(function() {
         e.preventDefault();
         
         const button = this;
-        console.log("Popup button clicked:", button.className);
         
         // Add fixed class to body to prevent scrolling
         $("body").addClass("fixed");
@@ -34,11 +33,8 @@ $(document).ready(function() {
         
         // Show the popup
         if (popup && container) {
-            console.log("Found popup elements:", popup, container);
             popup.classList.add("active");
             container.classList.remove("hidden");
-        } else {
-            console.log("No popup elements found for button:", button);
         }
         
         // Trigger custom event
