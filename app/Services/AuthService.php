@@ -75,16 +75,27 @@ class AuthService
     {
         try {
             // Hash the password
-            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
             
-            // Set default values
-            $data['role'] = 'User';
-            $data['dark'] = 'No';
-            $data['verified'] = 0;
-            $data['date_created'] = date('Y-m-d H:i:s');
+            // Generate email verification key
+            $emailKey = bin2hex(random_bytes(25)); // 50 character string
+            $emailKeyExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+            $sessionExpiration = date('Y-m-d H:i:s', strtotime('+1 year'));
+            
+            // Prepare data for database insertion
+            $userData = [
+                'name' => $data['name'],
+                'unverified_email' => $data['email'],
+                'username' => $data['username'],
+                'password' => $hashedPassword,
+                'session' => session_id(),
+                'session_expiration' => $sessionExpiration,
+                'email_key' => $emailKey,
+                'email_key_expiration' => $emailKeyExpiration
+            ];
             
             // Create user using static method
-            $userId = User::create($data);
+            $userId = User::create($userData);
             return $userId > 0;
         } catch (\Exception $e) {
             return false;

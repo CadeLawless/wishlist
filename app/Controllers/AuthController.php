@@ -137,10 +137,24 @@ class AuthController extends Controller
             }
 
             if ($this->authService->register($data)) {
+                // Set up session and cookies like the original code
+                if (!isset($_SESSION)) {
+                    session_start();
+                }
+                
+                // Set session variables
+                $_SESSION['wishlist_logged_in'] = true;
+                $_SESSION['username'] = $data['username'];
+                $_SESSION['account_created'] = true;
+                
+                // Set remember me cookie
+                $cookieTime = 3600 * 24 * 365; // 1 year
+                setcookie('wishlist_session_id', session_id(), time() + $cookieTime);
+                
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $data['username']);
                 
-                return $this->redirect('/wishlist/login')->withSuccess('Registration successful! Please check your email to verify your account.');
+                return $this->redirect('/wishlist/')->withSuccess('Registration successful! Please check your email to verify your account.');
             }
 
             return $this->view('auth/register', [
