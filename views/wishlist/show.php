@@ -679,8 +679,19 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
                         success: function(html) {
-                            // Update the entire items list section
-                            $(".items-list-sub-container").html(html);
+                            // Split response into items and pagination
+                            var itemsStart = html.indexOf('<div class="items-list main">');
+                            var itemsEnd = html.indexOf('</div>', html.indexOf('</div>', itemsStart) + 1) + 6;
+                            var itemsHtml = html.substring(itemsStart, itemsEnd);
+                            
+                            var paginationStart = html.indexOf('<div class="center">');
+                            var paginationHtml = html.substring(paginationStart);
+                            
+                            // Update only the items
+                            $(".items-list.main").html(itemsHtml);
+                            
+                            // Update pagination controls
+                            $(".paginate-container").parent().replaceWith(paginationHtml);
                             
                             // Update URL without page refresh
                             var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + newPage + "#paginate-top";
