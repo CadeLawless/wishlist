@@ -1,3 +1,6 @@
+<?php
+use App\Helpers\ThemePopupHelper;
+?>
 <div>
     <div class="form-container">
         <h1>New Wish List</h1>
@@ -16,10 +19,9 @@
                     <label for="theme">Theme:</label><br />
                     <a style="margin-bottom: 10px;" class="choose-theme-button button primary popup-button<?php if(($wishlist_type ?? '') == "") echo " disabled"; ?>" href="#">Choose a theme...<span class="inline-popup<?php if(($wishlist_type ?? '') != "") echo " hidden"; ?>">Please select a type</span></a>
                     <?php
-                    // Include theme popup functionality
-                    require(__DIR__ . "/../../includes/write-theme-popup.php");
-                    write_theme_popup(type: "birthday");
-                    write_theme_popup(type: "christmas");
+                    // Include theme popup functionality using MVC helper
+                    echo ThemePopupHelper::renderThemePopup("birthday");
+                    echo ThemePopupHelper::renderThemePopup("christmas");
                     ?>
                     <div class="theme-results">
                         <div class="theme-background-display desktop-background-display"></div>
