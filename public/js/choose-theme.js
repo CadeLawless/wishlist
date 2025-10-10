@@ -1,6 +1,9 @@
 $(document).ready(function() {
+    console.log("choose-theme.js loaded");
+    
     $(".theme-nav a").on("click", function(e){
         e.preventDefault();
+        console.log("Theme nav clicked:", $(this).hasClass("desktop") ? "desktop" : "mobile");
         $(".theme-nav a").removeClass("active");
         $(".theme-picture img, .theme-picture > div").addClass("hidden");
         if($(this).hasClass("desktop")){
@@ -14,8 +17,10 @@ $(document).ready(function() {
 
     $(".select-theme").on("click", function(e){
         e.preventDefault();
+        console.log("Select theme clicked");
         $type = $("#wishlist_type").val().toLowerCase();
         $popup_container = ".popup-container."+$type + " ";
+        console.log("Looking for popup container:", $popup_container);
         $background_image = $(this).data("background-image");
         $background_id = $(this).data("background-id");
         $default_gift_wrap = $(this).data("default-gift-wrap");
