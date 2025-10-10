@@ -457,14 +457,14 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return new Response(json_encode([
+            return Response::json([
                 'status' => 'error',
                 'message' => 'Wishlist not found',
                 'html' => '',
                 'current' => 1,
                 'total' => 1,
                 'paginationInfo' => ''
-            ]), 404, ['Content-Type' => 'application/json']);
+            ], 404);
         }
 
         $page = (int) $this->request->input('new_page', 1);
@@ -482,14 +482,14 @@ class WishlistController extends Controller
         $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
         $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
 
-        return new Response(json_encode([
+        return Response::json([
             'status' => 'success',
             'message' => 'Items loaded successfully',
             'html' => $itemsHtml,
             'current' => $page,
             'total' => $totalPages,
             'paginationInfo' => $paginationInfo
-        ]), 200, ['Content-Type' => 'application/json']);
+        ]);
     }
 
     public function filterItems(int $id): Response
