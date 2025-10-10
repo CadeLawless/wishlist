@@ -477,85 +477,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <div class='items-list-sub-container'>
                     <div class="items-list main">
                                 <?php if(count($items) > 0): ?>
-                                    <?php foreach($items as $item): ?>
-                                        <div class='item-container'>
-                                            <div class='item-image-container image-popup-button'>
-                                                <img class='item-image' src='/wishlist/images/item-images/<?php echo $wishlistID; ?>/<?php echo htmlspecialchars($item['image']); ?>?t=<?php echo time(); ?>' alt='wishlist item image'>
-                                            </div>
-                                            <div class='item-description'>
-                                                <div class='line'><h3><?php echo htmlspecialchars(substr($item['name'], 0, 25)) . (strlen($item['name']) > 25 ? '...' : ''); ?></h3></div>
-                                                <div class='line'><h4>Price: $<?php echo htmlspecialchars($item['price']); ?></h4></div>
-                                                <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity']); ?></div>
-                                                <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo htmlspecialchars(substr($item['notes'], 0, 30)) . (strlen($item['notes']) > 30 ? '...' : ''); ?></span></div>
-                                                <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>)</span></div>
-                                                <div class='icon-options item-options wisher-item-options'>
-                                                    <a class='icon-container popup-button' href='#'>
-                                                        <?php require(__DIR__ . '/../../images/site-images/icons/view.php'); ?>
-                                                        <div class='inline-label'>View</div>
-                                                    </a>
-                                                    <div class='popup-container hidden'>
-                                                        <div class='popup fullscreen'>
-                                                            <div class='close-container'>
-                                                                <a href='#' class='close-button'>
-                                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
-                                                                </a>
-                                                            </div>
-                                                            <div class='popup-content'>
-                                                                <h2 style='margin-top: 0;'>Item Details</h2>
-                                                                <p><label>Item Name:<br /></label><?php echo htmlspecialchars($item['name']); ?></p>
-                                                                <p><label>Item Price:<br /></label>$<?php echo htmlspecialchars($item['price']); ?></p>
-                                                                <p><label>Website Link:<br /></label><a target='_blank' href='<?php echo htmlspecialchars($item['link']); ?>'>View on Website</a></p>
-                                                                <p><label>Notes: </label><br /><?php echo nl2br(htmlspecialchars($item['notes'])); ?></p>
-                                                                <p><label>Priority:<br /></label>(<?php echo $item['priority']; ?>) <?php 
-                                                                    $priorities = [
-                                                                        1 => "absolutely needs this item",
-                                                                        2 => "really wants this item", 
-                                                                        3 => "It would be cool if they had this item",
-                                                                        4 => "Eh, they could do without this item"
-                                                                    ];
-                                                                    echo $priorities[$item['priority']] ?? '';
-                                                                ?></p>
-                                                                <p><label>Date Added:<br /></label><?php echo date("n/j/Y g:i A", strtotime($item['date_added'])); ?></p>
-                                                                <?php if($item['date_modified']): ?>
-                                                                <p><label>Last Date Modified:</label><br /><?php echo date("n/j/Y g:i A", strtotime($item['date_modified'])); ?></p>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <a class='icon-container' href='<?php echo htmlspecialchars($item['link']); ?>' target='_blank'>
-                                                        <?php require(__DIR__ . '/../../images/site-images/icons/link.php'); ?>
-                                                        <div class='inline-label'>Website Link</div>
-                                                    </a>
-                                                    <a class='icon-container' href='/wishlist/edit-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $pageno; ?>'>
-                                                        <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
-                                                        <div class='inline-label'>Edit</div>
-                                                    </a>
-                                                    <a class='icon-container popup-button' href='#'>
-                                                        <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
-                                                        <div class='inline-label'>Delete</div>
-                                                    </a>
-                                                    <div class='popup-container hidden'>
-                                                        <div class='popup'>
-                                                            <div class='close-container'>
-                                                                <a href='#' class='close-button'>
-                                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
-                                                                </a>
-                                                            </div>
-                                                            <div class='popup-content'>
-                                                                <label>Are you sure you want to delete this item?</label>
-                                                                <p><?php echo htmlspecialchars($item['name']); ?></p>
-                                                                <div style='margin: 16px 0;' class='center'>
-                                                                    <a class='button secondary no-button' href='#'>No</a>
-                                                                    <a class='button primary' href='/wishlist/delete-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $pageno; ?>'>Yes</a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p class='date-added center'><em>Date Added: <?php echo date("n/j/Y g:i A", strtotime($item['date_added'])); ?></em></p>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                                    <?php 
+                                    // Use the same item generation service as AJAX pagination
+                                    foreach($items as $item): 
+                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno);
+                                    endforeach; 
+                                    ?>
                                 <?php else: ?>
                                     <p class="center">No items in this wishlist yet. <a href="/wishlist/add-item.php">Add your first item!</a></p>
                                 <?php endif; ?>
