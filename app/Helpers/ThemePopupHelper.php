@@ -200,41 +200,61 @@ class ThemePopupHelper
                         // Template preview items with gift wrap functionality
                         // Use the same default gift wrap IDs as the original system
                         $defaultWrapImage = $type == "birthday" ? "28" : "60"; // Default gift wrap IDs
-                        echo "<div class='items-list preview'>
-                            <div class='item-container'>
-                                <div class='item-image-container'>
-                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
-                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/1.png' class='gift-wrap' alt='gift wrap'>
+                        
+                        // Sample items data
+                        $sampleItems = [
+                            ["name" => "Wireless Headphones", "price" => "89.99", "quantity" => "1", "notes" => "Noise cancelling, perfect for travel"],
+                            ["name" => "Coffee Maker", "price" => "45.50", "quantity" => "1", "notes" => "Programmable with timer"],
+                            ["name" => "Yoga Mat", "price" => "29.99", "quantity" => "1", "notes" => "Non-slip, extra thick"],
+                            ["name" => "Bluetooth Speaker", "price" => "65.00", "quantity" => "1", "notes" => "Waterproof, great for outdoor use"],
+                            ["name" => "Reading Lamp", "price" => "35.75", "quantity" => "1", "notes" => "LED, adjustable brightness"],
+                            ["name" => "Kitchen Knife Set", "price" => "125.00", "quantity" => "1", "notes" => "Professional grade, 8 pieces"],
+                            ["name" => "Plant Pot Set", "price" => "22.50", "quantity" => "3", "notes" => "Ceramic, drainage holes included"],
+                            ["name" => "Phone Case", "price" => "18.99", "quantity" => "2", "notes" => "Shockproof, clear design"],
+                            ["name" => "Desk Organizer", "price" => "42.00", "quantity" => "1", "notes" => "Wooden, multiple compartments"],
+                            ["name" => "Tea Set", "price" => "75.25", "quantity" => "1", "notes" => "Porcelain, 12 piece set"],
+                            ["name" => "Throw Pillow", "price" => "28.50", "quantity" => "2", "notes" => "Decorative, soft fabric"],
+                            ["name" => "Book Collection", "price" => "95.00", "quantity" => "1", "notes" => "Classic novels, hardcover"]
+                        ];
+                        
+                        echo "<div class='items-list preview'>";
+                        
+                        foreach($sampleItems as $index => $item) {
+                            $itemNumber = $index + 1;
+                            $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
+                            $itemNameShort = strlen($item["name"]) > 25 ? substr($item["name"], 0, 25) . "..." : $item["name"];
+                            $notesShort = strlen($item["notes"]) > 30 ? substr($item["notes"], 0, 30) . "..." : $item["notes"];
+                            
+                            echo "<div class='item-container'>
+                                <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
+                                <div class='item-image-container image-popup-button'>
+                                    <div class='default-background' style='width: 100%; height: 110px; background-color: var(--background); border: 1px solid var(--text); display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 14px;'>Sample Item Image</div>
                                 </div>
                                 <div class='item-description'>
-                                    <div class='line'><h3>Sample Item 1</h3></div>
-                                    <div class='line'><h4>Price: $25.99</h4></div>
-                                    <div class='line'><p>This is how your items will look with the selected theme.</p></div>
+                                    <div class='line'><h3>" . htmlspecialchars($itemNameShort) . "</h3></div>
+                                    <div class='line'><h4>Price: $" . htmlspecialchars($item["price"]) . " <span class='price-date'>(as of " . date("n/j/Y") . ")</span></h4></div>
+                                    <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> " . htmlspecialchars($item["quantity"]) . "</div>
+                                    <div class='line'><h4 class='notes-label'>Notes: </h4><span>" . htmlspecialchars($notesShort) . "</span></div>
+                                    <div class='line'><h4 class='notes-label'>Priority: </h4><span>(2) Sample User really wants this item</span></div>
+                                    <div class='icon-options item-options buyer-item-options'>
+                                        <a class='icon-container template' href='#'>";
+                                        require(__DIR__ . "/../../images/site-images/icons/view.php");
+                                        echo "<div class='inline-label'>View</div></a>
+                                        <a class='icon-container template' href='#' target='_blank'>";
+                                        require(__DIR__ . "/../../images/site-images/icons/link.php");
+                                        echo "<div class='inline-label'>Website Link</div></a>
+                                    </div>
+                                    <br>
+                                    <div class='center'>
+                                        <h4 class='center'>This item has been purchased!</h4>
+                                        <span class='unmark-msg'>If you need to unmark an item as purchased, reach out to Sample User or a family member.</span>
+                                    </div>
+                                    <p class='date-added center'><em>Date Added: " . date("n/j/Y g:i A") . "</em></p>
                                 </div>
-                            </div>
-                            <div class='item-container'>
-                                <div class='item-image-container'>
-                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
-                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/2.png' class='gift-wrap' alt='gift wrap'>
-                                </div>
-                                <div class='item-description'>
-                                    <div class='line'><h3>Sample Item 2</h3></div>
-                                    <div class='line'><h4>Price: $15.50</h4></div>
-                                    <div class='line'><p>Gift wraps will appear on purchased items.</p></div>
-                                </div>
-                            </div>
-                            <div class='item-container'>
-                                <div class='item-image-container'>
-                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
-                                    <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/3.png' class='gift-wrap' alt='gift wrap'>
-                                </div>
-                                <div class='item-description'>
-                                    <div class='line'><h3>Sample Item 3</h3></div>
-                                    <div class='line'><h4>Price: $42.00</h4></div>
-                                    <div class='line'><p>Different gift wrap variations will cycle through.</p></div>
-                                </div>
-                            </div>
-                        </div>";
+                            </div>";
+                        }
+                        
+                        echo "</div>";
                         ?>
                     </div>
                 </div>
