@@ -4,7 +4,7 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
 <div class="header-container">
     <div class="header">
         <div class="title">
-            <a class="nav-title" href="index.php"><?php require("images/site-images/logo.php"); ?></a>
+            <a class="nav-title" href="/wishlist"><?php require("images/site-images/logo.php"); ?></a>
             <a href="#" class="dark-mode-link"><?php require("images/site-images/icons/dark-mode.php"); ?></a>
             <a href="#" class="light-mode-link"><?php require("images/site-images/icons/light-mode.php"); ?></a>
         </div>
@@ -14,9 +14,9 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
             require("images/site-images/menu-close.php");
             ?>
             <div class="menu-links">
-                <a class="nav-link<?php if($currentPage == "/wishlist/index.php") echo " active"; ?>" href="index.php">Home<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/wishlist/create-wishlist.php") echo " active"; ?>" href="create-wishlist.php">Create Wishlist<div class="underline"></div></a>
-                <a class="nav-link<?php if(in_array($currentPage, ["/wishlist/view-wishlists.php", "/wishlist/view-wishlist.php", "/wishlist/add-item.php", "/wishlist/edit-item.php"])) echo " active"; ?>" href="view-wishlists.php">View Wishlists<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/wishlist") echo " active"; ?>" href="/wishlist">Home<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/wishlist/create") echo " active"; ?>" href="/wishlist/create">Create Wishlist<div class="underline"></div></a>
+                <a class="nav-link<?php if(in_array($currentPage, ["/wishlists", "/wishlist/"])) echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/wishlist/admin-center.php", "/wishlist/view-profile.php", "/wishlist/backgrounds.php", "/wishlist/edit-user.php", "/wishlist/add-background.php","/wishlist/edit-background.php", "/wishlist/gift-wraps.php", "/wishlist/add-gift-wrap.php", "/wishlist/edit-gift-wrap.php", "/wishlist/wishlists.php"])) echo " active-page"; ?>">
                     <div class="outer-link">
                         <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
@@ -25,11 +25,11 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
                     </div>
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
-                        <a class="dropdown-menu-link" href="view-profile.php">View Profile</a>
+                        <a class="dropdown-menu-link" href="/wishlist/profile">View Profile</a>
                         <?php if($admin){ ?>
-                            <a class="dropdown-menu-link" href="admin-center.php">Admin Center</a>
+                            <a class="dropdown-menu-link" href="/wishlist/admin">Admin Center</a>
                         <?php } ?>
-                        <a class="dropdown-menu-link" href="logout.php">Log Out</a>
+                        <a class="dropdown-menu-link" href="/wishlist/logout">Log Out</a>
                     </div>
                 </div>
             </div>
