@@ -68,6 +68,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     <link rel="icon" type="image/x-icon" href="/wishlist/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title><?php echo $wishlistTitle; ?></title>
     <style>
         h1 {
