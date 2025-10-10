@@ -520,7 +520,16 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 </body>
 </html>
 <script src="/wishlist/includes/popup.js"></script>
-<script src="/wishlist/public/js/popup-manager.js"></script>
+<!-- <script src="/wishlist/public/js/popup-manager.js"></script> -->
+<script>
+console.log('Popup.js loaded, testing click handler...');
+$(document).ready(function() {
+    console.log('Document ready, popup buttons found:', $('.popup-button').length);
+    $('.popup-button').on('click', function(e) {
+        console.log('Popup button clicked!', this);
+    });
+});
+</script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script src="/wishlist/includes/page-change.js"></script>
 <script src="/wishlist/includes/choose-theme.js"></script>
