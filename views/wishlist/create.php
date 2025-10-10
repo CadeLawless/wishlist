@@ -4,7 +4,7 @@ use App\Helpers\ThemePopupHelper;
 <div>
     <div class="form-container">
         <h1>New Wish List</h1>
-        <form method="POST" action="/wishlist">
+        <form method="POST" action="/">
             <?php echo $error_msg ?? ""; ?>
             <div class="flex form-flex">
                 <div class="large-input">
