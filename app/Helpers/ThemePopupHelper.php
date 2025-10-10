@@ -197,19 +197,29 @@ class ThemePopupHelper
                             </div>
                         </div>
                         <?php
-                        // Sample items for preview (using wishlist ID 20 as in original)
-                        $wishlistId = 20;
-                        $pageNumber = 1;
-                        $itemsPerPage = 12;
-                        $type = "buyer";
-                        $values = [$wishlistId];
-                        $query = "SELECT *, items.id as id FROM items LEFT JOIN wishlists ON items.wishlist_id = wishlists.id WHERE items.wishlist_id = ? ORDER BY CASE WHEN name = 'Item 1' THEN 1 WHEN name = 'Item 2' THEN 2 WHEN name = 'Item 3' THEN 3 WHEN name = 'Item 4' THEN 4 WHEN name = 'Item 5' THEN 5 ELSE 6 END";
-                        require(__DIR__ . "/../../includes/paginate-sql.php");
-                        if($selectQuery->num_rows > 0){
-                            echo "<div class='items-list'>";
-                            require(__DIR__ . "/../../includes/write-template-items.php");
-                            echo "</div>";
-                        }
+                        // Simple preview items for theme demonstration
+                        echo "<div class='items-list'>
+                            <div class='item-container'>
+                                <div class='item-image-container'>
+                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
+                                </div>
+                                <div class='item-description'>
+                                    <div class='line'><h3>Sample Item 1</h3></div>
+                                    <div class='line'><h4>Price: $25.99</h4></div>
+                                    <div class='line'><p>This is how your items will look with the selected theme.</p></div>
+                                </div>
+                            </div>
+                            <div class='item-container'>
+                                <div class='item-image-container'>
+                                    <div class='default-background' style='width: 100px; height: 100px; background-color: var(--background); border: 1px solid var(--text);'></div>
+                                </div>
+                                <div class='item-description'>
+                                    <div class='line'><h3>Sample Item 2</h3></div>
+                                    <div class='line'><h4>Price: $15.50</h4></div>
+                                    <div class='line'><p>Gift wraps will appear on purchased items.</p></div>
+                                </div>
+                            </div>
+                        </div>";
                         ?>
                     </div>
                 </div>
