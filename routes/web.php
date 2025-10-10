@@ -25,8 +25,10 @@ Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
 // Logout
 Router::get('/logout', [AuthController::class, 'logout']);
 
+// Home route
+Router::get('/', [HomeController::class, 'index']);
+
 // Wishlist routes (home page shows user's wishlists)
-Router::get('/', [WishlistController::class, 'index']);
 Router::get('/create', [WishlistController::class, 'create']);
 Router::get('/wishlists', [WishlistController::class, 'wishlists']);
 Router::post('/', [WishlistController::class, 'store']);

@@ -56,7 +56,7 @@ use App\Helpers\ThemePopupHelper;
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="public/js/popups.js"></script>
-<script src="includes/choose-theme.js"></script>
+<script src="public/js/choose-theme.js"></script>
 <script>
     // Dark mode functionality
     document.addEventListener('DOMContentLoaded', function() {

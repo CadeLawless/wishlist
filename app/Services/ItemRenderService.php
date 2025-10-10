@@ -17,16 +17,17 @@ class ItemRenderService
         if (strlen($item['notes']) > 30) $notesShort .= '...';
         
         $link = htmlspecialchars($item['link']);
-        $imagePath = "/wishlist/images/item-images/{$wishlistId}/{$item['image']}?t=" . time();
+        $imagePath = htmlspecialchars("/wishlist/images/item-images/{$wishlistId}/{$item['image']}?t=" . time());
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
-        // Priority descriptions
+        // Priority descriptions with user's name
+        $userName = $_SESSION['name'] ?? 'User';
         $priorities = [
-            1 => "absolutely needs this item",
-            2 => "really wants this item", 
-            3 => "It would be cool if they had this item",
-            4 => "Eh, they could do without this item"
+            1 => "{$userName} absolutely needs this item",
+            2 => "{$userName} really wants this item", 
+            3 => "It would be cool if {$userName} had this item",
+            4 => "Eh, {$userName} could do without this item"
         ];
         
         $priorityText = $priorities[$item['priority']] ?? '';
