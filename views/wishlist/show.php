@@ -540,6 +540,20 @@ $(document).ready(function() {
             button.nextElementSibling.classList.remove("hidden");
         }
     });
+    
+    // Debug close handlers
+    $(document.body).on("click", ".close-container", function(e) {
+        console.log('Close button clicked!');
+        console.log('Popup container classes:', this.closest(".popup-container").className);
+        console.log('Is first:', this.closest(".popup-container").classList.contains("first"));
+        console.log('Is second:', this.closest(".popup-container").classList.contains("second"));
+    });
+    
+    $(window).on("click", function(e) {
+        console.log('Window clicked, target:', e.target);
+        console.log('Is popup button:', e.target.classList.contains("popup-button"));
+        console.log('Closest popup container:', e.target.closest(".popup-container"));
+    });
 });
 </script>
 <script>$type = "wisher"; $key_url = "";</script>
