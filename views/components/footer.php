@@ -3,6 +3,7 @@
   Designed by Cade and Meleah Lawless. All rights reserved.</p>
 </footer>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="includes/popup.js"></script>
 <script>
   $(document).ready(function(){
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
