@@ -615,6 +615,10 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 });
             });
 
+            // Initialize pagination variables
+            var currentPage = <?php echo $pageno; ?>;
+            var totalPages = <?php echo $total_pages; ?>;
+            
             // Pagination AJAX functionality - use event delegation
             $(document).on("click", ".paginate-arrow", function(e) {
                 e.preventDefault();
@@ -626,8 +630,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     return;
                 }
                 
-                var currentPage = <?php echo $pageno; ?>;
-                var totalPages = <?php echo $total_pages; ?>;
                 var newPage = currentPage;
                 
                 console.log('Current page:', currentPage, 'Total pages:', totalPages);
@@ -685,8 +687,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + data.current + "#paginate-top";
                                 history.pushState(null, null, newUrl);
                                 
-                                // Update the currentPage variable for next pagination
+                                // Update the pagination variables for next pagination
                                 currentPage = data.current;
+                                totalPages = data.total;
                             } else {
                                 console.error('Pagination error:', data.message);
                                 alert('Pagination failed: ' + data.message);
