@@ -574,30 +574,32 @@ class WishlistController extends Controller
         $startItem = (($currentPage - 1) * 12) + 1;
         $endItem = min($currentPage * 12, $totalItems);
 
-        // Use output buffering to capture the PHP includes
-        ob_start();
-        ?>
+        // Generate pagination HTML without PHP includes (use SVG placeholders for now)
+        $firstDisabled = $currentPage <= 1 ? ' disabled' : '';
+        $prevDisabled = $currentPage <= 1 ? ' disabled' : '';
+        $nextDisabled = $currentPage >= $totalPages ? ' disabled' : '';
+        $lastDisabled = $currentPage >= $totalPages ? ' disabled' : '';
+
+        return "
         <div class='center'>
             <div class='paginate-container'>
-                <a class='paginate-arrow paginate-first<?php echo $currentPage <= 1 ? ' disabled' : ''; ?>' href='#'>
-                    <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
+                <a class='paginate-arrow paginate-first{$firstDisabled}' href='#'>
+                    <svg><!-- First icon --></svg>
                 </a>
-                <a class='paginate-arrow paginate-previous<?php echo $currentPage <= 1 ? ' disabled' : ''; ?>' href='#'>
-                    <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
+                <a class='paginate-arrow paginate-previous{$prevDisabled}' href='#'>
+                    <svg><!-- Previous icon --></svg>
                 </a>
                 <div class='paginate-title'>
-                    <span class='page-number'><?php echo $currentPage; ?></span>/<span class='last-page'><?php echo $totalPages; ?></span>
+                    <span class='page-number'>{$currentPage}</span>/<span class='last-page'>{$totalPages}</span>
                 </div>
-                <a class='paginate-arrow paginate-next<?php echo $currentPage >= $totalPages ? ' disabled' : ''; ?>' href='#'>
-                    <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
+                <a class='paginate-arrow paginate-next{$nextDisabled}' href='#'>
+                    <svg><!-- Next icon --></svg>
                 </a>
-                <a class='paginate-arrow paginate-last<?php echo $currentPage >= $totalPages ? ' disabled' : ''; ?>' href='#'>
-                    <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
+                <a class='paginate-arrow paginate-last{$lastDisabled}' href='#'>
+                    <svg><!-- Last icon --></svg>
                 </a>
             </div>
         </div>
-        <div class='count-showing'>Showing <?php echo $startItem; ?>-<?php echo $endItem; ?> of <?php echo $totalItems; ?> items</div>
-        <?php
-        return ob_get_clean();
+        <div class='count-showing'>Showing {$startItem}-{$endItem} of {$totalItems} items</div>";
     }
 }

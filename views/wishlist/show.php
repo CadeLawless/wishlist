@@ -655,8 +655,22 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 // Update only the items (preserve container structure)
                                 $(".items-list.main").html(itemsHtml);
                                 
-                                // Update pagination controls
-                                $(".paginate-container").parent().replaceWith(paginationHtml);
+                                // Update pagination controls - replace the entire pagination section
+                                var $existingPagination = $(".paginate-container").closest('.center');
+                                if ($existingPagination.length > 0) {
+                                    // Replace existing pagination
+                                    $existingPagination.replaceWith(paginationHtml);
+                                } else {
+                                    // If no existing pagination, append it after items
+                                    $(".items-list-sub-container").append(paginationHtml);
+                                }
+                                
+                                // Update the count showing
+                                var $existingCount = $(".count-showing");
+                                var $newCount = $(paginationHtml).find('.count-showing');
+                                if ($existingCount.length > 0 && $newCount.length > 0) {
+                                    $existingCount.replaceWith($newCount);
+                                }
                             } else {
                                 // Fallback: just update items if no pagination found
                                 $(".items-list.main").html(html);
