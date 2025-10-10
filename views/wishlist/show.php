@@ -655,22 +655,37 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 // Update only the items (preserve container structure)
                                 $(".items-list.main").html(itemsHtml);
                                 
-                                // Update pagination controls - replace the entire pagination section
-                                var $existingPagination = $(".paginate-container").closest('.center');
-                                if ($existingPagination.length > 0) {
-                                    // Replace existing pagination
-                                    $existingPagination.replaceWith(paginationHtml);
-                                } else {
-                                    // If no existing pagination, append it after items
-                                    $(".items-list-sub-container").append(paginationHtml);
-                                }
+                                // Parse the new pagination data from the response
+                                var $newPagination = $(paginationHtml);
+                                var newPageNumber = $newPagination.find('.page-number').text();
+                                var newLastPage = $newPagination.find('.last-page').text();
+                                var newCountShowing = $newPagination.find('.count-showing').text();
                                 
-                                // Update the count showing
-                                var $existingCount = $(".count-showing");
-                                var $newCount = $(paginationHtml).find('.count-showing');
-                                if ($existingCount.length > 0 && $newCount.length > 0) {
-                                    $existingCount.replaceWith($newCount);
-                                }
+                                // Update existing pagination controls in place
+                                $('.page-number').text(newPageNumber);
+                                $('.last-page').text(newLastPage);
+                                $('.count-showing').text(newCountShowing);
+                                
+                                // Update arrow states based on new page
+                                var totalPages = parseInt(newLastPage);
+                                
+                                // First and Previous arrows
+                                $('.paginate-first, .paginate-previous').each(function() {
+                                    if (newPage <= 1) {
+                                        $(this).addClass('disabled');
+                                    } else {
+                                        $(this).removeClass('disabled');
+                                    }
+                                });
+                                
+                                // Next and Last arrows
+                                $('.paginate-next, .paginate-last').each(function() {
+                                    if (newPage >= totalPages) {
+                                        $(this).addClass('disabled');
+                                    } else {
+                                        $(this).removeClass('disabled');
+                                    }
+                                });
                             } else {
                                 // Fallback: just update items if no pagination found
                                 $(".items-list.main").html(html);
