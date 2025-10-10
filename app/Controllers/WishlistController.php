@@ -451,59 +451,19 @@ class WishlistController extends Controller
 
     public function paginateItems(int $id): Response
     {
-        $this->requireAuth();
-        
-        $user = $this->auth();
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            header('Content-Type: application/json');
-            http_response_code(404);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Wishlist not found',
-                'html' => '',
-                'current' => 1,
-                'total' => 1,
-                'paginationInfo' => ''
-            ]);
-            exit;
-        }
-
-        $page = (int) $this->request->input('new_page', 1);
-        $items = $this->wishlistService->getWishlistItems($id);
-        $paginatedItems = $this->paginationService->paginate($items, $page);
-        $totalPages = $this->paginationService->getTotalPages($items);
-        $totalRows = count($items);
-
-        // Generate HTML for items only (no pagination controls)
-        $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
-        
-        // Calculate pagination info
-        $itemsPerPage = 12;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
-        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
-
-        // Set JSON headers and return JSON directly
-        header('Content-Type: application/json');
-        
-        // Test with simple JSON first
+        // Simple test - bypass all the complex logic
         $jsonData = [
             'status' => 'success',
-            'message' => 'Items loaded successfully',
-            'html' => 'Test HTML content',
-            'current' => $page,
-            'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
+            'message' => 'Test response',
+            'html' => '<div>Test HTML</div>',
+            'current' => 1,
+            'total' => 1,
+            'paginationInfo' => 'Test pagination info'
         ];
         
-        // Debug: Log the JSON data
-        error_log('JSON Data: ' . print_r($jsonData, true));
-        error_log('JSON String: ' . json_encode($jsonData));
+        error_log('Simple JSON test: ' . json_encode($jsonData));
         
-        echo json_encode($jsonData);
-        exit;
+        return new Response(json_encode($jsonData), 200, ['Content-Type' => 'application/json']);
     }
 
     public function filterItems(int $id): Response
