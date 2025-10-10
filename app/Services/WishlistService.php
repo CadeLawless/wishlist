@@ -242,10 +242,30 @@ class WishlistService
     public function deleteWishlistAndItems(int $id): bool
     {
         try {
-            // Delete all items first
+            // Get all items with their images before deleting
+            $itemsStmt = \App\Core\Database::query("SELECT image FROM items WHERE wishlist_id = ?", [$id]);
+            $items = $itemsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            
+            // Delete item images from server
+            foreach ($items as $item) {
+                if (!empty($item['image'])) {
+                    $imagePath = __DIR__ . "/../../images/item-images/{$id}/{$item['image']}";
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
+            
+            // Delete the item images directory if it exists and is empty
+            $itemImagesDir = __DIR__ . "/../../images/item-images/{$id}";
+            if (is_dir($itemImagesDir) && count(scandir($itemImagesDir)) <= 2) { // Only . and .. entries
+                rmdir($itemImagesDir);
+            }
+            
+            // Delete all items from database
             $stmt = \App\Core\Database::query("DELETE FROM items WHERE wishlist_id = ?", [$id]);
             
-            // Delete wishlist
+            // Delete wishlist from database
             $stmt = \App\Core\Database::query("DELETE FROM wishlists WHERE id = ?", [$id]);
             return $stmt->affected_rows > 0;
         } catch (\Exception $e) {

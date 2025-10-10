@@ -15,6 +15,12 @@ class Request
     public function __construct()
     {
         $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        
+        // Handle method spoofing for DELETE, PUT, PATCH requests
+        if ($this->method === 'POST' && isset($_POST['_method'])) {
+            $this->method = strtoupper($_POST['_method']);
+        }
+        
         $fullPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
         
         // Remove the base path /wishlist/ from the path
