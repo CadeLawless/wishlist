@@ -264,17 +264,31 @@ class AuthController extends Controller
 
     public function toggleDarkMode(): Response
     {
-        $this->requireAuth();
+        // Check authentication without redirecting for AJAX requests
+        $user = $this->authService->getCurrentUser();
+        if (!$user) {
+            error_log('Dark mode toggle: User not authenticated');
+            return new Response('unauthorized', 401);
+        }
         
         $dark = $this->request->input('dark');
+        error_log('Dark mode toggle: User ID = ' . $user['id'] . ', Dark = ' . $dark);
+        
         if ($dark === 'Yes' || $dark === 'No') {
-            $user = $this->authService->getCurrentUser();
-            if ($user) {
-                User::update($user['id'], ['dark' => $dark]);
+            try {
+                $result = User::update($user['id'], ['dark' => $dark]);
+                error_log('Dark mode toggle: Update result = ' . ($result ? 'true' : 'false'));
+                
+                // Also update the session
+                $_SESSION['dark'] = $dark === 'Yes';
                 return new Response('success');
+            } catch (\Exception $e) {
+                error_log('Dark mode toggle failed: ' . $e->getMessage());
+                return new Response('error', 500);
             }
         }
         
-        return new Response('error', 400);
+        error_log('Dark mode toggle: Invalid data = ' . $dark);
+        return new Response('invalid_data', 400);
     }
 }

@@ -16,7 +16,13 @@
             data: {
                 dark: $dark,
             },
-            success: function(html) {}
+            success: function(response) {
+                console.log('Dark mode toggle response:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Dark mode toggle failed:', error);
+                console.error('Response:', xhr.responseText);
+            }
         });
     });
   });
