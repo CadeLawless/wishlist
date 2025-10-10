@@ -487,14 +487,22 @@ class WishlistController extends Controller
 
         // Set JSON headers and return JSON directly
         header('Content-Type: application/json');
-        echo json_encode([
+        
+        // Test with simple JSON first
+        $jsonData = [
             'status' => 'success',
             'message' => 'Items loaded successfully',
-            'html' => $itemsHtml,
+            'html' => 'Test HTML content',
             'current' => $page,
             'total' => $totalPages,
             'paginationInfo' => $paginationInfo
-        ]);
+        ];
+        
+        // Debug: Log the JSON data
+        error_log('JSON Data: ' . print_r($jsonData, true));
+        error_log('JSON String: ' . json_encode($jsonData));
+        
+        echo json_encode($jsonData);
         exit;
     }
 
