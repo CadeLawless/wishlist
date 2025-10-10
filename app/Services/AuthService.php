@@ -6,11 +6,9 @@ use App\Models\User;
 
 class AuthService
 {
-    private User $user;
-
     public function __construct()
     {
-        $this->user = new User();
+        // No need for user instance since we use static methods
     }
 
     public function login(string $username, string $password, bool $remember = false): bool
@@ -76,14 +74,24 @@ class AuthService
     public function register(array $data): bool
     {
         try {
-            $user = $this->user->createUser($data);
-            return $user !== null;
+            // Hash the password
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            
+            // Set default values
+            $data['role'] = 'User';
+            $data['dark'] = 'No';
+            $data['verified'] = 0;
+            $data['date_created'] = date('Y-m-d H:i:s');
+            
+            // Create user using static method
+            $userId = User::create($data);
+            return $userId > 0;
         } catch (\Exception $e) {
             return false;
         }
     }
 
-    public function checkSession(): ?User
+    public function checkSession(): ?array
     {
         if (!isset($_SESSION)) {
             session_start();
@@ -91,23 +99,23 @@ class AuthService
 
         // Check if already logged in via session
         if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
-            return $this->user;
+            return User::findByUsernameOrEmail($_SESSION['username']);
         }
 
         // Check remember me cookie
         if (isset($_COOKIE['wishlist_session_id'])) {
             $sessionId = $_COOKIE['wishlist_session_id'];
-            $user = $this->user->findBySession($sessionId);
+            $user = User::findBySessionId($sessionId);
             
             if ($user) {
                 // Auto-login
                 $_SESSION['wishlist_logged_in'] = true;
-                $_SESSION['username'] = $user->username;
-                $_SESSION['name'] = $user->name;
-                $_SESSION['user_email'] = $user->email;
-                $_SESSION['user_id'] = $user->id;
-                $_SESSION['admin'] = $user->isAdmin();
-                $_SESSION['dark'] = $user->dark === 'Yes';
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['admin'] = $user['role'] === 'Admin';
+                $_SESSION['dark'] = $user['dark'] === 'Yes';
                 
                 return $user;
             }
@@ -116,14 +124,14 @@ class AuthService
         return null;
     }
 
-    public function getCurrentUser(): ?User
+    public function getCurrentUser(): ?array
     {
         if (!isset($_SESSION)) {
             session_start();
         }
 
         if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
-            return $this->user->findByUsernameOrEmail($_SESSION['username']);
+            return User::findByUsernameOrEmail($_SESSION['username']);
         }
 
         return null;
@@ -137,32 +145,33 @@ class AuthService
     public function isAdmin(): bool
     {
         $user = $this->getCurrentUser();
-        return $user && $user->isAdmin();
+        return $user && $user['role'] === 'Admin';
     }
 
     public function updatePassword(string $username, string $newPassword): bool
     {
-        $user = $this->user->findByUsernameOrEmail($username);
+        $user = User::findByUsernameOrEmail($username);
         if ($user) {
-            return $user->updatePassword($newPassword);
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            return User::update($user['id'], ['password' => $hashedPassword]);
         }
         return false;
     }
 
     public function setUnverifiedEmail(string $username, string $email): bool
     {
-        $user = $this->user->findByUsernameOrEmail($username);
+        $user = User::findByUsernameOrEmail($username);
         if ($user) {
-            return $user->setUnverifiedEmail($email);
+            return User::update($user['id'], ['email' => $email, 'verified' => 0]);
         }
         return false;
     }
 
     public function verifyEmail(string $username): bool
     {
-        $user = $this->user->findByUsernameOrEmail($username);
+        $user = User::findByUsernameOrEmail($username);
         if ($user) {
-            return $user->verifyEmail();
+            return User::update($user['id'], ['verified' => 1]);
         }
         return false;
     }
