@@ -17,7 +17,7 @@ class WishlistService
         $this->item = new Item();
     }
 
-    public function createWishlist(string $username, array $data): ?Wishlist
+    public function createWishlist(string $username, array $data): ?array
     {
         $data['username'] = $username;
         return $this->wishlist->createWishlist($data);

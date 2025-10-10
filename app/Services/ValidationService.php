@@ -48,10 +48,10 @@ class ValidationService
         $errors = [];
 
         // Type validation
-        if (empty($data['type'])) {
-            $errors['type'][] = 'Wishlist type is required.';
-        } elseif (!in_array($data['type'], ['Birthday', 'Christmas'])) {
-            $errors['type'][] = 'Please select a valid wishlist type.';
+        if (empty($data['wishlist_type'])) {
+            $errors['wishlist_type'][] = 'Wishlist type is required.';
+        } elseif (!in_array($data['wishlist_type'], ['Birthday', 'Christmas'])) {
+            $errors['wishlist_type'][] = 'Please select a valid wishlist type.';
         }
 
         // Name validation
