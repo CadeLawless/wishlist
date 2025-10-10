@@ -679,6 +679,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 // Update URL without page refresh
                                 var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + data.current + "#paginate-top";
                                 history.pushState(null, null, newUrl);
+                                
+                                // Update the currentPage variable for next pagination
+                                currentPage = data.current;
                             } else {
                                 console.error('Pagination error:', data.message);
                                 alert('Pagination failed: ' + data.message);
