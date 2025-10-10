@@ -577,17 +577,17 @@ class WishlistController extends Controller
             </div>
             <div class='item-description'>
                 <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
-                <div class='line'><h4>Price: $<?php echo $price; ?></h4></div>
+                <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                 <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
                 <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
-                <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>)</span></div>
+                <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
                 <div class='icon-options item-options wisher-item-options'>
                     <a class='icon-container popup-button' href='#'>
                         <?php require(__DIR__ . '/../../images/site-images/icons/view.php'); ?>
-                        <div class='inline-label'>View Details</div>
+                        <div class='inline-label'>View</div>
                     </a>
                     <div class='popup-container hidden'>
-                        <div class='popup'>
+                        <div class='popup fullscreen'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
                                     <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
