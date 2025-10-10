@@ -49,11 +49,30 @@ class EmailService
 
     private function sendEmail(string $to, string $subject, string $message): bool
     {
-        // Use the existing PHPMailer setup
-        require_once __DIR__ . '/../../php-mailer.php';
-        
         try {
-            send_email($to, $subject, $message, $this->fromName, $this->fromEmail);
+            // Use Composer autoloaded PHPMailer
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+            
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.ionos.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'support@cadelawless.com';
+            $mail->Password = 'REDACTED';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+            
+            // Recipients
+            $mail->setFrom($this->fromEmail, $this->fromName);
+            $mail->addAddress($to);
+            
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $message;
+            $mail->CharSet = 'UTF-8';
+            
+            $mail->send();
             return true;
         } catch (\Exception $e) {
             error_log('Email sending failed: ' . $e->getMessage());

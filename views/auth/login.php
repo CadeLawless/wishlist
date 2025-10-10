@@ -20,7 +20,7 @@
     </div>
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Login"></p>
     <p style="font-size: 14px" class="large-input center"><a style="font-size: inherit;" href="/forgot-password">Forgot password?</a></p>
-    <p style="font-size: 14px" class="large-input center">Don't have an account? <a style="font-size: inherit;" href="/register">Create one here</a></p>
+    <p style="font-size: 14px" class="large-input center">Don't have an account? <a style="font-size: inherit;" href="/wishlist/register">Create one here</a></p>
 </form>
 
 <script>

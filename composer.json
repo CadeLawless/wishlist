@@ -3,7 +3,8 @@
     "description": "Wishlist application with MVC architecture",
     "type": "project",
     "require": {
-        "php": ">=8.0"
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.11"
     },
     "autoload": {
         "psr-4": {
@@ -14,4 +15,3 @@
         "optimize-autoloader": true
     }
 }
-
