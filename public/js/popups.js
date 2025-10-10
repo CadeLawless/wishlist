@@ -69,19 +69,18 @@ $(document).ready(function() {
         e.preventDefault();
         
         const closeButton = this;
-        const popupContainer = closeButton.closest(".popup-container");
+        const $popupContainer = $(closeButton).closest(".popup-container");
         
         // Remove fixed class only if not a first/second popup (special popup types)
-        if (!popupContainer.hasClass("first") && !popupContainer.hasClass("second")) {
+        if (!$popupContainer.hasClass("first") && !$popupContainer.hasClass("second")) {
             $("body").removeClass("fixed");
         }
         
         // Hide the popup
-        hidePopup(popupContainer);
+        hidePopup($popupContainer);
         
         // Clean up popup animations
-        const popups = popupContainer.find(".popup:not(.first, .second)");
-        popups.each(function() {
+        $popupContainer.find(".popup:not(.first, .second)").each(function() {
             const popup = this;
             popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right", "hidden");
             if (popup.className.includes("yes")) {
@@ -90,7 +89,7 @@ $(document).ready(function() {
         });
         
         // Trigger custom event
-        $(popupContainer).trigger('popup:closed');
+        $popupContainer.trigger('popup:closed');
     });
     
     // Handle "No" button clicks
@@ -98,26 +97,26 @@ $(document).ready(function() {
         e.preventDefault();
         
         const noButton = this;
-        const popupContainer = noButton.closest(".popup-container");
+        const $popupContainer = $(noButton).closest(".popup-container");
         
         // Remove fixed class only if not a first/second popup
-        if (!popupContainer.hasClass("first") && !popupContainer.hasClass("second")) {
+        if (!$popupContainer.hasClass("first") && !$popupContainer.hasClass("second")) {
             $("body").removeClass("fixed");
         }
         
         // Hide the popup
-        hidePopup(popupContainer);
+        hidePopup($popupContainer);
         
         // Handle double-no buttons (for nested popups)
         if (noButton.classList.contains("double-no")) {
-            const prevPopup = popupContainer.prev();
-            if (prevPopup.length && prevPopup.hasClass("popup-container")) {
-                hidePopup(prevPopup);
+            const $prevPopup = $popupContainer.prev();
+            if ($prevPopup.length && $prevPopup.hasClass("popup-container")) {
+                hidePopup($prevPopup);
             }
         }
         
         // Trigger custom event
-        $(popupContainer).trigger('popup:cancelled');
+        $popupContainer.trigger('popup:cancelled');
     });
     
     // Handle window clicks (click outside to close)
