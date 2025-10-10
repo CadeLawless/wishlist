@@ -451,16 +451,26 @@ class WishlistController extends Controller
 
     public function paginateItems(int $id): Response
     {
-        // Bypass Response class entirely - use direct output
+        // Clear any output buffering first
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set headers and output JSON directly
         header('Content-Type: application/json');
-        echo json_encode([
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        $jsonData = [
             'status' => 'success',
             'message' => 'Test response',
             'html' => '<div>Test HTML</div>',
             'current' => 1,
             'total' => 1,
             'paginationInfo' => 'Test pagination info'
-        ]);
+        ];
+        
+        echo json_encode($jsonData);
+        flush();
         exit;
     }
 
