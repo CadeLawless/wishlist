@@ -10,6 +10,7 @@ use App\Services\ValidationService;
 use App\Services\FileUploadService;
 use App\Services\PaginationService;
 use App\Services\ItemCopyService;
+use App\Services\PopupManager;
 
 class WishlistController extends Controller
 {
@@ -87,13 +88,35 @@ class WishlistController extends Controller
         $_SESSION['home'] = "/wishlist/{$id}?pageno={$pageno}#paginate-top";
         $_SESSION['type'] = 'wisher';
 
+        $sortPriority = $_SESSION['wisher_sort_priority'] ?? '';
+        $sortPrice = $_SESSION['wisher_sort_price'] ?? '';
+        
         $filters = [
-            'sort_priority' => $_SESSION['wisher_sort_priority'] ?? '',
-            'sort_price' => $_SESSION['wisher_sort_price'] ?? ''
+            'sort_priority' => $sortPriority,
+            'sort_price' => $sortPrice
         ];
         
+        // Convert session filters to WishlistService format
+        $serviceFilters = [];
+        if ($sortPriority === '1') {
+            $serviceFilters['sort_by'] = 'priority';
+            $serviceFilters['sort_order'] = 'ASC';
+        } elseif ($sortPriority === '2') {
+            $serviceFilters['sort_by'] = 'priority';
+            $serviceFilters['sort_order'] = 'DESC';
+        } elseif ($sortPrice === '1') {
+            $serviceFilters['sort_by'] = 'price';
+            $serviceFilters['sort_order'] = 'ASC';
+        } elseif ($sortPrice === '2') {
+            $serviceFilters['sort_by'] = 'price';
+            $serviceFilters['sort_order'] = 'DESC';
+        } else {
+            $serviceFilters['sort_by'] = 'date_added';
+            $serviceFilters['sort_order'] = 'DESC';
+        }
+        
         // Get ALL items first (for total count and filtering)
-        $allItems = $this->wishlistService->getWishlistItems($id, []);
+        $allItems = $this->wishlistService->getWishlistItems($id, $serviceFilters);
         
         // Apply pagination to get only 12 items per page
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
@@ -471,7 +494,30 @@ class WishlistController extends Controller
         }
 
         $page = (int) $this->request->input('new_page', 1);
-        $items = $this->wishlistService->getWishlistItems($id);
+        
+        // Apply session filters for pagination
+        $sortPriority = $_SESSION['wisher_sort_priority'] ?? '';
+        $sortPrice = $_SESSION['wisher_sort_price'] ?? '';
+        
+        $serviceFilters = [];
+        if ($sortPriority === '1') {
+            $serviceFilters['sort_by'] = 'priority';
+            $serviceFilters['sort_order'] = 'ASC';
+        } elseif ($sortPriority === '2') {
+            $serviceFilters['sort_by'] = 'priority';
+            $serviceFilters['sort_order'] = 'DESC';
+        } elseif ($sortPrice === '1') {
+            $serviceFilters['sort_by'] = 'price';
+            $serviceFilters['sort_order'] = 'ASC';
+        } elseif ($sortPrice === '2') {
+            $serviceFilters['sort_by'] = 'price';
+            $serviceFilters['sort_order'] = 'DESC';
+        } else {
+            $serviceFilters['sort_by'] = 'date_added';
+            $serviceFilters['sort_order'] = 'DESC';
+        }
+        
+        $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
         $paginatedItems = $this->paginationService->paginate($items, $page);
         $totalPages = $this->paginationService->getTotalPages($items);
         $totalRows = count($items);
@@ -537,14 +583,62 @@ class WishlistController extends Controller
         $_SESSION['wisher_sort_priority'] = $sortPriority;
         $_SESSION['wisher_sort_price'] = $sortPrice;
 
+        // Convert filter parameters to WishlistService format
+        $filters = [];
+        
+        // Apply sorting based on original sort.php logic
+        if ($sortPriority === '1') {
+            $filters['sort_by'] = 'priority';
+            $filters['sort_order'] = 'ASC';
+        } elseif ($sortPriority === '2') {
+            $filters['sort_by'] = 'priority';
+            $filters['sort_order'] = 'DESC';
+        } elseif ($sortPrice === '1') {
+            $filters['sort_by'] = 'price';
+            $filters['sort_order'] = 'ASC';
+        } elseif ($sortPrice === '2') {
+            $filters['sort_by'] = 'price';
+            $filters['sort_order'] = 'DESC';
+        } else {
+            $filters['sort_by'] = 'date_added';
+            $filters['sort_order'] = 'DESC';
+        }
+
         // Get filtered items (reset to page 1 after filtering)
-        $items = $this->wishlistService->getWishlistItems($id);
+        $items = $this->wishlistService->getWishlistItems($id, $filters);
         $paginatedItems = $this->paginationService->paginate($items, 1);
         $totalPages = $this->paginationService->getTotalPages($items);
+        $totalRows = count($items);
         
         $html = $this->generateItemsHtml($paginatedItems, $id, 1, $totalPages);
+        
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = 1;
+        $paginationInfoEnd = min($itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
 
-        return new Response($html);
+        // Clear any output buffering first
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set headers and output JSON directly (like pagination does)
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        $jsonData = [
+            'status' => 'success',
+            'message' => 'Filter applied successfully',
+            'html' => $html,
+            'current' => 1,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
+        ];
+        
+        echo json_encode($jsonData);
+        flush();
+        exit;
     }
 
     public function getOtherWishlistItems(int $id): Response
@@ -632,5 +726,18 @@ class WishlistController extends Controller
             </div>
         </div>
         <div class='count-showing'>Showing {$startItem}-{$endItem} of {$totalItems} items</div>";
+    }
+    
+    /**
+     * Generate success message popup using PopupManager
+     */
+    private function generateSuccessPopup(string $title, string $message): string
+    {
+        return PopupManager::generateInfoPopup([
+            'title' => $title,
+            'message' => $message,
+            'type' => 'standard',
+            'classes' => 'active'
+        ]);
     }
 }

@@ -520,6 +520,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 </body>
 </html>
 <script src="/wishlist/includes/popup.js"></script>
+<script src="/wishlist/public/js/popup-manager.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script src="/wishlist/includes/page-change.js"></script>
 <script src="/wishlist/includes/choose-theme.js"></script>
@@ -589,27 +590,66 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 }
             });
 
-            // Filter form AJAX submission
-            $("#filter-form").on("submit", function(e) {
-                e.preventDefault();
+            // Filter change event (triggered when select values change)
+            $(".select-filter").on("change", function() {
+                console.log('Filter select changed');
                 
                 var formData = {
                     sort_priority: $("#sort-priority").val(),
                     sort_price: $("#sort-price").val()
                 };
                 
+                console.log('Filter data:', formData);
+                
                 $.ajax({
                     type: "POST",
                     url: "/wishlist/<?php echo $wishlistID; ?>/filter",
                     data: formData,
-                    success: function(html) {
-                        $(".items-list.main").html(html);
-                        // Update URL without page refresh
-                        var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=1#paginate-top";
-                        history.pushState(null, null, newUrl);
+                    dataType: "json",
+                    success: function(data) {
+                        console.log('Filter AJAX success, received data:', data);
+                        
+                        if (data.status === 'success') {
+                            // Update items HTML
+                            $(".items-list.main").html(data.html);
+                            
+                            // Update pagination controls
+                            $('.page-number').text(data.current);
+                            $('.last-page').text(data.total);
+                            $('.count-showing').text(data.paginationInfo);
+                            
+                            // Update arrow states based on new page (always page 1 after filtering)
+                            var totalPages = parseInt(data.total);
+                            
+                            // First and Previous arrows should be disabled (we're on page 1)
+                            $('.paginate-first, .paginate-previous').each(function() {
+                                $(this).addClass('disabled');
+                            });
+                            
+                            // Next and Last arrows
+                            $('.paginate-next, .paginate-last').each(function() {
+                                if (totalPages <= 1) {
+                                    $(this).addClass('disabled');
+                                } else {
+                                    $(this).removeClass('disabled');
+                                }
+                            });
+                            
+                            // Update URL without page refresh
+                            var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=1#paginate-top";
+                            history.pushState(null, null, newUrl);
+                            
+                            // Update the pagination variables for next pagination
+                            currentPage = data.current;
+                            totalPages = data.total;
+                        } else {
+                            console.error('Filter error:', data.message);
+                            alert('Filter failed: ' + data.message);
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.error('Filter failed:', error);
+                        console.error('Response:', xhr.responseText);
                         alert('Filter failed. Please try again.');
                     }
                 });
