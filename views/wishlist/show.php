@@ -551,7 +551,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 </body>
 </html>
-<script src="public/js/popups.js"></script>
 <script src="public/js/copy-link.js"></script>
 <script src="public/js/copy-select.js"></script>
 <script src="public/js/checkbox-selection.js"></script>
