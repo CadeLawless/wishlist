@@ -619,13 +619,18 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             $(document).on("click", ".paginate-arrow", function(e) {
                 e.preventDefault();
                 
+                console.log('Pagination arrow clicked:', $(this).attr('class'));
+                
                 if ($(this).hasClass("disabled")) {
+                    console.log('Arrow is disabled, ignoring click');
                     return;
                 }
                 
                 var currentPage = <?php echo $pageno; ?>;
                 var totalPages = <?php echo $total_pages; ?>;
                 var newPage = currentPage;
+                
+                console.log('Current page:', currentPage, 'Total pages:', totalPages);
                 
                 if ($(this).hasClass("paginate-first")) {
                     newPage = 1;
