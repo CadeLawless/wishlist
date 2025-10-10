@@ -487,7 +487,16 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     endforeach; 
                                     ?>
                                 <?php else: ?>
-                                    <p class="center">No items in this wishlist yet. <a href="/wishlist/add-item.php">Add your first item!</a></p>
+                                    <a class='item-container add-placeholder' href='/wishlist/<?php echo $wishlist['id']; ?>/item/create'>
+                                        <div class='item-image-container'>
+                                            <img class='item-image' src='images/site-images/default-photo.png' alt='wishlist item image'>
+                                        </div>
+                                        <div class='item-description'></div>
+                                        <div class='add-label'>
+                                            <?php require(__DIR__ . '/../../images/site-images/icons/plus.php'); ?>
+                                            Add Item
+                                        </div>
+                                    </a>
                                 <?php endif; ?>
                     </div>
                     
