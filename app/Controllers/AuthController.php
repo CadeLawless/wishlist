@@ -80,7 +80,7 @@ class AuthController extends Controller
     public function logout(): Response
     {
         $this->authService->logout();
-        return $this->redirect('/login')->withSuccess('You have been logged out successfully.');
+        return $this->redirect('/wishlist/login')->withSuccess('You have been logged out successfully.');
     }
 
     public function showRegister(): Response

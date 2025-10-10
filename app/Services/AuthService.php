@@ -51,24 +51,25 @@ class AuthService
 
     public function logout(): void
     {
-        if (!isset($_SESSION)) {
+        // Use session_status() - more reliable than isset($_SESSION)
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Clear user session from database
-        if (isset($_SESSION['username'])) {
-            $user = $this->user->findByUsernameOrEmail($_SESSION['username']);
-            if ($user) {
-                $user->clearSession();
-            }
-        }
-
-        // Clear session
+        // Clear all session variables at once
+        session_unset();
+        
+        // Destroy the session
         session_destroy();
         
-        // Clear remember me cookie
+        // Clear remember me cookie with proper path
         if (isset($_COOKIE['wishlist_session_id'])) {
-            setcookie('wishlist_session_id', '', time() - 3600);
+            setcookie('wishlist_session_id', '', time() - 3600, '/');
+        }
+        
+        // Clear session cookie (optional, for thoroughness)
+        if (isset($_COOKIE['PHPSESSID'])) {
+            setcookie('PHPSESSID', '', time() - 3600, '/');
         }
     }
 

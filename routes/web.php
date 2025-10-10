@@ -23,7 +23,7 @@ Router::post('/reset-password', [AuthController::class, 'resetPassword']);
 Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
 
 // Logout
-Router::post('/logout', [AuthController::class, 'logout']);
+Router::get('/logout', [AuthController::class, 'logout']);
 
 // Home route
 Router::get('/', [HomeController::class, 'index']);
