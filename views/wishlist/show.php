@@ -643,9 +643,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
                         dataType: "json",
-                        success: function(response) {
-                            // Parse JSON response
-                            var data = JSON.parse(response);
+                        success: function(data) {
+                            // jQuery automatically parses JSON when dataType is "json"
                             
                             if (data.status === 'success') {
                                 // Update items HTML
