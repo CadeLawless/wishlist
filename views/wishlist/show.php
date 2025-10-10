@@ -432,13 +432,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             <div class='popup-content'>
                                                 <label>Are you sure you want to delete this wish list?</label>
                                                 <p><?php echo $wishlistTitle; ?></p>
-                                                <p class='center'>
+                                                <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
-                                                </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

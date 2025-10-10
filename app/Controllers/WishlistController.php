@@ -257,7 +257,10 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->deleteWishlistAndItems($id)) {
-            return $this->redirect('/wishlist')->withSuccess('Wishlist deleted successfully!');
+            // Update duplicate flags for other wishlists with the same name
+            $this->wishlistService->updateDuplicateFlags($user['username'], $wishlist['wishlist_name']);
+            
+            return $this->redirect('/wishlist/wishlists')->withSuccess('Wishlist deleted successfully!');
         }
 
         return $this->redirect('/wishlist')->withError('Unable to delete wishlist. Please try again.');

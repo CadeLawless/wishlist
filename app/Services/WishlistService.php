@@ -287,4 +287,28 @@ class WishlistService
             return false;
         }
     }
+
+    public function updateDuplicateFlags(string $username, string $wishlistName): void
+    {
+        try {
+            // Count how many wishlists the user has with this name
+            $countStmt = \App\Core\Database::query(
+                "SELECT COUNT(*) as count FROM wishlists WHERE username = ? AND wishlist_name = ?",
+                [$username, $wishlistName]
+            );
+            $result = $countStmt->get_result()->fetch_assoc();
+            $count = $result['count'];
+
+            // If there's only one wishlist with this name, set duplicate flag to 0
+            // If there are multiple, update the duplicate flags to reflect the count
+            $newDuplicateFlag = max(0, $count - 1);
+            
+            $stmt = \App\Core\Database::query(
+                "UPDATE wishlists SET duplicate = ? WHERE username = ? AND wishlist_name = ?",
+                [$newDuplicateFlag, $username, $wishlistName]
+            );
+        } catch (\Exception $e) {
+            error_log('Update duplicate flags failed: ' . $e->getMessage());
+        }
+    }
 }
