@@ -679,7 +679,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
                         success: function(html) {
-                            $(".items-list.main").html(html);
+                            // Update the entire items list section
+                            $(".items-list-sub-container").html(html);
+                            
                             // Update URL without page refresh
                             var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + newPage + "#paginate-top";
                             history.pushState(null, null, newUrl);

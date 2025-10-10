@@ -463,9 +463,16 @@ class WishlistController extends Controller
         $page = (int) $this->request->input('new_page', 1);
         $items = $this->wishlistService->getWishlistItems($id);
         $paginatedItems = $this->paginationService->paginate($items, $page);
+        $totalPages = $this->paginationService->getTotalPages($items);
 
-        // Generate HTML for items (this would use the same template as the main view)
-        $html = $this->generateItemsHtml($paginatedItems, $id, $page);
+        // Generate HTML for items
+        $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
+        
+        // Generate pagination controls HTML
+        $paginationHtml = $this->generatePaginationHtml($page, $totalPages, count($items));
+        
+        // Combine items and pagination
+        $html = $itemsHtml . $paginationHtml;
 
         return new Response($html);
     }
@@ -591,5 +598,41 @@ class WishlistController extends Controller
         }
         
         return $html;
+    }
+
+    private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string
+    {
+        if ($totalPages <= 1) {
+            return '';
+        }
+
+        $startItem = (($currentPage - 1) * 12) + 1;
+        $endItem = min($currentPage * 12, $totalItems);
+
+        // Use output buffering to capture the PHP includes
+        ob_start();
+        ?>
+        <div class='center'>
+            <div class='paginate-container'>
+                <a class='paginate-arrow paginate-first<?php echo $currentPage <= 1 ? ' disabled' : ''; ?>' href='#'>
+                    <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
+                </a>
+                <a class='paginate-arrow paginate-previous<?php echo $currentPage <= 1 ? ' disabled' : ''; ?>' href='#'>
+                    <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
+                </a>
+                <div class='paginate-title'>
+                    <span class='page-number'><?php echo $currentPage; ?></span>/<span class='last-page'><?php echo $totalPages; ?></span>
+                </div>
+                <a class='paginate-arrow paginate-next<?php echo $currentPage >= $totalPages ? ' disabled' : ''; ?>' href='#'>
+                    <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
+                </a>
+                <a class='paginate-arrow paginate-last<?php echo $currentPage >= $totalPages ? ' disabled' : ''; ?>' href='#'>
+                    <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
+                </a>
+            </div>
+        </div>
+        <div class='count-showing'>Showing <?php echo $startItem; ?>-<?php echo $endItem; ?> of <?php echo $totalItems; ?> items</div>
+        <?php
+        return ob_get_clean();
     }
 }
