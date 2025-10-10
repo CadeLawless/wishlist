@@ -62,7 +62,7 @@ class Wishlist extends Model
         );
 
         if ($stmt) {
-            $wishlistId = Database::getInstance()->insert_id;
+            $wishlistId = Database::lastInsertId();
             // Return the created wishlist data
             return [
                 'id' => $wishlistId,
