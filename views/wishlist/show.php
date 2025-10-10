@@ -520,6 +520,28 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 </body>
 </html>
 <script src="/wishlist/includes/popup.js"></script>
+<script>
+// Fix popup opening logic while preserving original close handlers
+$(document).ready(function() {
+    // Override only the popup opening, let original popup.js handle closing
+    $(document.body).off("click", ".popup-button:not(.disabled)").on("click", ".popup-button:not(.disabled)", function(e) {
+        let button = this;
+        e.preventDefault();
+        
+        // Add fixed class to body
+        $("body").addClass("fixed");
+        
+        // Find and show the popup using the original logic
+        if(button.tagName == "INPUT"){
+            button.nextElementSibling.nextElementSibling.firstElementChild.classList.add("active");
+            button.nextElementSibling.nextElementSibling.classList.remove("hidden");
+        }else{
+            button.nextElementSibling.firstElementChild.classList.add("active");
+            button.nextElementSibling.classList.remove("hidden");
+        }
+    });
+});
+</script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script src="/wishlist/includes/page-change.js"></script>
 <script src="/wishlist/includes/choose-theme.js"></script>
