@@ -643,19 +643,24 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         url: "/wishlist/<?php echo $wishlistID; ?>/paginate",
                         data: { new_page: newPage },
                         success: function(html) {
-                            // Split response into items and pagination
-                            var itemsStart = html.indexOf('<div class="items-list main">');
-                            var itemsEnd = html.indexOf('</div>', html.indexOf('</div>', itemsStart) + 1) + 6;
-                            var itemsHtml = html.substring(itemsStart, itemsEnd);
-                            
+                            // The response contains both items and pagination
+                            // Split at the pagination controls
                             var paginationStart = html.indexOf('<div class="center">');
-                            var paginationHtml = html.substring(paginationStart);
                             
-                            // Update only the items
-                            $(".items-list.main").html(itemsHtml);
-                            
-                            // Update pagination controls
-                            $(".paginate-container").parent().replaceWith(paginationHtml);
+                            if (paginationStart > 0) {
+                                // Split into items and pagination
+                                var itemsHtml = html.substring(0, paginationStart);
+                                var paginationHtml = html.substring(paginationStart);
+                                
+                                // Update only the items (preserve container structure)
+                                $(".items-list.main").html(itemsHtml);
+                                
+                                // Update pagination controls
+                                $(".paginate-container").parent().replaceWith(paginationHtml);
+                            } else {
+                                // Fallback: just update items if no pagination found
+                                $(".items-list.main").html(html);
+                            }
                             
                             // Update URL without page refresh
                             var newUrl = "/wishlist/<?php echo $wishlistID; ?>?pageno=" + newPage + "#paginate-top";
