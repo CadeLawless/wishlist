@@ -33,20 +33,20 @@ Router::get('/wishlist', [WishlistController::class, 'index']);
 Router::get('/wishlist/create', [WishlistController::class, 'create']);
 Router::get('/wishlists', [WishlistController::class, 'wishlists']);
 Router::post('/wishlist', [WishlistController::class, 'store']);
-Router::get('/wishlist/{id}', [WishlistController::class, 'show']);
-Router::get('/wishlist/{id}/edit', [WishlistController::class, 'edit']);
-Router::post('/wishlist/{id}', [WishlistController::class, 'update']);
-Router::delete('/wishlist/{id}', [WishlistController::class, 'delete']);
-Router::post('/wishlist/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility']);
-Router::post('/wishlist/{id}/toggle-complete', [WishlistController::class, 'toggleComplete']);
+Router::get('/{id}', [WishlistController::class, 'show']);
+Router::get('/{id}/edit', [WishlistController::class, 'edit']);
+Router::post('/{id}', [WishlistController::class, 'update']);
+Router::delete('/{id}', [WishlistController::class, 'delete']);
+Router::post('/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility']);
+Router::post('/{id}/toggle-complete', [WishlistController::class, 'toggleComplete']);
 
 // Item routes
-Router::get('/wishlist/{wishlistId}/item/create', [ItemController::class, 'create']);
-Router::post('/wishlist/{wishlistId}/item', [ItemController::class, 'store']);
-Router::get('/wishlist/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit']);
-Router::post('/wishlist/{wishlistId}/item/{id}', [ItemController::class, 'update']);
-Router::delete('/wishlist/{wishlistId}/item/{id}', [ItemController::class, 'delete']);
-Router::post('/wishlist/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased']);
+Router::get('/{wishlistId}/item/create', [ItemController::class, 'create']);
+Router::post('/{wishlistId}/item', [ItemController::class, 'store']);
+Router::get('/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit']);
+Router::post('/{wishlistId}/item/{id}', [ItemController::class, 'update']);
+Router::delete('/{wishlistId}/item/{id}', [ItemController::class, 'delete']);
+Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased']);
 
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);
