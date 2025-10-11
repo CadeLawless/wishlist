@@ -45,6 +45,15 @@ if($item_deleted) unset($_SESSION['item_deleted']);
 // Modern flash messages
 $flash_success = isset($_SESSION['flash']['success']) ? $_SESSION['flash']['success'] : '';
 $flash_error = isset($_SESSION['flash']['error']) ? $_SESSION['flash']['error'] : '';
+
+// Debug: Log flash messages
+error_log("Flash success: " . ($flash_success ?: 'empty'));
+error_log("Flash error: " . ($flash_error ?: 'empty'));
+error_log("Session flash: " . print_r($_SESSION['flash'] ?? 'no flash', true));
+
+// Temporary test - hardcode a success message
+// $flash_success = 'Wishlist is now hidden.';
+
 if($flash_success) unset($_SESSION['flash']['success']);
 if($flash_error) unset($_SESSION['flash']['error']);
 

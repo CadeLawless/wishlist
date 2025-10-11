@@ -416,6 +416,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
+            error_log("Setting success flash message for hide action");
             return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now hidden.');
         }
 
