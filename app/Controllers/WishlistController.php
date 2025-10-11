@@ -723,10 +723,12 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path
-            $imagePath = "images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
-            if (!file_exists($imagePath)) {
+            // Determine image path - use absolute path for file existence check
+            $absoluteImagePath = __DIR__ . "/../../images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
+            if (!file_exists($absoluteImagePath)) {
                 $imagePath = "images/site-images/default-photo.png";
+            } else {
+                $imagePath = "images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
