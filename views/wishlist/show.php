@@ -27,30 +27,9 @@ if($theme_background_id != 0){
 $copy_from_success = isset($_SESSION['copy_from_success']) ? true : false;
 if($copy_from_success) unset($_SESSION['copy_from_success']);
 
-$wishlist_hidden = isset($_SESSION['wishlist_hidden']) ? true : false;
-if($wishlist_hidden) unset($_SESSION['wishlist_hidden']);
-
-$wishlist_public = isset($_SESSION['wishlist_public']) ? true : false;
-if($wishlist_public) unset($_SESSION['wishlist_public']);
-
-$wishlist_complete = isset($_SESSION['wishlist_complete']) ? true : false;
-if($wishlist_complete) unset($_SESSION['wishlist_complete']);
-
-$wishlist_reactivated = isset($_SESSION['wishlist_reactivated']) ? true : false;
-if($wishlist_reactivated) unset($_SESSION['wishlist_reactivated']);
-
-$wishlist_public = isset($_SESSION['wishlist_public']) ? true : false;
-if($wishlist_public) unset($_SESSION['wishlist_public']);
-
-$item_deleted = isset($_SESSION['item_deleted']) ? true : false;
-if($item_deleted) unset($_SESSION['item_deleted']);
-
-// Modern flash messages (using Response class)
-$flash_success = isset($_SESSION['flash']['success']) ? $_SESSION['flash']['success'] : '';
-$flash_error = isset($_SESSION['flash']['error']) ? $_SESSION['flash']['error'] : '';
-
-if($flash_success) unset($_SESSION['flash']['success']);
-if($flash_error) unset($_SESSION['flash']['error']);
+// Handle all popup messages using the helper
+\App\Helpers\PopupHelper::handleSessionPopups();
+\App\Helpers\PopupHelper::handleFlashMessages();
 
 // Initialize copy form variables
 $other_wishlist_copy_from = "";
