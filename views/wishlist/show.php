@@ -42,6 +42,12 @@ if($wishlist_reactivated) unset($_SESSION['wishlist_reactivated']);
 $item_deleted = isset($_SESSION['item_deleted']) ? true : false;
 if($item_deleted) unset($_SESSION['item_deleted']);
 
+// Modern flash messages
+$flash_success = isset($_SESSION['flash']['success']) ? $_SESSION['flash']['success'] : '';
+$flash_error = isset($_SESSION['flash']['error']) ? $_SESSION['flash']['error'] : '';
+if($flash_success) unset($_SESSION['flash']['success']);
+if($flash_error) unset($_SESSION['flash']['error']);
+
 // Initialize copy form variables
 $other_wishlist_copy_from = "";
 $copy_from_select_all = "Yes";
@@ -185,6 +191,39 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         </div>
                         <div class='popup-content'>
                             <p><label>Item deleted successfully</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            
+            // Modern flash message popups
+            if($flash_success){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require(__DIR__ . '/../../images/site-images/menu-close.php');
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>{$flash_success}</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            
+            if($flash_error){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require(__DIR__ . '/../../images/site-images/menu-close.php');
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label style='color: #e74c3c;'>{$flash_error}</label></p>
                         </div>
                     </div>
                 </div>";
@@ -355,12 +394,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     </p>
                                                     <label>Are you sure you want to <?php echo $visibility == "Public" ? "hide this wish list" : "make this wish list public"; ?>?</label>
                                                     <p><?php echo $wishlistTitle; ?></p>
-                                                    <p class='center'>
+                                                    <div style="margin: 1rem 0;" class='center'>
                                                         <a class='button secondary no-button'>No</a>
                                                         <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
                                                             <button type="submit" class='button primary'>Yes</button>
                                                         </form>
-                                                    </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -387,12 +426,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </p>
                                                 <label>Are you sure you want to <?php echo $complete == "No" ? "mark this wish list as complete" : "reactivate this wish list"; ?>?</label>
                                                 <p><?php echo $wishlistTitle; ?></p>
-                                                <p class='center'>
+                                                <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
-                                                </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
