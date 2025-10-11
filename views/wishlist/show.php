@@ -355,7 +355,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     </p>
                                                     <label>Are you sure you want to <?php echo $visibility == "Public" ? "hide this wish list" : "make this wish list public"; ?>?</label>
                                                     <p><?php echo $wishlistTitle; ?></p>
-                                                    <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='/wishlist/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>'>Yes</a></p>
+                                                    <p class='center'>
+                                                        <a class='button secondary no-button'>No</a>
+                                                        <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
+                                                            <button type="submit" class='button primary'>Yes</button>
+                                                        </form>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -382,7 +387,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </p>
                                                 <label>Are you sure you want to <?php echo $complete == "No" ? "mark this wish list as complete" : "reactivate this wish list"; ?>?</label>
                                                 <p><?php echo $wishlistTitle; ?></p>
-                                                <p class='center'><a class='button secondary no-button'>No</a><a class='button primary' href='/wishlist/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>'>Yes</a></p>
+                                                <p class='center'>
+                                                    <a class='button secondary no-button'>No</a>
+                                                    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
+                                                        <button type="submit" class='button primary'>Yes</button>
+                                                    </form>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
