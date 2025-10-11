@@ -730,14 +730,19 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path - check source directory first, then try wishlist 1 as fallback
+            // Determine image path - check source directory first, then try smart fallback
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
             if (!file_exists($absoluteImagePath)) {
-                // If image doesn't exist in source directory, try wishlist 1 (common fallback)
-                $fallbackPath = __DIR__ . "/../../images/item-images/1/" . htmlspecialchars($itemImage);
-                if (file_exists($fallbackPath)) {
-                    $imagePath = "images/item-images/1/" . htmlspecialchars($itemImage);
+                // Try to find the original image name by removing numbers from filename
+                $originalImageName = $this->findOriginalImageName($itemImage);
+                if ($originalImageName) {
+                    $fallbackPath = __DIR__ . "/../../images/item-images/1/" . htmlspecialchars($originalImageName);
+                    if (file_exists($fallbackPath)) {
+                        $imagePath = "images/item-images/1/" . htmlspecialchars($originalImageName);
+                    } else {
+                        $imagePath = "images/site-images/default-photo.png";
+                    }
                 } else {
                     $imagePath = "images/site-images/default-photo.png";
                 }
@@ -769,6 +774,24 @@ class WishlistController extends Controller
         </p>";
         
         return $html;
+    }
+
+    private function findOriginalImageName(string $imageName): ?string
+    {
+        // Remove trailing numbers from filename (e.g., "New Keyboard1.jpg" -> "New Keyboard.jpg")
+        $pathInfo = pathinfo($imageName);
+        $name = $pathInfo['filename'];
+        $extension = $pathInfo['extension'] ?? '';
+        
+        // Remove trailing digits and spaces
+        $originalName = preg_replace('/\d+\s*$/', '', $name);
+        
+        // If we found a change, return the original name
+        if ($originalName !== $name) {
+            return $originalName . '.' . $extension;
+        }
+        
+        return null;
     }
 
     private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string
