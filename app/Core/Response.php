@@ -93,8 +93,7 @@ class Response
         if ($this->status >= 300 && $this->status < 400) {
             // Ensure session is written before redirect
             if (session_status() === PHP_SESSION_ACTIVE) {
-                // Force session data to be written
-                session_regenerate_id(false);
+                // Just write and close, don't regenerate ID
                 session_write_close();
             }
             exit();
