@@ -416,16 +416,8 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            error_log("Setting success flash message for hide action");
-            $response = $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now hidden.');
-            error_log("Flash message set: " . print_r($_SESSION['flash'] ?? 'no flash', true));
-            
-            // Ensure session is written before redirect
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                session_write_close();
-            }
-            
-            return $response;
+            $_SESSION['wishlist_hidden'] = true;
+            return $this->redirect("/wishlist/{$id}");
         }
 
         return $this->redirect("/wishlist/{$id}")->withError('Unable to hide wishlist. Please try again.');
@@ -443,7 +435,8 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now public.');
+            $_SESSION['wishlist_public'] = true;
+            return $this->redirect("/wishlist/{$id}");
         }
 
         return $this->redirect("/wishlist/{$id}")->withError('Unable to make wishlist public. Please try again.');
@@ -461,7 +454,8 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist has been marked as complete.');
+            $_SESSION['wishlist_complete'] = true;
+            return $this->redirect("/wishlist/{$id}");
         }
 
         return $this->redirect("/wishlist/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
@@ -479,7 +473,8 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist has been reactivated.');
+            $_SESSION['wishlist_reactivated'] = true;
+            return $this->redirect("/wishlist/{$id}");
         }
 
         return $this->redirect("/wishlist/{$id}")->withError('Unable to reactivate wishlist. Please try again.');

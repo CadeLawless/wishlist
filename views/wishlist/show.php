@@ -39,20 +39,15 @@ if($wishlist_complete) unset($_SESSION['wishlist_complete']);
 $wishlist_reactivated = isset($_SESSION['wishlist_reactivated']) ? true : false;
 if($wishlist_reactivated) unset($_SESSION['wishlist_reactivated']);
 
+$wishlist_public = isset($_SESSION['wishlist_public']) ? true : false;
+if($wishlist_public) unset($_SESSION['wishlist_public']);
+
 $item_deleted = isset($_SESSION['item_deleted']) ? true : false;
 if($item_deleted) unset($_SESSION['item_deleted']);
 
-// Modern flash messages
+// Modern flash messages (using Response class)
 $flash_success = isset($_SESSION['flash']['success']) ? $_SESSION['flash']['success'] : '';
 $flash_error = isset($_SESSION['flash']['error']) ? $_SESSION['flash']['error'] : '';
-
-// Debug: Log flash messages
-error_log("Flash success: " . ($flash_success ?: 'empty'));
-error_log("Flash error: " . ($flash_error ?: 'empty'));
-error_log("Session flash: " . print_r($_SESSION['flash'] ?? 'no flash', true));
-
-// Temporary test - hardcode a success message
-// $flash_success = 'Wishlist is now hidden.';
 
 if($flash_success) unset($_SESSION['flash']['success']);
 if($flash_error) unset($_SESSION['flash']['error']);
@@ -185,6 +180,22 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         </div>
                         <div class='popup-content'>
                             <p><label>Wish list successfully reactivated</label></p>
+                        </div>
+                    </div>
+                </div>";
+            }
+            
+            if($wishlist_public){
+                echo "
+                <div class='popup-container'>
+                    <div class='popup active'>
+                        <div class='close-container'>
+                            <a href='#' class='close-button'>";
+                            require(__DIR__ . '/../../images/site-images/menu-close.php');
+                            echo "</a>
+                        </div>
+                        <div class='popup-content'>
+                            <p><label>Wishlist is now public</label></p>
                         </div>
                     </div>
                 </div>";
