@@ -730,18 +730,19 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path - use source wishlist ID for image location
+            // Determine image path - check source directory first, then try wishlist 1 as fallback
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
-            // Debug: Log the values we're working with
-            error_log("DEBUG: sourceWishlistId={$sourceWishlistId}, itemImage={$itemImage}, absolutePath={$absoluteImagePath}");
-            
             if (!file_exists($absoluteImagePath)) {
-                $imagePath = "images/site-images/default-photo.png";
-                error_log("DEBUG: Image not found, using default");
+                // If image doesn't exist in source directory, try wishlist 1 (common fallback)
+                $fallbackPath = __DIR__ . "/../../images/item-images/1/" . htmlspecialchars($itemImage);
+                if (file_exists($fallbackPath)) {
+                    $imagePath = "images/item-images/1/" . htmlspecialchars($itemImage);
+                } else {
+                    $imagePath = "images/site-images/default-photo.png";
+                }
             } else {
                 $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
-                error_log("DEBUG: Image found, using: {$imagePath}");
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
