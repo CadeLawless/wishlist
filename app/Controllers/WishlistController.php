@@ -654,7 +654,14 @@ class WishlistController extends Controller
         $copyFrom = $this->request->input('copy_from') === 'Yes';
 
         $items = $this->itemCopyService->getWishlistItems($otherWishlistId);
+        
+        // Debug: Log the items data
+        error_log("Items for wishlist {$otherWishlistId}: " . json_encode($items));
+        
         $html = $this->generateItemCheckboxes($items, $otherWishlistId, $id, $copyFrom);
+        
+        // Debug: Log the generated HTML
+        error_log("Generated HTML: " . substr($html, 0, 500) . "...");
 
         return new Response($html);
     }
@@ -725,10 +732,16 @@ class WishlistController extends Controller
             
             // Determine image path - use source wishlist ID for image location
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+            
+            // Debug: Log image path checking
+            error_log("Checking image: {$absoluteImagePath}, exists: " . (file_exists($absoluteImagePath) ? 'YES' : 'NO'));
+            
             if (!file_exists($absoluteImagePath)) {
                 $imagePath = "images/site-images/default-photo.png";
+                error_log("Using default image for item: {$itemName}");
             } else {
                 $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+                error_log("Using real image: {$imagePath}");
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
