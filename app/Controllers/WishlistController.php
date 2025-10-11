@@ -653,12 +653,24 @@ class WishlistController extends Controller
         $otherWishlistId = (int) $this->request->input('wishlist_id');
         $copyFrom = $this->request->input('copy_from') === 'Yes';
 
-        $items = $this->itemCopyService->getWishlistItems($otherWishlistId);
+        // Determine which wishlist to get items from based on copy direction
+        if ($copyFrom) {
+            // Copy FROM: Get items from the selected wishlist (otherWishlistId)
+            $items = $this->itemCopyService->getWishlistItems($otherWishlistId);
+            $sourceWishlistId = $otherWishlistId;
+            $targetWishlistId = $id;
+        } else {
+            // Copy TO: Get items from the current wishlist (id)
+            $items = $this->itemCopyService->getWishlistItems($id);
+            $sourceWishlistId = $id;
+            $targetWishlistId = $otherWishlistId;
+        }
         
         // Debug: Log the items data
-        error_log("Items for wishlist {$otherWishlistId}: " . json_encode($items));
+        $copyDirection = $copyFrom ? 'FROM' : 'TO';
+        error_log("Copy {$copyDirection}: Getting items from wishlist {$sourceWishlistId} (target: {$targetWishlistId})");
         
-        $html = $this->generateItemCheckboxes($items, $otherWishlistId, $id, $copyFrom);
+        $html = $this->generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom);
         
         // Debug: Log the generated HTML
         error_log("Generated HTML: " . substr($html, 0, 500) . "...");
@@ -682,7 +694,7 @@ class WishlistController extends Controller
         return \App\Services\ItemRenderService::renderItem($item, $wishlistId, $page);
     }
 
-    private function generateItemCheckboxes(array $items, int $sourceWishlistId, int $currentWishlistId, bool $copyFrom): string
+    private function generateItemCheckboxes(array $items, int $sourceWishlistId, int $targetWishlistId, bool $copyFrom): string
     {
         $html = '';
         
@@ -707,23 +719,13 @@ class WishlistController extends Controller
             // Check if item already exists in the target wishlist (by copy_id)
             $alreadyInList = false;
             if ($itemCopyId) {
-                if ($copyFrom) {
-                    // For copy from: check if this copy_id exists in current wishlist
-                    $stmt = \App\Core\Database::query(
-                        "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-                        [$itemCopyId, $currentWishlistId]
-                    );
-                    $result = $stmt->get_result()->fetch_assoc();
-                    $alreadyInList = $result['count'] > 0;
-                } else {
-                    // For copy to: check if this copy_id exists in the target wishlist
-                    $stmt = \App\Core\Database::query(
-                        "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-                        [$itemCopyId, $sourceWishlistId]
-                    );
-                    $result = $stmt->get_result()->fetch_assoc();
-                    $alreadyInList = $result['count'] > 0;
-                }
+                // Check if this copy_id exists in the target wishlist
+                $stmt = \App\Core\Database::query(
+                    "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
+                    [$itemCopyId, $targetWishlistId]
+                );
+                $result = $stmt->get_result()->fetch_assoc();
+                $alreadyInList = $result['count'] > 0;
             }
             
             if ($alreadyInList) {
