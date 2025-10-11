@@ -730,25 +730,19 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // TEMPORARY TEST: Force use of a known existing image
-            $testImagePath = "images/item-images/1/AirPods Cl.jpg";
-            $imagePath = $testImagePath;
-            
-            // Original logic (commented out for testing)
-            /*
+            // Determine image path - use source wishlist ID for image location
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
-            // Debug: Log image path checking
-            error_log("Checking image: {$absoluteImagePath}, exists: " . (file_exists($absoluteImagePath) ? 'YES' : 'NO'));
+            // Debug: Log the values we're working with
+            error_log("DEBUG: sourceWishlistId={$sourceWishlistId}, itemImage={$itemImage}, absolutePath={$absoluteImagePath}");
             
             if (!file_exists($absoluteImagePath)) {
                 $imagePath = "images/site-images/default-photo.png";
-                error_log("Using default image for item: {$itemName}");
+                error_log("DEBUG: Image not found, using default");
             } else {
                 $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
-                error_log("Using real image: {$imagePath}");
+                error_log("DEBUG: Image found, using: {$imagePath}");
             }
-            */
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
             $checkboxClass = $alreadyInList ? 'already-in-list' : '';
