@@ -91,11 +91,6 @@ class Response
 
         // For redirects, exit after sending headers to prevent further execution
         if ($this->status >= 300 && $this->status < 400) {
-            // Ensure session is written before redirect
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                // Just write and close, don't regenerate ID
-                session_write_close();
-            }
             exit();
         }
 

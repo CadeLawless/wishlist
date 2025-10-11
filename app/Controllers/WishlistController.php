@@ -419,6 +419,12 @@ class WishlistController extends Controller
             error_log("Setting success flash message for hide action");
             $response = $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist is now hidden.');
             error_log("Flash message set: " . print_r($_SESSION['flash'] ?? 'no flash', true));
+            
+            // Ensure session is written before redirect
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+            
             return $response;
         }
 
