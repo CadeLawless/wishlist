@@ -666,14 +666,7 @@ class WishlistController extends Controller
             $targetWishlistId = $otherWishlistId;
         }
         
-        // Debug: Log the items data
-        $copyDirection = $copyFrom ? 'FROM' : 'TO';
-        error_log("Copy {$copyDirection}: Getting items from wishlist {$sourceWishlistId} (target: {$targetWishlistId})");
-        
         $html = $this->generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom);
-        
-        // Debug: Log the generated HTML
-        error_log("Generated HTML: " . substr($html, 0, 500) . "...");
 
         return new Response($html);
     }
@@ -732,22 +725,11 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path - check source directory first, then try smart fallback
+            // Determine image path - use source wishlist ID for image location
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
             if (!file_exists($absoluteImagePath)) {
-                // Try to find the original image name by removing numbers from filename
-                $originalImageName = $this->findOriginalImageName($itemImage);
-                if ($originalImageName) {
-                    $fallbackPath = __DIR__ . "/../../images/item-images/1/" . htmlspecialchars($originalImageName);
-                    if (file_exists($fallbackPath)) {
-                        $imagePath = "images/item-images/1/" . htmlspecialchars($originalImageName);
-                    } else {
-                        $imagePath = "images/site-images/default-photo.png";
-                    }
-                } else {
-                    $imagePath = "images/site-images/default-photo.png";
-                }
+                $imagePath = "images/site-images/default-photo.png";
             } else {
                 $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             }
@@ -776,24 +758,6 @@ class WishlistController extends Controller
         </p>";
         
         return $html;
-    }
-
-    private function findOriginalImageName(string $imageName): ?string
-    {
-        // Remove trailing numbers from filename (e.g., "New Keyboard1.jpg" -> "New Keyboard.jpg")
-        $pathInfo = pathinfo($imageName);
-        $name = $pathInfo['filename'];
-        $extension = $pathInfo['extension'] ?? '';
-        
-        // Remove trailing digits and spaces
-        $originalName = preg_replace('/\d+\s*$/', '', $name);
-        
-        // If we found a change, return the original name
-        if ($originalName !== $name) {
-            return $originalName . '.' . $extension;
-        }
-        
-        return null;
     }
 
     private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string
