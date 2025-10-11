@@ -52,7 +52,7 @@ class Response
 
     public function withFlash(string $type, string $message): self
     {
-        if (!isset($_SESSION)) {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $_SESSION['flash'][$type] = $message;
@@ -93,6 +93,8 @@ class Response
         if ($this->status >= 300 && $this->status < 400) {
             // Ensure session is written before redirect
             if (session_status() === PHP_SESSION_ACTIVE) {
+                // Force session data to be written
+                session_regenerate_id(false);
                 session_write_close();
             }
             exit();
