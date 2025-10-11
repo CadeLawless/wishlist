@@ -654,7 +654,7 @@ class WishlistController extends Controller
         $copyFrom = $this->request->input('copy_from') === 'Yes';
 
         $items = $this->itemCopyService->getWishlistItems($otherWishlistId);
-        $html = $this->generateItemCheckboxes($items, $otherWishlistId, $copyFrom);
+        $html = $this->generateItemCheckboxes($items, $otherWishlistId, $id, $copyFrom);
 
         return new Response($html);
     }
@@ -675,7 +675,7 @@ class WishlistController extends Controller
         return \App\Services\ItemRenderService::renderItem($item, $wishlistId, $page);
     }
 
-    private function generateItemCheckboxes(array $items, int $wishlistId, bool $copyFrom): string
+    private function generateItemCheckboxes(array $items, int $sourceWishlistId, int $currentWishlistId, bool $copyFrom): string
     {
         $html = '';
         
@@ -704,15 +704,15 @@ class WishlistController extends Controller
                     // For copy from: check if this copy_id exists in current wishlist
                     $stmt = \App\Core\Database::query(
                         "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-                        [$itemCopyId, $wishlistId]
+                        [$itemCopyId, $currentWishlistId]
                     );
                     $result = $stmt->get_result()->fetch_assoc();
                     $alreadyInList = $result['count'] > 0;
                 } else {
-                    // For copy to: check if this copy_id exists in the source wishlist
+                    // For copy to: check if this copy_id exists in the target wishlist
                     $stmt = \App\Core\Database::query(
                         "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-                        [$itemCopyId, $wishlistId]
+                        [$itemCopyId, $sourceWishlistId]
                     );
                     $result = $stmt->get_result()->fetch_assoc();
                     $alreadyInList = $result['count'] > 0;
@@ -723,12 +723,12 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path - use absolute path for file existence check
-            $absoluteImagePath = __DIR__ . "/../../images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
+            // Determine image path - use source wishlist ID for image location
+            $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             if (!file_exists($absoluteImagePath)) {
                 $imagePath = "images/site-images/default-photo.png";
             } else {
-                $imagePath = "images/item-images/{$wishlistId}/" . htmlspecialchars($itemImage);
+                $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
