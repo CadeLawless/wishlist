@@ -23,9 +23,7 @@ if($theme_background_id != 0){
     }
 }
 
-// Flash messages
-$copy_from_success = isset($_SESSION['copy_from_success']) ? true : false;
-if($copy_from_success) unset($_SESSION['copy_from_success']);
+// All popup messages are now handled by PopupHelper
 
 // Handle all popup messages using the helper
 \App\Helpers\PopupHelper::handleSessionPopups();
@@ -87,146 +85,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
         <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
         <div id="container">
             <?php
-            // Flash message popups
-            if($copy_from_success){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Item(s) copied over successfully</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            if($wishlist_hidden){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Wish list is now hidden</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            if($wishlist_public){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Wish list is now public</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            if($wishlist_complete){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Wish list successfully marked as complete</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            if($wishlist_reactivated){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Wish list successfully reactivated</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            
-            if($wishlist_public){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Wishlist is now public</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            if($item_deleted){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>Item deleted successfully</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            
-            // Modern flash message popups
-            if($flash_success){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label>{$flash_success}</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
-            
-            if($flash_error){
-                echo "
-                <div class='popup-container'>
-                    <div class='popup active'>
-                        <div class='close-container'>
-                            <a href='#' class='close-button'>";
-                            require(__DIR__ . '/../../images/site-images/menu-close.php');
-                            echo "</a>
-                        </div>
-                        <div class='popup-content'>
-                            <p><label style='color: #e74c3c;'>{$flash_error}</label></p>
-                        </div>
-                    </div>
-                </div>";
-            }
+            // All popups are now handled by PopupHelper at the top of the file
             ?>
 
             <?php if($theme_background_id != 0 && $background_image){ ?>

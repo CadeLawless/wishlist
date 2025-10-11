@@ -14,7 +14,8 @@ class PopupHelper
             'wishlist_public' => 'Wishlist is now public',
             'wishlist_complete' => 'Wish list successfully marked as complete',
             'wishlist_reactivated' => 'Wish list successfully reactivated',
-            'item_deleted' => 'Item deleted successfully'
+            'item_deleted' => 'Item deleted successfully',
+            'copy_from_success' => 'Item(s) copied over successfully'
         ];
 
         foreach ($popups as $sessionKey => $message) {
