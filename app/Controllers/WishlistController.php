@@ -730,7 +730,12 @@ class WishlistController extends Controller
                 $copyCounter++;
             }
             
-            // Determine image path - use source wishlist ID for image location
+            // TEMPORARY TEST: Force use of a known existing image
+            $testImagePath = "images/item-images/1/AirPods Cl.jpg";
+            $imagePath = $testImagePath;
+            
+            // Original logic (commented out for testing)
+            /*
             $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
             // Debug: Log image path checking
@@ -743,6 +748,7 @@ class WishlistController extends Controller
                 $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
                 error_log("Using real image: {$imagePath}");
             }
+            */
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
             $checkboxClass = $alreadyInList ? 'already-in-list' : '';
