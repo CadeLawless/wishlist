@@ -79,32 +79,52 @@ class ValidationService
             $errors['name'][] = 'Item name must not exceed 200 characters.';
         }
 
-        // Price validation
-        if (!empty($data['price'])) {
-            if (!is_numeric($data['price']) || $data['price'] < 0) {
-                $errors['price'][] = 'Price must be a valid positive number.';
+        // Price validation - US currency format
+        if (empty($data['price'])) {
+            $errors['price'][] = 'Item price is required.';
+        } else {
+            // Remove dollar sign and commas for validation
+            $price = str_replace(['$', ','], '', $data['price']);
+            if (!is_numeric($price) || $price < 0) {
+                $errors['price'][] = 'Item price must be a valid positive number.';
+            } elseif ($price > 999999.99) {
+                $errors['price'][] = 'Item price must not exceed $999,999.99.';
             }
         }
 
-        // Quantity validation
-        if (empty($data['quantity'])) {
-            $errors['quantity'][] = 'Quantity is required.';
-        } elseif (!is_numeric($data['quantity']) || $data['quantity'] < 1) {
-            $errors['quantity'][] = 'Quantity must be a positive number.';
+        // Quantity validation - handle unlimited option
+        $unlimited = isset($data['unlimited']) && $data['unlimited'] == 'Yes';
+        if (!$unlimited) {
+            if (empty($data['quantity'])) {
+                $errors['quantity'][] = 'Quantity is required when not unlimited.';
+            } elseif (!is_numeric($data['quantity']) || $data['quantity'] < 1) {
+                $errors['quantity'][] = 'Quantity must be a positive number.';
+            } elseif ($data['quantity'] > 999) {
+                $errors['quantity'][] = 'Quantity must not exceed 999.';
+            }
         }
 
-        // Link validation
-        if (!empty($data['link'])) {
+        // Link validation - must be valid URL
+        if (empty($data['link'])) {
+            $errors['link'][] = 'Item URL is required.';
+        } else {
             if (!filter_var($data['link'], FILTER_VALIDATE_URL)) {
-                $errors['link'][] = 'Link must be a valid URL.';
+                $errors['link'][] = 'Please enter a valid URL for Item URL.';
+            } elseif (strlen($data['link']) > 500) {
+                $errors['link'][] = 'Item URL must not exceed 500 characters.';
             }
         }
 
-        // Priority validation
-        if (!empty($data['priority'])) {
-            if (!in_array($data['priority'], ['1', '2', '3', '4'])) {
-                $errors['priority'][] = 'Please select a valid priority.';
-            }
+        // Priority validation - required field
+        if (empty($data['priority'])) {
+            $errors['priority'][] = 'How much do you want this item is required.';
+        } elseif (!in_array($data['priority'], ['1', '2', '3', '4'])) {
+            $errors['priority'][] = 'Please select a valid priority.';
+        }
+
+        // Notes validation (optional but length check)
+        if (!empty($data['notes']) && strlen($data['notes']) > 1000) {
+            $errors['notes'][] = 'Item notes must not exceed 1000 characters.';
         }
 
         return $errors;
