@@ -91,18 +91,18 @@ class WishlistService
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getItem(int $wishlistId, int $itemId): ?Item
+    public function getItem(int $wishlistId, int $itemId): ?array
     {
         $stmt = \App\Core\Database::query("SELECT * FROM items WHERE wishlist_id = ? AND id = ?", [$wishlistId, $itemId]);
         $result = $stmt->get_result()->fetch_assoc();
-        return $result ? new Item($result) : null;
+        return $result ?: null;
     }
 
     public function updateItem(int $wishlistId, int $itemId, array $data): bool
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            return $item->updateItem($data);
+            return Item::update($itemId, $data);
         }
         return false;
     }
@@ -111,7 +111,7 @@ class WishlistService
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            return $item->delete();
+            return Item::delete($itemId);
         }
         return false;
     }
@@ -120,7 +120,16 @@ class WishlistService
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            return $item->purchase($quantity);
+            // Update quantity_purchased
+            $newQuantityPurchased = $item['quantity_purchased'] + $quantity;
+            $data = ['quantity_purchased' => $newQuantityPurchased];
+            
+            // Mark as purchased if quantity purchased >= quantity needed
+            if ($newQuantityPurchased >= $item['quantity'] && $item['unlimited'] != 'Yes') {
+                $data['purchased'] = 'Yes';
+            }
+            
+            return Item::update($itemId, $data);
         }
         return false;
     }
