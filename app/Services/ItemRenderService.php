@@ -75,7 +75,7 @@ class ItemRenderService
                         <?php require(__DIR__ . '/../../images/site-images/icons/link.php'); ?>
                         <div class='inline-label'>Website Link</div>
                     </a>
-                    <a class='icon-container' href='/wishlist/edit-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $page; ?>'>
+                    <a class='icon-container' href='/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
                         <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
                         <div class='inline-label'>Edit</div>
                     </a>
@@ -95,7 +95,10 @@ class ItemRenderService
                                 <p><?php echo $itemName; ?></p>
                                 <div style='margin: 16px 0;' class='center'>
                                     <a class='button secondary no-button' href='#'>No</a>
-                                    <a class='button primary' href='/wishlist/delete-item.php?id=<?php echo $item['id']; ?>&pageno=<?php echo $page; ?>'>Yes</a>
+                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class='button primary'>Yes</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
