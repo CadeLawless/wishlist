@@ -35,16 +35,28 @@ class ItemController extends Controller
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
         }
 
+        // Get background image for theme
+        $background_image = '';
+        if ($wishlist['theme_background_id'] != 0) {
+            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+            $bg_row = $stmt->get_result()->fetch_assoc();
+            if ($bg_row) {
+                $background_image = $bg_row['theme_image'];
+            }
+        }
+
         $data = [
             'user' => $user,
-            'wishlist' => $wishlist,
-            'item_name' => $this->request->input('item_name', ''),
+            'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
+            'item_name' => $this->request->input('name', ''),
             'price' => $this->request->input('price', ''),
             'quantity' => $this->request->input('quantity', '1'),
             'unlimited' => $this->request->input('unlimited', 'No'),
             'link' => $this->request->input('link', ''),
             'notes' => $this->request->input('notes', ''),
-            'priority' => $this->request->input('priority', '1')
+            'priority' => $this->request->input('priority', '1'),
+            'filename' => $this->request->input('filename', ''),
+            'priority_options' => ["1", "2", "3", "4"]
         ];
 
         return $this->view('items/create', $data);
@@ -64,8 +76,10 @@ class ItemController extends Controller
         $data = $this->request->input();
         $errors = $this->validationService->validateItem($data);
 
-        // Handle file upload
+        // Handle file upload - support both file upload and paste
         $filename = '';
+        $hasImage = false;
+        
         if ($this->request->hasFile('item_image')) {
             $file = $this->request->file('item_image');
             $uploadResult = $this->fileUploadService->uploadItemImage($file, $wishlistId, $data['name']);
@@ -74,8 +88,21 @@ class ItemController extends Controller
                 $errors['item_image'][] = $uploadResult['error'];
             } else {
                 $filename = $uploadResult['filename'];
+                $hasImage = true;
             }
-        } else {
+        } elseif (!empty($data['paste_image'])) {
+            // Handle paste image (base64)
+            $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
+            
+            if (!$uploadResult['success']) {
+                $errors['item_image'][] = $uploadResult['error'];
+            } else {
+                $filename = $uploadResult['filename'];
+                $hasImage = true;
+            }
+        }
+        
+        if (!$hasImage) {
             $errors['item_image'][] = 'Item image is required.';
         }
 
@@ -83,13 +110,14 @@ class ItemController extends Controller
             return $this->view('items/create', [
                 'user' => $user,
                 'wishlist' => $wishlist,
-                'item_name' => $data['item_name'] ?? '',
+                'item_name' => $data['name'] ?? '',
                 'price' => $data['price'] ?? '',
                 'quantity' => $data['quantity'] ?? '1',
                 'unlimited' => $data['unlimited'] ?? 'No',
                 'link' => $data['link'] ?? '',
                 'notes' => $data['notes'] ?? '',
                 'priority' => $data['priority'] ?? '1',
+                'filename' => $filename,
                 'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
             ]);
         }
@@ -98,19 +126,21 @@ class ItemController extends Controller
         $item = $this->wishlistService->addItem($wishlistId, $itemData);
         
         if ($item) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withSuccess('Item added successfully!');
+            $pageno = $this->request->input('pageno', 1);
+            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
         }
 
         return $this->view('items/create', [
             'user' => $user,
             'wishlist' => $wishlist,
-            'item_name' => $data['item_name'] ?? '',
+            'item_name' => $data['name'] ?? '',
             'price' => $data['price'] ?? '',
             'quantity' => $data['quantity'] ?? '1',
             'unlimited' => $data['unlimited'] ?? 'No',
             'link' => $data['link'] ?? '',
             'notes' => $data['notes'] ?? '',
             'priority' => $data['priority'] ?? '1',
+            'filename' => $filename,
             'error_msg' => '<div class="submit-error"><strong>Item creation failed:</strong><ul><li>Unable to add item. Please try again.</li></ul></div>'
         ]);
     }
@@ -132,17 +162,43 @@ class ItemController extends Controller
             return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
         }
 
+        // Get background image for theme
+        $background_image = '';
+        if ($wishlist['theme_background_id'] != 0) {
+            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+            $bg_row = $stmt->get_result()->fetch_assoc();
+            if ($bg_row) {
+                $background_image = $bg_row['theme_image'];
+            }
+        }
+
+        // Check for other copies of this item
+        $otherCopies = false;
+        $numberOfOtherCopies = 0;
+        if (!empty($item['copy_id'])) {
+            $stmt = \App\Core\Database::query(
+                "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND id != ?",
+                [$item['copy_id'], $itemId]
+            );
+            $result = $stmt->get_result()->fetch_assoc();
+            $numberOfOtherCopies = $result['count'];
+            $otherCopies = $numberOfOtherCopies > 0;
+        }
+
         $data = [
             'user' => $user,
-            'wishlist' => $wishlist,
+            'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item' => $item,
-            'item_name' => $this->request->input('item_name', $item->name),
-            'price' => $this->request->input('price', $item->price),
-            'quantity' => $this->request->input('quantity', $item->quantity),
-            'unlimited' => $this->request->input('unlimited', $item->unlimited),
-            'link' => $this->request->input('link', $item->link),
-            'notes' => $this->request->input('notes', $item->notes),
-            'priority' => $this->request->input('priority', $item->priority)
+            'item_name' => $this->request->input('name', $item['name']),
+            'price' => $this->request->input('price', $item['price']),
+            'quantity' => $this->request->input('quantity', $item['quantity']),
+            'unlimited' => $this->request->input('unlimited', $item['unlimited']),
+            'link' => $this->request->input('link', $item['link']),
+            'notes' => $this->request->input('notes', $item['notes']),
+            'priority' => $this->request->input('priority', $item['priority']),
+            'otherCopies' => $otherCopies,
+            'numberOfOtherCopies' => $numberOfOtherCopies,
+            'priority_options' => ["1", "2", "3", "4"]
         ];
 
         return $this->view('items/edit', $data);
@@ -168,8 +224,10 @@ class ItemController extends Controller
         $data = $this->request->input();
         $errors = $this->validationService->validateItem($data);
 
-        // Handle file upload if new image provided
-        $filename = $item->image; // Keep existing image
+        // Handle file upload - support both file upload and paste
+        $filename = $item['image']; // Keep existing image
+        $imageChanged = false;
+        
         if ($this->request->hasFile('item_image')) {
             $file = $this->request->file('item_image');
             $uploadResult = $this->fileUploadService->uploadItemImage($file, $wishlistId, $data['name']);
@@ -177,9 +235,18 @@ class ItemController extends Controller
             if (!$uploadResult['success']) {
                 $errors['item_image'][] = $uploadResult['error'];
             } else {
-                // Delete old image
-                $this->fileUploadService->deleteItemImage($wishlistId, $item->image);
                 $filename = $uploadResult['filename'];
+                $imageChanged = true;
+            }
+        } elseif (!empty($data['paste_image'])) {
+            // Handle paste image (base64)
+            $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
+            
+            if (!$uploadResult['success']) {
+                $errors['item_image'][] = $uploadResult['error'];
+            } else {
+                $filename = $uploadResult['filename'];
+                $imageChanged = true;
             }
         }
 
@@ -188,7 +255,7 @@ class ItemController extends Controller
                 'user' => $user,
                 'wishlist' => $wishlist,
                 'item' => $item,
-                'item_name' => $data['item_name'] ?? '',
+                'item_name' => $data['name'] ?? '',
                 'price' => $data['price'] ?? '',
                 'quantity' => $data['quantity'] ?? '1',
                 'unlimited' => $data['unlimited'] ?? 'No',
@@ -201,15 +268,35 @@ class ItemController extends Controller
 
         $itemData = array_merge($data, ['image' => $filename]);
         
+        // Handle purchased status when quantity changes
+        if ($data['unlimited'] == 'Yes') {
+            $itemData['purchased'] = 'No';
+        } else {
+            $originalQuantity = $item['quantity'];
+            $newQuantity = (int)$data['quantity'];
+            $itemData['purchased'] = $newQuantity > $originalQuantity ? 'No' : $item['purchased'];
+        }
+        
         if ($this->wishlistService->updateItem($wishlistId, $itemId, $itemData)) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withSuccess('Item updated successfully!');
+            // Handle copied items image updates
+            if ($imageChanged && !empty($item['copy_id'])) {
+                $this->fileUploadService->updateCopiedItemImages($item['copy_id'], $item['image'], $filename);
+            }
+            
+            // Delete old image if it was changed
+            if ($imageChanged) {
+                $this->fileUploadService->deleteItemImage($wishlistId, $item['image']);
+            }
+            
+            $pageno = $this->request->input('pageno', 1);
+            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
         }
 
         return $this->view('items/edit', [
             'user' => $user,
             'wishlist' => $wishlist,
             'item' => $item,
-            'item_name' => $data['item_name'] ?? '',
+            'item_name' => $data['name'] ?? '',
             'price' => $data['price'] ?? '',
             'quantity' => $data['quantity'] ?? '1',
             'unlimited' => $data['unlimited'] ?? 'No',
@@ -237,11 +324,16 @@ class ItemController extends Controller
             return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
         }
 
-        // Delete image file
-        $this->fileUploadService->deleteItemImage($wishlistId, $item->image);
+        // Delete image file from all wishlists if it's a copied item
+        if (!empty($item['copy_id'])) {
+            $this->fileUploadService->deleteImageFromAllWishlists($item['copy_id'], $item['image']);
+        } else {
+            $this->fileUploadService->deleteItemImage($wishlistId, $item['image']);
+        }
 
         if ($this->wishlistService->deleteItem($wishlistId, $itemId)) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withSuccess('Item deleted successfully!');
+            $pageno = $this->request->input('pageno', 1);
+            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
         }
 
         return $this->redirect("/wishlist/{$wishlistId}")->withError('Unable to delete item. Please try again.');
