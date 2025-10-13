@@ -351,7 +351,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
                     All Items
-                    <a href='/wishlist/add-item.php' class='icon-container add-item'>
+                    <a href='/wishlist/<?php echo $wishlistID; ?>/item/create' class='icon-container add-item'>
                         <?php require(__DIR__ . '/../../images/site-images/icons/plus.php'); ?>
                         <div class='inline-label'>Add</div>
                     </a>
