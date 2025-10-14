@@ -297,6 +297,10 @@ class ItemController extends Controller
                 $imageChanged = true;
                 $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
+        } elseif (!empty($data['existing_image']) && $data['existing_image'] !== $item['image']) {
+            // Use existing uploaded image from previous validation error
+            $filename = $data['existing_image'];
+            $imageChanged = true;
         }
 
         if ($this->validationService->hasErrors($errors)) {
