@@ -102,8 +102,12 @@ class WishlistService
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            return Item::update($itemId, $data);
+            error_log('WishlistService::updateItem - Item found, attempting update with data: ' . json_encode($data));
+            $result = Item::update($itemId, $data);
+            error_log('WishlistService::updateItem - Update result: ' . ($result ? 'SUCCESS' : 'FAILED'));
+            return $result;
         }
+        error_log('WishlistService::updateItem - Item not found for wishlistId: ' . $wishlistId . ', itemId: ' . $itemId);
         return false;
     }
 

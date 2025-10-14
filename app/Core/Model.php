@@ -45,8 +45,19 @@ abstract class Model
         $sql = "UPDATE " . static::$table . " SET {$set} WHERE " . static::$primaryKey . " = ?";
         $params = array_values($data);
         $params[] = $id;
-        $stmt = Database::query($sql, $params);
-        return $stmt->affected_rows > 0;
+        
+        error_log('Model::update - SQL: ' . $sql);
+        error_log('Model::update - Params: ' . json_encode($params));
+        
+        try {
+            $stmt = Database::query($sql, $params);
+            $affectedRows = $stmt->affected_rows;
+            error_log('Model::update - Affected rows: ' . $affectedRows);
+            return $affectedRows > 0;
+        } catch (\Exception $e) {
+            error_log('Model::update - Database error: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public static function delete(int $id): bool
