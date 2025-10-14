@@ -123,7 +123,21 @@ class ItemController extends Controller
             ]);
         }
 
-        $itemData = array_merge($data, ['image' => $filename]);
+        // Filter data to only include database fields
+        $itemData = [
+            'name' => $data['name'],
+            'notes' => $data['notes'] ?? '',
+            'price' => $data['price'],
+            'quantity' => $data['quantity'],
+            'unlimited' => $data['unlimited'],
+            'link' => $data['link'],
+            'image' => $filename,
+            'priority' => $data['priority'],
+            'quantity_purchased' => 0,
+            'purchased' => 'No',
+            'date_added' => date('Y-m-d H:i:s')
+        ];
+        
         $item = $this->wishlistService->addItem($wishlistId, $itemData);
         
         if ($item) {
@@ -267,7 +281,17 @@ class ItemController extends Controller
             ]);
         }
 
-        $itemData = array_merge($data, ['image' => $filename]);
+        // Filter data to only include database fields
+        $itemData = [
+            'name' => $data['name'],
+            'notes' => $data['notes'] ?? '',
+            'price' => $data['price'],
+            'quantity' => $data['quantity'],
+            'unlimited' => $data['unlimited'],
+            'link' => $data['link'],
+            'image' => $filename,
+            'priority' => $data['priority']
+        ];
         
         // Handle purchased status when quantity changes
         if ($data['unlimited'] == 'Yes') {
