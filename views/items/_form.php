@@ -36,7 +36,7 @@
         </div>
     <?php }else{ ?>
         <div id="preview_container">
-            <img class="preview" src="/wishlist/images/item-images/<?php echo "{$wishlist['id']}/{$item['image']}"; ?>">
+            <img class="preview" src="/wishlist/public/images/item-images/<?php echo "{$wishlist['id']}/{$item['image']}"; ?>">
         </div>
     <?php } ?>
 

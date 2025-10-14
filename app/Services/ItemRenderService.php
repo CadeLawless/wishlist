@@ -17,7 +17,7 @@ class ItemRenderService
         if (strlen($item['notes']) > 30) $notesShort .= '...';
         
         $link = htmlspecialchars($item['link']);
-        $imagePath = htmlspecialchars("/wishlist/images/item-images/{$wishlistId}/{$item['image']}?t=" . time());
+        $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time());
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
