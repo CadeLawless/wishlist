@@ -53,10 +53,10 @@ class WishlistService
     }
 
 
-    public function addItem(int $wishlistId, array $data): ?Item
+    public function addItem(int $wishlistId, array $data): ?int
     {
         $data['wishlist_id'] = $wishlistId;
-        return $this->item->createItem($data);
+        return Item::create($data);
     }
 
     public function getWishlistItems(int $wishlistId, array $filters = []): array
