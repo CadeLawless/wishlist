@@ -30,6 +30,7 @@
     <a class="file-input">Choose Item Image</a>
     <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
     <input type="text" placeholder="Or paste an image here..." id="paste-image" />
+    <input type="hidden" name="paste_image" id="paste-image-hidden" />
     <?php if($add ?? false){ ?>
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">
             <img class="preview" src="">

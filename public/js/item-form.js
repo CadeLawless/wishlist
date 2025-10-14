@@ -22,8 +22,11 @@ $("#paste-image").on("paste", function(e){
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
-                    // Set the base64 data in the paste input
-                    $("#paste-image").val(event.target.result);
+                    // Store the base64 data in the hidden input field
+                    $("#paste-image-hidden").val(event.target.result);
+                    
+                    // Clear the visible input field so user doesn't see base64 data
+                    $("#paste-image").val("");
                     
                     // Show preview
                     $("#preview_container").find("img").attr("src", event.target.result);
@@ -56,6 +59,7 @@ $("#image, .file-input + input").on("change", function(){
     }else{
         document.querySelector("#preview_container").classList.add("hidden");
         $("#paste-image").val("");
+        $("#paste-image-hidden").val(""); // Clear hidden paste data too
         this.previousElementSibling.textContent = "Choose Image";
     }
 });
