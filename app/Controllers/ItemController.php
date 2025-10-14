@@ -338,6 +338,8 @@ class ItemController extends Controller
             'priority' => $data['priority'] ?? '1'
         ];
         
+        error_log('ItemController::update - Final itemData: ' . json_encode($itemData));
+        
         // Handle purchased status when quantity changes
         $unlimited = $data['unlimited'] ?? 'No';
         if ($unlimited == 'Yes') {
