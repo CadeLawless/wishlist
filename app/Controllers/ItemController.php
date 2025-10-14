@@ -123,16 +123,16 @@ class ItemController extends Controller
             ]);
         }
 
-        // Filter data to only include database fields
+        // Filter data to only include database fields with proper defaults
         $itemData = [
             'name' => $data['name'],
             'notes' => $data['notes'] ?? '',
             'price' => $data['price'],
-            'quantity' => $data['quantity'],
-            'unlimited' => $data['unlimited'],
+            'quantity' => $data['quantity'] ?? '1',
+            'unlimited' => $data['unlimited'] ?? 'No', // Default to 'No' if checkbox not checked
             'link' => $data['link'],
             'image' => $filename,
-            'priority' => $data['priority'],
+            'priority' => $data['priority'] ?? '1',
             'quantity_purchased' => 0,
             'purchased' => 'No',
             'date_added' => date('Y-m-d H:i:s')
@@ -281,24 +281,25 @@ class ItemController extends Controller
             ]);
         }
 
-        // Filter data to only include database fields
+        // Filter data to only include database fields with proper defaults
         $itemData = [
             'name' => $data['name'],
             'notes' => $data['notes'] ?? '',
             'price' => $data['price'],
-            'quantity' => $data['quantity'],
-            'unlimited' => $data['unlimited'],
+            'quantity' => $data['quantity'] ?? '1',
+            'unlimited' => $data['unlimited'] ?? 'No', // Default to 'No' if checkbox not checked
             'link' => $data['link'],
             'image' => $filename,
-            'priority' => $data['priority']
+            'priority' => $data['priority'] ?? '1'
         ];
         
         // Handle purchased status when quantity changes
-        if ($data['unlimited'] == 'Yes') {
+        $unlimited = $data['unlimited'] ?? 'No';
+        if ($unlimited == 'Yes') {
             $itemData['purchased'] = 'No';
         } else {
             $originalQuantity = $item['quantity'];
-            $newQuantity = (int)$data['quantity'];
+            $newQuantity = (int)($data['quantity'] ?? '1');
             $itemData['purchased'] = $newQuantity > $originalQuantity ? 'No' : $item['purchased'];
         }
         
