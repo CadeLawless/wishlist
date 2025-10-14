@@ -114,9 +114,19 @@ class ItemController extends Controller
             // Clean up uploaded files if there are validation errors
             $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
+            // Get background image for theme
+            $background_image = '';
+            if ($wishlist['theme_background_id'] != 0) {
+                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+                $bg_row = $stmt->get_result()->fetch_assoc();
+                if ($bg_row) {
+                    $background_image = $bg_row['theme_image'];
+                }
+            }
+            
             return $this->view('items/create', [
                 'user' => $user,
-                'wishlist' => $wishlist,
+                'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
                 'item_name' => $data['name'] ?? '',
                 'price' => $data['price'] ?? '',
                 'quantity' => $data['quantity'] ?? '1',
@@ -154,9 +164,19 @@ class ItemController extends Controller
         // Clean up uploaded files if database operation failed
         $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
+        // Get background image for theme
+        $background_image = '';
+        if ($wishlist['theme_background_id'] != 0) {
+            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+            $bg_row = $stmt->get_result()->fetch_assoc();
+            if ($bg_row) {
+                $background_image = $bg_row['theme_image'];
+            }
+        }
+
         return $this->view('items/create', [
             'user' => $user,
-            'wishlist' => $wishlist,
+            'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item_name' => $data['name'] ?? '',
             'price' => $data['price'] ?? '',
             'quantity' => $data['quantity'] ?? '1',
@@ -280,9 +300,20 @@ class ItemController extends Controller
         if ($this->validationService->hasErrors($errors)) {
             // Clean up uploaded files if there are validation errors
             $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            
+            // Get background image for theme
+            $background_image = '';
+            if ($wishlist['theme_background_id'] != 0) {
+                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+                $bg_row = $stmt->get_result()->fetch_assoc();
+                if ($bg_row) {
+                    $background_image = $bg_row['theme_image'];
+                }
+            }
+            
             return $this->view('items/edit', [
                 'user' => $user,
-                'wishlist' => $wishlist,
+                'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
                 'item' => $item,
                 'item_name' => $data['name'] ?? '',
                 'price' => $data['price'] ?? '',
@@ -335,9 +366,19 @@ class ItemController extends Controller
         // Clean up uploaded files if database operation failed
         $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
+        // Get background image for theme
+        $background_image = '';
+        if ($wishlist['theme_background_id'] != 0) {
+            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
+            $bg_row = $stmt->get_result()->fetch_assoc();
+            if ($bg_row) {
+                $background_image = $bg_row['theme_image'];
+            }
+        }
+
         return $this->view('items/edit', [
             'user' => $user,
-            'wishlist' => $wishlist,
+            'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item' => $item,
             'item_name' => $data['name'] ?? '',
             'price' => $data['price'] ?? '',

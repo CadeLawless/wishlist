@@ -367,13 +367,13 @@ class FileUploadService
 
     private function validateBase64Image(string $base64Data): bool
     {
-        // Check if it's valid base64
-        if (!preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Data)) {
-            return false;
+        // Handle both full data URL format and raw base64
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Data)) {
+            // Full data URL format - extract the base64 part
+            $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
         }
+        // If it doesn't match the data URL format, assume it's raw base64
 
-        // Extract the base64 part
-        $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
         $imageData = base64_decode($base64Data, true);
         
         if ($imageData === false) {
