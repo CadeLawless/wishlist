@@ -202,11 +202,16 @@ class FileUploadService
 
         // Generate filename
         $filename = $this->sanitizeFilename($itemName) . '.' . $extension;
+        error_log('uploadFromBase64: Initial filename: ' . $filename);
         $filename = $this->getUniqueFilename($uploadDir, $filename);
+        error_log('uploadFromBase64: Final filename: ' . $filename);
 
         // Save image
         $targetPath = $uploadDir . $filename;
+        error_log('uploadFromBase64: Attempting to save image to: ' . $targetPath);
+        
         if (file_put_contents($targetPath, $imageData)) {
+            error_log('uploadFromBase64: Image saved successfully');
             // Optimize image if needed
             $this->optimizeImage($targetPath);
             
@@ -214,6 +219,7 @@ class FileUploadService
             $result['filename'] = $filename;
             $result['filepath'] = $targetPath;
         } else {
+            error_log('uploadFromBase64: Failed to save image to: ' . $targetPath);
             $result['error'] = 'Failed to save image. Please try again.';
         }
 
