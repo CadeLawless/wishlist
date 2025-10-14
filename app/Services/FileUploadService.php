@@ -381,19 +381,24 @@ class FileUploadService
         $imageData = base64_decode($base64Data, true);
         
         if ($imageData === false) {
+            error_log('Base64 decode failed');
             return false;
         }
 
         // Check file size (5MB limit)
         if (strlen($imageData) > $this->maxFileSize) {
+            error_log('Image too large: ' . strlen($imageData) . ' bytes');
             return false;
         }
 
         // Validate image format
         $imageInfo = getimagesizefromstring($imageData);
         if ($imageInfo === false) {
+            error_log('getimagesizefromstring failed - invalid image format');
             return false;
         }
+        
+        error_log('Image validation passed - size: ' . $imageInfo[0] . 'x' . $imageInfo[1] . ', mime: ' . $imageInfo['mime']);
 
         $allowedMimeTypes = [
             'image/jpeg',
@@ -401,7 +406,10 @@ class FileUploadService
             'image/webp'
         ];
 
-        return in_array($imageInfo['mime'], $allowedMimeTypes);
+        $isValidMime = in_array($imageInfo['mime'], $allowedMimeTypes);
+        error_log('MIME type check: ' . $imageInfo['mime'] . ' - ' . ($isValidMime ? 'VALID' : 'INVALID'));
+        
+        return $isValidMime;
     }
 
     private function getExtensionFromMimeType(string $mimeType): ?string
