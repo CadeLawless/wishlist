@@ -323,6 +323,9 @@ class ItemController extends Controller
                 'link' => $data['link'] ?? '',
                 'notes' => $data['notes'] ?? '',
                 'priority' => $data['priority'] ?? '1',
+                'filename' => $filename,
+                'otherCopies' => $otherCopies ?? false,
+                'numberOfOtherCopies' => $numberOfOtherCopies ?? 0,
                 'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
             ]);
         }
@@ -391,6 +394,9 @@ class ItemController extends Controller
             'link' => $data['link'] ?? '',
             'notes' => $data['notes'] ?? '',
             'priority' => $data['priority'] ?? '1',
+            'filename' => $filename,
+            'otherCopies' => $otherCopies ?? false,
+            'numberOfOtherCopies' => $numberOfOtherCopies ?? 0,
             'error_msg' => '<div class="submit-error"><strong>Update failed:</strong><ul><li>Unable to update item. Please try again.</li></ul></div>'
         ]);
     }
