@@ -213,7 +213,7 @@ class FileUploadService
         return $result;
     }
 
-    public function updateCopiedItemImages(string $copyId, string $oldImage, string $newImage): bool
+    public function updateCopiedItemImages(string $copyId, string $oldImage, string $newImage, string $sourceWishlistId): bool
     {
         try {
             // Find all items with this copy_id
@@ -237,8 +237,8 @@ class FileUploadService
                     $this->deleteItemImage($wishlistId, $currentImage);
                 }
 
-                // Copy new image to this wishlist
-                $sourcePath = "images/item-images/{$wishlistId}/{$newImage}";
+                // Copy new image to this wishlist from the source wishlist
+                $sourcePath = "images/item-images/{$sourceWishlistId}/{$newImage}";
                 $targetDir = "images/item-images/{$wishlistId}/";
                 
                 if (!is_dir($targetDir)) {

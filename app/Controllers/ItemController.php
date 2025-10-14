@@ -320,7 +320,7 @@ class ItemController extends Controller
         if ($this->wishlistService->updateItem($wishlistId, $itemId, $itemData)) {
             // Handle copied items image updates
             if ($imageChanged && !empty($item['copy_id'])) {
-                $this->fileUploadService->updateCopiedItemImages($item['copy_id'], $item['image'], $filename);
+                $this->fileUploadService->updateCopiedItemImages($item['copy_id'], $item['image'], $filename, $wishlistId);
             }
             
             // Delete old image if it was changed

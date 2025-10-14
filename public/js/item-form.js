@@ -9,12 +9,34 @@ $(".file-input").on("click", function(e){
     $(this).next().click();
 });
 
-$("#paste-image").on("paste input", function(e){
-    if(e.originalEvent.clipboardData != null){
-        $(".file-input + input")[0].files = e.originalEvent.clipboardData.files;
-        $(".file-input + input").trigger("change");
-    }else{
-        $(this).val("");
+$("#paste-image").on("paste", function(e){
+    e.preventDefault();
+    const clipboardData = e.originalEvent.clipboardData;
+    
+    if (clipboardData && clipboardData.items) {
+        for (let i = 0; i < clipboardData.items.length; i++) {
+            const item = clipboardData.items[i];
+            
+            if (item.type.indexOf('image') !== -1) {
+                const file = item.getAsFile();
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    // Set the base64 data in the paste input
+                    $("#paste-image").val(event.target.result);
+                    
+                    // Show preview
+                    $("#preview_container").find("img").attr("src", event.target.result);
+                    $("#preview_container").removeClass("hidden");
+                    
+                    // Update button text
+                    $(".file-input").text("Change Image");
+                };
+                
+                reader.readAsDataURL(file);
+                break;
+            }
+        }
     }
 });
 // show image preview on change
