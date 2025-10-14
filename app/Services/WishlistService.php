@@ -102,7 +102,14 @@ class WishlistService
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            error_log('WishlistService::updateItem - Item found, attempting update with data: ' . json_encode($data));
+            error_log('WishlistService::updateItem - Item found: ' . json_encode($item));
+            error_log('WishlistService::updateItem - Attempting update with data: ' . json_encode($data));
+            
+            // Check if item actually exists in database with this ID
+            $checkStmt = \App\Core\Database::query("SELECT id FROM items WHERE id = ?", [$itemId]);
+            $checkResult = $checkStmt->get_result()->fetch_assoc();
+            error_log('WishlistService::updateItem - Direct ID check result: ' . json_encode($checkResult));
+            
             $result = Item::update($itemId, $data);
             error_log('WishlistService::updateItem - Update result: ' . ($result ? 'SUCCESS' : 'FAILED'));
             return $result;
