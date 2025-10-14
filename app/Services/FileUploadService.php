@@ -14,6 +14,7 @@ class FileUploadService
         $result = [
             'success' => false,
             'filename' => null,
+            'filepath' => null,
             'error' => null
         ];
 
@@ -44,6 +45,7 @@ class FileUploadService
             
             $result['success'] = true;
             $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
         } else {
             $result['error'] = 'Failed to upload file. Please try again.';
         }
@@ -153,6 +155,7 @@ class FileUploadService
         $result = [
             'success' => false,
             'filename' => null,
+            'filepath' => null,
             'error' => null
         ];
 
@@ -202,6 +205,7 @@ class FileUploadService
             
             $result['success'] = true;
             $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
         } else {
             $result['error'] = 'Failed to save image. Please try again.';
         }
@@ -419,5 +423,28 @@ class FileUploadService
             UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
             UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
         ];
+    }
+
+    /**
+     * Clean up uploaded files if there are errors
+     */
+    public function cleanupUploadedFiles(array $uploadedFiles): void
+    {
+        foreach ($uploadedFiles as $filePath) {
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+    }
+
+    /**
+     * Delete a specific uploaded file
+     */
+    public function deleteUploadedFile(string $filePath): bool
+    {
+        if (file_exists($filePath)) {
+            return unlink($filePath);
+        }
+        return true; // File doesn't exist, consider it "deleted"
     }
 }

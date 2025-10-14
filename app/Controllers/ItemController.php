@@ -80,6 +80,7 @@ class ItemController extends Controller
         // Handle file upload - support both file upload and paste
         $filename = '';
         $hasImage = false;
+        $uploadedFiles = []; // Track uploaded files for cleanup
         
         if ($this->request->hasFile('item_image')) {
             $file = $this->request->file('item_image');
@@ -90,6 +91,7 @@ class ItemController extends Controller
             } else {
                 $filename = $uploadResult['filename'];
                 $hasImage = true;
+                $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         } elseif (!empty($data['paste_image'])) {
             // Handle paste image (base64)
@@ -100,6 +102,7 @@ class ItemController extends Controller
             } else {
                 $filename = $uploadResult['filename'];
                 $hasImage = true;
+                $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         }
         
@@ -108,6 +111,9 @@ class ItemController extends Controller
         }
 
         if ($this->validationService->hasErrors($errors)) {
+            // Clean up uploaded files if there are validation errors
+            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            
             return $this->view('items/create', [
                 'user' => $user,
                 'wishlist' => $wishlist,
@@ -144,6 +150,9 @@ class ItemController extends Controller
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
         }
+
+        // Clean up uploaded files if database operation failed
+        $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
         return $this->view('items/create', [
             'user' => $user,
@@ -242,6 +251,7 @@ class ItemController extends Controller
         // Handle file upload - support both file upload and paste
         $filename = $item['image']; // Keep existing image
         $imageChanged = false;
+        $uploadedFiles = []; // Track uploaded files for cleanup
         
         if ($this->request->hasFile('item_image')) {
             $file = $this->request->file('item_image');
@@ -252,6 +262,7 @@ class ItemController extends Controller
             } else {
                 $filename = $uploadResult['filename'];
                 $imageChanged = true;
+                $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         } elseif (!empty($data['paste_image'])) {
             // Handle paste image (base64)
@@ -262,10 +273,13 @@ class ItemController extends Controller
             } else {
                 $filename = $uploadResult['filename'];
                 $imageChanged = true;
+                $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         }
 
         if ($this->validationService->hasErrors($errors)) {
+            // Clean up uploaded files if there are validation errors
+            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             return $this->view('items/edit', [
                 'user' => $user,
                 'wishlist' => $wishlist,
@@ -317,6 +331,9 @@ class ItemController extends Controller
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
         }
+
+        // Clean up uploaded files if database operation failed
+        $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
         return $this->view('items/edit', [
             'user' => $user,
