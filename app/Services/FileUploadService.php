@@ -30,9 +30,10 @@ class FileUploadService
             mkdir($uploadDir, 0755, true);
         }
 
-        // Generate filename
+        // Generate filename with timestamp to ensure uniqueness
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $filename = $this->sanitizeFilename($itemName) . '.' . $extension;
+        $timestamp = date('Y-m-d_H-i-s');
+        $filename = $this->sanitizeFilename($itemName) . '_' . $timestamp . '.' . $extension;
 
         // Handle filename conflicts
         $filename = $this->getUniqueFilename($uploadDir, $filename);
@@ -200,8 +201,9 @@ class FileUploadService
             return $result;
         }
 
-        // Generate filename
-        $filename = $this->sanitizeFilename($itemName) . '.' . $extension;
+        // Generate filename with timestamp to ensure uniqueness
+        $timestamp = date('Y-m-d_H-i-s');
+        $filename = $this->sanitizeFilename($itemName) . '_' . $timestamp . '.' . $extension;
         $filename = $this->getUniqueFilename($uploadDir, $filename);
 
         // Save image
