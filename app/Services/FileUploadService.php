@@ -171,8 +171,15 @@ class FileUploadService
             mkdir($uploadDir, 0755, true);
         }
 
+        // Handle both full data URL format and raw base64 (same as validateBase64Image)
+        $base64ToDecode = $base64Data;
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Data)) {
+            // Full data URL format - extract the base64 part
+            $base64ToDecode = substr($base64Data, strpos($base64Data, ',') + 1);
+        }
+        
         // Decode base64 data
-        $imageData = base64_decode($base64Data);
+        $imageData = base64_decode($base64ToDecode, true);
         if ($imageData === false) {
             $result['error'] = 'Failed to decode image data.';
             return $result;
@@ -181,20 +188,14 @@ class FileUploadService
         // Detect image type and extension
         $imageInfo = getimagesizefromstring($imageData);
         if ($imageInfo === false) {
-            error_log('uploadFromBase64: getimagesizefromstring failed - invalid image format');
             $result['error'] = 'Invalid image format.';
             return $result;
         }
-        
-        error_log('uploadFromBase64: Image validation passed - size: ' . $imageInfo[0] . 'x' . $imageInfo[1] . ', mime: ' . $imageInfo['mime']);
 
         $mimeType = $imageInfo['mime'];
         $extension = $this->getExtensionFromMimeType($mimeType);
         
-        error_log('uploadFromBase64: MIME type: ' . $mimeType . ', Extension: ' . ($extension ?: 'NULL'));
-        
         if (!$extension) {
-            error_log('uploadFromBase64: Unsupported image format: ' . $mimeType);
             $result['error'] = 'Unsupported image format. Please use JPG, PNG, or WEBP.';
             return $result;
         }
@@ -373,38 +374,29 @@ class FileUploadService
 
     private function validateBase64Image(string $base64Data): bool
     {
-        // Debug: Log what we're receiving
-        error_log('Base64 data received: ' . substr($base64Data, 0, 100) . '...');
-        
         // Handle both full data URL format and raw base64
         if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Data)) {
             // Full data URL format - extract the base64 part
             $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
-            error_log('Extracted base64 part: ' . substr($base64Data, 0, 50) . '...');
         }
         // If it doesn't match the data URL format, assume it's raw base64
 
         $imageData = base64_decode($base64Data, true);
         
         if ($imageData === false) {
-            error_log('Base64 decode failed');
             return false;
         }
 
         // Check file size (5MB limit)
         if (strlen($imageData) > $this->maxFileSize) {
-            error_log('Image too large: ' . strlen($imageData) . ' bytes');
             return false;
         }
 
         // Validate image format
         $imageInfo = getimagesizefromstring($imageData);
         if ($imageInfo === false) {
-            error_log('getimagesizefromstring failed - invalid image format');
             return false;
         }
-        
-        error_log('Image validation passed - size: ' . $imageInfo[0] . 'x' . $imageInfo[1] . ', mime: ' . $imageInfo['mime']);
 
         $allowedMimeTypes = [
             'image/jpeg',
@@ -412,10 +404,7 @@ class FileUploadService
             'image/webp'
         ];
 
-        $isValidMime = in_array($imageInfo['mime'], $allowedMimeTypes);
-        error_log('MIME type check: ' . $imageInfo['mime'] . ' - ' . ($isValidMime ? 'VALID' : 'INVALID'));
-        
-        return $isValidMime;
+        return in_array($imageInfo['mime'], $allowedMimeTypes);
     }
 
     private function getExtensionFromMimeType(string $mimeType): ?string
