@@ -222,6 +222,72 @@ class FileUploadService
         return $result;
     }
 
+    public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId): bool
+    {
+        try {
+            // Find all items with this copy_id (excluding the source item)
+            $stmt = Database::query(
+                "SELECT id, wishlist_id, image FROM items WHERE copy_id = ? AND wishlist_id != ?",
+                [$copyId, $sourceWishlistId]
+            );
+            $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+            foreach ($items as $item) {
+                $itemId = $item['id'];
+                $wishlistId = $item['wishlist_id'];
+                $currentImage = $item['image'];
+                
+                // Prepare update data for this item
+                $itemUpdateData = $updateData;
+                
+                // Handle image updates
+                if (isset($updateData['image'])) {
+                    $newImage = $updateData['image'];
+                    
+                    // Skip if this is the same image
+                    if ($currentImage === $newImage) {
+                        unset($itemUpdateData['image']); // Don't update image field
+                    } else {
+                        // Delete old image if it exists and is different
+                        if ($currentImage !== $updateData['image']) {
+                            $this->deleteItemImage($wishlistId, $currentImage);
+                        }
+
+                        // Copy new image to this wishlist from the source wishlist
+                        $sourcePath = "images/item-images/{$sourceWishlistId}/{$newImage}";
+                        $targetDir = "images/item-images/{$wishlistId}/";
+                        
+                        if (!is_dir($targetDir)) {
+                            mkdir($targetDir, 0755, true);
+                        }
+
+                        $targetFilename = $this->getUniqueFilename($targetDir, $newImage);
+                        $targetPath = $targetDir . $targetFilename;
+
+                        if (copy($sourcePath, $targetPath)) {
+                            $itemUpdateData['image'] = $targetFilename;
+                        } else {
+                            unset($itemUpdateData['image']); // Skip image update if copy failed
+                        }
+                    }
+                }
+                
+                // Update the item with the new data
+                if (!empty($itemUpdateData)) {
+                    Database::query(
+                        "UPDATE items SET " . implode(' = ?, ', array_keys($itemUpdateData)) . " = ? WHERE id = ?",
+                        array_merge(array_values($itemUpdateData), [$itemId])
+                    );
+                }
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            error_log('Error updating copied items: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function updateCopiedItemImages(string $copyId, string $oldImage, string $newImage, string $sourceWishlistId): bool
     {
         try {

@@ -338,8 +338,6 @@ class ItemController extends Controller
             'priority' => $data['priority'] ?? '1'
         ];
         
-        error_log('ItemController::update - Final itemData: ' . json_encode($itemData));
-        
         // Handle purchased status when quantity changes
         $unlimited = $data['unlimited'] ?? 'No';
         if ($unlimited == 'Yes') {
@@ -351,9 +349,9 @@ class ItemController extends Controller
         }
         
         if ($this->wishlistService->updateItem($wishlistId, $itemId, $itemData)) {
-            // Handle copied items image updates
-            if ($imageChanged && !empty($item['copy_id'])) {
-                $this->fileUploadService->updateCopiedItemImages($item['copy_id'], $item['image'], $filename, $wishlistId);
+            // Handle copied items updates (all fields, not just images)
+            if (!empty($item['copy_id'])) {
+                $this->fileUploadService->updateCopiedItems($item['copy_id'], $itemData, $wishlistId);
             }
             
             // Delete old image if it was changed
