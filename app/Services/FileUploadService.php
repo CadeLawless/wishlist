@@ -181,14 +181,20 @@ class FileUploadService
         // Detect image type and extension
         $imageInfo = getimagesizefromstring($imageData);
         if ($imageInfo === false) {
+            error_log('uploadFromBase64: getimagesizefromstring failed - invalid image format');
             $result['error'] = 'Invalid image format.';
             return $result;
         }
+        
+        error_log('uploadFromBase64: Image validation passed - size: ' . $imageInfo[0] . 'x' . $imageInfo[1] . ', mime: ' . $imageInfo['mime']);
 
         $mimeType = $imageInfo['mime'];
         $extension = $this->getExtensionFromMimeType($mimeType);
         
+        error_log('uploadFromBase64: MIME type: ' . $mimeType . ', Extension: ' . ($extension ?: 'NULL'));
+        
         if (!$extension) {
+            error_log('uploadFromBase64: Unsupported image format: ' . $mimeType);
             $result['error'] = 'Unsupported image format. Please use JPG, PNG, or WEBP.';
             return $result;
         }
