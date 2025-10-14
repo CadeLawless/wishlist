@@ -4,15 +4,15 @@ $wishlistID = $wishlist['id'];
 $wishlistTitle = htmlspecialchars($wishlist['wishlist_name']);
 $background_image = $wishlist['background_image'] ?? '';
 
-// Get item data
-$item_name = $item['name'] ?? '';
-$price = $item['price'] ?? '';
-$quantity = $item['quantity'] ?? '1';
-$unlimited = $item['unlimited'] ?? 'No';
-$link = $item['link'] ?? '';
+// Get item data - use submitted form data if available (for validation errors), otherwise use original item data
+$item_name = $item_name ?? $item['name'] ?? '';
+$price = $price ?? $item['price'] ?? '';
+$quantity = $quantity ?? $item['quantity'] ?? '1';
+$unlimited = $unlimited ?? $item['unlimited'] ?? 'No';
+$link = $link ?? $item['link'] ?? '';
 $image_name = $item['image'] ?? '';
-$notes = $item['notes'] ?? '';
-$priority = $item['priority'] ?? '1';
+$notes = $notes ?? $item['notes'] ?? '';
+$priority = $priority ?? $item['priority'] ?? '1';
 $copy_id = $item['copy_id'] ?? '';
 $otherCopies = $otherCopies ?? false;
 $numberOfOtherCopies = $numberOfOtherCopies ?? 0;

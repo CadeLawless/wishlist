@@ -312,17 +312,6 @@ class ItemController extends Controller
                 }
             }
             
-            // Debug: Log the data being passed to the view
-            error_log('Edit form validation error - Data being passed: ' . json_encode([
-                'item_name' => $data['name'] ?? '',
-                'price' => $data['price'] ?? '',
-                'quantity' => $data['quantity'] ?? '1',
-                'unlimited' => $data['unlimited'] ?? 'No',
-                'link' => $data['link'] ?? '',
-                'notes' => $data['notes'] ?? '',
-                'priority' => $data['priority'] ?? '1'
-            ]));
-            
             return $this->view('items/edit', [
                 'user' => $user,
                 'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
