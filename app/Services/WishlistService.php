@@ -102,26 +102,8 @@ class WishlistService
     {
         $item = $this->getItem($wishlistId, $itemId);
         if ($item) {
-            error_log('WishlistService::updateItem - Item found: ' . json_encode($item));
-            error_log('WishlistService::updateItem - Attempting update with data: ' . json_encode($data));
-            
-            // Check if item actually exists in database with this ID
-            $checkStmt = \App\Core\Database::query("SELECT id FROM items WHERE id = ?", [$itemId]);
-            $checkResult = $checkStmt->get_result()->fetch_assoc();
-            error_log('WishlistService::updateItem - Direct ID check result: ' . json_encode($checkResult));
-            
-            // Compare current data with update data
-            $currentData = $item;
-            unset($currentData['id'], $currentData['copy_id'], $currentData['wishlist_id'], $currentData['quantity_purchased'], $currentData['date_added'], $currentData['date_modified']);
-            error_log('WishlistService::updateItem - Current data (filtered): ' . json_encode($currentData));
-            error_log('WishlistService::updateItem - Update data: ' . json_encode($data));
-            error_log('WishlistService::updateItem - Data identical: ' . (json_encode($currentData) === json_encode($data) ? 'YES' : 'NO'));
-            
-            $result = Item::update($itemId, $data);
-            error_log('WishlistService::updateItem - Update result: ' . ($result ? 'SUCCESS' : 'FAILED'));
-            return $result;
+            return Item::update($itemId, $data);
         }
-        error_log('WishlistService::updateItem - Item not found for wishlistId: ' . $wishlistId . ', itemId: ' . $itemId);
         return false;
     }
 

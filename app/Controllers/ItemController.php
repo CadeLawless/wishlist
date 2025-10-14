@@ -139,12 +139,12 @@ class ItemController extends Controller
             ]);
         }
 
-        // Filter data to only include database fields with proper defaults
+        // Filter data to only include database fields with proper defaults and correct types
         $itemData = [
             'name' => $data['name'],
             'notes' => $data['notes'] ?? '',
             'price' => $data['price'],
-            'quantity' => $data['quantity'] ?? '1',
+            'quantity' => (int)($data['quantity'] ?? 1), // Convert to integer
             'unlimited' => $data['unlimited'] ?? 'No', // Default to 'No' if checkbox not checked
             'link' => $data['link'],
             'image' => $filename,
@@ -326,12 +326,12 @@ class ItemController extends Controller
             ]);
         }
 
-        // Filter data to only include database fields with proper defaults
+        // Filter data to only include database fields with proper defaults and correct types
         $itemData = [
             'name' => $data['name'],
             'notes' => $data['notes'] ?? '',
             'price' => $data['price'],
-            'quantity' => $data['quantity'] ?? '1',
+            'quantity' => (int)($data['quantity'] ?? 1), // Convert to integer
             'unlimited' => $data['unlimited'] ?? 'No', // Default to 'No' if checkbox not checked
             'link' => $data['link'],
             'image' => $filename,
