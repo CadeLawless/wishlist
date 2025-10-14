@@ -111,8 +111,7 @@ class ItemController extends Controller
         }
 
         if ($this->validationService->hasErrors($errors)) {
-            // Clean up uploaded files if there are validation errors
-            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            // Don't clean up uploaded files - keep them for form persistence
             
             // Get background image for theme
             $background_image = '';
@@ -157,6 +156,9 @@ class ItemController extends Controller
         $item = $this->wishlistService->addItem($wishlistId, $itemData);
         
         if ($item) {
+            // Clean up any previously uploaded files that are no longer needed
+            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
         }
@@ -298,8 +300,7 @@ class ItemController extends Controller
         }
 
         if ($this->validationService->hasErrors($errors)) {
-            // Clean up uploaded files if there are validation errors
-            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            // Don't clean up uploaded files - keep them for form persistence
             
             // Get background image for theme
             $background_image = '';
@@ -358,6 +359,9 @@ class ItemController extends Controller
             if ($imageChanged) {
                 $this->fileUploadService->deleteItemImage($wishlistId, $item['image']);
             }
+            
+            // Clean up any previously uploaded files that are no longer needed
+            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');

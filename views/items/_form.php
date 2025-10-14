@@ -33,11 +33,11 @@
     <input type="hidden" name="paste_image" id="paste-image-hidden" />
     <?php if($add ?? false){ ?>
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">
-            <img class="preview" src="">
+            <img class="preview" src="<?php if(!empty($filename)) echo "/wishlist/public/images/item-images/{$wishlist['id']}/{$filename}"; ?>">
         </div>
     <?php }else{ ?>
         <div id="preview_container">
-            <img class="preview" src="/wishlist/public/images/item-images/<?php echo "{$wishlist['id']}/{$item['image']}"; ?>">
+            <img class="preview" src="/wishlist/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
         </div>
     <?php } ?>
 
