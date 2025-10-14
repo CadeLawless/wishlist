@@ -106,18 +106,23 @@ class FileUploadService
             return false;
         }
 
-        // Additional MIME type check
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        // Additional MIME type check (if Fileinfo extension is available)
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
 
-        $allowedMimeTypes = [
-            'image/jpeg',
-            'image/png',
-            'image/webp'
-        ];
+            $allowedMimeTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ];
 
-        return in_array($mimeType, $allowedMimeTypes);
+            return in_array($mimeType, $allowedMimeTypes);
+        }
+
+        // If Fileinfo is not available, rely on file extension check only
+        return true;
     }
 
     private function sanitizeFilename(string $filename): string
