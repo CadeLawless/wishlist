@@ -94,6 +94,9 @@ class ItemController extends Controller
                 $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         } elseif (!empty($data['paste_image'])) {
+            // Debug: Log what paste_image data we're receiving
+            error_log('Paste image data received: ' . substr($data['paste_image'], 0, 100) . '...');
+            
             // Handle paste image (base64)
             $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
             
