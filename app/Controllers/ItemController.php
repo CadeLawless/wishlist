@@ -25,6 +25,24 @@ class ItemController extends Controller
         $this->fileUploadService = new FileUploadService();
     }
 
+    /**
+     * Store form data in session for persistence across validation errors
+     */
+    private function storeFormDataInSession(array $data, string $formType = 'create'): void
+    {
+        $_SESSION['form_data'][$formType] = $data;
+    }
+
+    /**
+     * Retrieve and clear form data from session
+     */
+    private function getFormDataFromSession(string $formType = 'create'): array
+    {
+        $data = $_SESSION['form_data'][$formType] ?? [];
+        unset($_SESSION['form_data'][$formType]); // Clear after retrieval
+        return $data;
+    }
+
     public function create(int $wishlistId): Response
     {
         $this->requireAuth();
@@ -46,17 +64,20 @@ class ItemController extends Controller
             }
         }
 
+        // Get form data from session if available (for error persistence)
+        $sessionData = $this->getFormDataFromSession('create');
+        
         $data = [
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
-            'item_name' => $this->request->input('name', ''),
-            'price' => $this->request->input('price', ''),
-            'quantity' => $this->request->input('quantity', '1'),
-            'unlimited' => $this->request->input('unlimited', 'No'),
-            'link' => $this->request->input('link', ''),
-            'notes' => $this->request->input('notes', ''),
-            'priority' => $this->request->input('priority', '1'),
-            'filename' => $this->request->input('filename', ''),
+            'item_name' => $sessionData['name'] ?? $this->request->input('name', ''),
+            'price' => $sessionData['price'] ?? $this->request->input('price', ''),
+            'quantity' => $sessionData['quantity'] ?? $this->request->input('quantity', '1'),
+            'unlimited' => $sessionData['unlimited'] ?? $this->request->input('unlimited', 'No'),
+            'link' => $sessionData['link'] ?? $this->request->input('link', ''),
+            'notes' => $sessionData['notes'] ?? $this->request->input('notes', ''),
+            'priority' => $sessionData['priority'] ?? $this->request->input('priority', '1'),
+            'filename' => $sessionData['filename'] ?? $this->request->input('filename', ''),
             'priority_options' => ["1", "2", "3", "4"]
         ];
 
@@ -113,6 +134,18 @@ class ItemController extends Controller
         if ($this->validationService->hasErrors($errors)) {
             // Clean up uploaded files if there are validation errors
             $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            
+            // Store form data in session for persistence
+            $this->storeFormDataInSession([
+                'name' => $data['name'] ?? '',
+                'price' => $data['price'] ?? '',
+                'quantity' => $data['quantity'] ?? '1',
+                'unlimited' => $data['unlimited'] ?? 'No',
+                'link' => $data['link'] ?? '',
+                'notes' => $data['notes'] ?? '',
+                'priority' => $data['priority'] ?? '1',
+                'filename' => $filename
+            ], 'create');
             
             // Get background image for theme
             $background_image = '';
@@ -229,17 +262,20 @@ class ItemController extends Controller
             $otherCopies = $numberOfOtherCopies > 0;
         }
 
+        // Get form data from session if available (for error persistence)
+        $sessionData = $this->getFormDataFromSession('edit');
+        
         $data = [
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item' => $item,
-            'item_name' => $this->request->input('name', $item['name']),
-            'price' => $this->request->input('price', $item['price']),
-            'quantity' => $this->request->input('quantity', $item['quantity']),
-            'unlimited' => $this->request->input('unlimited', $item['unlimited']),
-            'link' => $this->request->input('link', $item['link']),
-            'notes' => $this->request->input('notes', $item['notes']),
-            'priority' => $this->request->input('priority', $item['priority']),
+            'item_name' => $sessionData['name'] ?? $this->request->input('name', $item['name']),
+            'price' => $sessionData['price'] ?? $this->request->input('price', $item['price']),
+            'quantity' => $sessionData['quantity'] ?? $this->request->input('quantity', $item['quantity']),
+            'unlimited' => $sessionData['unlimited'] ?? $this->request->input('unlimited', $item['unlimited']),
+            'link' => $sessionData['link'] ?? $this->request->input('link', $item['link']),
+            'notes' => $sessionData['notes'] ?? $this->request->input('notes', $item['notes']),
+            'priority' => $sessionData['priority'] ?? $this->request->input('priority', $item['priority']),
             'otherCopies' => $otherCopies,
             'numberOfOtherCopies' => $numberOfOtherCopies,
             'priority_options' => ["1", "2", "3", "4"]
@@ -300,6 +336,18 @@ class ItemController extends Controller
         if ($this->validationService->hasErrors($errors)) {
             // Clean up uploaded files if there are validation errors
             $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            
+            // Store form data in session for persistence
+            $this->storeFormDataInSession([
+                'name' => $data['name'] ?? '',
+                'price' => $data['price'] ?? '',
+                'quantity' => $data['quantity'] ?? '1',
+                'unlimited' => $data['unlimited'] ?? 'No',
+                'link' => $data['link'] ?? '',
+                'notes' => $data['notes'] ?? '',
+                'priority' => $data['priority'] ?? '1',
+                'filename' => $filename
+            ], 'edit');
             
             // Get background image for theme
             $background_image = '';
