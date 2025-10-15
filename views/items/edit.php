@@ -48,7 +48,7 @@ $priority_options = ["1", "2", "3", "4"];
         }
     </style>
 </head>
-<body class="<?php echo $user['dark'] ? 'dark' : ''; ?>">
+<body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
