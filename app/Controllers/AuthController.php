@@ -512,7 +512,7 @@ class AuthController extends Controller
         $this->requireAuth();
         
         $user = $this->auth();
-        if ($user['role'] !== 'admin') {
+        if ($user['role'] !== 'Admin') {
             return $this->redirect('/')->withError('Access denied. Admin privileges required.');
         }
         
@@ -524,7 +524,7 @@ class AuthController extends Controller
         $this->requireAuth();
         
         $user = $this->auth();
-        if ($user['role'] !== 'admin') {
+        if ($user['role'] !== 'Admin') {
             return $this->redirect('/')->withError('Access denied. Admin privileges required.');
         }
         
@@ -553,7 +553,7 @@ class AuthController extends Controller
         $this->requireAuth();
         
         $user = $this->auth();
-        if ($user['role'] !== 'admin') {
+        if ($user['role'] !== 'Admin') {
             return $this->redirect('/')->withError('Access denied. Admin privileges required.');
         }
         
