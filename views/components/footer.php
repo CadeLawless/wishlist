@@ -6,11 +6,17 @@
 <script src="public/js/popups.js"></script>
 <script>
   $(document).ready(function(){
+    console.log('Footer script loaded, jQuery version:', $.fn.jquery);
+    console.log('Dark mode links found:', $(".dark-mode-link, .light-mode-link").length);
+    
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
+      console.log('Dark mode link clicked!');
       e.preventDefault();
       $(document.body).toggleClass("dark");
 
       $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
+      console.log('Sending dark mode value:', $dark);
+      
       $.ajax({
             type: "POST",
             url: "/wishlist/toggle-dark-mode",
