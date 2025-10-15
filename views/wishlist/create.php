@@ -54,61 +54,8 @@ use App\Helpers\ThemePopupHelper;
     }
 </style>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="public/js/popups.js"></script>
 <script src="public/js/choose-theme.js"></script>
-<script>
-    // Dark mode functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check current dark mode state
-        const isDark = document.body.classList.contains('dark');
-        
-        // Show/hide appropriate mode icons
-        if (isDark) {
-            document.querySelector('.dark-mode-link').classList.add('hidden');
-            document.querySelector('.light-mode-link').classList.remove('hidden');
-        } else {
-            document.querySelector('.dark-mode-link').classList.remove('hidden');
-            document.querySelector('.light-mode-link').classList.add('hidden');
-        }
-        
-        // Dark mode toggle
-        document.querySelector('.dark-mode-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleDarkMode(true);
-        });
-        
-        document.querySelector('.light-mode-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleDarkMode(false);
-        });
-        
-        function toggleDarkMode(enableDark) {
-            if (enableDark) {
-                document.body.classList.add('dark');
-                document.querySelector('.dark-mode-link').classList.add('hidden');
-                document.querySelector('.light-mode-link').classList.remove('hidden');
-            } else {
-                document.body.classList.remove('dark');
-                document.querySelector('.dark-mode-link').classList.remove('hidden');
-                document.querySelector('.light-mode-link').classList.add('hidden');
-            }
-            
-            // Save to database via AJAX
-            $.ajax({
-                type: 'POST',
-                url: '/wishlist/toggle-dark-mode',
-                data: { dark: enableDark ? 1 : 0 },
-                success: function(response) {
-                    console.log('Dark mode preference saved');
-                },
-                error: function() {
-                    console.error('Failed to save dark mode preference');
-                }
-            });
-        }
-    });
-</script>
 <script>
     let name_input = document.querySelector("#wishlist_name");
     name_input.addEventListener("focus", function(){
