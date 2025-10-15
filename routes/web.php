@@ -37,6 +37,9 @@ Router::get('/admin', [AuthController::class, 'admin']);
 Router::get('/admin/users', [AuthController::class, 'adminUsers']);
 Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
 
+// Dark theme toggle (must come before generic /{id} routes)
+Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
+
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/create', [WishlistController::class, 'create']);
 Router::get('/wishlists', [WishlistController::class, 'wishlists']);
@@ -74,6 +77,3 @@ Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class,
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);
 Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);
-
-// Dark theme toggle
-Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
