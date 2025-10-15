@@ -287,4 +287,304 @@ class AuthController extends Controller
         
         return new Response('invalid_data', 400);
     }
+
+    public function profile(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        
+        $data = [
+            'user' => $user,
+            'name' => $this->request->input('name', $user['name']),
+            'email' => $this->request->input('email', $user['email']),
+            'current_password' => $this->request->input('current_password', ''),
+            'new_password' => $this->request->input('new_password', ''),
+            'confirm_password' => $this->request->input('confirm_password', ''),
+            'name_error_msg' => '',
+            'email_error_msg' => '',
+            'password_error_msg' => ''
+        ];
+
+        return $this->view('auth/profile', $data);
+    }
+
+    public function updateProfile(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        $data = $this->request->input();
+        
+        // Handle name update
+        if (isset($data['name_submit_button'])) {
+            $errors = $this->validationService->validateName($data);
+            
+            if ($this->validationService->hasErrors($errors)) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $data['name'] ?? $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => $this->validationService->formatErrorsForDisplay($errors),
+                    'email_error_msg' => '',
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            try {
+                User::update($user['id'], ['name' => $data['name']]);
+                return $this->redirect('/profile')->withSuccess('Name updated successfully!');
+            } catch (\Exception $e) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $data['name'] ?? $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '<div class="submit-error"><strong>Name could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your name</li></ul></div>',
+                    'email_error_msg' => '',
+                    'password_error_msg' => ''
+                ]);
+            }
+        }
+        
+        // Handle email update
+        if (isset($data['email_submit_button'])) {
+            $errors = $this->validationService->validateEmail($data);
+            
+            if ($this->validationService->hasErrors($errors)) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => $this->validationService->formatErrorsForDisplay($errors),
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            // Check if email already exists
+            $existingUser = User::where('email', $data['email'])->first();
+            if ($existingUser && $existingUser['id'] != $user['id']) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>',
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            try {
+                // Generate email verification key
+                $emailKey = $this->generateRandomString(50);
+                $emailKeyExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                
+                User::update($user['id'], [
+                    'unverified_email' => $data['email'],
+                    'email_key' => $emailKey,
+                    'email_key_expiration' => $emailKeyExpiration
+                ]);
+                
+                // Send verification email
+                $this->emailService->sendVerificationEmail($data['email'], $user['username']);
+                
+                return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+            } catch (\Exception $e) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>',
+                    'password_error_msg' => ''
+                ]);
+            }
+        }
+        
+        // Handle password update
+        if (isset($data['password_submit_button'])) {
+            $errors = $this->validationService->validatePasswordChange($data);
+            
+            // Verify current password
+            if (!password_verify($data['current_password'], $user['password'])) {
+                $errors['current_password'][] = 'Incorrect current password';
+            }
+            
+            if ($this->validationService->hasErrors($errors)) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => $data['current_password'] ?? '',
+                    'new_password' => $data['new_password'] ?? '',
+                    'confirm_password' => $data['confirm_password'] ?? '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '',
+                    'password_error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                ]);
+            }
+            
+            try {
+                $hashedPassword = password_hash($data['new_password'], PASSWORD_DEFAULT);
+                User::update($user['id'], ['password' => $hashedPassword]);
+                
+                return $this->redirect('/profile')->withSuccess('Password changed successfully!');
+            } catch (\Exception $e) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => $data['current_password'] ?? '',
+                    'new_password' => $data['new_password'] ?? '',
+                    'confirm_password' => $data['confirm_password'] ?? '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '',
+                    'password_error_msg' => '<div class="submit-error"><strong>Password could not be changed due to the following errors:</strong><ul><li>Something went wrong while trying to change your password</li></ul></div>'
+                ]);
+            }
+        }
+        
+        // Handle forgot password
+        if (isset($data['forgot_password_submit_button'])) {
+            if (empty($user['email'])) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '<p>In order for you to reset a password that you don\'t know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>',
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            try {
+                // Generate reset key
+                $resetKey = $this->generateRandomString(50);
+                $resetExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                
+                User::update($user['id'], [
+                    'reset_password_key' => $resetKey,
+                    'reset_password_expiration' => $resetExpiration
+                ]);
+                
+                // Send reset email
+                $this->emailService->sendPasswordResetEmail($user['email'], $resetKey);
+                
+                return $this->redirect('/profile')->withSuccess('Password reset email sent! Please check your email.');
+            } catch (\Exception $e) {
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '',
+                    'password_error_msg' => '<div class="submit-error"><strong>Something went wrong while trying to send the reset email</strong></div>'
+                ]);
+            }
+        }
+        
+        return $this->redirect('/profile');
+    }
+
+    public function admin(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        if ($user['role'] !== 'admin') {
+            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
+        }
+        
+        return $this->view('auth/admin', ['user' => $user]);
+    }
+
+    public function adminUsers(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        if ($user['role'] !== 'admin') {
+            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
+        }
+        
+        // Get paginated users
+        $page = (int)($this->request->get('pageno', 1));
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        $users = User::paginate($perPage, $offset);
+        $totalUsers = User::count();
+        $totalPages = ceil($totalUsers / $perPage);
+        
+        $data = [
+            'user' => $user,
+            'users' => $users,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalUsers' => $totalUsers
+        ];
+        
+        return $this->view('auth/admin-users', $data);
+    }
+
+    public function adminWishlists(): Response
+    {
+        $this->requireAuth();
+        
+        $user = $this->auth();
+        if ($user['role'] !== 'admin') {
+            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
+        }
+        
+        // Get paginated wishlists
+        $page = (int)($this->request->get('pageno', 1));
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        $wishlists = \App\Models\Wishlist::paginate($perPage, $offset);
+        $totalWishlists = \App\Models\Wishlist::count();
+        $totalPages = ceil($totalWishlists / $perPage);
+        
+        $data = [
+            'user' => $user,
+            'wishlists' => $wishlists,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalWishlists' => $totalWishlists
+        ];
+        
+        return $this->view('auth/admin-wishlists', $data);
+    }
+
+    private function generateRandomString(int $length = 50): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }

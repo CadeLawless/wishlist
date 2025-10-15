@@ -224,4 +224,57 @@ class ValidationService
         
         return $html;
     }
+
+    public function validateName(array $data): array
+    {
+        $errors = [];
+
+        if (empty($data['name'])) {
+            $errors['name'][] = 'Name is required.';
+        } elseif (strlen($data['name']) < 2) {
+            $errors['name'][] = 'Name must be at least 2 characters.';
+        } elseif (strlen($data['name']) > 100) {
+            $errors['name'][] = 'Name must not exceed 100 characters.';
+        }
+
+        return $errors;
+    }
+
+    public function validateEmail(array $data): array
+    {
+        $errors = [];
+
+        if (empty($data['email'])) {
+            $errors['email'][] = 'Email is required.';
+        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'][] = 'Email must be a valid email address.';
+        }
+
+        return $errors;
+    }
+
+    public function validatePasswordChange(array $data): array
+    {
+        $errors = [];
+
+        if (empty($data['current_password'])) {
+            $errors['current_password'][] = 'Current password is required.';
+        }
+
+        if (empty($data['new_password'])) {
+            $errors['new_password'][] = 'New password is required.';
+        } elseif (strlen($data['new_password']) < 6) {
+            $errors['new_password'][] = 'New password must be at least 6 characters.';
+        } elseif (!preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])(.+){6,}$/', $data['new_password'])) {
+            $errors['new_password'][] = 'New password must include at least one letter and one number.';
+        }
+
+        if (empty($data['confirm_password'])) {
+            $errors['confirm_password'][] = 'Confirm password is required.';
+        } elseif ($data['new_password'] !== $data['confirm_password']) {
+            $errors['confirm_password'][] = 'New password and confirm password must match.';
+        }
+
+        return $errors;
+    }
 }

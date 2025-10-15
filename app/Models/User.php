@@ -48,4 +48,34 @@ class User extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return $result ?: null;
     }
+
+    public static function where(string $column, $value): object
+    {
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE {$column} = ?", [$value]);
+        return new class($stmt) {
+            private $stmt;
+            
+            public function __construct($stmt) {
+                $this->stmt = $stmt;
+            }
+            
+            public function first(): ?array {
+                $result = $this->stmt->get_result()->fetch_assoc();
+                return $result ?: null;
+            }
+        };
+    }
+
+    public static function paginate(int $perPage, int $offset): array
+    {
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " ORDER BY id DESC LIMIT ? OFFSET ?", [$perPage, $offset]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function count(): int
+    {
+        $stmt = \App\Core\Database::query("SELECT COUNT(*) as count FROM " . static::$table);
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int)$result['count'];
+    }
 }

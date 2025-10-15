@@ -29,7 +29,17 @@ class EmailService
         return $this->sendEmail($email, $subject, $message);
     }
 
-    public function sendPasswordResetEmail(string $email, string $username, string $resetToken): bool
+    public function sendPasswordResetEmail(string $email, string $resetKey): bool
+    {
+        $subject = 'Reset Your Password for Wish List';
+        $resetLink = $this->generateResetLink($resetKey);
+        
+        $message = $this->getPasswordResetEmailTemplate('User', $resetLink);
+        
+        return $this->sendEmail($email, $subject, $message);
+    }
+
+    public function sendPasswordResetEmailWithUsername(string $email, string $username, string $resetToken): bool
     {
         $subject = 'Reset Your Password';
         $resetLink = $this->generateResetLink($resetToken);
