@@ -39,7 +39,45 @@ $bodyClass = 'profile-page';
 </head>
 <body class="<?php echo $bodyClass; ?>">
     <div id="body">
-        <?php include __DIR__ . '/../components/header.php'; ?>
+        <?php 
+        // Include header without JavaScript (we'll handle it in the page)
+        $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
+        ?>
+        <div class="header-container">
+            <div class="header">
+                <div class="title">
+                    <a class="nav-title" href="/wishlist/"><?php require("images/site-images/logo.php"); ?></a>
+                    <a href="#" class="dark-mode-link"><?php require("images/site-images/icons/dark-mode.php"); ?></a>
+                    <a href="#" class="light-mode-link"><?php require("images/site-images/icons/light-mode.php"); ?></a>
+                </div>
+                <div class="menu">
+                    <?php
+                    require("images/site-images/hamburger-menu.php");
+                    require("images/site-images/menu-close.php");
+                    ?>
+                    <div class="menu-links">
+                        <a class="nav-link<?php if($currentPage == "/wishlist/" || $currentPage == "/wishlist") echo " active"; ?>" href="/wishlist/">Home<div class="underline"></div></a>
+                        <a class="nav-link<?php if($currentPage == "/wishlist/create") echo " active"; ?>" href="/wishlist/create">Create Wishlist<div class="underline"></div></a>
+                        <a class="nav-link<?php if($currentPage == "/wishlist/wishlists") echo " active"; ?>" href="/wishlist/wishlists">View Wishlists<div class="underline"></div></a>
+                        <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
+                            <div class="outer-link">
+                                <span class="profile-icon"><?php require("images/site-images/profile-icon.php"); ?></span>
+                                <span>My Account</span>
+                                <span class="dropdown-arrow"><?php require("images/site-images/dropdown-arrow.php"); ?></span>
+                            </div>
+                            <div class="underline"></div>
+                            <div class="dropdown-menu hidden">
+                                <a class="dropdown-menu-link" href="/wishlist/profile">View Profile</a>
+                                <?php if($user['admin']){ ?>
+                                    <a class="dropdown-menu-link" href="/wishlist/admin">Admin Center</a>
+                                <?php } ?>
+                                <a class="dropdown-menu-link" href="/wishlist/logout">Log Out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="container">
             <?php include __DIR__ . '/../components/alerts.php'; ?>
             <div class="form-container">
@@ -139,6 +177,7 @@ $bodyClass = 'profile-page';
 <script src="/wishlist/public/js/popups.js"></script>
 <script>
   $(document).ready(function(){
+    // Dark mode functionality
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
       e.preventDefault();
       $(document.body).toggleClass("dark");
@@ -157,6 +196,45 @@ $bodyClass = 'profile-page';
                 console.error('Dark mode toggle failed:', error);
             }
         });
+    });
+
+    // Header dropdown functionality
+    $(".hamburger-menu").on("click", function(){
+        $(this).addClass("hidden");
+        $(".close-menu").removeClass("hidden");
+        $(".menu-links").css("display", "flex").removeClass("hidden");
+    });
+    
+    $(".close-menu").on("click", function(){
+        $(this).addClass("hidden");
+        $(".hamburger-menu").removeClass("hidden");
+        $(".menu-links").addClass("hidden");
+    });
+    
+    $(window).on("click", function(e){
+        if($(".menu-links").css("display") == "flex"){
+            if(!$(e.target).hasClass("header") && !$(".header").has(e.target).length){
+                $(".close-menu").click();
+            }
+        }
+        if(!$(".dropdown-menu").hasClass("hidden")){
+            if(!$(e.target).hasClass("dropdown-menu") && !$(e.target).hasClass("dropdown-link") && !$(".dropdown-link").has(e.target).length){
+                $(".dropdown-link").click();
+            }
+        }
+    });
+    
+    $(".dropdown-link").on("click", function(e){
+        let dropdown_menu = $(this).find(".dropdown-menu");
+        if(dropdown_menu.hasClass("hidden")){
+            dropdown_menu.removeClass("hidden");
+            $(this).addClass("active");
+        }else{
+            if(!$(e.target).hasClass("dropdown-menu-link")){
+                dropdown_menu.addClass("hidden");
+                $(this).removeClass("active");
+            }
+        }
     });
   });
 </script>
