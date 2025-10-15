@@ -52,6 +52,8 @@ class Router
 
         foreach (self::$routes as $route) {
             if ($route->matches($method, $path)) {
+                // Debug: Log which route is being matched
+                error_log("Router: Matched route {$route->getPath()} for {$method} {$path}");
                 // Apply middleware
                 foreach ($route->getMiddleware() as $middlewareName) {
                     if (isset(self::$middleware[$middlewareName])) {

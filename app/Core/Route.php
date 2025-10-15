@@ -68,4 +68,9 @@ class Route
     {
         return $this->middleware;
     }
+
+    public function getPath(): string
+    {
+        return $this->path;
+    }
 }
