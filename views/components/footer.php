@@ -9,12 +9,15 @@
     let isToggling = false; // Prevent multiple simultaneous requests
     
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
+      console.log('Click event triggered on:', this.className);
       if (isToggling) {
         e.preventDefault();
+        e.stopPropagation();
         return;
       }
       
       e.preventDefault();
+      e.stopPropagation();
       isToggling = true;
       
       // Toggle the dark class immediately for visual feedback
