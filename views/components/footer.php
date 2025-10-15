@@ -18,20 +18,17 @@
       
       // Prevent rapid successive clicks (within 500ms)
       if (now - lastClickTime < 500) {
-        console.log('Click ignored - too rapid');
         e.preventDefault();
         e.stopPropagation();
         return;
       }
       
       if (isToggling) {
-        console.log('Click ignored - already toggling');
         e.preventDefault();
         e.stopPropagation();
         return;
       }
       
-      console.log('Click event triggered on:', this.className);
       lastClickTime = now;
       
       e.preventDefault();
@@ -40,7 +37,6 @@
       
       // Toggle the dark class immediately for visual feedback
       $(document.body).toggleClass("dark");
-      console.log('Dark class toggled. Body has dark class:', $(document.body).hasClass("dark"));
 
       $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
       
