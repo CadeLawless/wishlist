@@ -512,11 +512,34 @@ class AuthController extends Controller
         $this->requireAuth();
         
         $user = $this->auth();
+        
+        // Debug logging
+        error_log('Admin check - User role: ' . ($user['role'] ?? 'NULL'));
+        error_log('Admin check - User data: ' . print_r($user, true));
+        
         if ($user['role'] !== 'Admin') {
+            error_log('Admin access denied - role: ' . ($user['role'] ?? 'NULL'));
             return $this->redirect('/')->withError('Access denied. Admin privileges required.');
         }
         
-        return $this->view('auth/admin', ['user' => $user]);
+        // Get paginated users for the admin view
+        $page = (int)($this->request->get('pageno', 1));
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        
+        $users = User::paginate($perPage, $offset);
+        $totalUsers = User::count();
+        $totalPages = ceil($totalUsers / $perPage);
+        
+        $data = [
+            'user' => $user,
+            'users' => $users,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalUsers' => $totalUsers
+        ];
+        
+        return $this->view('auth/admin', $data);
     }
 
     public function adminUsers(): Response

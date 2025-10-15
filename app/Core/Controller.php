@@ -134,6 +134,16 @@ abstract class Controller
         }
         
         if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
+            // Get full user data from database
+            $username = $_SESSION['username'] ?? null;
+            if ($username) {
+                $user = \App\Models\User::findByUsernameOrEmail($username);
+                if ($user) {
+                    return $user;
+                }
+            }
+            
+            // Fallback to session data if database lookup fails
             return [
                 'id' => $_SESSION['user_id'] ?? null,
                 'username' => $_SESSION['username'] ?? null,
