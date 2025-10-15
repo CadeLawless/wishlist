@@ -282,10 +282,15 @@ class AuthController extends Controller
                 $result = User::update($user['id'], ['dark' => $dark]);
                 error_log('Dark mode toggle - Update result: ' . ($result ? 'true' : 'false'));
                 
-                // Also update the session
-                $_SESSION['dark'] = $dark === 'Yes';
-                error_log('Dark mode toggle - Success: Updated to ' . $dark);
-                return new Response('success');
+                if ($result) {
+                    // Also update the session
+                    $_SESSION['dark'] = $dark === 'Yes';
+                    error_log('Dark mode toggle - Success: Updated to ' . $dark);
+                    return new Response('success');
+                } else {
+                    error_log('Dark mode toggle - Database update failed, no rows affected');
+                    return new Response('error', 500);
+                }
             } catch (\Exception $e) {
                 error_log('Dark mode toggle failed: ' . $e->getMessage());
                 return new Response('error', 500);
