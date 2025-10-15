@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $title ?? 'Wish List'; ?></title>
 </head>
-<body class="<?php echo $user['dark'] ? 'dark' : ''; ?>">
+<body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
