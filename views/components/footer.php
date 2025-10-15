@@ -18,10 +18,12 @@
                 dark: $dark,
             },
             success: function(response) {
-                // Dark mode toggle successful
+                console.log('Dark mode toggle successful:', response);
             },
             error: function(xhr, status, error) {
                 console.error('Dark mode toggle failed:', error);
+                console.error('Response:', xhr.responseText);
+                console.error('Status:', xhr.status);
             }
         });
     });

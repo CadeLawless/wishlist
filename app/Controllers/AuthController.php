@@ -278,7 +278,9 @@ class AuthController extends Controller
         
         if ($dark === 'Yes' || $dark === 'No') {
             try {
-                User::update($user['id'], ['dark' => $dark]);
+                error_log('Dark mode toggle - Attempting to update user ' . $user['id'] . ' with dark = ' . $dark);
+                $result = User::update($user['id'], ['dark' => $dark]);
+                error_log('Dark mode toggle - Update result: ' . ($result ? 'true' : 'false'));
                 
                 // Also update the session
                 $_SESSION['dark'] = $dark === 'Yes';
