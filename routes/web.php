@@ -11,6 +11,9 @@ use App\Core\Router;
 // Test route
 Router::get('/test', [TestController::class, 'index']);
 
+// Dark theme toggle (must be first to avoid conflicts)
+Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
+
 // Guest routes (login, register, etc.)
 Router::get('/login', [AuthController::class, 'login']);
 Router::post('/login', [AuthController::class, 'login']);
@@ -37,8 +40,6 @@ Router::get('/admin', [AuthController::class, 'admin']);
 Router::get('/admin/users', [AuthController::class, 'adminUsers']);
 Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
 
-// Dark theme toggle (must come before generic /{id} routes)
-Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
 
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/create', [WishlistController::class, 'create']);
