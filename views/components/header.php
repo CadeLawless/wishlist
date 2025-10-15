@@ -26,7 +26,7 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
                         <a class="dropdown-menu-link" href="/wishlist/profile">View Profile</a>
-                        <?php if($user['admin']){ ?>
+                        <?php if(isset($user['role']) && $user['role'] == 'Admin'){ ?>
                             <a class="dropdown-menu-link" href="/wishlist/admin">Admin Center</a>
                         <?php } ?>
                         <a class="dropdown-menu-link" href="/wishlist/logout">Log Out</a>
