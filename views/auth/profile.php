@@ -11,6 +11,7 @@ $bodyClass = 'profile-page';
     <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/wishlist/public/css/snow.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo $pageTitle; ?></title>
     <style>
         #body {
@@ -131,8 +132,34 @@ $bodyClass = 'profile-page';
         </div>
     </div>
 </body>
-<?php include __DIR__ . '/../components/footer.php'; ?>
-<script src="/wishlist/public/js/popup.js"></script>
+<footer>
+  <p class="center">&copy; <?php echo date("Y"); ?> Wishlist.<br>
+  Designed by Cade and Meleah Lawless. All rights reserved.</p>
+</footer>
+<script src="/wishlist/public/js/popups.js"></script>
+<script>
+  $(document).ready(function(){
+    $(".dark-mode-link, .light-mode-link").on("click", function(e){
+      e.preventDefault();
+      $(document.body).toggleClass("dark");
+
+      $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
+      $.ajax({
+            type: "POST",
+            url: "/wishlist/toggle-dark-mode",
+            data: {
+                dark: $dark,
+            },
+            success: function(response) {
+                // Dark mode toggle successful
+            },
+            error: function(xhr, status, error) {
+                console.error('Dark mode toggle failed:', error);
+            }
+        });
+    });
+  });
+</script>
 <script>
 $(document).ready(function(){
     $("input").on("input", function(){
