@@ -371,7 +371,8 @@ class AuthController extends Controller
             }
             
             // Check if email already exists
-            $existingUser = User::where('email', $data['email'])->first();
+            $existingUsers = User::where('email', '=', $data['email']);
+            $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
             if ($existingUser && $existingUser['id'] != $user['id']) {
                 return $this->view('auth/profile', [
                     'user' => $user,

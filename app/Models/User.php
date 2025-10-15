@@ -49,21 +49,17 @@ class User extends Model
         return $result ?: null;
     }
 
-    public static function where(string $column, $value): object
+    public static function where(string $column, string $operator, $value): array
+    {
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE {$column} {$operator} ?", [$value]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function whereEqual(string $column, $value): ?array
     {
         $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE {$column} = ?", [$value]);
-        return new class($stmt) {
-            private $stmt;
-            
-            public function __construct($stmt) {
-                $this->stmt = $stmt;
-            }
-            
-            public function first(): ?array {
-                $result = $this->stmt->get_result()->fetch_assoc();
-                return $result ?: null;
-            }
-        };
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
     public static function paginate(int $perPage, int $offset): array
