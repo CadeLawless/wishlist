@@ -9,6 +9,9 @@
     let isToggling = false; // Prevent multiple simultaneous requests
     let lastClickTime = 0;
     
+    // Remove any existing event listeners to prevent duplicates
+    $(document).off("click", ".dark-mode-link, .light-mode-link");
+    
     // Use event delegation to handle clicks on toggle links
     $(document).on("click", ".dark-mode-link, .light-mode-link", function(e){
       const now = Date.now();
