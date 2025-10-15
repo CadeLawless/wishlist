@@ -6,26 +6,22 @@
 <script src="public/js/popups.js"></script>
 <script>
   $(document).ready(function(){
-    console.log('Footer script loaded, jQuery version:', $.fn.jquery);
-    console.log('Dark mode links found:', $(".dark-mode-link, .light-mode-link").length);
-    
     let isToggling = false; // Prevent multiple simultaneous requests
     
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
       if (isToggling) {
-        console.log('Dark mode toggle already in progress, ignoring click');
         e.preventDefault();
         return;
       }
       
-      console.log('Dark mode link clicked!');
       e.preventDefault();
       isToggling = true;
       
+      // Toggle the dark class immediately for visual feedback
       $(document.body).toggleClass("dark");
+      console.log('Dark class toggled. Body has dark class:', $(document.body).hasClass("dark"));
 
       $dark = $(document.body).hasClass("dark") ? "Yes" : "No";
-      console.log('Sending dark mode value:', $dark);
       
       $.ajax({
             type: "POST",
@@ -34,13 +30,11 @@
                 dark: $dark,
             },
             success: function(response) {
-                console.log('Dark mode toggle successful:', response);
                 isToggling = false; // Reset flag on success
             },
             error: function(xhr, status, error) {
-                console.error('Dark mode toggle failed:', error);
-                console.error('Response:', xhr.responseText);
-                console.error('Status:', xhr.status);
+                // If request fails, revert the visual change
+                $(document.body).toggleClass("dark");
                 isToggling = false; // Reset flag on error
             }
         });
