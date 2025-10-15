@@ -28,6 +28,15 @@ Router::get('/logout', [AuthController::class, 'logout']);
 // Home route
 Router::get('/', [HomeController::class, 'index']);
 
+// Profile routes (must come before generic /{id} routes)
+Router::get('/profile', [AuthController::class, 'profile']);
+Router::post('/profile', [AuthController::class, 'updateProfile']);
+
+// Admin routes (must come before generic /{id} routes)
+Router::get('/admin', [AuthController::class, 'admin']);
+Router::get('/admin/users', [AuthController::class, 'adminUsers']);
+Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
+
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/create', [WishlistController::class, 'create']);
 Router::get('/wishlists', [WishlistController::class, 'wishlists']);
@@ -65,15 +74,6 @@ Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class,
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);
 Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);
-
-// Profile routes
-Router::get('/profile', [AuthController::class, 'profile']);
-Router::post('/profile', [AuthController::class, 'updateProfile']);
-
-// Admin routes
-Router::get('/admin', [AuthController::class, 'admin']);
-Router::get('/admin/users', [AuthController::class, 'adminUsers']);
-Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
 
 // Dark theme toggle
 Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
