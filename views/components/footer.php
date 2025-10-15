@@ -7,14 +7,28 @@
 <script>
   $(document).ready(function(){
     let isToggling = false; // Prevent multiple simultaneous requests
+    let lastClickTime = 0;
     
     $(".dark-mode-link, .light-mode-link").on("click", function(e){
-      console.log('Click event triggered on:', this.className);
-      if (isToggling) {
+      const now = Date.now();
+      
+      // Prevent rapid successive clicks (within 500ms)
+      if (now - lastClickTime < 500) {
+        console.log('Click ignored - too rapid');
         e.preventDefault();
         e.stopPropagation();
         return;
       }
+      
+      if (isToggling) {
+        console.log('Click ignored - already toggling');
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      
+      console.log('Click event triggered on:', this.className);
+      lastClickTime = now;
       
       e.preventDefault();
       e.stopPropagation();
