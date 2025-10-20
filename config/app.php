@@ -11,7 +11,7 @@ return [
         'from_name' => $_ENV['MAIL_FROM_NAME'] ?? 'Wish List Support',
         'smtp_host' => $_ENV['MAIL_HOST'] ?? 'smtp.ionos.com',
         'smtp_username' => $_ENV['MAIL_USERNAME'] ?? 'support@cadelawless.com',
-        'smtp_password' => $_ENV['MAIL_PASSWORD'] ?? 'REDACTED',
+        'smtp_password' => $_ENV['MAIL_PASSWORD'] ?? '',
         'smtp_port' => $_ENV['MAIL_PORT'] ?? 587,
         'smtp_encryption' => $_ENV['MAIL_ENCRYPTION'] ?? 'tls',
     ],

@@ -3,13 +3,30 @@ date_default_timezone_set("America/Chicago");
 $dark = false;
 class DB{
     private $connection;
-    private $servername = "localhost";
-    private $username = "root";
-    private $password = "REDACTED";
-    private $database = "wishlist";
+    private $servername;
+    private $username;
+    private $password;
+    private $database;
 
     public function __construct()
     {
+        // Load environment variables
+        if (file_exists('.env')) {
+            $lines = file('.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+                    [$key, $value] = explode('=', $line, 2);
+                    $_ENV[trim($key)] = trim($value);
+                }
+            }
+        }
+        
+        // Set database connection parameters from environment variables
+        $this->servername = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->username = $_ENV['DB_USER'] ?? 'root';
+        $this->password = $_ENV['DB_PASSWORD'] ?? '';
+        $this->database = $_ENV['DB_NAME'] ?? 'wishlist';
+        
         $this->connection = new mysqli($this->servername, $this->username, $this->password, $this->database);
         if ($this->connection->connect_error) {
             die("Connection failed: " . $this->connection->connect_error);
