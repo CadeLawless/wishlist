@@ -1,5 +1,5 @@
 <?php
-$currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
+$currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_URI"])[0] : "/wishlist";
 ?>
 <div class="header-container">
     <div class="header">
@@ -26,7 +26,7 @@ $currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
                     <div class="underline"></div>
                     <div class="dropdown-menu hidden">
                         <a class="dropdown-menu-link" href="/wishlist/profile">View Profile</a>
-                        <?php if($admin){ ?>
+                        <?php if(isset($admin) && $admin){ ?>
                             <a class="dropdown-menu-link" href="/wishlist/admin">Admin Center</a>
                         <?php } ?>
                         <a class="dropdown-menu-link" href="/wishlist/logout">Log Out</a>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <title><?php echo $title ?? 'Wish List'; ?></title>
 </head>
-<body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
+<body class="<?php echo isset($user['dark']) && $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
     <div id="body">
         <div id="container">
             <?php echo $content; ?>

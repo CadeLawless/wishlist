@@ -1,5 +1,5 @@
 <?php
-$currentPage = explode("?", $_SERVER["REQUEST_URI"])[0];
+$currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_URI"])[0] : "/wishlist";
 ?>
 <div class="header-container">
     <div class="header">
