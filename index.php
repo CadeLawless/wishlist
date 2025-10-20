@@ -1,4 +1,10 @@
 <?php
+// Load Composer autoloader for new OOP structure
+require_once 'vendor/autoload.php';
+
+// Load configuration for new OOP structure
+\App\Core\Config::load();
+
 // includes db and paginate class and checks if logged in
 require "includes/setup.php";
 
