@@ -59,7 +59,7 @@ class Route
         return [];
     }
 
-    public function getHandler()
+    public function getHandler(): mixed
     {
         return $this->handler;
     }
