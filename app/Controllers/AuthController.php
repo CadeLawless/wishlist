@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\AuthService;
 use App\Services\ValidationService;
 use App\Services\EmailService;
+use App\Helpers\StringHelper;
 
 class AuthController extends Controller
 {
@@ -402,7 +403,7 @@ class AuthController extends Controller
             
             try {
                 // Generate email verification key
-                $emailKey = $this->generateRandomString(50);
+                $emailKey = StringHelper::generateRandomString(50);
                 $emailKeyExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
                 
                 User::update($user['id'], [
@@ -491,7 +492,7 @@ class AuthController extends Controller
             
             try {
                 // Generate reset key
-                $resetKey = $this->generateRandomString(50);
+                $resetKey = StringHelper::generateRandomString(50);
                 $resetExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
                 
                 User::update($user['id'], [
@@ -614,14 +615,4 @@ class AuthController extends Controller
         return $this->view('auth/admin-wishlists', $data);
     }
 
-    private function generateRandomString(int $length = 50): string
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
 }

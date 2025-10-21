@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Core\Model;
 use App\Core\Database;
+use App\Helpers\StringHelper;
 
 class Wishlist extends Model
 {
@@ -40,7 +41,7 @@ class Wishlist extends Model
         // Generate random key for wishlist
         $unique = false;
         while (!$unique) {
-            $secret_key = $this->generateRandomString(10);
+            $secret_key = StringHelper::generateRandomString(10);
             // Check to make sure that key doesn't exist for another wishlist in the database
             $checkKey = Database::query("SELECT secret_key FROM " . static::$table . " WHERE secret_key = ?", [$secret_key]);
             if ($checkKey->get_result()->num_rows == 0) $unique = true;
@@ -80,14 +81,4 @@ class Wishlist extends Model
         return null;
     }
 
-    private function generateRandomString(int $length): string
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
 }
