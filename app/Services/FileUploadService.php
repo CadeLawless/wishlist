@@ -12,7 +12,7 @@ class FileUploadService
     /**
      * Get the base upload directory path (absolute path)
      */
-    private function getBaseUploadPath(): string
+    public static function getBaseUploadPath(): string
     {
         // Get the project root directory (one level up from public/)
         $path = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'item-images' . DIRECTORY_SEPARATOR;
@@ -35,7 +35,7 @@ class FileUploadService
         }
 
         // Create directory if it doesn't exist
-        $uploadDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
+        $uploadDir = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 error_log("Failed to create upload directory: {$uploadDir}");
@@ -79,7 +79,7 @@ class FileUploadService
         ];
 
         // Create target directory if it doesn't exist
-        $targetDir = $this->getBaseUploadPath() . "{$targetWishlistId}" . DIRECTORY_SEPARATOR;
+        $targetDir = self::getBaseUploadPath() . "{$targetWishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($targetDir)) {
             if (!mkdir($targetDir, 0755, true)) {
                 error_log("Failed to create target directory: {$targetDir}");
@@ -104,7 +104,7 @@ class FileUploadService
 
     public function deleteItemImage(string $wishlistId, string $filename): bool
     {
-        $filePath = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR . "{$filename}";
+        $filePath = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR . "{$filename}";
         if (file_exists($filePath)) {
             return unlink($filePath);
         }
@@ -187,7 +187,7 @@ class FileUploadService
         }
 
         // Create directory if it doesn't exist
-        $uploadDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
+        $uploadDir = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 error_log("Failed to create upload directory for base64: {$uploadDir}");
@@ -271,8 +271,8 @@ class FileUploadService
                 }
 
                 // Copy new image to this wishlist from the source wishlist
-                $sourcePath = $this->getBaseUploadPath() . "{$sourceWishlistId}" . DIRECTORY_SEPARATOR . "{$newImage}";
-                $targetDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
+                $sourcePath = self::getBaseUploadPath() . "{$sourceWishlistId}" . DIRECTORY_SEPARATOR . "{$newImage}";
+                $targetDir = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
                 
                 if (!is_dir($targetDir)) {
                     if (!mkdir($targetDir, 0755, true)) {

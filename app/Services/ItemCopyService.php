@@ -3,18 +3,10 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Services\FileUploadService;
 
 class ItemCopyService
 {
-    /**
-     * Get the base upload directory path (absolute path)
-     */
-    private function getBaseUploadPath(): string
-    {
-        // Get the project root directory (one level up from public/)
-        $path = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'item-images' . DIRECTORY_SEPARATOR;
-        return $path;
-    }
 
     public function copyItems(int $fromWishlistId, int $toWishlistId, array $itemIds): int
     {
@@ -87,8 +79,8 @@ class ItemCopyService
 
     public function duplicateItemImage(int $fromWishlistId, int $toWishlistId, string $imageName): string
     {
-        $fromPath = $this->getBaseUploadPath() . "{$fromWishlistId}/{$imageName}";
-        $toDir = $this->getBaseUploadPath() . "{$toWishlistId}";
+        $fromPath = FileUploadService::getBaseUploadPath() . "{$fromWishlistId}/{$imageName}";
+        $toDir = FileUploadService::getBaseUploadPath() . "{$toWishlistId}";
         $toPath = $toDir . DIRECTORY_SEPARATOR . "{$imageName}";
 
         // Create destination directory if it doesn't exist
