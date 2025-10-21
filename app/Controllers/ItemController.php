@@ -109,13 +109,7 @@ class ItemController extends Controller
             
             // Get background image for theme
             $background_image = '';
-            if ($wishlist['theme_background_id'] != 0) {
-                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-                $bg_row = $stmt->get_result()->fetch_assoc();
-                if ($bg_row) {
-                    $background_image = $bg_row['theme_image'];
-                }
-            }
+            $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
             
             return $this->view('items/create', [
                 'user' => $user,
@@ -202,12 +196,7 @@ class ItemController extends Controller
         $otherCopies = false;
         $numberOfOtherCopies = 0;
         if (!empty($item['copy_id'])) {
-            $stmt = \App\Core\Database::query(
-                "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND id != ?",
-                [$item['copy_id'], $itemId]
-            );
-            $result = $stmt->get_result()->fetch_assoc();
-            $numberOfOtherCopies = $result['count'];
+            $numberOfOtherCopies = $this->wishlistService->getOtherCopiesCount($item['copy_id'], $itemId);
             $otherCopies = $numberOfOtherCopies > 0;
         }
 
@@ -288,13 +277,7 @@ class ItemController extends Controller
             
             // Get background image for theme
             $background_image = '';
-            if ($wishlist['theme_background_id'] != 0) {
-                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-                $bg_row = $stmt->get_result()->fetch_assoc();
-                if ($bg_row) {
-                    $background_image = $bg_row['theme_image'];
-                }
-            }
+            $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
             
             return $this->view('items/edit', [
                 'user' => $user,

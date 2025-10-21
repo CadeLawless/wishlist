@@ -413,4 +413,38 @@ class WishlistService
             error_log('Update duplicate flags failed: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get count of other copies of an item (excluding the item itself)
+     * 
+     * @param string $copyId The copy ID to search for
+     * @param int $excludeItemId The item ID to exclude from count
+     * @return int Number of other copies
+     */
+    public function getOtherCopiesCount(string $copyId, int $excludeItemId): int
+    {
+        $stmt = \App\Core\Database::query(
+            "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND id != ?",
+            [$copyId, $excludeItemId]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int) $result['count'];
+    }
+
+    /**
+     * Check if an item with the given copy_id already exists in a wishlist
+     * 
+     * @param string $copyId The copy ID to search for
+     * @param int $wishlistId The wishlist ID to check
+     * @return bool True if item already exists in wishlist
+     */
+    public function itemExistsInWishlist(string $copyId, int $wishlistId): bool
+    {
+        $stmt = \App\Core\Database::query(
+            "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
+            [$copyId, $wishlistId]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['count'] > 0;
+    }
 }

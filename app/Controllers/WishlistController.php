@@ -716,13 +716,7 @@ class WishlistController extends Controller
             // Check if item already exists in the target wishlist (by copy_id)
             $alreadyInList = false;
             if ($itemCopyId) {
-                // Check if this copy_id exists in the target wishlist
-                $stmt = \App\Core\Database::query(
-                    "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-                    [$itemCopyId, $targetWishlistId]
-                );
-                $result = $stmt->get_result()->fetch_assoc();
-                $alreadyInList = $result['count'] > 0;
+                $alreadyInList = $this->wishlistService->itemExistsInWishlist($itemCopyId, $targetWishlistId);
             }
             
             if ($alreadyInList) {
