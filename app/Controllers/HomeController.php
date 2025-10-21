@@ -4,19 +4,12 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Response;
-use App\Services\AuthService;
-use App\Services\WishlistService;
 
 class HomeController extends Controller
 {
-    private AuthService $authService;
-    private WishlistService $wishlistService;
-
     public function __construct()
     {
         parent::__construct();
-        $this->authService = new AuthService();
-        $this->wishlistService = new WishlistService();
     }
 
     public function index(): Response

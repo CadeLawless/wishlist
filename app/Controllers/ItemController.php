@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Response;
-use App\Services\AuthService;
 use App\Services\WishlistService;
 use App\Services\ValidationService;
 use App\Services\FileUploadService;
@@ -12,7 +11,6 @@ use App\Services\ThemeService;
 
 class ItemController extends Controller
 {
-    private AuthService $authService;
     private WishlistService $wishlistService;
     private ValidationService $validationService;
     private FileUploadService $fileUploadService;
@@ -20,7 +18,6 @@ class ItemController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->authService = new AuthService();
         $this->wishlistService = new WishlistService();
         $this->validationService = new ValidationService();
         $this->fileUploadService = new FileUploadService();

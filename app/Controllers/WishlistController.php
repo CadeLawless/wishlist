@@ -4,30 +4,24 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Response;
-use App\Services\AuthService;
 use App\Services\WishlistService;
 use App\Services\ValidationService;
-use App\Services\FileUploadService;
 use App\Services\PaginationService;
 use App\Services\ItemCopyService;
 use App\Services\PopupManager;
 
 class WishlistController extends Controller
 {
-    private AuthService $authService;
     private WishlistService $wishlistService;
     private ValidationService $validationService;
-    private FileUploadService $fileUploadService;
     private PaginationService $paginationService;
     private ItemCopyService $itemCopyService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->authService = new AuthService();
         $this->wishlistService = new WishlistService();
         $this->validationService = new ValidationService();
-        $this->fileUploadService = new FileUploadService();
         $this->paginationService = new PaginationService();
         $this->itemCopyService = new ItemCopyService();
     }
