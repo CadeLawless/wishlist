@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Services\AuthService;
 use App\Validation\UserRequestValidator;
 use App\Services\EmailService;
+use App\Services\SessionManager;
+use App\Services\UserPreferencesService;
 use App\Helpers\StringHelper;
 
 class AuthController extends Controller
@@ -134,19 +136,8 @@ class AuthController extends Controller
             }
 
             if ($this->authService->register($data)) {
-                // Set up session and cookies like the original code
-                if (!isset($_SESSION)) {
-                    session_start();
-                }
-                
-                // Set session variables
-                $_SESSION['wishlist_logged_in'] = true;
-                $_SESSION['username'] = $data['username'];
-                $_SESSION['account_created'] = true;
-                
-                // Set remember me cookie
-                $cookieTime = 3600 * 24 * 365; // 1 year
-                setcookie('wishlist_session_id', session_id(), time() + $cookieTime);
+                // Set up session and cookies
+                SessionManager::setupRegistrationSession($data);
                 
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $data['username']);
@@ -267,24 +258,7 @@ class AuthController extends Controller
         }
         
         $dark = $this->request->input('dark');
-        
-        if ($dark === 'Yes' || $dark === 'No') {
-            try {
-                $result = User::update($user['id'], ['dark' => $dark]);
-                
-                if ($result) {
-                    // Also update the session
-                    $_SESSION['dark'] = $dark === 'Yes';
-                    return new Response('success');
-                } else {
-                    return new Response('error', 500);
-                }
-            } catch (\Exception $e) {
-                error_log('Dark mode toggle failed: ' . $e->getMessage());
-                return new Response('error', 500);
-            }
-        }
-        return new Response('invalid_data', 400);
+        return UserPreferencesService::toggleDarkMode($user['id'], $dark);
     }
 
     public function profile(): Response

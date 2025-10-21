@@ -8,6 +8,8 @@ use App\Services\WishlistService;
 use App\Validation\WishlistRequestValidator;
 use App\Services\PaginationService;
 use App\Services\ItemCopyService;
+use App\Services\FilterService;
+use App\Services\SessionManager;
 use App\Services\PopupManager;
 
 class WishlistController extends Controller
@@ -82,32 +84,17 @@ class WishlistController extends Controller
         $_SESSION['home'] = "/wishlist/{$id}?pageno={$pageno}#paginate-top";
         $_SESSION['type'] = 'wisher';
 
-        $sortPriority = $_SESSION['wisher_sort_priority'] ?? '';
-        $sortPrice = $_SESSION['wisher_sort_price'] ?? '';
+        $sortPreferences = SessionManager::getWisherSortPreferences();
+        $sortPriority = $sortPreferences['sort_priority'];
+        $sortPrice = $sortPreferences['sort_price'];
         
         $filters = [
             'sort_priority' => $sortPriority,
             'sort_price' => $sortPrice
         ];
         
-        // Convert session filters to WishlistService format
-        $serviceFilters = [];
-        if ($sortPriority === '1') {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPriority === '2') {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'DESC';
-        } elseif ($sortPrice === '1') {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPrice === '2') {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'DESC';
-        } else {
-            $serviceFilters['sort_by'] = 'date_added';
-            $serviceFilters['sort_order'] = 'DESC';
-        }
+        // Convert session filters to WishlistService format using FilterService
+        $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
         
         // Get ALL items first (for total count and filtering)
         $allItems = $this->wishlistService->getWishlistItems($id, $serviceFilters);
@@ -497,27 +484,12 @@ class WishlistController extends Controller
 
         $page = (int) $this->request->input('new_page', 1);
         
-        // Apply session filters for pagination
-        $sortPriority = $_SESSION['wisher_sort_priority'] ?? '';
-        $sortPrice = $_SESSION['wisher_sort_price'] ?? '';
+        // Apply session filters for pagination using FilterService
+        $sortPreferences = SessionManager::getWisherSortPreferences();
+        $sortPriority = $sortPreferences['sort_priority'];
+        $sortPrice = $sortPreferences['sort_price'];
         
-        $serviceFilters = [];
-        if ($sortPriority === '1') {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPriority === '2') {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'DESC';
-        } elseif ($sortPrice === '1') {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPrice === '2') {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'DESC';
-        } else {
-            $serviceFilters['sort_by'] = 'date_added';
-            $serviceFilters['sort_order'] = 'DESC';
-        }
+        $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
         
         $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
         $paginatedItems = $this->paginationService->paginate($items, $page);
@@ -571,40 +543,16 @@ class WishlistController extends Controller
         $sortPriority = $this->request->input('sort_priority', '');
         $sortPrice = $this->request->input('sort_price', '');
         
-        // Validate filter options
-        $validOptions = ['', '1', '2'];
-        if (!in_array($sortPriority, $validOptions) || !in_array($sortPrice, $validOptions)) {
+        // Validate filter options using FilterService
+        if (!FilterService::validateWisherFilters($sortPriority, $sortPrice)) {
             return new Response('<strong>Invalid filter. Please try again.</strong>', 400);
         }
         
-        // Update session with filter preferences
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        
-        $_SESSION['wisher_sort_priority'] = $sortPriority;
-        $_SESSION['wisher_sort_price'] = $sortPrice;
+        // Update session with filter preferences using SessionManager
+        SessionManager::storeWisherSortPreferences($sortPriority, $sortPrice);
 
-        // Convert filter parameters to WishlistService format
-        $filters = [];
-        
-        // Apply sorting based on original sort.php logic
-        if ($sortPriority === '1') {
-            $filters['sort_by'] = 'priority';
-            $filters['sort_order'] = 'ASC';
-        } elseif ($sortPriority === '2') {
-            $filters['sort_by'] = 'priority';
-            $filters['sort_order'] = 'DESC';
-        } elseif ($sortPrice === '1') {
-            $filters['sort_by'] = 'price';
-            $filters['sort_order'] = 'ASC';
-        } elseif ($sortPrice === '2') {
-            $filters['sort_by'] = 'price';
-            $filters['sort_order'] = 'DESC';
-        } else {
-            $filters['sort_by'] = 'date_added';
-            $filters['sort_order'] = 'DESC';
-        }
+        // Convert filter parameters to WishlistService format using FilterService
+        $filters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
 
         // Get filtered items (reset to page 1 after filtering)
         $items = $this->wishlistService->getWishlistItems($id, $filters);

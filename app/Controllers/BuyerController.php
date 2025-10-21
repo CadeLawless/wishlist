@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\Response;
 use App\Services\WishlistService;
 use App\Services\PaginationService;
+use App\Services\FilterService;
 use Exception;
 
 class BuyerController extends Controller
@@ -35,26 +36,13 @@ class BuyerController extends Controller
         // Handle pagination
         $pageno = (int) $this->request->get('pageno', 1);
         
-        // Handle sort parameters (like original)
-        $sort_priority = $this->request->get('sort_priority', '');
-        $sort_price = $this->request->get('sort_price', '');
+        // Process filters and sorting using FilterService
+        $requestData = $this->request->get();
+        $filters = FilterService::processBuyerFilters($requestData);
         
-        // Store in session like original
-        $_SESSION['buyer_sort_priority'] = $sort_priority;
-        $_SESSION['buyer_sort_price'] = $sort_price;
-        
-        // Build order clause like original
-        $priority_order = $sort_priority ? "priority ASC, " : "";
-        $price_order = $sort_price ? "price * 1 ASC, " : "";
-        $order_clause = "purchased ASC, {$priority_order}{$price_order}date_added DESC";
-        
-        $filters = [
-            'sort_by' => $this->request->get('sort_by', 'date_added'),
-            'sort_order' => $this->request->get('sort_order', 'DESC'),
-            'priority' => $this->request->get('priority'),
-            'purchased' => $this->request->get('purchased'),
-            'order_clause' => $order_clause
-        ];
+        // Get sort values for view
+        $sort_priority = $requestData['sort_priority'] ?? '';
+        $sort_price = $requestData['sort_price'] ?? '';
 
         // Get all items first (for pagination)
         $allItems = $this->wishlistService->getWishlistItems($wishlist['id'], $filters);
