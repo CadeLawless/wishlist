@@ -49,6 +49,9 @@ $(document).ready(function() {
         }
         
         if (newPage !== paginationState.currentPage) {
+            console.log('Making AJAX request to:', paginationState.baseUrl + "/paginate");
+            console.log('Data being sent:', { new_page: newPage });
+            console.log('Full URL:', window.location.origin + paginationState.baseUrl + "/paginate");
             $.ajax({
                 type: "POST",
                 url: paginationState.baseUrl + "/paginate",

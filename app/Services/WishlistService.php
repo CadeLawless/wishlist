@@ -47,7 +47,7 @@ class WishlistService
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getWishlistBySecretKey(string $secretKey): ?Wishlist
+    public function getWishlistBySecretKey(string $secretKey): ?array
     {
         return $this->wishlist->findBySecretKey($secretKey);
     }
@@ -75,16 +75,20 @@ class WishlistService
             $params[] = $filters['purchased'];
         }
         
-        // Apply sorting
-        $sortBy = $filters['sort_by'] ?? 'date_added';
-        $sortOrder = $filters['sort_order'] ?? 'DESC';
-        
-        if ($sortBy === 'priority') {
-            $sql .= " ORDER BY priority ASC";
-        } elseif ($sortBy === 'price') {
-            $sql .= " ORDER BY price {$sortOrder}";
+        // Apply sorting - use custom order clause if provided (for buyer view)
+        if (isset($filters['order_clause'])) {
+            $sql .= " ORDER BY " . $filters['order_clause'];
         } else {
-            $sql .= " ORDER BY date_added {$sortOrder}";
+            $sortBy = $filters['sort_by'] ?? 'date_added';
+            $sortOrder = $filters['sort_order'] ?? 'DESC';
+            
+            if ($sortBy === 'priority') {
+                $sql .= " ORDER BY priority ASC";
+            } elseif ($sortBy === 'price') {
+                $sql .= " ORDER BY price {$sortOrder}";
+            } else {
+                $sql .= " ORDER BY date_added {$sortOrder}";
+            }
         }
         
         $stmt = \App\Core\Database::query($sql, $params);
@@ -247,10 +251,18 @@ class WishlistService
         $purchasedPrice = 0;
         
         foreach ($items as $item) {
-            $totalPrice += $item->getTotalPrice();
-            $purchasedPrice += $item->getPurchasedPrice();
+            // Calculate total price (price * quantity)
+            $itemPrice = (float)str_replace(['$', ','], '', $item['price']);
+            $quantity = $item['unlimited'] === 'Yes' ? 1 : (int)$item['quantity'];
+            $itemTotalPrice = $itemPrice * $quantity;
+            $totalPrice += $itemTotalPrice;
             
-            if ($item->isPurchased()) {
+            // Calculate purchased price
+            $quantityPurchased = (int)$item['quantity_purchased'];
+            $purchasedItemPrice = $itemPrice * $quantityPurchased;
+            $purchasedPrice += $purchasedItemPrice;
+            
+            if ($item['purchased'] === 'Yes') {
                 $purchasedItems++;
             }
         }

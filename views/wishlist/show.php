@@ -147,7 +147,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                             <div class='popup-content'>
                                 <div class="copy-link">
-                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer-view.php?key=<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer/<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                                 </div>
                                 <div class="icon-options wishlist-options">
                                     <!-- Rename popup -->
@@ -390,6 +390,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </a>
                 </h2>
                 
+                <!-- Top Pagination controls -->
+                <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
+                
                 <div class='items-list-sub-container'>
                     <div class="items-list main">
                                 <?php if(count($items) > 0): ?>
@@ -414,27 +417,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                     
                             <!-- Pagination controls -->
-                            <?php if($total_pages > 1): ?>
-                            <div class="center">
-                                <div class="paginate-container">
-                                    <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
-                                    </a>
-                                    <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
-                                    </a>
-                                    <div class="paginate-title">
-                                        <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
-                                    </div>
-                                    <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/prev.php'); ?>
-                                    </a>
-                                    <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
-                                        <?php require(__DIR__ . '/../../images/site-images/first.php'); ?>
-                                    </a>
-                                </div>
-                            </div>
-                            <?php endif; ?>
+                            <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
                             
                             <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
                 </div>

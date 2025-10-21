@@ -49,6 +49,12 @@ class Router
             echo "Debug: Method = $method, Path = $path<br>";
             echo "Total routes: " . count(self::$routes) . "<br>";
         }
+        
+        // Log all routes for debugging
+        error_log("Router: Looking for {$method} {$path}");
+        foreach (self::$routes as $route) {
+            error_log("Router: Checking route " . $route->getPath());
+        }
 
         foreach (self::$routes as $route) {
             if ($route->matches($method, $path)) {

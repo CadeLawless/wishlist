@@ -77,4 +77,5 @@ Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class,
 
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);
+Router::post('/buyer/{key}/paginate', [BuyerController::class, 'paginateItems']);
 Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);

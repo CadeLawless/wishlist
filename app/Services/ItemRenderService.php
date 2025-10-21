@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ItemRenderService
 {
-    public static function renderItem(array $item, int $wishlistId, int $page): string
+    public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher'): string
     {
         $itemName = htmlspecialchars($item['name']);
         $itemNameShort = htmlspecialchars(substr($item['name'], 0, 25));
@@ -36,16 +36,21 @@ class ItemRenderService
         ob_start();
         ?>
         <div class='item-container'>
+            <?php if($type === 'buyer' && $item['purchased'] === 'Yes'): ?>
+                <img src='images/site-images/themes/gift-wraps/default/1.png' class='gift-wrap' alt='gift wrap'>
+            <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
             <div class='item-description'>
                 <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
                 <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
-                <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
+                <?php if($type === 'wisher'): ?>
+                    <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
+                <?php endif; ?>
                 <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
                 <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
-                <div class='icon-options item-options wisher-item-options'>
+                <div class='icon-options item-options <?php echo $type; ?>-item-options'>
                     <a class='icon-container popup-button' href='#'>
                         <?php require(__DIR__ . '/../../images/site-images/icons/view.php'); ?>
                         <div class='inline-label'>View</div>
@@ -75,37 +80,66 @@ class ItemRenderService
                         <?php require(__DIR__ . '/../../images/site-images/icons/link.php'); ?>
                         <div class='inline-label'>Website Link</div>
                     </a>
-                    <a class='icon-container' href='/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
-                        <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
-                        <div class='inline-label'>Edit</div>
-                    </a>
-                    <a class='icon-container popup-button' href='#'>
-                        <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
-                        <div class='inline-label'>Delete</div>
-                    </a>
-                    <div class='popup-container hidden'>
-                        <div class='popup'>
-                            <div class='close-container'>
-                                <a href='#' class='close-button'>
-                                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
-                                </a>
-                            </div>
-                            <div class='popup-content'>
-                                <label>Are you sure you want to delete this item?</label>
-                                <p><?php echo $itemName; ?></p>
-                                <div style='margin: 16px 0;' class='center'>
-                                    <a class='button secondary no-button' href='#'>No</a>
-                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class='button primary'>Yes</button>
-                                    </form>
+                    <?php if($type === 'wisher'): ?>
+                        <a class='icon-container' href='/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
+                            <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
+                            <div class='inline-label'>Edit</div>
+                        </a>
+                        <a class='icon-container popup-button' href='#'>
+                            <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
+                            <div class='inline-label'>Delete</div>
+                        </a>
+                        <div class='popup-container hidden'>
+                            <div class='popup'>
+                                <div class='close-container'>
+                                    <a href='#' class='close-button'>
+                                        <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                    </a>
+                                </div>
+                                <div class='popup-content'>
+                                    <label>Are you sure you want to delete this item?</label>
+                                    <p><?php echo $itemName; ?></p>
+                                    <div style='margin: 16px 0;' class='center'>
+                                        <a class='button secondary no-button' href='#'>No</a>
+                                        <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class='button primary'>Yes</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <p class='date-added center'><em>Date Added: <?php echo $dateAdded; ?></em></p>
-            </div>
+                <?php if($type === 'buyer'): ?>
+                    <?php if($item['purchased'] !== 'Yes'): ?>
+                        <div style='margin-top: 18px;' class='center'>
+                            <input class='purchased-button popup-button' type='checkbox' id='<?php echo $item['id']; ?>'><label for='<?php echo $item['id']; ?>'> Mark as Purchased</label>
+                            <div class='popup-container purchased-popup-<?php echo $item['id']; ?> hidden'>
+                                <div class='popup'>
+                                    <div class='close-container'>
+                                        <a href='#' class='close-button'>
+                                            <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                        </a>
+                                    </div>
+                                    <div class='popup-content'>
+                                        <label>Are you sure you want to mark this item as purchased?</label>
+                                        <p><?php echo htmlspecialchars($item['name']); ?></p>
+                                        <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary purchase-button' href='#' id='purchase-<?php echo $item['id']; ?>'>Yes</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <br>
+                        <div class='center'>
+                            <h4 class='center'>This item has been purchased!</h4>
+                            <span class='unmark-msg'>If you need to unmark an item as purchased, email <a href='mailto:support@cadelawless.com'>support@cadelawless.com</a> for help.</span>
+                        </div>
+                    <?php endif; ?>
+            <?php endif; ?>
+            <p class='date-added center'><em>Date Added: <?php echo $dateAdded; ?></em></p>
         </div>
         <?php
         return ob_get_clean();
