@@ -36,4 +36,45 @@ class Item extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return (int) $result['COUNT(i.id)'];
     }
+
+    public static function findByCopyIdExcludingWishlist(string $copyId, int $excludeWishlistId): array
+    {
+        $stmt = Database::query(
+            "SELECT id, wishlist_id, image FROM " . static::$table . " WHERE copy_id = ? AND wishlist_id != ?",
+            [$copyId, $excludeWishlistId]
+        );
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function countByCopyIdExcludingItem(string $copyId, int $excludeItemId): int
+    {
+        $stmt = Database::query(
+            "SELECT COUNT(*) as count FROM " . static::$table . " WHERE copy_id = ? AND id != ?",
+            [$copyId, $excludeItemId]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int) $result['count'];
+    }
+
+    public static function existsByCopyIdAndWishlist(string $copyId, int $wishlistId): bool
+    {
+        $stmt = Database::query(
+            "SELECT COUNT(*) as count FROM " . static::$table . " WHERE copy_id = ? AND wishlist_id = ?", 
+            [$copyId, $wishlistId]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['count'] > 0;
+    }
+
+    public static function findByWishlistIdWithImages(int $wishlistId): array
+    {
+        $stmt = Database::query("SELECT image FROM " . static::$table . " WHERE wishlist_id = ?", [$wishlistId]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function deleteByWishlistId(int $wishlistId): bool
+    {
+        $stmt = Database::query("DELETE FROM " . static::$table . " WHERE wishlist_id = ?", [$wishlistId]);
+        return $stmt->affected_rows > 0;
+    }
 }

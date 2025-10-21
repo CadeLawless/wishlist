@@ -30,26 +30,17 @@ class WishlistService
 
     public function getWishlistById(string $username, int $id): ?array
     {
-        $stmt = \App\Core\Database::query(
-            "SELECT * FROM wishlists WHERE username = ? AND id = ?", 
-            [$username, $id]
-        );
-        $result = $stmt->get_result()->fetch_assoc();
-        return $result ?: null;
+        return Wishlist::findByUserAndId($username, $id);
     }
 
     public function getOtherWishlists(string $username, int $excludeId): array
     {
-        $stmt = \App\Core\Database::query(
-            "SELECT wishlist_name, id FROM wishlists WHERE username = ? AND id <> ?", 
-            [$username, $excludeId]
-        );
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return Wishlist::findOtherWishlists($username, $excludeId);
     }
 
     public function getWishlistBySecretKey(string $secretKey): ?array
     {
-        return $this->wishlist->findBySecretKey($secretKey);
+        return Wishlist::findBySecretKey($secretKey);
     }
 
 
@@ -97,9 +88,8 @@ class WishlistService
 
     public function getItem(int $wishlistId, int $itemId): ?array
     {
-        $stmt = \App\Core\Database::query("SELECT * FROM items WHERE wishlist_id = ? AND id = ?", [$wishlistId, $itemId]);
-        $result = $stmt->get_result()->fetch_assoc();
-        return $result ?: null;
+        $item = Item::find($itemId);
+        return ($item && $item['wishlist_id'] == $wishlistId) ? $item : null;
     }
 
     public function updateItem(int $wishlistId, int $itemId, array $data): bool
@@ -142,11 +132,7 @@ class WishlistService
     {
         try {
             // Find all items with this copy_id (excluding the source item)
-            $stmt = \App\Core\Database::query(
-                "SELECT id, wishlist_id, image FROM items WHERE copy_id = ? AND wishlist_id != ?",
-                [$copyId, $sourceWishlistId]
-            );
-            $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $items = Item::findByCopyIdExcludingWishlist($copyId, $sourceWishlistId);
 
             foreach ($items as $item) {
                 $itemId = $item['id'];
@@ -279,74 +265,30 @@ class WishlistService
 
     public function searchWishlists(string $query, string $username = null): array
     {
-        $sql = "SELECT * FROM wishlists WHERE wishlist_name LIKE ?";
-        $params = ["%{$query}%"];
-        
-        if ($username) {
-            $sql .= " AND username = ?";
-            $params[] = $username;
-        }
-        
-        $sql .= " ORDER BY date_created DESC";
-        
-        $stmt = \App\Core\Database::query($sql, $params);
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return Wishlist::searchByName($query, $username);
     }
 
 
     public function updateWishlistTheme(int $id, int $backgroundId, int $giftWrapId): bool
     {
-        $stmt = \App\Core\Database::query(
-            "UPDATE wishlists SET theme_background_id = ?, theme_gift_wrap_id = ? WHERE id = ?",
-            [$backgroundId, $giftWrapId, $id]
-        );
-        return $stmt->affected_rows > 0;
+        return Wishlist::updateTheme($id, $backgroundId, $giftWrapId);
     }
 
     public function toggleWishlistVisibility(int $id): bool
     {
-        // Get current visibility
-        $stmt = \App\Core\Database::query("SELECT visibility FROM wishlists WHERE id = ?", [$id]);
-        $result = $stmt->get_result()->fetch_assoc();
-        
-        if (!$result) {
-            return false;
-        }
-        
-        $newVisibility = $result['visibility'] === 'Public' ? 'Hidden' : 'Public';
-        
-        $stmt = \App\Core\Database::query(
-            "UPDATE wishlists SET visibility = ? WHERE id = ?",
-            [$newVisibility, $id]
-        );
-        return $stmt->affected_rows > 0;
+        return Wishlist::toggleVisibility($id);
     }
 
     public function toggleWishlistComplete(int $id): bool
     {
-        // Get current complete status
-        $stmt = \App\Core\Database::query("SELECT complete FROM wishlists WHERE id = ?", [$id]);
-        $result = $stmt->get_result()->fetch_assoc();
-        
-        if (!$result) {
-            return false;
-        }
-        
-        $newComplete = $result['complete'] === 'Yes' ? 'No' : 'Yes';
-        
-        $stmt = \App\Core\Database::query(
-            "UPDATE wishlists SET complete = ? WHERE id = ?",
-            [$newComplete, $id]
-        );
-        return $stmt->affected_rows > 0;
+        return Wishlist::toggleComplete($id);
     }
 
     public function deleteWishlistAndItems(int $id): bool
     {
         try {
             // Get all items with their images before deleting
-            $itemsStmt = \App\Core\Database::query("SELECT image FROM items WHERE wishlist_id = ?", [$id]);
-            $items = $itemsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $items = Item::findByWishlistIdWithImages($id);
             
             // Delete item images from server
             foreach ($items as $item) {
@@ -365,11 +307,10 @@ class WishlistService
             }
             
             // Delete all items from database
-            $stmt = \App\Core\Database::query("DELETE FROM items WHERE wishlist_id = ?", [$id]);
+            Item::deleteByWishlistId($id);
             
             // Delete wishlist from database
-            $stmt = \App\Core\Database::query("DELETE FROM wishlists WHERE id = ?", [$id]);
-            return $stmt->affected_rows > 0;
+            return Wishlist::delete($id);
         } catch (\Exception $e) {
             error_log('Delete wishlist failed: ' . $e->getMessage());
             return false;
@@ -379,11 +320,7 @@ class WishlistService
     public function updateWishlistName(int $id, string $name): bool
     {
         try {
-            $stmt = \App\Core\Database::query(
-                "UPDATE wishlists SET wishlist_name = ? WHERE id = ?", 
-                [$name, $id]
-            );
-            return $stmt->affected_rows > 0;
+            return Wishlist::updateName($id, $name);
         } catch (\Exception $e) {
             error_log('Update wishlist name failed: ' . $e->getMessage());
             return false;
@@ -393,22 +330,7 @@ class WishlistService
     public function updateDuplicateFlags(string $username, string $wishlistName): void
     {
         try {
-            // Count how many wishlists the user has with this name
-            $countStmt = \App\Core\Database::query(
-                "SELECT COUNT(*) as count FROM wishlists WHERE username = ? AND wishlist_name = ?",
-                [$username, $wishlistName]
-            );
-            $result = $countStmt->get_result()->fetch_assoc();
-            $count = $result['count'];
-
-            // If there's only one wishlist with this name, set duplicate flag to 0
-            // If there are multiple, update the duplicate flags to reflect the count
-            $newDuplicateFlag = max(0, $count - 1);
-            
-            $stmt = \App\Core\Database::query(
-                "UPDATE wishlists SET duplicate = ? WHERE username = ? AND wishlist_name = ?",
-                [$newDuplicateFlag, $username, $wishlistName]
-            );
+            Wishlist::updateDuplicateFlags($username, $wishlistName);
         } catch (\Exception $e) {
             error_log('Update duplicate flags failed: ' . $e->getMessage());
         }
@@ -423,12 +345,7 @@ class WishlistService
      */
     public function getOtherCopiesCount(string $copyId, int $excludeItemId): int
     {
-        $stmt = \App\Core\Database::query(
-            "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND id != ?",
-            [$copyId, $excludeItemId]
-        );
-        $result = $stmt->get_result()->fetch_assoc();
-        return (int) $result['count'];
+        return Item::countByCopyIdExcludingItem($copyId, $excludeItemId);
     }
 
     /**
@@ -440,11 +357,6 @@ class WishlistService
      */
     public function itemExistsInWishlist(string $copyId, int $wishlistId): bool
     {
-        $stmt = \App\Core\Database::query(
-            "SELECT COUNT(*) as count FROM items WHERE copy_id = ? AND wishlist_id = ?", 
-            [$copyId, $wishlistId]
-        );
-        $result = $stmt->get_result()->fetch_assoc();
-        return $result['count'] > 0;
+        return Item::existsByCopyIdAndWishlist($copyId, $wishlistId);
     }
 }
