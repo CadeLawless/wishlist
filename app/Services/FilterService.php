@@ -5,12 +5,34 @@ namespace App\Services;
 class FilterService
 {
     /**
+     * Get sort direction based on sort value
+     */
+    private static function getSortDirection(string $sortValue): string
+    {
+        return match ($sortValue) {
+            "1" => "ASC",
+            "2" => "DESC",
+            default => "",
+        };
+    }
+
+    /**
      * Build order clause for wishlist items based on sort parameters
      */
     public static function buildOrderClause(string $sortPriority, string $sortPrice): string
     {
-        $priority_order = $sortPriority ? "priority ASC, " : "";
-        $price_order = $sortPrice ? "price * 1 ASC, " : "";
+        $priority_order = "";
+        if ($sortPriority) {
+            $direction = self::getSortDirection($sortPriority);
+            $priority_order = "priority {$direction}, ";
+        }
+        
+        $price_order = "";
+        if ($sortPrice) {
+            $direction = self::getSortDirection($sortPrice);
+            $price_order = "price * 1 {$direction}, ";
+        }
+        
         return "purchased ASC, {$priority_order}{$price_order}date_added DESC";
     }
 
@@ -28,13 +50,11 @@ class FilterService
         // Build order clause
         $orderClause = self::buildOrderClause($sortPriority, $sortPrice);
         
-        return [
-            'sort_by' => $requestData['sort_by'] ?? 'date_added',
-            'sort_order' => $requestData['sort_order'] ?? 'DESC',
-            'priority' => $requestData['priority'] ?? null,
-            'purchased' => $requestData['purchased'] ?? null,
-            'order_clause' => $orderClause
-        ];
+        // Build base filters and add order clause
+        $filters = self::buildBaseFilters($requestData);
+        $filters['order_clause'] = $orderClause;
+        
+        return $filters;
     }
 
     /**
@@ -42,13 +62,10 @@ class FilterService
      */
     public static function processWisherFilters(array $requestData): array
     {
-        return [
-            'sort_by' => $requestData['sort_by'] ?? 'date_added',
-            'sort_order' => $requestData['sort_order'] ?? 'DESC',
-            'priority' => $requestData['priority'] ?? null,
-            'purchased' => $requestData['purchased'] ?? null,
-            'order_clause' => $requestData['order_clause'] ?? 'purchased ASC, date_added DESC'
-        ];
+        $filters = self::buildBaseFilters($requestData);
+        $filters['order_clause'] = $requestData['order_clause'] ?? 'purchased ASC, date_added DESC';
+        
+        return $filters;
     }
 
     /**
@@ -58,18 +75,12 @@ class FilterService
     {
         $serviceFilters = [];
         
-        if ($sortPriority === '1') {
+        if ($sortPriority) {
             $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPriority === '2') {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = 'DESC';
-        } elseif ($sortPrice === '1') {
+            $serviceFilters['sort_order'] = self::getSortDirection($sortPriority);
+        } elseif ($sortPrice) {
             $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'ASC';
-        } elseif ($sortPrice === '2') {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = 'DESC';
+            $serviceFilters['sort_order'] = self::getSortDirection($sortPrice);
         } else {
             $serviceFilters['sort_by'] = 'date_added';
             $serviceFilters['sort_order'] = 'DESC';
@@ -79,11 +90,32 @@ class FilterService
     }
 
     /**
-     * Validate wisher filter options
+     * Build base filter array with common defaults
      */
-    public static function validateWisherFilters(string $sortPriority, string $sortPrice): bool
+    private static function buildBaseFilters(array $requestData): array
+    {
+        return [
+            'sort_by' => $requestData['sort_by'] ?? 'date_added',
+            'sort_order' => $requestData['sort_order'] ?? 'DESC',
+            'priority' => $requestData['priority'] ?? null,
+            'purchased' => $requestData['purchased'] ?? null,
+        ];
+    }
+
+    /**
+     * Validate filter options
+     */
+    public static function validateFilters(string $sortPriority, string $sortPrice): bool
     {
         $validOptions = ['', '1', '2'];
         return in_array($sortPriority, $validOptions) && in_array($sortPrice, $validOptions);
+    }
+
+    /**
+     * Validate wisher filter options (alias for consistency)
+     */
+    public static function validateWisherFilters(string $sortPriority, string $sortPrice): bool
+    {
+        return self::validateFilters($sortPriority, $sortPrice);
     }
 }
