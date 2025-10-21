@@ -156,8 +156,8 @@ class ItemController extends Controller
         $item = $this->wishlistService->addItem($wishlistId, $itemData);
         
         if ($item) {
-            // Clean up any previously uploaded files that are no longer needed
-            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            // Don't clean up uploaded files - they are now part of the item
+            // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
@@ -367,8 +367,8 @@ class ItemController extends Controller
                 $this->fileUploadService->deleteItemImage($wishlistId, $item['image']);
             }
             
-            // Clean up any previously uploaded files that are no longer needed
-            $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
+            // Don't clean up uploaded files - they are now part of the item
+            // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
             return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');

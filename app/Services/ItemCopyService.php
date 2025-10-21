@@ -6,6 +6,16 @@ use App\Core\Database;
 
 class ItemCopyService
 {
+    /**
+     * Get the base upload directory path (absolute path)
+     */
+    private function getBaseUploadPath(): string
+    {
+        // Get the project root directory (one level up from public/)
+        $path = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'item-images' . DIRECTORY_SEPARATOR;
+        return $path;
+    }
+
     public function copyItems(int $fromWishlistId, int $toWishlistId, array $itemIds): int
     {
         $copiedCount = 0;
@@ -77,13 +87,16 @@ class ItemCopyService
 
     public function duplicateItemImage(int $fromWishlistId, int $toWishlistId, string $imageName): string
     {
-        $fromPath = "images/item-images/{$fromWishlistId}/{$imageName}";
-        $toDir = "images/item-images/{$toWishlistId}";
-        $toPath = "{$toDir}/{$imageName}";
+        $fromPath = $this->getBaseUploadPath() . "{$fromWishlistId}/{$imageName}";
+        $toDir = $this->getBaseUploadPath() . "{$toWishlistId}";
+        $toPath = $toDir . DIRECTORY_SEPARATOR . "{$imageName}";
 
         // Create destination directory if it doesn't exist
         if (!is_dir($toDir)) {
-            mkdir($toDir, 0755, true);
+            if (!mkdir($toDir, 0755, true)) {
+                error_log("Failed to create destination directory for image copy: {$toDir}");
+                return $imageName; // Return original name if directory creation fails
+            }
         }
 
         // Check if file already exists and create unique name

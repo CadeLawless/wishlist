@@ -9,6 +9,16 @@ class FileUploadService
     private array $allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
     private int $maxFileSize = 5 * 1024 * 1024; // 5MB
 
+    /**
+     * Get the base upload directory path (absolute path)
+     */
+    private function getBaseUploadPath(): string
+    {
+        // Get the project root directory (one level up from public/)
+        $path = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'item-images' . DIRECTORY_SEPARATOR;
+        return $path;
+    }
+
     public function uploadItemImage(array $file, string $wishlistId, string $itemName): array
     {
         $result = [
@@ -25,9 +35,13 @@ class FileUploadService
         }
 
         // Create directory if it doesn't exist
-        $uploadDir = "images/item-images/{$wishlistId}/";
+        $uploadDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create upload directory: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory. Please check permissions.';
+                return $result;
+            }
         }
 
         // Generate filename with timestamp to ensure uniqueness
@@ -40,7 +54,23 @@ class FileUploadService
 
         // Move uploaded file
         $targetPath = $uploadDir . $filename;
-        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+        error_log("Attempting to move uploaded file from {$file['tmp_name']} to {$targetPath}");
+        error_log("Source file exists: " . (file_exists($file['tmp_name']) ? 'Yes' : 'No'));
+        error_log("Source file size: " . filesize($file['tmp_name']));
+        error_log("Target directory exists: " . (is_dir($uploadDir) ? 'Yes' : 'No'));
+        error_log("Target directory writable: " . (is_writable($uploadDir) ? 'Yes' : 'No'));
+        
+        $moveResult = move_uploaded_file($file['tmp_name'], $targetPath);
+        error_log("Move result: " . ($moveResult ? 'Success' : 'Failed'));
+        
+        // Verify the file actually exists after move
+        $fileExistsAfterMove = file_exists($targetPath);
+        error_log("File exists after move: " . ($fileExistsAfterMove ? 'Yes' : 'No'));
+        if ($fileExistsAfterMove) {
+            error_log("File size after move: " . filesize($targetPath));
+        }
+        
+        if ($moveResult && $fileExistsAfterMove) {
             // Optimize image if needed
             $this->optimizeImage($targetPath);
             
@@ -48,6 +78,9 @@ class FileUploadService
             $result['filename'] = $filename;
             $result['filepath'] = $targetPath;
         } else {
+            error_log("Failed to move uploaded file. Source: {$file['tmp_name']}, Target: {$targetPath}");
+            error_log("PHP upload error: " . $file['error']);
+            error_log("Last PHP error: " . error_get_last()['message']);
             $result['error'] = 'Failed to upload file. Please try again.';
         }
 
@@ -63,9 +96,13 @@ class FileUploadService
         ];
 
         // Create target directory if it doesn't exist
-        $targetDir = "images/item-images/{$targetWishlistId}/";
+        $targetDir = $this->getBaseUploadPath() . "{$targetWishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+            if (!mkdir($targetDir, 0755, true)) {
+                error_log("Failed to create target directory: {$targetDir}");
+                $result['error'] = 'Failed to create target directory. Please check permissions.';
+                return $result;
+            }
         }
 
         // Handle filename conflicts
@@ -84,10 +121,12 @@ class FileUploadService
 
     public function deleteItemImage(string $wishlistId, string $filename): bool
     {
-        $filePath = "images/item-images/{$wishlistId}/{$filename}";
+        $filePath = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR . "{$filename}";
         if (file_exists($filePath)) {
+            error_log("Deleting image file: {$filePath}");
             return unlink($filePath);
         }
+        error_log("Image file not found for deletion: {$filePath}");
         return false;
     }
 
@@ -167,9 +206,13 @@ class FileUploadService
         }
 
         // Create directory if it doesn't exist
-        $uploadDir = "images/item-images/{$wishlistId}/";
+        $uploadDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create upload directory for base64: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory. Please check permissions.';
+                return $result;
+            }
         }
 
         // Handle both full data URL format and raw base64 (same as validateBase64Image)
@@ -247,11 +290,14 @@ class FileUploadService
                 }
 
                 // Copy new image to this wishlist from the source wishlist
-                $sourcePath = "images/item-images/{$sourceWishlistId}/{$newImage}";
-                $targetDir = "images/item-images/{$wishlistId}/";
+                $sourcePath = $this->getBaseUploadPath() . "{$sourceWishlistId}" . DIRECTORY_SEPARATOR . "{$newImage}";
+                $targetDir = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
                 
                 if (!is_dir($targetDir)) {
-                    mkdir($targetDir, 0755, true);
+                    if (!mkdir($targetDir, 0755, true)) {
+                        error_log("Failed to create target directory for copied image: {$targetDir}");
+                        continue; // Skip this item if directory creation fails
+                    }
                 }
 
                 $targetFilename = $this->getUniqueFilename($targetDir, $newImage);
@@ -297,8 +343,12 @@ class FileUploadService
     public function optimizeImage(string $filePath): bool
     {
         try {
+            error_log("Starting image optimization for: {$filePath}");
+            error_log("File exists before optimization: " . (file_exists($filePath) ? 'Yes' : 'No'));
+            
             $imageInfo = getimagesize($filePath);
             if (!$imageInfo) {
+                error_log("Failed to get image info for: {$filePath}");
                 return false;
             }
 
@@ -367,6 +417,8 @@ class FileUploadService
             imagedestroy($source);
             imagedestroy($resized);
 
+            error_log("Image optimization completed. Success: " . ($success ? 'Yes' : 'No'));
+            error_log("File exists after optimization: " . (file_exists($filePath) ? 'Yes' : 'No'));
             return $success;
         } catch (\Exception $e) {
             error_log('Image optimization failed: ' . $e->getMessage());

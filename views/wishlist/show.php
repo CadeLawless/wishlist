@@ -1,4 +1,37 @@
 <?php
+// Display flash messages
+if (isset($flash['success'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
+if (isset($flash['error'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
 // Wishlist data
 $wishlistID = $wishlist['id'];
 $wishlist_name_input = $wishlist['wishlist_name'];
@@ -431,5 +464,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="public/js/wishlist-filters.js"></script>
 <script src="public/js/wishlist-pagination.js"></script>
 <script src="public/js/choose-theme.js"></script>
+<script src="js/popup.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 
