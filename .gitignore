@@ -3,3 +3,6 @@
 composer.lock
 .DS_Store
 Thumbs.db
+
+# Item images (user uploaded content)
+public/images/item-images/
