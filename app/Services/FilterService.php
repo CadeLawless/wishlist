@@ -70,17 +70,17 @@ class FilterService
 
     /**
      * Convert wisher session filters to service format
+     * 
+     * Uses buildOrderClause() to handle both priority and price sorting
+     * when both are selected, ensuring consistent behavior with buyer view.
      */
     public static function convertWisherSessionFilters(string $sortPriority, string $sortPrice): array
     {
         $serviceFilters = [];
         
-        if ($sortPriority) {
-            $serviceFilters['sort_by'] = 'priority';
-            $serviceFilters['sort_order'] = self::getSortDirection($sortPriority);
-        } elseif ($sortPrice) {
-            $serviceFilters['sort_by'] = 'price';
-            $serviceFilters['sort_order'] = self::getSortDirection($sortPrice);
+        // Use buildOrderClause for consistent multi-sort behavior
+        if ($sortPriority || $sortPrice) {
+            $serviceFilters['order_clause'] = self::buildOrderClause($sortPriority, $sortPrice);
         } else {
             $serviceFilters['sort_by'] = 'date_added';
             $serviceFilters['sort_order'] = 'DESC';
