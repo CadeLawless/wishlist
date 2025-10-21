@@ -47,10 +47,10 @@ class Database
     }
 
     /**
-     * Execute a prepared SQL query
+     * Execute a prepared SQL query with modern PHP 8.1+ features
      * 
      * Executes SQL queries with parameter binding for security.
-     * All queries should use this method to prevent SQL injection.
+     * Uses PHP 8.1+ execute() with parameters for cleaner code.
      * 
      * @param string $sql SQL query with placeholders (?)
      * @param array $params Parameters to bind to the query
@@ -63,12 +63,7 @@ class Database
             die("Prepare failed: " . self::connect()->error);
         }
         
-        if (!empty($params)) {
-            $types = str_repeat('s', count($params)); // Assume all strings for now
-            $stmt->bind_param($types, ...$params);
-        }
-        
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt;
     }
 
