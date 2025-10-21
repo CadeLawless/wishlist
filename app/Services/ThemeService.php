@@ -56,22 +56,51 @@ class ThemeService
     /**
      * Get background themes only
      * 
+     * @param string $type The theme type (Birthday/Christmas)
      * @return array Array of background theme data
      */
-    public static function getBackgroundThemes(): array
+    public static function getBackgroundThemes(string $type = null): array
     {
-        $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'background' ORDER BY theme_name ASC");
+        if ($type) {
+            $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Background' AND theme_tag = ? ORDER BY theme_name ASC", [$type]);
+        } else {
+            $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Background' ORDER BY theme_name ASC");
+        }
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
     
     /**
      * Get gift wrap themes only
      * 
+     * @param string $type The theme type (Birthday/Christmas)
      * @return array Array of gift wrap theme data
      */
-    public static function getGiftWrapThemes(): array
+    public static function getGiftWrapThemes(string $type = null): array
     {
-        $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'gift_wrap' ORDER BY theme_name ASC");
+        if ($type) {
+            $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Gift Wrap' AND theme_tag = ? ORDER BY theme_name ASC", [$type]);
+        } else {
+            $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Gift Wrap' ORDER BY theme_name ASC");
+        }
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    
+    /**
+     * Get the number of gift wrap files for a theme
+     * 
+     * @param string $wrapImage The gift wrap image name
+     * @return int Number of gift wrap files
+     */
+    public static function getGiftWrapFileCount(string $wrapImage): int
+    {
+        $count = 0;
+        $basePath = __DIR__ . '/../../images/site-images/themes/gift-wraps/' . $wrapImage . '/';
+        
+        if (is_dir($basePath)) {
+            $files = glob($basePath . '*.png');
+            $count = count($files);
+        }
+        
+        return $count;
     }
 }

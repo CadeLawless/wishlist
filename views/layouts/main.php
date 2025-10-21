@@ -6,6 +6,7 @@
     <link rel="icon" type="image/x-icon" href="images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo $title ?? 'Wish List'; ?></title>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">

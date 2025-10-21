@@ -69,11 +69,9 @@ $(document).ready(function() {
             $selected_option.find(".value").data("wrap-image", $wrap_image);
             $selected_option.find(".preview-image").html("<img src='images/site-images/themes/gift-wraps/"+$wrap_image+"/1.png' />");
             $file_count = 1;
-            console.log("Updating gift wrap images with:", $wrap_image, "Number of files:", $number_of_files);
             $($popup_container+"img.gift-wrap").each(function(){
                 if($file_count > $number_of_files) $file_count = 1;
                 var newSrc = "images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png";
-                console.log("Setting gift wrap image src to:", newSrc);
                 $(this).attr("src", newSrc);
                 $file_count++;
             });

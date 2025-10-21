@@ -54,8 +54,8 @@ use App\Helpers\ThemePopupHelper;
     }
 </style>
 
-<script src="public/js/popups.js"></script>
-<script src="public/js/choose-theme.js"></script>
+<script src="/wishlist/public/js/popups.js"></script>
+<script src="/wishlist/public/js/choose-theme.js"></script>
 <script>
     let name_input = document.querySelector("#wishlist_name");
     name_input.addEventListener("focus", function(){
