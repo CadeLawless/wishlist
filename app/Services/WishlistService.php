@@ -224,15 +224,15 @@ class WishlistService
         $copiedCount = 0;
         
         foreach ($itemIds as $itemId) {
-            $sourceItem = $this->item->find($itemId);
-            if ($sourceItem && $sourceItem->wishlist_id == $fromWishlistId) {
-                $itemData = $sourceItem->toArray();
+            $sourceItem = Item::find($itemId);
+            if ($sourceItem && $sourceItem['wishlist_id'] == $fromWishlistId) {
+                $itemData = $sourceItem;
                 unset($itemData['id']); // Remove ID to create new item
                 $itemData['wishlist_id'] = $toWishlistId;
                 $itemData['copy_id'] = $itemId; // Track original item
                 
-                $newItem = $this->item->createItem($itemData);
-                if ($newItem) {
+                $newItemId = Item::create($itemData);
+                if ($newItemId) {
                     $copiedCount++;
                 }
             }
