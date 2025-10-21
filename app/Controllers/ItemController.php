@@ -306,7 +306,8 @@ class ItemController extends Controller
             'unlimited' => $data['unlimited'] ?? 'No', // Default to 'No' if checkbox not checked
             'link' => $data['link'],
             'image' => $filename,
-            'priority' => $data['priority'] ?? '1'
+            'priority' => $data['priority'] ?? '1',
+            'date_modified' => date('Y-m-d H:i:s') // Add current timestamp for synchronization
         ];
         
         // Handle purchased status when quantity changes

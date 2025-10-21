@@ -44,7 +44,7 @@ class ItemRenderService
             </div>
             <div class='item-description'>
                 <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
-                <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
+                <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                 <?php if($type === 'wisher'): ?>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
                 <?php endif; ?>
