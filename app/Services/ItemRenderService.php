@@ -114,7 +114,7 @@ class ItemRenderService
                 </div>
                 <?php if($type === 'buyer'): ?>
                     <?php if($item['purchased'] !== 'Yes'): ?>
-                        <div style='margin-top: 18px;' class='center'>
+                        <div style='margin: 18px 0;' class='center'>
                             <input class='purchased-button popup-button' type='checkbox' id='<?php echo $item['id']; ?>'><label for='<?php echo $item['id']; ?>'> Mark as Purchased</label>
                             <div class='popup-container purchased-popup-<?php echo $item['id']; ?> hidden'>
                                 <div class='popup'>
@@ -139,7 +139,9 @@ class ItemRenderService
                         </div>
                     <?php endif; ?>
             <?php endif; ?>
-            <p class='date-added center'><em>Date Added: <?php echo $dateAdded; ?></em></p>
+            <?php if($type === 'wisher'): ?>
+                <p class='date-added center'><em>Date Added: <?php echo $dateAdded; ?></em></p>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
