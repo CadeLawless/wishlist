@@ -273,23 +273,15 @@ class AuthController extends Controller
         
         $dark = $this->request->input('dark');
         
-        // Debug logging
-        error_log('Dark mode toggle - User ID: ' . ($user['id'] ?? 'NULL'));
-        error_log('Dark mode toggle - Dark value: ' . $dark);
-        
         if ($dark === 'Yes' || $dark === 'No') {
             try {
-                error_log('Dark mode toggle - Attempting to update user ' . $user['id'] . ' with dark = ' . $dark);
                 $result = User::update($user['id'], ['dark' => $dark]);
-                error_log('Dark mode toggle - Update result: ' . ($result ? 'true' : 'false'));
                 
                 if ($result) {
                     // Also update the session
                     $_SESSION['dark'] = $dark === 'Yes';
-                    error_log('Dark mode toggle - Success: Updated to ' . $dark);
                     return new Response('success');
                 } else {
-                    error_log('Dark mode toggle - Database update failed, no rows affected');
                     return new Response('error', 500);
                 }
             } catch (\Exception $e) {
@@ -297,8 +289,6 @@ class AuthController extends Controller
                 return new Response('error', 500);
             }
         }
-        
-        error_log('Dark mode toggle - Invalid data: ' . $dark);
         return new Response('invalid_data', 400);
     }
 
@@ -528,12 +518,7 @@ class AuthController extends Controller
         
         $user = $this->auth();
         
-        // Debug logging
-        error_log('Admin check - User role: ' . ($user['role'] ?? 'NULL'));
-        error_log('Admin check - User data: ' . print_r($user, true));
-        
         if ($user['role'] !== 'Admin') {
-            error_log('Admin access denied - role: ' . ($user['role'] ?? 'NULL'));
             return $this->redirect('/')->withError('Access denied. Admin privileges required.');
         }
         

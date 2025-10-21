@@ -103,7 +103,6 @@ class BuyerController extends Controller
 
     public function paginateItems(string $secretKey): Response
     {
-        error_log('BuyerController::paginateItems called with secretKey: ' . $secretKey);
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
         
         if (!$wishlist) {
@@ -135,7 +134,6 @@ class BuyerController extends Controller
         }
 
         $page = (int) $this->request->input('new_page', 1);
-        error_log('BuyerController::paginateItems - page: ' . $page);
         
         // Apply session filters for pagination (like wisher view)
         $sortPriority = $_SESSION['buyer_sort_priority'] ?? '';
@@ -159,7 +157,6 @@ class BuyerController extends Controller
         try {
             $itemsHtml = $this->generateItemsHtml($paginatedItems, $wishlist['id'], $page);
         } catch (Exception $e) {
-            error_log('Error generating items HTML: ' . $e->getMessage());
             $itemsHtml = '<div class="error">Error loading items</div>';
         }
         

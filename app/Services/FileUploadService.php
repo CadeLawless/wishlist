@@ -54,23 +54,9 @@ class FileUploadService
 
         // Move uploaded file
         $targetPath = $uploadDir . $filename;
-        error_log("Attempting to move uploaded file from {$file['tmp_name']} to {$targetPath}");
-        error_log("Source file exists: " . (file_exists($file['tmp_name']) ? 'Yes' : 'No'));
-        error_log("Source file size: " . filesize($file['tmp_name']));
-        error_log("Target directory exists: " . (is_dir($uploadDir) ? 'Yes' : 'No'));
-        error_log("Target directory writable: " . (is_writable($uploadDir) ? 'Yes' : 'No'));
-        
         $moveResult = move_uploaded_file($file['tmp_name'], $targetPath);
-        error_log("Move result: " . ($moveResult ? 'Success' : 'Failed'));
         
-        // Verify the file actually exists after move
-        $fileExistsAfterMove = file_exists($targetPath);
-        error_log("File exists after move: " . ($fileExistsAfterMove ? 'Yes' : 'No'));
-        if ($fileExistsAfterMove) {
-            error_log("File size after move: " . filesize($targetPath));
-        }
-        
-        if ($moveResult && $fileExistsAfterMove) {
+        if ($moveResult && file_exists($targetPath)) {
             // Optimize image if needed
             $this->optimizeImage($targetPath);
             
@@ -78,9 +64,6 @@ class FileUploadService
             $result['filename'] = $filename;
             $result['filepath'] = $targetPath;
         } else {
-            error_log("Failed to move uploaded file. Source: {$file['tmp_name']}, Target: {$targetPath}");
-            error_log("PHP upload error: " . $file['error']);
-            error_log("Last PHP error: " . error_get_last()['message']);
             $result['error'] = 'Failed to upload file. Please try again.';
         }
 
@@ -123,10 +106,8 @@ class FileUploadService
     {
         $filePath = $this->getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR . "{$filename}";
         if (file_exists($filePath)) {
-            error_log("Deleting image file: {$filePath}");
             return unlink($filePath);
         }
-        error_log("Image file not found for deletion: {$filePath}");
         return false;
     }
 
@@ -343,12 +324,8 @@ class FileUploadService
     public function optimizeImage(string $filePath): bool
     {
         try {
-            error_log("Starting image optimization for: {$filePath}");
-            error_log("File exists before optimization: " . (file_exists($filePath) ? 'Yes' : 'No'));
-            
             $imageInfo = getimagesize($filePath);
             if (!$imageInfo) {
-                error_log("Failed to get image info for: {$filePath}");
                 return false;
             }
 
@@ -417,8 +394,6 @@ class FileUploadService
             imagedestroy($source);
             imagedestroy($resized);
 
-            error_log("Image optimization completed. Success: " . ($success ? 'Yes' : 'No'));
-            error_log("File exists after optimization: " . (file_exists($filePath) ? 'Yes' : 'No'));
             return $success;
         } catch (\Exception $e) {
             error_log('Image optimization failed: ' . $e->getMessage());

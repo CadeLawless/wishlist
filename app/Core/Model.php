@@ -46,14 +46,10 @@ abstract class Model
         $params = array_values($data);
         $params[] = $id;
         
-        // Debug logging
-        error_log("Model::update - SQL: {$sql}");
-        error_log("Model::update - Params: " . json_encode($params));
         
         $stmt = Database::query($sql, $params);
         $affected = $stmt->affected_rows > 0;
         
-        error_log("Model::update - Affected rows: {$stmt->affected_rows}");
         return $affected;
     }
 
