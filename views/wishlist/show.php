@@ -349,8 +349,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             </div>
 
                     <!-- Sort/Filter section -->
+                    <?php if(count($items) > 0): ?>
                     <div class="sort-filters">
-                        <h3>Sort & Filter</h3>
                         <form class="filter-form center" method="POST" action="/wishlist/<?php echo $wishlistID; ?>/filter" id="filter-form">
                             <div class="filter-inputs">
                                 <div class="filter-input">
@@ -372,6 +372,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                         </form>
                     </div>
+                    <?php endif; ?>
 
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
@@ -411,7 +412,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             <!-- Pagination controls -->
                             <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
                             
+                            <?php if(count($all_items) > 0): ?>
                             <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
+                            <?php endif; ?>
                 </div>
             </div>
 
