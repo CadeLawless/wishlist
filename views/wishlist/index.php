@@ -46,25 +46,8 @@ if (isset($flash['error'])) {
             $theme_background_id = $wishlist['theme_background_id'];
             $theme_gift_wrap_id = $wishlist['theme_gift_wrap_id'];
             
-            $background_image = "";
-            if($theme_background_id != 0){
-                // Get theme image from database
-                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
-                $theme = $stmt->get_result()->fetch_assoc();
-                if($theme) {
-                    $background_image = $theme['theme_image'];
-                }
-            }
-            
-            $wrap_image = "";
-            if($theme_gift_wrap_id != 0){
-                // Get gift wrap image from database
-                $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_gift_wrap_id]);
-                $wrap_theme = $stmt->get_result()->fetch_assoc();
-                if($wrap_theme) {
-                    $wrap_image = $wrap_theme['theme_image'];
-                }
-            }
+            $background_image = \App\Services\ThemeService::getBackgroundImage($theme_background_id) ?? "";
+            $wrap_image = \App\Services\ThemeService::getGiftWrapImage($theme_gift_wrap_id) ?? "";
             
             echo "
             <a class='wishlist-grid-item' href='/wishlist/$id'>

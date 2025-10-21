@@ -47,14 +47,7 @@ $visibility = $wishlist['visibility'];
 $complete = $wishlist['complete'];
 
 // Get background image if theme is set
-$background_image = '';
-if($theme_background_id != 0){
-    $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$theme_background_id]);
-    $bg_row = $stmt->get_result()->fetch_assoc();
-    if($bg_row){
-        $background_image = $bg_row['theme_image'];
-    }
-}
+$background_image = \App\Services\ThemeService::getBackgroundImage($theme_background_id) ?? '';
 
 // All popup messages are now handled by PopupHelper
 

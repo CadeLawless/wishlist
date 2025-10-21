@@ -8,6 +8,7 @@ use App\Services\AuthService;
 use App\Services\WishlistService;
 use App\Services\ValidationService;
 use App\Services\FileUploadService;
+use App\Services\ThemeService;
 
 class ItemController extends Controller
 {
@@ -37,14 +38,7 @@ class ItemController extends Controller
         }
 
         // Get background image for theme
-        $background_image = '';
-        if ($wishlist['theme_background_id'] != 0) {
-            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-            $bg_row = $stmt->get_result()->fetch_assoc();
-            if ($bg_row) {
-                $background_image = $bg_row['theme_image'];
-            }
-        }
+        $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         $data = [
             'user' => $user,
@@ -167,14 +161,7 @@ class ItemController extends Controller
         $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
         // Get background image for theme
-        $background_image = '';
-        if ($wishlist['theme_background_id'] != 0) {
-            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-            $bg_row = $stmt->get_result()->fetch_assoc();
-            if ($bg_row) {
-                $background_image = $bg_row['theme_image'];
-            }
-        }
+        $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         return $this->view('items/create', [
             'user' => $user,
@@ -209,14 +196,7 @@ class ItemController extends Controller
         }
 
         // Get background image for theme
-        $background_image = '';
-        if ($wishlist['theme_background_id'] != 0) {
-            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-            $bg_row = $stmt->get_result()->fetch_assoc();
-            if ($bg_row) {
-                $background_image = $bg_row['theme_image'];
-            }
-        }
+        $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         // Check for other copies of this item
         $otherCopies = false;
@@ -378,14 +358,7 @@ class ItemController extends Controller
         $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
 
         // Get background image for theme
-        $background_image = '';
-        if ($wishlist['theme_background_id'] != 0) {
-            $stmt = \App\Core\Database::query("SELECT theme_image FROM themes WHERE theme_id = ?", [$wishlist['theme_background_id']]);
-            $bg_row = $stmt->get_result()->fetch_assoc();
-            if ($bg_row) {
-                $background_image = $bg_row['theme_image'];
-            }
-        }
+        $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         return $this->view('items/edit', [
             'user' => $user,
