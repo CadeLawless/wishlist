@@ -81,4 +81,17 @@ class Wishlist extends Model
         return null;
     }
 
+    public static function paginate(int $perPage, int $offset): array
+    {
+        $stmt = Database::query("SELECT * FROM " . static::$table . " ORDER BY id DESC LIMIT ? OFFSET ?", [$perPage, $offset]);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function count(): int
+    {
+        $stmt = Database::query("SELECT COUNT(*) as count FROM " . static::$table);
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int)$result['count'];
+    }
+
 }
