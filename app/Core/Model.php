@@ -2,6 +2,12 @@
 
 namespace App\Core;
 
+/**
+ * Abstract base model class providing CRUD operations for all models
+ * 
+ * Implements Active Record pattern with common database operations.
+ * All model classes should extend this class and define their table name.
+ */
 abstract class Model
 {
     protected static string $table;

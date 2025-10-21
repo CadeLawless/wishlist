@@ -40,6 +40,14 @@ class AuthController extends Controller
         return $this->view('auth/login', $data, 'auth');
     }
 
+    /**
+     * Handle user login authentication
+     * 
+     * Processes login form submission, validates credentials, and establishes
+     * user session. Redirects authenticated users away from login page.
+     * 
+     * @return Response Login form view or redirect after successful login
+     */
     public function login(): Response
     {
         $this->requireGuest();

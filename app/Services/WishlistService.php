@@ -128,6 +128,18 @@ class WishlistService
         return false;
     }
 
+    /**
+     * Update all copied items when the original item is modified
+     * 
+     * This method synchronizes changes across all copies of an item when the original
+     * is updated. It handles image copying, file management, and data synchronization.
+     * 
+     * @param string $copyId The copy ID that links all related items
+     * @param array $updateData The data to update across all copies
+     * @param string $sourceWishlistId The wishlist ID of the original item
+     * @param \App\Services\FileUploadService $fileUploadService Service for file operations
+     * @return bool True if all updates succeeded, false otherwise
+     */
     public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId, \App\Services\FileUploadService $fileUploadService): bool
     {
         try {
@@ -142,7 +154,7 @@ class WishlistService
                 // Prepare update data for this item
                 $itemUpdateData = $updateData;
                 
-                // Handle image updates
+                // Handle image updates - copy images between wishlists
                 if (isset($updateData['image'])) {
                     $newImage = $updateData['image'];
                     
@@ -227,6 +239,15 @@ class WishlistService
         return $copiedCount;
     }
 
+    /**
+     * Calculate comprehensive statistics for a wishlist
+     * 
+     * Processes all items in a wishlist to calculate totals, purchased counts,
+     * and price breakdowns. Handles both regular and unlimited quantity items.
+     * 
+     * @param int $wishlistId The wishlist ID to calculate stats for
+     * @return array Statistics including item counts and price totals
+     */
     public function getWishlistStats(int $wishlistId): array
     {
         $items = $this->getWishlistItems($wishlistId);

@@ -28,6 +28,14 @@ class WishlistController extends Controller
         $this->itemCopyService = new ItemCopyService();
     }
 
+    /**
+     * Display user's wishlist dashboard
+     * 
+     * Shows all wishlists belonging to the authenticated user.
+     * Requires authentication.
+     * 
+     * @return Response Rendered wishlist index view
+     */
     public function index(): Response
     {
         $this->requireAuth();

@@ -4,10 +4,24 @@ namespace App\Core;
 
 use mysqli;
 
+/**
+ * Database connection and query management
+ * 
+ * Provides singleton database connection and prepared statement execution.
+ * Handles connection management, query execution, and error handling.
+ */
 class Database
 {
     private static ?mysqli $connection = null;
 
+    /**
+     * Get database connection (singleton pattern)
+     * 
+     * Creates and returns a single database connection instance.
+     * Connection is reused across all database operations.
+     * 
+     * @return mysqli Database connection instance
+     */
     public static function connect(): mysqli
     {
         if (self::$connection === null) {
@@ -32,6 +46,16 @@ class Database
         return self::$connection;
     }
 
+    /**
+     * Execute a prepared SQL query
+     * 
+     * Executes SQL queries with parameter binding for security.
+     * All queries should use this method to prevent SQL injection.
+     * 
+     * @param string $sql SQL query with placeholders (?)
+     * @param array $params Parameters to bind to the query
+     * @return \mysqli_stmt Prepared statement ready for execution
+     */
     public static function query(string $sql, array $params = []): \mysqli_stmt
     {
         $stmt = self::connect()->prepare($sql);

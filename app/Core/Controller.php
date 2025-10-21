@@ -2,6 +2,12 @@
 
 namespace App\Core;
 
+/**
+ * Base controller class providing common functionality for all controllers
+ * 
+ * Handles view rendering, redirects, authentication checks, and flash messages.
+ * All application controllers should extend this class.
+ */
 abstract class Controller
 {
     protected View $view;
