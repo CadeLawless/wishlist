@@ -92,4 +92,82 @@ class SessionManager
         self::startSession();
         session_destroy();
     }
+
+    /**
+     * Set wishlist context for navigation
+     */
+    public static function setWishlistContext(int $wishlistId, int $pageno = 1): void
+    {
+        self::startSession();
+        $_SESSION['wisher_wishlist_id'] = $wishlistId;
+        $_SESSION['home'] = "/wishlist/{$wishlistId}?pageno={$pageno}#paginate-top";
+        $_SESSION['type'] = 'wisher';
+    }
+
+    /**
+     * Set flash message for wishlist operations
+     */
+    public static function setWishlistFlash(string $message, string $type = 'success'): void
+    {
+        self::startSession();
+        $_SESSION["wishlist_{$type}"] = $message;
+    }
+
+    /**
+     * Get and clear flash messages
+     */
+    public static function getFlashMessages(): array
+    {
+        self::startSession();
+        $messages = [];
+        
+        $flashKeys = ['success', 'error', 'wishlist_hidden', 'wishlist_public', 'wishlist_complete', 'wishlist_reactivated'];
+        
+        foreach ($flashKeys as $key) {
+            if (isset($_SESSION[$key])) {
+                $messages[$key] = $_SESSION[$key];
+                unset($_SESSION[$key]);
+            }
+        }
+        
+        return $messages;
+    }
+
+    /**
+     * Check if user is logged in
+     */
+    public static function isLoggedIn(): bool
+    {
+        self::startSession();
+        return isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in'] === true;
+    }
+
+    /**
+     * Get current username from session
+     */
+    public static function getUsername(): ?string
+    {
+        self::startSession();
+        return $_SESSION['username'] ?? null;
+    }
+
+    /**
+     * Set user login session
+     */
+    public static function setLoginSession(string $username): void
+    {
+        self::startSession();
+        $_SESSION['wishlist_logged_in'] = true;
+        $_SESSION['username'] = $username;
+    }
+
+    /**
+     * Logout user and clear session
+     */
+    public static function logout(): void
+    {
+        self::startSession();
+        $_SESSION = [];
+        session_destroy();
+    }
 }

@@ -7,6 +7,7 @@ use App\Core\Response;
 use App\Services\WishlistService;
 use App\Services\PaginationService;
 use App\Services\FilterService;
+use App\Services\SessionManager;
 use Exception;
 
 class BuyerController extends Controller
@@ -124,8 +125,9 @@ class BuyerController extends Controller
         $page = (int) $this->request->input('new_page', 1);
         
         // Apply session filters for pagination (like wisher view)
-        $sortPriority = $_SESSION['buyer_sort_priority'] ?? '';
-        $sortPrice = $_SESSION['buyer_sort_price'] ?? '';
+        $sortPreferences = SessionManager::getBuyerSortPreferences();
+        $sortPriority = $sortPreferences['sort_priority'];
+        $sortPrice = $sortPreferences['sort_price'];
         
         // Build order clause like in show method
         $priority_order = $sortPriority ? "priority ASC, " : "";

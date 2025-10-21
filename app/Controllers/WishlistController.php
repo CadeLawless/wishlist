@@ -76,13 +76,7 @@ class WishlistController extends Controller
         $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
         
         // Get sorting/filter preferences from session
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        
-        $_SESSION['wisher_wishlist_id'] = $id;
-        $_SESSION['home'] = "/wishlist/{$id}?pageno={$pageno}#paginate-top";
-        $_SESSION['type'] = 'wisher';
+        SessionManager::setWishlistContext($id, $pageno);
 
         $sortPreferences = SessionManager::getWisherSortPreferences();
         $sortPriority = $sortPreferences['sort_priority'];
@@ -397,7 +391,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            $_SESSION['wishlist_hidden'] = true;
+            SessionManager::setWishlistFlash('Wishlist hidden successfully', 'hidden');
             return $this->redirect("/wishlist/{$id}");
         }
 
@@ -416,7 +410,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            $_SESSION['wishlist_public'] = true;
+            SessionManager::setWishlistFlash('Wishlist made public successfully', 'public');
             return $this->redirect("/wishlist/{$id}");
         }
 
@@ -435,7 +429,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            $_SESSION['wishlist_complete'] = true;
+            SessionManager::setWishlistFlash('Wishlist marked as complete', 'complete');
             return $this->redirect("/wishlist/{$id}");
         }
 
@@ -454,7 +448,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            $_SESSION['wishlist_reactivated'] = true;
+            SessionManager::setWishlistFlash('Wishlist reactivated successfully', 'reactivated');
             return $this->redirect("/wishlist/{$id}");
         }
 
