@@ -94,7 +94,7 @@ class Wishlist extends Model
         return (int)$result['count'];
     }
 
-    public static function searchByName(string $query, string $username = null): array
+    public static function searchByName(string $query, ?string $username = null): array
     {
         $sql = "SELECT * FROM " . static::$table . " WHERE wishlist_name LIKE ?";
         $params = ["%{$query}%"];
