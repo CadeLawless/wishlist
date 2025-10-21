@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Services\WishlistService;
-use App\Services\ValidationService;
+use App\Validation\WishlistRequestValidator;
 use App\Services\PaginationService;
 use App\Services\ItemCopyService;
 use App\Services\PopupManager;
@@ -13,7 +13,7 @@ use App\Services\PopupManager;
 class WishlistController extends Controller
 {
     private WishlistService $wishlistService;
-    private ValidationService $validationService;
+    private WishlistRequestValidator $wishlistValidator;
     private PaginationService $paginationService;
     private ItemCopyService $itemCopyService;
 
@@ -21,7 +21,7 @@ class WishlistController extends Controller
     {
         parent::__construct();
         $this->wishlistService = new WishlistService();
-        $this->validationService = new ValidationService();
+        $this->wishlistValidator = new WishlistRequestValidator();
         $this->paginationService = new PaginationService();
         $this->itemCopyService = new ItemCopyService();
     }
@@ -155,16 +155,16 @@ class WishlistController extends Controller
         
         $user = $this->auth();
         $data = $this->request->input();
-        $errors = $this->validationService->validateWishlist($data);
+        $errors = $this->wishlistValidator->validateWishlist($data);
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->wishlistValidator->hasErrors($errors)) {
             return $this->view('wishlist/create', [
                 'user' => $user,
                 'wishlist_type' => $data['wishlist_type'] ?? '',
                 'wishlist_name' => $data['wishlist_name'] ?? '',
                 'theme_background_id' => $data['theme_background_id'] ?? '',
                 'theme_gift_wrap_id' => $data['theme_gift_wrap_id'] ?? '',
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->wishlistValidator->formatErrorsForDisplay($errors)
             ]);
         }
 
@@ -216,14 +216,14 @@ class WishlistController extends Controller
         }
 
         $data = $this->request->input();
-        $errors = $this->validationService->validateWishlist($data);
+        $errors = $this->wishlistValidator->validateWishlist($data);
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->wishlistValidator->hasErrors($errors)) {
             return $this->view('wishlist/edit', [
                 'user' => $user,
                 'wishlist' => $wishlist,
                 'wishlist_name' => $data['wishlist_name'] ?? '',
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->wishlistValidator->formatErrorsForDisplay($errors)
             ]);
         }
 
@@ -310,10 +310,10 @@ class WishlistController extends Controller
         }
 
         $name = $this->request->input('wishlist_name');
-        $errors = $this->validationService->validateWishlistName($name);
+        $errors = $this->wishlistValidator->validateWishlistName($name);
 
-        if ($this->validationService->hasErrors($errors)) {
-            return $this->redirect("/wishlist/{$id}")->withError($this->validationService->formatErrorsForDisplay($errors));
+        if ($this->wishlistValidator->hasErrors($errors)) {
+            return $this->redirect("/wishlist/{$id}")->withError($this->wishlistValidator->formatErrorsForDisplay($errors));
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {

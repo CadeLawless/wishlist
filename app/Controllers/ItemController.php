@@ -5,21 +5,21 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Services\WishlistService;
-use App\Services\ValidationService;
+use App\Validation\ItemRequestValidator;
 use App\Services\FileUploadService;
 use App\Services\ThemeService;
 
 class ItemController extends Controller
 {
     private WishlistService $wishlistService;
-    private ValidationService $validationService;
+    private ItemRequestValidator $itemValidator;
     private FileUploadService $fileUploadService;
 
     public function __construct()
     {
         parent::__construct();
         $this->wishlistService = new WishlistService();
-        $this->validationService = new ValidationService();
+        $this->itemValidator = new ItemRequestValidator();
         $this->fileUploadService = new FileUploadService();
     }
 
@@ -66,7 +66,7 @@ class ItemController extends Controller
         }
 
         $data = $this->request->input();
-        $errors = $this->validationService->validateItem($data);
+        $errors = $this->itemValidator->validateItem($data);
 
         // Handle file upload - support both file upload and paste
         $filename = '';
@@ -101,7 +101,7 @@ class ItemController extends Controller
             $errors['item_image'][] = 'Item image is required.';
         }
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->itemValidator->hasErrors($errors)) {
             // Don't clean up uploaded files - keep them for form persistence
             
             // Get background image for theme
@@ -119,7 +119,7 @@ class ItemController extends Controller
                 'notes' => $data['notes'] ?? '',
                 'priority' => $data['priority'] ?? '1',
                 'filename' => $filename,
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->itemValidator->formatErrorsForDisplay($errors)
             ]);
         }
 
@@ -234,7 +234,7 @@ class ItemController extends Controller
         }
 
         $data = $this->request->input();
-        $errors = $this->validationService->validateItem($data);
+        $errors = $this->itemValidator->validateItem($data);
 
         // Handle file upload - support both file upload and paste
         $filename = $item['image']; // Keep existing image
@@ -269,7 +269,7 @@ class ItemController extends Controller
             $imageChanged = true;
         }
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->itemValidator->hasErrors($errors)) {
             // Don't clean up uploaded files - keep them for form persistence
             
             // Get background image for theme
@@ -290,7 +290,7 @@ class ItemController extends Controller
                 'filename' => $filename,
                 'otherCopies' => $otherCopies ?? false,
                 'numberOfOtherCopies' => $numberOfOtherCopies ?? 0,
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->itemValidator->formatErrorsForDisplay($errors)
             ]);
         }
 

@@ -232,9 +232,9 @@ $(document).ready(function() {
     // CUSTOM EVENT HANDLERS
     // =============================================================================
     
-    // Example: Log popup events for debugging
-    $(document).on('popup:opened popup:closed popup:cancelled', function(e, button) {
-        console.log('Popup event:', e.type, button ? 'triggered by button' : '');
-    });
+    // Example: Log popup events for debugging (disabled to prevent console spam)
+    // $(document).on('popup:opened popup:closed popup:cancelled', function(e, button) {
+    //     console.log('Popup event:', e.type, button ? 'triggered by button' : '');
+    // });
     
 });

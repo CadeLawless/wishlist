@@ -80,7 +80,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     <link rel="icon" type="image/x-icon" href="/wishlist/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title><?php echo $wishlistTitle; ?></title>
     <style>
         h1 {
@@ -434,12 +433,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 </body>
 </html>
-<script src="public/js/copy-link.js"></script>
-<script src="public/js/copy-select.js"></script>
-<script src="public/js/checkbox-selection.js"></script>
-<script src="public/js/wishlist-filters.js"></script>
-<script src="public/js/wishlist-pagination.js"></script>
-<script src="public/js/choose-theme.js"></script>
-<script src="js/popup.js"></script>
+<script src="/wishlist/public/js/copy-link.js"></script>
+<script src="/wishlist/public/js/copy-select.js"></script>
+<script src="/wishlist/public/js/checkbox-selection.js"></script>
+<script src="/wishlist/public/js/wishlist-filters.js"></script>
+<script src="/wishlist/public/js/wishlist-pagination.js"></script>
+<script src="/wishlist/public/js/choose-theme.js"></script>
+<script src="/wishlist/js/popup.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 

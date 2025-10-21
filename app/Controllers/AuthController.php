@@ -7,21 +7,21 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Models\User;
 use App\Services\AuthService;
-use App\Services\ValidationService;
+use App\Validation\UserRequestValidator;
 use App\Services\EmailService;
 use App\Helpers\StringHelper;
 
 class AuthController extends Controller
 {
     private AuthService $authService;
-    private ValidationService $validationService;
+    private UserRequestValidator $userValidator;
     private EmailService $emailService;
 
     public function __construct()
     {
         parent::__construct();
         $this->authService = new AuthService();
-        $this->validationService = new ValidationService();
+        $this->userValidator = new UserRequestValidator();
         $this->emailService = new EmailService();
     }
 
@@ -45,14 +45,14 @@ class AuthController extends Controller
         // Only process form submission on POST requests
         if ($this->request->isPost()) {
             $data = $this->request->input();
-            $errors = $this->validationService->validateLogin($data);
+            $errors = $this->userValidator->validateLogin($data);
 
-            if ($this->validationService->hasErrors($errors)) {
+            if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/login', [
                     'username' => $data['username'] ?? '',
                     'password' => '',
                     'remember_me' => isset($data['remember_me']),
-                    'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
                 ], 'auth');
             }
 
@@ -107,21 +107,16 @@ class AuthController extends Controller
         // Only process form submission on POST requests
         if ($this->request->isPost()) {
             $data = $this->request->input();
-            $errors = $this->validationService->validateUser($data);
+            $errors = $this->userValidator->validateRegistration($data);
 
-            // Add password confirmation validation
-            if (!empty($data['password']) && $data['password'] !== $data['password_confirmation']) {
-                $errors['password_confirmation'][] = 'Passwords do not match.';
-            }
-
-            if ($this->validationService->hasErrors($errors)) {
+            if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/register', [
                     'username' => $data['username'] ?? '',
                     'name' => $data['name'] ?? '',
                     'email' => $data['email'] ?? '',
                     'password' => '',
                     'password_confirmation' => '',
-                    'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
                 ], 'auth');
             }
 
@@ -196,12 +191,12 @@ class AuthController extends Controller
         $this->requireGuest();
 
         $data = $this->request->input();
-        $errors = $this->validationService->validatePasswordReset($data);
+        $errors = $this->userValidator->validatePasswordReset($data);
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->userValidator->hasErrors($errors)) {
             return $this->view('auth/forgot-password', [
                 'email' => $data['email'] ?? '',
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
             ], 'auth');
         }
 
@@ -231,14 +226,14 @@ class AuthController extends Controller
         $this->requireGuest();
 
         $data = $this->request->input();
-        $errors = $this->validationService->validateNewPassword($data);
+        $errors = $this->userValidator->validateNewPassword($data);
 
-        if ($this->validationService->hasErrors($errors)) {
+        if ($this->userValidator->hasErrors($errors)) {
             return $this->view('auth/reset-password', [
                 'token' => $data['token'] ?? '',
                 'password' => '',
                 'password_confirmation' => '',
-                'error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
             ], 'auth');
         }
 
@@ -322,9 +317,9 @@ class AuthController extends Controller
         
         // Handle name update
         if (isset($data['name_submit_button'])) {
-            $errors = $this->validationService->validateName($data);
+            $errors = $this->userValidator->validateNameUpdate($data);
             
-            if ($this->validationService->hasErrors($errors)) {
+            if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $data['name'] ?? $user['name'],
@@ -332,7 +327,7 @@ class AuthController extends Controller
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
-                    'name_error_msg' => $this->validationService->formatErrorsForDisplay($errors),
+                    'name_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
                     'email_error_msg' => '',
                     'password_error_msg' => ''
                 ]);
@@ -358,9 +353,9 @@ class AuthController extends Controller
         
         // Handle email update
         if (isset($data['email_submit_button'])) {
-            $errors = $this->validationService->validateEmail($data);
+            $errors = $this->userValidator->validateEmailUpdate($data);
             
-            if ($this->validationService->hasErrors($errors)) {
+            if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
@@ -369,7 +364,7 @@ class AuthController extends Controller
                     'new_password' => '',
                     'confirm_password' => '',
                     'name_error_msg' => '',
-                    'email_error_msg' => $this->validationService->formatErrorsForDisplay($errors),
+                    'email_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
                     'password_error_msg' => ''
                 ]);
             }
@@ -423,14 +418,14 @@ class AuthController extends Controller
         
         // Handle password update
         if (isset($data['password_submit_button'])) {
-            $errors = $this->validationService->validatePasswordChange($data);
+            $errors = $this->userValidator->validatePasswordChange($data);
             
             // Verify current password
             if (!password_verify($data['current_password'], $user['password'])) {
                 $errors['current_password'][] = 'Incorrect current password';
             }
             
-            if ($this->validationService->hasErrors($errors)) {
+            if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
@@ -440,7 +435,7 @@ class AuthController extends Controller
                     'confirm_password' => $data['confirm_password'] ?? '',
                     'name_error_msg' => '',
                     'email_error_msg' => '',
-                    'password_error_msg' => $this->validationService->formatErrorsForDisplay($errors)
+                    'password_error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
                 ]);
             }
             

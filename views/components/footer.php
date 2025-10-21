@@ -57,3 +57,57 @@
     });
   });
 </script>
+<script>
+    // Header dropdown functionality
+    $(document).ready(function() {
+        // Hamburger menu functionality
+        $(".hamburger-menu").on("click", function(){
+            $(this).addClass("hidden");
+            $(".close-menu").removeClass("hidden");
+            $(".menu-links").css("display", "flex").removeClass("hidden");
+        });
+        
+        $(".close-menu").on("click", function(){
+            $(this).addClass("hidden");
+            $(".hamburger-menu").removeClass("hidden");
+            $(".menu-links").addClass("hidden");
+        });
+        
+        // Dropdown functionality
+        $(document).off('click', '.dropdown-link').on('click', '.dropdown-link', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            const $dropdownMenu = $(this).find('.dropdown-menu');
+            
+            if ($dropdownMenu.hasClass('hidden')) {
+                $dropdownMenu.removeClass('hidden').show();
+                $(this).addClass('active');
+            } else {
+                if (!$(e.target).hasClass('dropdown-menu-link')) {
+                    $dropdownMenu.addClass('hidden').hide();
+                    $(this).removeClass('active');
+                }
+            }
+        });
+        
+        // Close dropdown when clicking outside - separate handler to prevent recursion
+        $(document).on("click", function(e){
+            // Only handle if not clicking on dropdown or mobile menu elements
+            if (!$(e.target).closest(".dropdown-link, .menu-links, .hamburger-menu, .close-menu").length) {
+                // Close mobile menu if open
+                if($(".menu-links").css("display") == "flex"){
+                    $(".close-menu").addClass("hidden");
+                    $(".hamburger-menu").removeClass("hidden");
+                    $(".menu-links").addClass("hidden");
+                }
+                // Close dropdown if open
+                if($(".dropdown-menu:not(.hidden)").length){
+                    $(".dropdown-link.active").removeClass("active");
+                    $(".dropdown-menu:not(.hidden)").addClass("hidden").hide();
+                }
+            }
+        });
+    });
+</script>
