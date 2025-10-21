@@ -83,9 +83,9 @@ class WishlistService
             $sortOrder = $filters['sort_order'] ?? 'DESC';
             
             if ($sortBy === 'priority') {
-                $sql .= " ORDER BY priority ASC";
+                $sql .= " ORDER BY priority {$sortOrder}";
             } elseif ($sortBy === 'price') {
-                $sql .= " ORDER BY price {$sortOrder}";
+                $sql .= " ORDER BY price * 1 {$sortOrder}";
             } else {
                 $sql .= " ORDER BY date_added {$sortOrder}";
             }
