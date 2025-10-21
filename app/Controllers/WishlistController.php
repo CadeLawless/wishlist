@@ -724,12 +724,12 @@ class WishlistController extends Controller
             }
             
             // Determine image path - use source wishlist ID for image location
-            $absoluteImagePath = __DIR__ . "/../../images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             
             if (!file_exists($absoluteImagePath)) {
-                $imagePath = "images/site-images/default-photo.png";
+                $imagePath = "/wishlist/public/images/site-images/default-photo.png";
             } else {
-                $imagePath = "images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
@@ -744,7 +744,7 @@ class WishlistController extends Controller
                 </div>
                 <div class='option-title'>{$itemName}{$alreadyInListText}</div>
                 <div class='option-checkbox'>
-                    <input type='checkbox' class='{$checkboxClass}' name='item_{$itemId}' {$disabled} />
+                    <input type='checkbox' class='{$checkboxClass}' name='item_ids[]' value='{$itemId}' {$disabled} />
                 </div>
             </div>";
         }
