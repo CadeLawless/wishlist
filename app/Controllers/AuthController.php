@@ -287,7 +287,7 @@ class AuthController extends Controller
             'password_error_msg' => ''
         ];
 
-        return $this->view('auth/profile', $data);
+        return $this->view('auth/profile-content', $data);
     }
 
     public function updateProfile(): Response
@@ -516,7 +516,7 @@ class AuthController extends Controller
             'totalUsers' => $totalUsers
         ];
         
-        return $this->view('auth/admin', $data);
+        return $this->view('auth/admin-content', $data);
     }
 
     public function adminUsers(): Response
@@ -545,7 +545,7 @@ class AuthController extends Controller
             'totalUsers' => $totalUsers
         ];
         
-        return $this->view('auth/admin-users', $data);
+        return $this->view('auth/admin-content', $data);
     }
 
     public function adminWishlists(): Response
@@ -574,7 +574,7 @@ class AuthController extends Controller
             'totalWishlists' => $totalWishlists
         ];
         
-        return $this->view('auth/admin-wishlists', $data);
+        return $this->view('auth/admin-content', $data);
     }
 
 }

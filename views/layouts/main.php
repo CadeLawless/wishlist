@@ -8,6 +8,32 @@
     <link rel="stylesheet" type="text/css" href="css/snow.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo $title ?? 'Wish List'; ?></title>
+    <style>
+        #body {
+            padding-top: 84px;
+        }
+        h1 {
+            display: inline-block;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 28px;
+        }
+        .form-container {
+            margin: clamp(20px, 4vw, 60px) auto 30px;
+            background-color: var(--background-darker);
+            max-width: 500px;
+        }
+        input:not([type=submit], #new_password, #current_password) {
+            margin-bottom: 0;
+        }
+        h3 {
+            margin-bottom: 0.5em;
+        }
+        #container {
+            padding: 0 10px 110px;
+        }
+    </style>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
     <div id="body">
