@@ -6,7 +6,7 @@ if (isset($flash['success'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -22,7 +22,7 @@ if (isset($flash['error'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -77,7 +77,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/wishlist/images/site-images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
     <title><?php echo $wishlistTitle; ?></title>
@@ -114,8 +114,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             ?>
 
             <?php if($theme_background_id != 0 && $background_image){ ?>
-                <img class='background-theme desktop-background' src="/wishlist/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-                <img class='background-theme mobile-background' src="/wishlist/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
             <p style="padding-top: 15px;"><a class="button accent" href="/wishlist/wishlists">Back to All Wish Lists</a></p>
 
@@ -127,7 +127,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         <div><strong>Visibility:</strong> <?php echo htmlspecialchars($visibility); ?></div>
                     </div>
                     <a class="button primary flex-button popup-button" href="#">
-                        <?php require(__DIR__ . '/../../images/site-images/icons/settings.php'); ?>
+                        <?php require(__DIR__ . '/../../public/images/site-images/icons/settings.php'); ?>
                         <span>Wish List Options</span>
                     </a>
                     <div class='popup-container hidden'>
@@ -139,11 +139,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                             <div class='popup-content'>
                                 <div class="copy-link">
-                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer/<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer/<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                                 </div>
                                 <div class="icon-options wishlist-options">
                                     <!-- Rename popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?><div class="inline-label">Rename</div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?><div class="inline-label">Rename</div></a>
                                     <div class='popup-container first hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
@@ -169,12 +169,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     </div>
                                     
                                     <!-- Theme change popup -->
-                                    <a class="icon-container popup-button choose-theme-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/swap-theme.php'); ?><div class="inline-label">Change Theme</div></a>
+                                    <a class="icon-container popup-button choose-theme-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/swap-theme.php'); ?><div class="inline-label">Change Theme</div></a>
                                     <?php echo \App\Helpers\ThemePopupHelper::renderThemePopup(strtolower($type), true); ?>
                                     
                                     <?php if(count($other_wishlist_options) > 0){ ?>
                                         <!-- Copy From popup -->
-                                        <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/copy-from.php'); ?><div class="inline-label">Copy From...</div></a>
+                                        <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-from.php'); ?><div class="inline-label">Copy From...</div></a>
                                         <div class='popup-container first center-items hidden'>
                                             <div class='popup'>
                                                 <div class='close-container'>
@@ -211,7 +211,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php }
                                     if(count($items) > 0){ ?>
                                         <!-- Copy To popup -->
-                                        <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/copy-to.php'); ?><div class="inline-label">Copy To...</div></a>
+                                        <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-to.php'); ?><div class="inline-label">Copy To...</div></a>
                                         <div class='popup-container first center-items hidden'>
                                             <div class='popup'>
                                                 <div class='close-container'>
@@ -251,9 +251,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                         <a class="icon-container popup-button" href="#">
                                             <?php
                                             if($visibility == "Public"){
-                                                require(__DIR__ . '/../../images/site-images/icons/hide-view.php');
+                                                require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php');
                                             }else{
-                                                require(__DIR__ . '/../../images/site-images/icons/view.php');
+                                                require(__DIR__ . '/../../public/images/site-images/icons/view.php');
                                             }    
                                             ?>
                                             <div class="inline-label"><?php echo $visibility == "Public" ? "Hide" : "Make Public"; ?></div>
@@ -289,7 +289,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php } ?>
                                     
                                     <!-- Complete/Reactivate popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/checkmark.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Mark as Complete" : "Reactivate"; ?></div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Mark as Complete" : "Reactivate"; ?></div></a>
                                     <div class='popup-container first hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
@@ -320,7 +320,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     </div>
                                     
                                     <!-- Delete popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../images/site-images/icons/delete-trashcan.php'); ?><div class="inline-label">Delete</div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/delete-trashcan.php'); ?><div class="inline-label">Delete</div></a>
                                     <div class='popup-container first delete-wishlist-popup hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
@@ -378,7 +378,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
                     All Items
                     <a href='/wishlist/<?php echo $wishlistID; ?>/item/create' class='icon-container add-item'>
-                        <?php require(__DIR__ . '/../../images/site-images/icons/plus.php'); ?>
+                        <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
                         <div class='inline-label'>Add</div>
                     </a>
                 </h2>
@@ -398,11 +398,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 <?php else: ?>
                                     <a class='item-container add-placeholder' href='/wishlist/<?php echo $wishlist['id']; ?>/item/create'>
                                         <div class='item-image-container'>
-                                            <img class='item-image' src='images/site-images/default-photo.png' alt='wishlist item image'>
+                                            <img class='item-image' src='public/images/site-images/default-photo.png' alt='wishlist item image'>
                                         </div>
                                         <div class='item-description'></div>
                                         <div class='add-label'>
-                                            <?php require(__DIR__ . '/../../images/site-images/icons/plus.php'); ?>
+                                            <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
                                             Add Item
                                         </div>
                                     </a>

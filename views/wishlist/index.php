@@ -6,7 +6,7 @@ if (isset($flash['success'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -22,7 +22,7 @@ if (isset($flash['error'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -52,10 +52,10 @@ if (isset($flash['error'])) {
             echo "
             <a class='wishlist-grid-item' href='/wishlist/$id'>
                 <div class='items-list preview' style='";
-                echo $background_image == "" ? "" : "background-image: url(images/site-images/themes/desktop-thumbnails/$background_image);";
+                echo $background_image == "" ? "" : "background-image: url(public/images/site-images/themes/desktop-thumbnails/$background_image);";
                 echo "'>
                     <div class='item-container'>
-                        <img src='images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
+                        <img src='public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                         <div class='item-description'>
                             <div class='bar title'></div>
                             <div class='bar'></div>
