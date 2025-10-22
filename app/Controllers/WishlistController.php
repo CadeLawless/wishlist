@@ -38,7 +38,6 @@ class WishlistController extends Controller
      */
     public function index(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlists = $this->wishlistService->getUserWishlists($user['username']);
@@ -53,7 +52,6 @@ class WishlistController extends Controller
 
     public function wishlists(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlists = $this->wishlistService->getUserWishlists($user['username']);
@@ -68,7 +66,6 @@ class WishlistController extends Controller
 
     public function show(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -122,7 +119,6 @@ class WishlistController extends Controller
 
     public function create(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         
@@ -140,7 +136,6 @@ class WishlistController extends Controller
 
     public function store(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $data = $this->request->input();
@@ -175,7 +170,6 @@ class WishlistController extends Controller
 
     public function edit(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -195,7 +189,6 @@ class WishlistController extends Controller
 
     public function update(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -230,7 +223,6 @@ class WishlistController extends Controller
 
     public function delete(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -251,7 +243,6 @@ class WishlistController extends Controller
 
     public function toggleVisibility(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -270,7 +261,6 @@ class WishlistController extends Controller
 
     public function toggleComplete(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -289,7 +279,6 @@ class WishlistController extends Controller
 
     public function rename(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -314,7 +303,6 @@ class WishlistController extends Controller
 
     public function updateTheme(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -335,7 +323,6 @@ class WishlistController extends Controller
 
     public function copyFrom(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -362,7 +349,6 @@ class WishlistController extends Controller
 
     public function copyTo(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -389,7 +375,6 @@ class WishlistController extends Controller
 
     public function hide(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -408,7 +393,6 @@ class WishlistController extends Controller
 
     public function showPublic(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -427,7 +411,6 @@ class WishlistController extends Controller
 
     public function complete(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -446,7 +429,6 @@ class WishlistController extends Controller
 
     public function reactivate(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -465,7 +447,6 @@ class WishlistController extends Controller
 
     public function paginateItems(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -532,7 +513,6 @@ class WishlistController extends Controller
 
     public function filterItems(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
@@ -595,7 +575,6 @@ class WishlistController extends Controller
 
     public function getOtherWishlistItems(int $id): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $otherWishlistId = (int) $this->request->input('wishlist_id');
