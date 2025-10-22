@@ -38,7 +38,7 @@ class PopupHelper
             <div class='popup active'>
                 <div class='close-container'>
                     <a href='#' class='close-button'>";
-                    require(__DIR__ . '/../../images/site-images/menu-close.php');
+                    require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                     echo "</a>
                 </div>
                 <div class='popup-content'>
