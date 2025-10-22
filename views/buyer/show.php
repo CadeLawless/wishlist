@@ -143,32 +143,32 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
                 shapeOptions: {
                     image: [
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-1.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-1.png',
                             width: 100,
                             height: 100,
                         },
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-2.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-2.png',
                             width: 100,
                             height: 100,
                         },
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-3.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-3.png',
                             width: 100,
                             height: 100,
                         },
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-4.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-4.png',
                             width: 100,
                             height: 100,
                         },
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-5.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-5.png',
                             width: 100,
                             height: 100,
                         },
                         {
-                            src: '/wishlist/images/site-images/confetti/christmas-confetti-6.png',
+                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-6.png',
                             width: 100,
                             height: 100,
                         }

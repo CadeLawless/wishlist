@@ -134,7 +134,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         <div class='popup'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
-                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                 </a>
                             </div>
                             <div class='popup-content'>
@@ -148,7 +148,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                         <div class='popup'>
                                             <div class='close-container'>
                                                 <a href='#' class='close-button'>
-                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                 </a>
                                             </div>
                                             <div class='popup-content'>
@@ -179,7 +179,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
-                                                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                    <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                     </a>
                                                 </div>
                                                 <div class='popup-content'>
@@ -216,7 +216,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
-                                                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                    <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                     </a>
                                                 </div>
                                                 <div class='popup-content'>
@@ -262,7 +262,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
-                                                        <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                        <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                     </a>
                                                 </div>
                                                 <div class='popup-content'>
@@ -294,7 +294,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                         <div class='popup'>
                                             <div class='close-container'>
                                                 <a href='#' class='close-button'>
-                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                 </a>
                                             </div>
                                             <div class='popup-content'>
@@ -325,7 +325,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                         <div class='popup'>
                                             <div class='close-container'>
                                                 <a href='#' class='close-button'>
-                                                <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                                 </a>
                                             </div>
                                             <div class='popup-content'>
@@ -426,7 +426,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
         <div class='popup image-popup'>
             <div class='close-container'>
                 <a href='#' class='close-button'>
-                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                    <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                 </a>
             </div>
             <div class='popup-content'>

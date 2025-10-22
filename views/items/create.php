@@ -20,7 +20,7 @@ $priority_options = ["1", "2", "3", "4"];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/wishlist/images/site-images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
     <title><?php echo $wishlistTitle; ?> | Add Item</title>
@@ -50,8 +50,8 @@ $priority_options = ["1", "2", "3", "4"];
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
             <?php if($background_image != ""){ ?>
-                <img class='background-theme desktop-background' src="/wishlist/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-                <img class='background-theme mobile-background' src="/wishlist/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
             <p style="padding-top: 15px;"><a class="button accent" href="/wishlist/<?php echo $wishlistID; ?>">Back to List</a></p>
             <div class="center">
