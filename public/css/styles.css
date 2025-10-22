@@ -78,7 +78,7 @@ body {
     padding: 0;
     margin: 0;
     min-height: 75vh;
-    padding-top: 85px;
+    padding-top: 130px;
 }
 .center {
     text-align: center;
@@ -855,6 +855,9 @@ body.dark .dark-mode-link {
     background-color: var(--transparent-background);
     border: 2px solid var(--text);
     border-radius: 15px;
+}
+.form-container h1 {
+    margin-top: 0.67em;
 }
 .alert {
     padding: 8px;
