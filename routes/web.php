@@ -7,6 +7,14 @@ use App\Controllers\ItemController;
 use App\Controllers\BuyerController;
 use App\Controllers\TestController;
 use App\Core\Router;
+use App\Middleware\AuthMiddleware;
+use App\Middleware\GuestMiddleware;
+use App\Middleware\AdminMiddleware;
+
+// Register middleware
+Router::middleware('auth', new AuthMiddleware());
+Router::middleware('guest', new GuestMiddleware());
+Router::middleware('admin', new AdminMiddleware());
 
 // Test route
 Router::get('/test', [TestController::class, 'index']);
