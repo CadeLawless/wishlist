@@ -18,7 +18,7 @@ class GuestMiddleware
     public function __invoke(Request $request): ?Response
     {
         if ($this->authService->isLoggedIn()) {
-            return Response::redirect('/')
+            return Response::redirect('/wishlist/')
                 ->withInfo('You are already logged in.');
         }
 
