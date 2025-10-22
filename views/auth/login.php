@@ -10,8 +10,8 @@
         <label for="password">Password: </label><br>
         <div class="password-input">
             <input required type="password" name="password" id="password" />
-            <span class="password-view hide-password hidden"><?php require("public/images/site-images/icons/hide-view.php"); ?></span>
-            <span class="password-view view-password"><?php require("public/images/site-images/icons/view.php"); ?></span>
+            <span class="password-view hide-password hidden"><?php require(__DIR__ . "/../../public/images/site-images/icons/hide-view.php"); ?></span>
+            <span class="password-view view-password"><?php require(__DIR__ . "/../../public/images/site-images/icons/view.php"); ?></span>
         </div>
     </div>
     <div class="large-input">

@@ -27,8 +27,8 @@
         <label for="password">Password: </label><br>
         <div class="password-input">
             <input required type="password" name="password" id="password" value="<?php echo $password?>" pattern="^(?=.*[0-9])(?=.*[a-zA-Z])(.+){6,}$">
-            <span class="password-view hide-password hidden"><?php require("public/images/site-images/icons/hide-view.php"); ?></span>
-            <span class="password-view view-password"><?php require("public/images/site-images/icons/view.php"); ?></span>
+            <span class="password-view hide-password hidden"><?php require(__DIR__ . "/../../public/images/site-images/icons/hide-view.php"); ?></span>
+            <span class="password-view view-password"><?php require(__DIR__ . "/../../public/images/site-images/icons/view.php"); ?></span>
             <span class="error-msg hidden">Please match the requirements</span>
         </div>
     </div>
