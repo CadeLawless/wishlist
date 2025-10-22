@@ -6,7 +6,7 @@ if (isset($flash['success'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -22,7 +22,7 @@ if (isset($flash['error'])) {
         <div class='popup active'>
             <div class='close-container'>
                 <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../images/site-images/menu-close.php');
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
                 echo "</a>
             </div>
             <div class='popup-content'>
@@ -65,10 +65,10 @@ if (isset($flash['error'])) {
                         <td>
                             <div class="icon-group">
                                 <a class="icon-container" href="/wishlist/admin/wishlists?username=<?php echo urlencode($userRow['username']); ?>">
-                                    <?php require("images/site-images/icons/wishlist.php"); ?>
+                                    <?php require("public/images/site-images/icons/wishlist.php"); ?>
                                 </a>
                                 <a class="icon-container" href="/wishlist/admin/users/edit?username=<?php echo urlencode($userRow['username']); ?>">
-                                    <?php require("images/site-images/icons/edit.php"); ?>
+                                    <?php require("public/images/site-images/icons/edit.php"); ?>
                                 </a>
                             </div>
                         </td>
