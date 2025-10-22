@@ -1,4 +1,4 @@
-<p class="center"><img class="logo login" src="images/site-images/logo.png" alt="Wish List" /></p>
+<p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
 <form id="login-form" style="max-width: 350px;" method="POST" action="">
     <?php if(isset($error_msg)) echo $error_msg; ?>
     <div class="large-input center">
@@ -10,8 +10,8 @@
         <label for="password">Password: </label><br>
         <div class="password-input">
             <input required type="password" name="password" id="password" />
-            <span class="password-view hide-password hidden"><?php require("images/site-images/icons/hide-view.php"); ?></span>
-            <span class="password-view view-password"><?php require("images/site-images/icons/view.php"); ?></span>
+            <span class="password-view hide-password hidden"><?php require("public/images/site-images/icons/hide-view.php"); ?></span>
+            <span class="password-view view-password"><?php require("public/images/site-images/icons/view.php"); ?></span>
         </div>
     </div>
     <div class="large-input">
