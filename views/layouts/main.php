@@ -29,6 +29,23 @@
         #container {
             padding: 0 10px 110px;
         }
+        h1 {
+            display: inline-block;
+        }
+        h2.items-list-title {
+            position: relative;
+        }
+        #container .background-theme.mobile-background {
+            display: none;
+        }
+        @media (max-width: 600px){
+            #container .background-theme.mobile-background {
+                display: block;
+            }
+            #container .background-theme.desktop-background {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>">

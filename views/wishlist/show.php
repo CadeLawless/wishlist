@@ -72,43 +72,8 @@ $_SESSION['wisher_sort_price'] = $sort_price;
 $priority_order = $sort_priority ? "priority ASC, " : "";
 $price_order = $sort_price ? "price {$sort_price}, " : "";
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
-    <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
-    <title><?php echo $wishlistTitle; ?></title>
-    <style>
-        h1 {
-            display: inline-block;
-        }
-        h2.items-list-title {
-            position: relative;
-        }
-        #container .background-theme.mobile-background {
-            display: none;
-        }
-        @media (max-width: 600px){
-            #container .background-theme.mobile-background {
-                display: block;
-            }
-            #container .background-theme.desktop-background {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body class="<?php echo isset($_SESSION['dark']) && $_SESSION['dark'] ? 'dark' : ''; ?>" 
-      data-current-page="<?php echo $pageno; ?>" 
-      data-total-pages="<?php echo $total_pages; ?>" 
-      data-base-url="/wishlist/<?php echo $wishlistID; ?>">
-    <div id="body">
-        <?php include __DIR__ . '/../components/header.php'; ?>
-        <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
-        <div id="container">
+<input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
+<div id="container">
             <?php
             // All popups are now handled by PopupHelper at the top of the file
             ?>
@@ -434,14 +399,4 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             </div>
         </div>
     </div>
-</body>
-</html>
-<script src="/wishlist/public/js/copy-link.js"></script>
-<script src="/wishlist/public/js/copy-select.js"></script>
-<script src="/wishlist/public/js/checkbox-selection.js"></script>
-<script src="/wishlist/public/js/wishlist-filters.js"></script>
-<script src="/wishlist/public/js/wishlist-pagination.js"></script>
-<script src="/wishlist/public/js/choose-theme.js"></script>
-<script src="/wishlist/js/popup.js"></script>
-<script>$type = "wisher"; $key_url = "";</script>
 
