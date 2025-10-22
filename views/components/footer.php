@@ -75,6 +75,11 @@
         
         // Dropdown functionality
         $(document).off('click', '.dropdown-link').on('click', '.dropdown-link', function(e) {
+            // If clicking on a dropdown menu link, let it work normally
+            if ($(e.target).hasClass('dropdown-menu-link')) {
+                return; // Let the link work normally
+            }
+            
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
@@ -85,10 +90,8 @@
                 $dropdownMenu.removeClass('hidden').show();
                 $(this).addClass('active');
             } else {
-                if (!$(e.target).hasClass('dropdown-menu-link')) {
-                    $dropdownMenu.addClass('hidden').hide();
-                    $(this).removeClass('active');
-                }
+                $dropdownMenu.addClass('hidden').hide();
+                $(this).removeClass('active');
             }
         });
         
