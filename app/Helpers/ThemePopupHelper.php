@@ -20,7 +20,7 @@ class ThemePopupHelper
                 <img class='background-theme mobile-background hidden' src="" />
                 <div class='close-container'>
                     <a href='#' class='close-button'>
-                        <?php require(__DIR__ . "/../../images/site-images/menu-close.php"); ?>
+                        <?php require(__DIR__ . "/../../public/images/site-images/menu-close.php"); ?>
                     </a>
                 </div>
                 <div class="theme-content">
@@ -39,7 +39,7 @@ class ThemePopupHelper
                                 <div class='popup'>
                                     <div class='close-container'>
                                         <a href='#' class='close-button'>";
-                                        require(__DIR__ . "/../../images/site-images/menu-close.php");
+                                        require(__DIR__ . "/../../public/images/site-images/menu-close.php");
                                         echo "</a>
                                     </div>
                                     <div class='popup-content'>
@@ -65,15 +65,15 @@ class ThemePopupHelper
                                 $defaultGiftWrap = $row["default_gift_wrap"];
                                 echo "
                                 <a class='theme popup-button' href='#'>
-                                    <img src='images/site-images/themes/desktop-thumbnails/$backgroundImage' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
-                                    <img src='images/site-images/themes/mobile-thumbnails/$backgroundImage' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
+                                    <img src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
+                                    <img src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
                                     <div class='hover-title'>$backgroundName</div>
                                 </a>
                                 <div class='popup-container second center-items individual-theme-popup hidden'>
                                     <div class='popup'>
                                         <div class='close-container'>
                                             <a href='#' class='close-button'>";
-                                            require(__DIR__ . "/../../images/site-images/menu-close.php");
+                                            require(__DIR__ . "/../../public/images/site-images/menu-close.php");
                                             echo "</a>
                                         </div>
                                         <div class='popup-content'>
@@ -83,8 +83,8 @@ class ThemePopupHelper
                                                 <a href='#' class='mobile'>Mobile</a>
                                             </div>
                                             <div class='theme-picture'>
-                                                <img class='desktop' src='images/site-images/themes/desktop-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
-                                                <img class='mobile hidden' src='images/site-images/themes/mobile-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
+                                                <img class='desktop' src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
+                                                <img class='mobile hidden' src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
                                             </div>
                                             <p class='center'><a class='select-theme button primary' data-default-gift-wrap='$defaultGiftWrap' data-background-id='$backgroundId' data-background-image='$backgroundImage' href='#'>Select Background</a></p>
                                         </div>
@@ -122,12 +122,12 @@ class ThemePopupHelper
                                     <span class="value"></span>
                                     <span class="preview-image desktop-image"></span>
                                     <span class="preview-image mobile-image"></span>
-                                    <span class="popup-plus"><?php require(__DIR__ . "/../../images/site-images/icons/plus.php"); ?></span>
+                                    <span class="popup-plus"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?></span>
                                 </div>
                                 <div class="options hidden">
                                     <div class='close-container options-close'>
                                         <a href='#' class='close-button'>
-                                        <?php require(__DIR__ . "/../../images/site-images/menu-close.php"); ?>
+                                        <?php require(__DIR__ . "/../../public/images/site-images/menu-close.php"); ?>
                                         </a>
                                     </div>
                                     <div class="options-content">
@@ -151,8 +151,8 @@ class ThemePopupHelper
                                         echo "
                                         <div class='option'>
                                             <span class='value' data-background-image='$backgroundImage' data-background-id='$backgroundId' data-default-gift-wrap='$defaultGiftWrap'>$backgroundName</span>
-                                            <span class='preview-image desktop-background-image'><img src='images/site-images/themes/desktop-thumbnails/$backgroundImage' /></span>
-                                            <span class='preview-image mobile-background-image'><img src='images/site-images/themes/mobile-thumbnails/$backgroundImage' /></span>
+                                            <span class='preview-image desktop-background-image'><img src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' /></span>
+                                            <span class='preview-image mobile-background-image'><img src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' /></span>
                                         </div>";
                                     }
                                     ?>
@@ -166,12 +166,12 @@ class ThemePopupHelper
                                 <div class="selected-option">
                                     <span class="value"></span>
                                     <span class="preview-image"></span>
-                                    <span class="popup-plus"><?php require(__DIR__ . "/../../images/site-images/icons/plus.php"); ?></span>
+                                    <span class="popup-plus"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?></span>
                                 </div>
                                 <div class="options hidden">
                                     <div class='close-container options-close'>
                                         <a href='#' class='close-button'>
-                                        <?php require(__DIR__ . "/../../images/site-images/menu-close.php"); ?>
+                                        <?php require(__DIR__ . "/../../public/images/site-images/menu-close.php"); ?>
                                         </a>
                                     </div>
                                     <div class="options-content">
@@ -186,7 +186,7 @@ class ThemePopupHelper
                                             <span class='value' data-wrap-image='$wrapImage' data-wrap-id='$wrapId' data-number-of-files='$numberOfWraps'>$wrapName</span>";
                                         for($i=1; $i<=$numberOfWraps; $i++) {
                                             if($i <= 6){
-                                                echo "<span class='preview-image'><img src='images/site-images/themes/gift-wraps/$wrapImage/$i.png' /></span>";
+                                                echo "<span class='preview-image'><img src='public/images/site-images/themes/gift-wraps/$wrapImage/$i.png' /></span>";
                                             }
                                         }
                                         echo "
@@ -225,7 +225,7 @@ class ThemePopupHelper
                             $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
                             
                             echo "<div class='item-container'>
-                                <img src='images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
+                                <img src='public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
                                 <div class='item-description'>
                                     <div class='line'><h3>" . htmlspecialchars($item["name"]) . "</h3></div>
                                     <div class='line'><p>" . htmlspecialchars($item["description"]) . "</p></div>
