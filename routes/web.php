@@ -23,15 +23,15 @@ Router::get('/test', [TestController::class, 'index']);
 Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode']);
 
 // Guest routes (login, register, etc.)
-Router::get('/login', [AuthController::class, 'login']);
-Router::post('/login', [AuthController::class, 'login']);
-Router::get('/register', [AuthController::class, 'register']);
-Router::post('/register', [AuthController::class, 'register']);
-Router::get('/forgot-password', [AuthController::class, 'forgotPassword']);
-Router::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Router::get('/reset-password', [AuthController::class, 'resetPassword']);
-Router::post('/reset-password', [AuthController::class, 'resetPassword']);
-Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
+Router::get('/login', [AuthController::class, 'login'])->middleware('guest');
+Router::post('/login', [AuthController::class, 'login'])->middleware('guest');
+Router::get('/register', [AuthController::class, 'register'])->middleware('guest');
+Router::post('/register', [AuthController::class, 'register'])->middleware('guest');
+Router::get('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('guest');
+Router::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('guest');
+Router::get('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest');
+Router::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest');
+Router::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('guest');
 
 // Logout
 Router::get('/logout', [AuthController::class, 'logout']);
