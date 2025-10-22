@@ -94,7 +94,7 @@ class ThemeService
     public static function getGiftWrapFileCount(string $wrapImage): int
     {
         $count = 0;
-        $basePath = __DIR__ . '/../../images/site-images/themes/gift-wraps/' . $wrapImage . '/';
+        $basePath = __DIR__ . '/../../public/images/site-images/themes/gift-wraps/' . $wrapImage . '/';
         
         if (is_dir($basePath)) {
             $files = glob($basePath . '*.png');

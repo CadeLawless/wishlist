@@ -37,7 +37,7 @@ class ItemRenderService
         ?>
         <div class='item-container'>
             <?php if($type === 'buyer' && $item['purchased'] === 'Yes'): ?>
-                <img src='images/site-images/themes/gift-wraps/default/1.png' class='gift-wrap' alt='gift wrap'>
+                <img src='public/images/site-images/themes/gift-wraps/default/1.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
@@ -52,14 +52,14 @@ class ItemRenderService
                 <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
                 <div class='icon-options item-options <?php echo $type; ?>-item-options'>
                     <a class='icon-container popup-button' href='#'>
-                        <?php require(__DIR__ . '/../../images/site-images/icons/view.php'); ?>
+                        <?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?>
                         <div class='inline-label'>View</div>
                     </a>
                     <div class='popup-container hidden'>
                         <div class='popup fullscreen'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
-                                    <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                    <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                 </a>
                             </div>
                             <div class='popup-content'>
@@ -77,23 +77,23 @@ class ItemRenderService
                         </div>
                     </div>
                     <a class='icon-container' href='<?php echo $link; ?>' target='_blank'>
-                        <?php require(__DIR__ . '/../../images/site-images/icons/link.php'); ?>
+                        <?php require(__DIR__ . '/../../public/images/site-images/icons/link.php'); ?>
                         <div class='inline-label'>Website Link</div>
                     </a>
                     <?php if($type === 'wisher'): ?>
                         <a class='icon-container' href='/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
-                            <?php require(__DIR__ . '/../../images/site-images/icons/edit.php'); ?>
+                            <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
                             <div class='inline-label'>Edit</div>
                         </a>
                         <a class='icon-container popup-button' href='#'>
-                            <?php require(__DIR__ . '/../../images/site-images/icons/delete-x.php'); ?>
+                            <?php require(__DIR__ . '/../../public/images/site-images/icons/delete-x.php'); ?>
                             <div class='inline-label'>Delete</div>
                         </a>
                         <div class='popup-container hidden'>
                             <div class='popup'>
                                 <div class='close-container'>
                                     <a href='#' class='close-button'>
-                                        <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                        <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                     </a>
                                 </div>
                                 <div class='popup-content'>
@@ -120,7 +120,7 @@ class ItemRenderService
                                 <div class='popup'>
                                     <div class='close-container'>
                                         <a href='#' class='close-button'>
-                                            <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                                            <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                                         </a>
                                     </div>
                                     <div class='popup-content'>

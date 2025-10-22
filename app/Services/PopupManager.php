@@ -32,7 +32,7 @@ class PopupManager
                 <?php if ($closeButton): ?>
                 <div class="close-container">
                     <a href="#" class="close-button">
-                        <?php require(__DIR__ . '/../../images/site-images/menu-close.php'); ?>
+                        <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
                     </a>
                 </div>
                 <?php endif; ?>
@@ -150,7 +150,7 @@ class PopupManager
         ?>
         <a class="<?php echo $classes; ?> popup-button" href="<?php echo $href; ?>"<?php echo $buttonId; ?>>
             <?php if ($icon): ?>
-                <?php require(__DIR__ . "/../../images/site-images/icons/{$icon}.php"); ?>
+                <?php require(__DIR__ . "/../../public/images/site-images/icons/{$icon}.php"); ?>
             <?php endif; ?>
             <span><?php echo htmlspecialchars($text); ?></span>
         </a>
@@ -175,7 +175,7 @@ class PopupManager
         ?>
         <a class="<?php echo $classes; ?> popup-button" href="<?php echo $href; ?>"<?php echo $buttonId; ?>>
             <?php if ($icon): ?>
-                <?php require(__DIR__ . "/../../images/site-images/icons/{$icon}.php"); ?>
+                <?php require(__DIR__ . "/../../public/images/site-images/icons/{$icon}.php"); ?>
             <?php endif; ?>
             <div class="inline-label"><?php echo htmlspecialchars($text); ?></div>
         </a>
