@@ -25,7 +25,6 @@ class ItemController extends Controller
 
     public function create(int $wishlistId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
@@ -56,7 +55,6 @@ class ItemController extends Controller
 
     public function store(int $wishlistId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
@@ -171,7 +169,6 @@ class ItemController extends Controller
 
     public function edit(int $wishlistId, int $itemId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
@@ -218,7 +215,6 @@ class ItemController extends Controller
 
     public function update(int $wishlistId, int $itemId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
@@ -361,7 +357,6 @@ class ItemController extends Controller
 
     public function delete(int $wishlistId, int $itemId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
@@ -393,7 +388,6 @@ class ItemController extends Controller
 
     public function purchase(int $wishlistId, int $itemId): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
