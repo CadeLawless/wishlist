@@ -410,4 +410,52 @@ class ItemController extends Controller
 
         return $this->redirect("/wishlist/{$wishlistId}")->withError('Unable to mark item as purchased.');
     }
+
+    /**
+     * Fetch URL metadata via AJAX
+     * 
+     * @return Response JSON response with extracted metadata
+     */
+    public function fetchUrlMetadata(): Response
+    {
+        try {
+            // Validate request
+            if (!$this->request->isPost()) {
+                return $this->json(['success' => false, 'error' => 'Invalid request method']);
+            }
+
+            $url = $this->request->input('url');
+            
+            if (empty($url)) {
+                return $this->json(['success' => false, 'error' => 'URL is required']);
+            }
+
+            // Validate URL format
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                return $this->json(['success' => false, 'error' => 'Invalid URL format']);
+            }
+
+            // Use UrlMetadataService to fetch metadata
+            $metadataService = new \App\Services\UrlMetadataService();
+            $result = $metadataService->fetchMetadata($url);
+
+            // Return JSON response
+            return $this->json([
+                'success' => $result['success'],
+                'title' => $result['title'],
+                'price' => $result['price'],
+                'image' => $result['image'],
+                'error' => $result['error']
+            ]);
+
+        } catch (\Exception $e) {
+            // Log error for debugging
+            error_log('UrlMetadataService error: ' . $e->getMessage());
+            
+            return $this->json([
+                'success' => false,
+                'error' => 'An error occurred while fetching URL metadata. Please try again.'
+            ]);
+        }
+    }
 }

@@ -83,6 +83,9 @@ Router::post('/{wishlistId}/item/{id}', [ItemController::class, 'update'])->midd
 Router::delete('/{wishlistId}/item/{id}', [ItemController::class, 'delete'])->middleware('auth');
 Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased'])->middleware('auth');
 
+// API routes for URL metadata fetching
+Router::post('/api/fetch-url-metadata', [ItemController::class, 'fetchUrlMetadata'])->middleware('auth');
+
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);
 Router::post('/buyer/{key}/paginate', [BuyerController::class, 'paginateItems']);
