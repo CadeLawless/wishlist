@@ -44,9 +44,9 @@ Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
 
 // Admin routes (must come before generic /{id} routes)
-Router::get('/admin', [AuthController::class, 'admin']);
-Router::get('/admin/users', [AuthController::class, 'adminUsers']);
-Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists']);
+Router::get('/admin', [AuthController::class, 'admin'])->middleware('admin');
+Router::get('/admin/users', [AuthController::class, 'adminUsers'])->middleware('admin');
+Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists'])->middleware('admin');
 
 
 // Wishlist routes (home page shows user's wishlists)
