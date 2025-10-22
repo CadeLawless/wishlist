@@ -14,7 +14,6 @@ class HomeController extends Controller
 
     public function index(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         
