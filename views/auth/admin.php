@@ -65,10 +65,10 @@ if (isset($flash['error'])) {
                         <td>
                             <div class="icon-group">
                                 <a class="icon-container" href="/wishlist/admin/wishlists?username=<?php echo urlencode($userRow['username']); ?>">
-                                    <?php require("public/images/site-images/icons/wishlist.php"); ?>
+                                    <?php require(__DIR__ . "/../../public/images/site-images/icons/wishlist.php"); ?>
                                 </a>
                                 <a class="icon-container" href="/wishlist/admin/users/edit?username=<?php echo urlencode($userRow['username']); ?>">
-                                    <?php require("public/images/site-images/icons/edit.php"); ?>
+                                    <?php require(__DIR__ . "/../../public/images/site-images/icons/edit.php"); ?>
                                 </a>
                             </div>
                         </td>
