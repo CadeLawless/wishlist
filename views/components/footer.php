@@ -114,11 +114,3 @@
         });
     });
 </script>
-<script src="public/js/copy-link.js"></script>
-<script src="public/js/copy-select.js"></script>
-<script src="public/js/checkbox-selection.js"></script>
-<script src="public/js/wishlist-filters.js"></script>
-<script src="public/js/wishlist-pagination.js"></script>
-<script src="public/js/choose-theme.js"></script>
-<script src="public/js/popup.js"></script>
-<script>$type = "wisher"; $key_url = "";</script>
