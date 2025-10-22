@@ -51,7 +51,7 @@
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
       <?php if(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
       <?php if(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
-      <?php if(isset($wishlistID)): ?>data-base-url="/wishlist/<?php echo $wishlistID; ?>"<?php endif; ?>>
+      <?php if(isset($wishlist_id)): ?>data-base-url="/wishlist/<?php echo $wishlist_id; ?>"<?php endif; ?>>
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
