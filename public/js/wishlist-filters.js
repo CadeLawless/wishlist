@@ -7,14 +7,12 @@ $(document).ready(function() {
     
     // Filter change event (triggered when select values change)
     $(".select-filter").on("change", function() {
-        console.log('Filter select changed');
         
         const formData = {
             sort_priority: $("#sort-priority").val(),
             sort_price: $("#sort-price").val()
         };
         
-        console.log('Filter data:', formData);
         
         const baseUrl = $(this).data('base-url');
         if (!baseUrl) {
@@ -28,7 +26,6 @@ $(document).ready(function() {
             data: formData,
             dataType: "json",
             success: function(data) {
-                console.log('Filter AJAX success, received data:', data);
                 
                 if (data.status === 'success') {
                     // Update items HTML

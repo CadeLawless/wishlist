@@ -124,7 +124,6 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
             centerX = centerX / windowWidth * 100;
             let centerY = top + button.offsetHeight / 2;
             centerY = centerY / windowHeight * 100;
-            console.log(centerX, centerY);
             button.style.backgroundColor = "var(--accent)";
             confetti("tsparticles", {
                 angle: 90,

@@ -252,7 +252,6 @@ class PopupManager {
         
         // This would need to be integrated with the PopupManager PHP class
         // For now, we'll use the existing popup structure
-        console.log('Confirmation popup requested:', options);
         
         return popupId;
     }

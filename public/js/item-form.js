@@ -49,7 +49,6 @@ $("#image, .file-input + input").on("change", function(){
         var reader = new FileReader();
 
         reader.onload = function (e) {
-            //console.log($(this).next());
             $("#preview_container").find("img").attr("src", e.target.result);
         }
 

@@ -27,16 +27,13 @@ $(document).ready(function() {
     $(document).on("click", ".paginate-arrow", function(e) {
         e.preventDefault();
         
-        console.log('Pagination arrow clicked:', $(this).attr('class'));
         
         if ($(this).hasClass("disabled")) {
-            console.log('Arrow is disabled, ignoring click');
             return;
         }
         
         let newPage = paginationState.currentPage;
         
-        console.log('Current page:', paginationState.currentPage, 'Total pages:', paginationState.totalPages);
         
         if ($(this).hasClass("paginate-first")) {
             newPage = 1;
@@ -49,9 +46,6 @@ $(document).ready(function() {
         }
         
         if (newPage !== paginationState.currentPage) {
-            console.log('Making AJAX request to:', paginationState.baseUrl + "/paginate");
-            console.log('Data being sent:', { new_page: newPage });
-            console.log('Full URL:', window.location.origin + paginationState.baseUrl + "/paginate");
             $.ajax({
                 type: "POST",
                 url: paginationState.baseUrl + "/paginate",
