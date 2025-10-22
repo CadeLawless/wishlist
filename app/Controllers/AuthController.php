@@ -29,7 +29,6 @@ class AuthController extends Controller
 
     public function showLogin(): Response
     {
-        $this->requireGuest();
         
         $data = [
             'username' => $this->request->input('username', ''),
@@ -50,7 +49,6 @@ class AuthController extends Controller
      */
     public function login(): Response
     {
-        $this->requireGuest();
 
         // Only process form submission on POST requests
         if ($this->request->isPost()) {
@@ -97,7 +95,6 @@ class AuthController extends Controller
 
     public function showRegister(): Response
     {
-        $this->requireGuest();
 
         $data = [
             'username' => $this->request->input('username', ''),
@@ -112,7 +109,6 @@ class AuthController extends Controller
 
     public function register(): Response
     {
-        $this->requireGuest();
 
         // Only process form submission on POST requests
         if ($this->request->isPost()) {
@@ -176,7 +172,6 @@ class AuthController extends Controller
 
     public function showForgotPassword(): Response
     {
-        $this->requireGuest();
 
         $data = [
             'email' => $this->request->input('email', '')
@@ -187,7 +182,6 @@ class AuthController extends Controller
 
     public function sendResetLink(): Response
     {
-        $this->requireGuest();
 
         $data = $this->request->input();
         $errors = $this->userValidator->validatePasswordReset($data);
@@ -206,7 +200,6 @@ class AuthController extends Controller
 
     public function showResetPassword(): Response
     {
-        $this->requireGuest();
 
         $token = $this->request->get('token');
         if (!$token) {
@@ -222,7 +215,6 @@ class AuthController extends Controller
 
     public function resetPassword(): Response
     {
-        $this->requireGuest();
 
         $data = $this->request->input();
         $errors = $this->userValidator->validateNewPassword($data);
@@ -271,7 +263,6 @@ class AuthController extends Controller
 
     public function profile(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         
@@ -292,7 +283,6 @@ class AuthController extends Controller
 
     public function updateProfile(): Response
     {
-        $this->requireAuth();
         
         $user = $this->auth();
         $data = $this->request->input();
@@ -491,13 +481,7 @@ class AuthController extends Controller
 
     public function admin(): Response
     {
-        $this->requireAuth();
-        
         $user = $this->auth();
-        
-        if ($user['role'] !== 'Admin') {
-            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
-        }
         
         // Get paginated users for the admin view
         $page = (int)($this->request->get('pageno', 1));
@@ -521,12 +505,7 @@ class AuthController extends Controller
 
     public function adminUsers(): Response
     {
-        $this->requireAuth();
-        
         $user = $this->auth();
-        if ($user['role'] !== 'Admin') {
-            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
-        }
         
         // Get paginated users
         $page = (int)($this->request->get('pageno', 1));
@@ -550,12 +529,7 @@ class AuthController extends Controller
 
     public function adminWishlists(): Response
     {
-        $this->requireAuth();
-        
         $user = $this->auth();
-        if ($user['role'] !== 'Admin') {
-            return $this->redirect('/')->withError('Access denied. Admin privileges required.');
-        }
         
         // Get paginated wishlists
         $page = (int)($this->request->get('pageno', 1));
