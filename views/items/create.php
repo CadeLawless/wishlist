@@ -21,8 +21,8 @@ $priority_options = ["1", "2", "3", "4"];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/wishlist/css/styles.css" />
-    <link rel="stylesheet" type="text/css" href="/wishlist/css/snow.css" />
+    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/snow.css" />
     <title><?php echo $wishlistTitle; ?> | Add Item</title>
     <style>
         #body {
@@ -61,6 +61,11 @@ $priority_options = ["1", "2", "3", "4"];
             </div>
             <div class="form-container">
                 <h2>Add Item</h2>
+                <?php if(isset($fetched_data) && $fetched_data): ?>
+                    <div class="fetched-data-notice">
+                        <p>✅ Product details were automatically filled from the URL you provided.</p>
+                    </div>
+                <?php endif; ?>
                 <?php if(isset($error_msg)) echo $error_msg?>
                 <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/item" enctype="multipart/form-data">
                     <div class="flex form-flex">
@@ -77,5 +82,5 @@ $priority_options = ["1", "2", "3", "4"];
     <?php include __DIR__ . '/../components/footer.php'; ?>
 </body>
 </html>
-<script src="/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/wishlist/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script src="/wishlist/public/js/item-form.js"></script>

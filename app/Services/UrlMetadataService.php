@@ -64,12 +64,21 @@ class UrlMetadataService
         }
         
         if ($html === false) {
-            $response['error'] = 'Unable to fetch URL content. The site may be blocking automated requests or the URL is inaccessible.';
+            // Provide specific error messages for known problematic sites
+            if (strpos($url, 'walmart.com') !== false) {
+                $response['error'] = 'Walmart has very aggressive anti-bot protection. Please enter the product details manually.';
+            } elseif (strpos($url, 'target.com') !== false) {
+                $response['error'] = 'Target.com blocks automated requests. Please enter the product details manually.';
+            } elseif (strpos($url, 'bestbuy.com') !== false) {
+                $response['error'] = 'Best Buy blocks automated requests. Please enter the product details manually.';
+            } else {
+                $response['error'] = 'Unable to fetch URL content. The site may be blocking automated requests or the URL is inaccessible.';
+            }
             return $response;
         }
 
         // Parse HTML and extract metadata
-        $metadata = $this->parseHtml($html);
+        $metadata = $this->parseHtml($html, $url);
         
         // If we got a title but no price, that's still success (many sites don't have price in meta tags)
         if (!empty($metadata['title'])) {
@@ -77,6 +86,7 @@ class UrlMetadataService
             $response['title'] = $metadata['title'];
             $response['price'] = $metadata['price'];
             $response['image'] = $metadata['image'];
+            $response['product_details'] = $metadata['product_details'];
         } else {
             $response['error'] = 'No product information found. Please enter details manually.';
         }
@@ -120,11 +130,14 @@ class UrlMetadataService
             return false;
         }
         
-        // Check for common bot detection responses
+        // Check for common bot detection responses (more specific patterns)
         if (strpos($html, 'Access Denied') !== false || 
-            strpos($html, 'blocked') !== false ||
-            strpos($html, 'captcha') !== false ||
-            strpos($html, 'robot') !== false) {
+            strpos($html, 'blocked by') !== false ||
+            (strpos($html, 'captcha') !== false && (strpos($html, 'verify you are human') !== false || strpos($html, 'Please verify') !== false)) ||
+            strpos($html, 'robot detection') !== false ||
+            strpos($html, 'bot detected') !== false ||
+            strpos($html, 'Please verify you are human') !== false ||
+            strpos($html, 'Cloudflare') !== false && strpos($html, 'blocked') !== false) {
             return false;
         }
         
@@ -254,10 +267,18 @@ class UrlMetadataService
             'premium' => 'false' // Use free tier
         ]);
 
+        // Use shorter timeout for known problematic sites
+        $timeout = self::TIMEOUT;
+        if (strpos($url, 'walmart.com') !== false || 
+            strpos($url, 'target.com') !== false || 
+            strpos($url, 'bestbuy.com') !== false) {
+            $timeout = 15; // Shorter timeout for problematic sites
+        }
+        
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
-                'timeout' => self::TIMEOUT,
+                'timeout' => $timeout,
                 'ignore_errors' => true
             ]
         ]);
@@ -312,7 +333,7 @@ class UrlMetadataService
      * @param string $html The HTML content to parse
      * @return array ['title' => string, 'price' => string, 'image' => string]
      */
-    private function parseHtml(string $html): array
+    private function parseHtml(string $html, string $url): array
     {
         $metadata = [
             'title' => '',
@@ -337,10 +358,13 @@ class UrlMetadataService
         $metadata['title'] = $this->extractTitle($dom);
         
         // Extract price
-        $metadata['price'] = $this->extractPrice($dom, $html);
+        $metadata['price'] = $this->extractPrice($dom, $html, $url);
         
         // Extract image
         $metadata['image'] = $this->extractImage($dom);
+        
+        // Extract additional product details
+        $metadata['product_details'] = $this->extractProductDetails($dom, $html, $url);
 
         return $metadata;
     }
@@ -382,9 +406,10 @@ class UrlMetadataService
      * 
      * @param \DOMDocument $dom
      * @param string $html Raw HTML for regex fallback
+     * @param string $url The original URL for site-specific extraction
      * @return string
      */
-    private function extractPrice(\DOMDocument $dom, string $html): string
+    private function extractPrice(\DOMDocument $dom, string $html, string $url): string
     {
         $xpath = new \DOMXPath($dom);
         
@@ -419,10 +444,20 @@ class UrlMetadataService
             return $schemaPrice;
         }
 
-        // Try Amazon-specific price extraction
-        $amazonPrice = $this->extractAmazonPrice($html);
-        if (!empty($amazonPrice)) {
-            return $amazonPrice;
+        // Try Amazon-specific price extraction (only for Amazon URLs)
+        if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false) {
+            $amazonPrice = $this->extractAmazonPrice($html);
+            if (!empty($amazonPrice)) {
+                return $amazonPrice;
+            }
+        }
+
+        // Try Target-specific price extraction (only for Target URLs)
+        if (strpos($url, 'target.com') !== false) {
+            $targetPrice = $this->extractTargetPrice($html);
+            if (!empty($targetPrice)) {
+                return $targetPrice;
+            }
         }
 
         return '';
@@ -503,6 +538,97 @@ class UrlMetadataService
     }
 
     /**
+     * Extract Target-specific product price
+     * 
+     * @param string $html
+     * @return string
+     */
+    private function extractTargetPrice(string $html): string
+    {
+        // Target price patterns (prioritize main product price)
+        $pricePatterns = [
+            // Main product price selectors
+            '/<span[^>]*data-test="product-price"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*class="[^"]*h-text-lg[^"]*"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*class="[^"]*h-text-xl[^"]*"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*data-test="current-price"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*class="[^"]*styles__StyledText-sc-1x8c2b5-0[^"]*"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*class="[^"]*h-display-block[^"]*"[^>]*>([^<]+)<\/span>/i',
+            // Look for price in specific containers
+            '/<div[^>]*class="[^"]*price[^"]*"[^>]*>([^<]+)<\/div>/i',
+            '/<div[^>]*data-test="[^"]*price[^"]*"[^>]*>([^<]+)<\/div>/i'
+        ];
+
+        foreach ($pricePatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $price = trim($matches[1]);
+                $cleanedPrice = $this->cleanPrice($price);
+                if (!empty($cleanedPrice)) {
+                    return $cleanedPrice;
+                }
+            }
+        }
+
+        // If no specific patterns found, try to find the most likely price
+        // Look for prices that are likely the main product price (not shipping, tax, etc.)
+        if (preg_match_all('/\$[\d,]+\.?\d*/', $html, $matches, PREG_OFFSET_CAPTURE)) {
+            $prices = [];
+            $shippingPrices = [];
+            
+            // Analyze each price with its context
+            foreach ($matches[0] as $i => $match) {
+                $price = $match[0];
+                $offset = $match[1];
+                
+                // Get context around the price
+                $start = max(0, $offset - 100);
+                $end = min(strlen($html), $offset + 100);
+                $context = substr($html, $start, $end - $start);
+                
+                // Check if this price is in a shipping context
+                $isShipping = (
+                    stripos($context, 'shipping') !== false ||
+                    stripos($context, 'free') !== false ||
+                    stripos($context, 'order') !== false ||
+                    stripos($context, 'delivery') !== false ||
+                    stripos($context, 'pickup') !== false ||
+                    stripos($context, 'threshold') !== false
+                );
+                
+                if ($isShipping) {
+                    $shippingPrices[] = $price;
+                } else {
+                    $prices[] = $price;
+                }
+            }
+            
+            // Remove duplicates
+            $prices = array_unique($prices);
+            $shippingPrices = array_unique($shippingPrices);
+            
+            // Filter out very small prices (likely unit prices) and very large prices
+            $filteredPrices = array_filter($prices, function($price) {
+                $value = (float) str_replace(['$', ','], '', $price);
+                return $value >= 1 && $value <= 1000;
+            });
+            
+            if (!empty($filteredPrices)) {
+                // Sort prices and prefer the lower price (more likely to be the actual product price)
+                usort($filteredPrices, function($a, $b) {
+                    $valueA = (float) str_replace(['$', ','], '', $a);
+                    $valueB = (float) str_replace(['$', ','], '', $b);
+                    return $valueA <=> $valueB;
+                });
+                
+                // Return the lowest reasonable product price found
+                return $this->cleanPrice(reset($filteredPrices));
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Extract image from OpenGraph or Twitter meta tags
      * 
      * @param \DOMDocument $dom
@@ -523,6 +649,55 @@ class UrlMetadataService
             if ($nodes->length > 0) {
                 $image = trim($nodes->item(0)->nodeValue);
                 if (!empty($image)) {
+                    return $image;
+                }
+            }
+        }
+
+        // Try Amazon-specific image extraction
+        $amazonImage = $this->extractAmazonImage($dom);
+        if (!empty($amazonImage)) {
+            return $amazonImage;
+        }
+
+        return '';
+    }
+
+    /**
+     * Extract Amazon-specific product image
+     * 
+     * @param \DOMDocument $dom
+     * @return string
+     */
+    private function extractAmazonImage(\DOMDocument $dom): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Amazon-specific image selectors (in order of preference)
+        $amazonImageQueries = [
+            "//img[@id='landingImage']/@src",
+            "//img[@id='landingImage']/@data-old-hires",
+            "//img[@id='landingImage']/@data-a-dynamic-image",
+            "//img[@id='landingImage']/@data-a-hires",
+            "//img[contains(@class, 'a-dynamic-image')]/@src",
+            "//img[contains(@class, 'a-dynamic-image')]/@data-old-hires",
+            "//img[contains(@class, 'a-dynamic-image')]/@data-a-hires",
+            "//div[@id='imgTagWrapperId']//img/@src",
+            "//div[@id='imgTagWrapperId']//img/@data-old-hires",
+            "//div[@id='imgTagWrapperId']//img/@data-a-hires"
+        ];
+
+        foreach ($amazonImageQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $image = trim($nodes->item(0)->nodeValue);
+                if (!empty($image) && strpos($image, 'amazon.com') !== false) {
+                    // Convert relative URLs to absolute
+                    if (strpos($image, '//') === 0) {
+                        $image = 'https:' . $image;
+                    } elseif (strpos($image, '/') === 0) {
+                        $image = 'https://www.amazon.com' . $image;
+                    }
                     return $image;
                 }
             }
@@ -579,6 +754,368 @@ class UrlMetadataService
 
         // Format as decimal (no dollar sign - form will add it)
         return number_format($price, 2, '.', '');
+    }
+
+    /**
+     * Extract additional product details like size, color, material, etc.
+     * 
+     * @param \DOMDocument $dom
+     * @param string $html Raw HTML for regex fallback
+     * @param string $url The original URL for site-specific extraction
+     * @return string Formatted product details for notes field
+     */
+    private function extractProductDetails(\DOMDocument $dom, string $html, string $url): string
+    {
+        $details = [];
+        
+        // Extract size information
+        $size = $this->extractSize($dom, $html, $url);
+        if (!empty($size)) {
+            $details[] = "Size: $size";
+        }
+        
+        // Extract color information
+        $color = $this->extractColor($dom, $html, $url);
+        if (!empty($color)) {
+            $details[] = "Color: $color";
+        }
+        
+        // Extract material information
+        $material = $this->extractMaterial($dom, $html, $url);
+        if (!empty($material)) {
+            $details[] = "Material: $material";
+        }
+        
+        // Extract brand information
+        $brand = $this->extractBrand($dom, $html, $url);
+        if (!empty($brand)) {
+            $details[] = "Brand: $brand";
+        }
+        
+        // Extract dimensions/weight
+        $dimensions = $this->extractDimensions($dom, $html, $url);
+        if (!empty($dimensions)) {
+            $details[] = "Dimensions: $dimensions";
+        }
+        
+        // Extract availability/condition
+        $condition = $this->extractCondition($dom, $html, $url);
+        if (!empty($condition)) {
+            $details[] = "Condition: $condition";
+        }
+        
+        return implode("\n", $details);
+    }
+
+    /**
+     * Extract size information from product details
+     */
+    private function extractSize(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common size selectors
+        $sizeQueries = [
+            "//span[contains(@class, 'size')]",
+            "//div[contains(@class, 'size')]",
+            "//span[contains(@class, 'variant')]",
+            "//div[contains(@class, 'variant')]",
+            "//select[@name='size']//option[@selected]",
+            "//input[@name='size'][@checked]",
+            "//span[contains(text(), 'Size:')]/following-sibling::span",
+            "//div[contains(text(), 'Size:')]/following-sibling::div"
+        ];
+        
+        foreach ($sizeQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $size = trim($nodes->item(0)->textContent);
+                if (!empty($size) && strlen($size) < 50 && !$this->isIrrelevantData($size)) {
+                    return $size;
+                }
+            }
+        }
+        
+        // Try regex patterns for size
+        $sizePatterns = [
+            '/Size[:\s]+([A-Z0-9\-\/]+)/i',
+            '/Size\s*([A-Z0-9\-\/]+)/i',
+            '/\b([XS|S|M|L|XL|XXL|XXXL])\b/i',
+            '/\b(\d+[A-Z]?)\b/' // Numeric sizes
+        ];
+        
+        foreach ($sizePatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $size = trim($matches[1]);
+                if (!empty($size) && strlen($size) < 20) {
+                    return $size;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract color information from product details
+     */
+    private function extractColor(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common color selectors
+        $colorQueries = [
+            "//span[contains(@class, 'color')]",
+            "//div[contains(@class, 'color')]",
+            "//span[contains(@class, 'colour')]",
+            "//div[contains(@class, 'colour')]",
+            "//select[@name='color']//option[@selected]",
+            "//input[@name='color'][@checked]",
+            "//span[contains(text(), 'Color:')]/following-sibling::span",
+            "//div[contains(text(), 'Color:')]/following-sibling::div"
+        ];
+        
+        foreach ($colorQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $color = trim($nodes->item(0)->textContent);
+                if (!empty($color) && strlen($color) < 50 && !$this->isIrrelevantData($color)) {
+                    return $color;
+                }
+            }
+        }
+        
+        // Try regex patterns for color
+        $colorPatterns = [
+            '/Color[:\s]+([A-Za-z\s]+)/i',
+            '/Colour[:\s]+([A-Za-z\s]+)/i',
+            '/\b(Red|Blue|Green|Yellow|Black|White|Gray|Grey|Pink|Purple|Orange|Brown|Silver|Gold)\b/i'
+        ];
+        
+        foreach ($colorPatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $color = trim($matches[1]);
+                if (!empty($color) && strlen($color) < 30) {
+                    return $color;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract material information from product details
+     */
+    private function extractMaterial(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common material selectors
+        $materialQueries = [
+            "//span[contains(@class, 'material')]",
+            "//div[contains(@class, 'material')]",
+            "//span[contains(text(), 'Material:')]/following-sibling::span",
+            "//div[contains(text(), 'Material:')]/following-sibling::div"
+        ];
+        
+        foreach ($materialQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $material = trim($nodes->item(0)->textContent);
+                if (!empty($material) && strlen($material) < 100 && !$this->isIrrelevantData($material)) {
+                    return $material;
+                }
+            }
+        }
+        
+        // Try regex patterns for material
+        $materialPatterns = [
+            '/Material[:\s]+([A-Za-z\s,]+)/i',
+            '/\b(Cotton|Polyester|Wool|Silk|Leather|Denim|Linen|Cashmere|Nylon|Spandex|Rayon|Bamboo|Hemp)\b/i'
+        ];
+        
+        foreach ($materialPatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $material = trim($matches[1]);
+                if (!empty($material) && strlen($material) < 50) {
+                    return $material;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract brand information from product details
+     */
+    private function extractBrand(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common brand selectors
+        $brandQueries = [
+            "//span[contains(@class, 'brand')]",
+            "//div[contains(@class, 'brand')]",
+            "//span[contains(@class, 'manufacturer')]",
+            "//div[contains(@class, 'manufacturer')]",
+            "//span[contains(text(), 'Brand:')]/following-sibling::span",
+            "//div[contains(text(), 'Brand:')]/following-sibling::div"
+        ];
+        
+        foreach ($brandQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $brand = trim($nodes->item(0)->textContent);
+                if (!empty($brand) && strlen($brand) < 50 && !$this->isIrrelevantData($brand)) {
+                    return $brand;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract dimensions/weight information from product details
+     */
+    private function extractDimensions(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common dimension selectors
+        $dimensionQueries = [
+            "//span[contains(@class, 'dimension')]",
+            "//div[contains(@class, 'dimension')]",
+            "//span[contains(@class, 'weight')]",
+            "//div[contains(@class, 'weight')]",
+            "//span[contains(text(), 'Dimensions:')]/following-sibling::span",
+            "//div[contains(text(), 'Dimensions:')]/following-sibling::div"
+        ];
+        
+        foreach ($dimensionQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $dimensions = trim($nodes->item(0)->textContent);
+                if (!empty($dimensions) && strlen($dimensions) < 100 && !$this->isIrrelevantData($dimensions)) {
+                    return $dimensions;
+                }
+            }
+        }
+        
+        // Try regex patterns for dimensions
+        $dimensionPatterns = [
+            '/Dimensions[:\s]+([0-9\.\sx×]+)/i',
+            '/Weight[:\s]+([0-9\.\s]+[a-z]+)/i',
+            '/\b(\d+\.?\d*\s*x\s*\d+\.?\d*\s*x\s*\d+\.?\d*)\b/i'
+        ];
+        
+        foreach ($dimensionPatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $dimensions = trim($matches[1]);
+                if (!empty($dimensions) && strlen($dimensions) < 50) {
+                    return $dimensions;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract condition information from product details
+     */
+    private function extractCondition(\DOMDocument $dom, string $html, string $url): string
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // Common condition selectors
+        $conditionQueries = [
+            "//span[contains(@class, 'condition')]",
+            "//div[contains(@class, 'condition')]",
+            "//span[contains(@class, 'availability')]",
+            "//div[contains(@class, 'availability')]",
+            "//span[contains(text(), 'Condition:')]/following-sibling::span",
+            "//div[contains(text(), 'Condition:')]/following-sibling::div"
+        ];
+        
+        foreach ($conditionQueries as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes->length > 0) {
+                $condition = trim($nodes->item(0)->textContent);
+                if (!empty($condition) && strlen($condition) < 50 && !$this->isIrrelevantData($condition)) {
+                    return $condition;
+                }
+            }
+        }
+        
+        // Try regex patterns for condition
+        $conditionPatterns = [
+            '/\b(New|Used|Refurbished|Like New|Good|Fair|Poor)\b/i',
+            '/\b(In Stock|Out of Stock|Limited|Discontinued)\b/i'
+        ];
+        
+        foreach ($conditionPatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $condition = trim($matches[1]);
+                if (!empty($condition) && strlen($condition) < 30) {
+                    return $condition;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Check if extracted data is irrelevant (CSS, JS, etc.)
+     */
+    private function isIrrelevantData(string $data): bool
+    {
+        $data = strtolower(trim($data));
+        
+        // Filter out common irrelevant data
+        $irrelevantPatterns = [
+            'px', 'em', 'rem', '%', 'vh', 'vw', // CSS units
+            'var(', 'function', 'return', 'if(', 'for(', // JavaScript
+            'ships from', 'shipping', 'delivery', 'pickup', // Shipping info
+            'alt', 'src', 'href', 'class', 'id', 'style', // HTML attributes
+            'color:', 'background:', 'font-', 'margin', 'padding', // CSS properties
+            'var', 'let', 'const', 'this', 'that', // Programming keywords
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', // Single numbers
+            'x', 'y', 'z', 'i', 'j', 'k', // Single letters
+            'bold', 'italic', 'underline', 'normal', // CSS font styles
+            'solid', 'dashed', 'dotted', 'none', // CSS border styles
+            'left', 'right', 'center', 'justify', // CSS text alignment
+            'top', 'bottom', 'middle', // CSS positioning
+            'auto', 'inherit', 'initial', 'unset', // CSS values
+            'block', 'inline', 'flex', 'grid', // CSS display
+            'hidden', 'visible', 'scroll', 'overflow' // CSS visibility
+        ];
+        
+        foreach ($irrelevantPatterns as $pattern) {
+            if (strpos($data, $pattern) !== false) {
+                return true;
+            }
+        }
+        
+        // Check if it's too short or too generic
+        if (strlen($data) < 2 || strlen($data) > 50) {
+            return true;
+        }
+        
+        // Check if it contains only numbers or special characters
+        if (preg_match('/^[\d\s\-\.]+$/', $data) || preg_match('/^[^a-zA-Z]+$/', $data)) {
+            return true;
+        }
+        
+        // Check if it's a single word that's too generic (but allow some useful ones)
+        if (preg_match('/^(in stock|out of stock|limited|discontinued)$/i', $data)) {
+            return true;
+        }
+        
+        return false;
     }
 }
 

@@ -23,6 +23,32 @@ class ItemController extends Controller
         $this->fileUploadService = new FileUploadService();
     }
 
+    /**
+     * Show step 1: URL input page
+     */
+    public function addStep1(int $wishlistId): Response
+    {
+        $user = $this->auth();
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+        }
+
+        // Get background image for theme
+        $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
+
+        $data = [
+            'user' => $user,
+            'wishlist' => array_merge($wishlist, ['background_image' => $background_image])
+        ];
+
+        return $this->view('items/add-step1', $data);
+    }
+
+    /**
+     * Show step 2: Item form (with optional pre-filled data)
+     */
     public function create(int $wishlistId): Response
     {
         
@@ -36,18 +62,31 @@ class ItemController extends Controller
         // Get background image for theme
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
+        // Check for fetched data in session
+        $fetchedData = $_SESSION['fetched_item_data'] ?? null;
+        
+        // Use session data if available, otherwise use URL parameters as fallback
+        $itemName = $fetchedData['title'] ?? $this->request->input('name', '');
+        $price = $fetchedData['price'] ?? $this->request->input('price', '');
+        $link = $fetchedData['link'] ?? $this->request->input('link', '');
+        $image = $fetchedData['image'] ?? $this->request->input('image_url', '');
+        $product_details = $fetchedData['product_details'] ?? '';
+        
         $data = [
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
-            'item_name' => $this->request->input('name', ''),
-            'price' => $this->request->input('price', ''),
+            'item_name' => $itemName,
+            'price' => $price,
             'quantity' => $this->request->input('quantity', '1'),
             'unlimited' => $this->request->input('unlimited', 'No'),
-            'link' => $this->request->input('link', ''),
-            'notes' => $this->request->input('notes', ''),
+            'link' => $link,
+            'notes' => $this->request->input('notes', $product_details),
             'priority' => $this->request->input('priority', '1'),
             'filename' => $this->request->input('filename', ''),
-            'priority_options' => ["1", "2", "3", "4"]
+            'priority_options' => ["1", "2", "3", "4"],
+            'add' => true,
+            'fetched_data' => $fetchedData, // Pass to view for display
+            'fetched_image_url' => $image // Pass fetched image URL to form
         ];
 
         return $this->view('items/create', $data);
@@ -61,6 +100,11 @@ class ItemController extends Controller
         
         if (!$wishlist) {
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
+        }
+        
+        // Clear fetched data from session after form submission
+        if (isset($_SESSION['fetched_item_data'])) {
+            unset($_SESSION['fetched_item_data']);
         }
 
         $data = $this->request->input();
@@ -418,26 +462,35 @@ class ItemController extends Controller
      */
     public function fetchUrlMetadata(): Response
     {
+        // Start output buffering to catch any unwanted output
+        ob_start();
+        
         try {
             // Validate request
             if (!$this->request->isPost()) {
+                ob_end_clean();
                 return $this->json(['success' => false, 'error' => 'Invalid request method']);
             }
 
             $url = $this->request->input('url');
             
             if (empty($url)) {
+                ob_end_clean();
                 return $this->json(['success' => false, 'error' => 'URL is required']);
             }
 
             // Validate URL format
             if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                ob_end_clean();
                 return $this->json(['success' => false, 'error' => 'Invalid URL format']);
             }
 
             // Use UrlMetadataService to fetch metadata
             $metadataService = new \App\Services\UrlMetadataService();
             $result = $metadataService->fetchMetadata($url);
+
+            // Clean any output that might have been generated
+            ob_end_clean();
 
             // Return JSON response
             return $this->json([
@@ -449,6 +502,9 @@ class ItemController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // Clean output buffer
+            ob_end_clean();
+            
             // Log error for debugging
             error_log('UrlMetadataService error: ' . $e->getMessage());
             
@@ -457,5 +513,47 @@ class ItemController extends Controller
                 'error' => 'An error occurred while fetching URL metadata. Please try again.'
             ]);
         }
+    }
+
+    /**
+     * Store fetched URL data in session
+     */
+    public function storeFetchedData(): Response
+    {
+        try {
+            $title = $this->request->input('title', '');
+            $price = $this->request->input('price', '');
+            $link = $this->request->input('link', '');
+            $image = $this->request->input('image', '');
+            $product_details = $this->request->input('product_details', '');
+            
+            // Store in session
+            $_SESSION['fetched_item_data'] = [
+                'title' => $title,
+                'price' => $price,
+                'link' => $link,
+                'image' => $image,
+                'product_details' => $product_details,
+                'timestamp' => time()
+            ];
+            
+            return $this->json(['success' => true]);
+            
+        } catch (\Exception $e) {
+            error_log('Store fetched data error: ' . $e->getMessage());
+            return $this->json(['success' => false, 'error' => 'Failed to store data']);
+        }
+    }
+
+    /**
+     * Test endpoint to verify JSON response
+     */
+    public function testJson(): Response
+    {
+        return $this->json([
+            'success' => true,
+            'message' => 'Test JSON response',
+            'timestamp' => time()
+        ]);
     }
 }

@@ -2472,3 +2472,230 @@ img.gift-wrap {
         margin-bottom: 55px;
     }
 }
+
+/* Add Item Step 1 - URL Input Page */
+.add-item-step1 {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.add-item-step1 h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.step-description {
+    text-align: center;
+    color: var(--text-lighter);
+    margin-bottom: 40px;
+    font-size: 16px;
+}
+
+.url-fetch-section, .manual-add-section {
+    background: var(--background-lighter);
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.url-fetch-section h2, .manual-add-section h2 {
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.url-description, .manual-description {
+    color: var(--text-lighter);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.large-url-input {
+    flex: 1;
+    min-width: 300px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid var(--background-darker);
+    border-radius: 6px;
+    background: var(--input-background);
+    color: var(--text);
+    transition: border-color 0.2s ease;
+}
+
+.large-url-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.fetch-button {
+    background: var(--primary);
+    color: var(--contrast);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fetch-button:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.fetch-button:disabled {
+    background: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#fetch-spinner {
+    font-size: 18px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#fetch-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#fetch-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+#fetch-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+#fetch-status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.divider {
+    text-align: center;
+    margin: 30px 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--background-darker);
+}
+
+.divider span {
+    background: var(--background);
+    padding: 0 20px;
+    color: var(--text-lighter);
+    font-weight: 500;
+}
+
+.manual-add-button {
+    display: inline-block;
+    background: var(--secondary);
+    color: var(--text);
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.manual-add-button:hover {
+    background: var(--secondary-hover);
+    text-decoration: none;
+    color: var(--text);
+}
+
+/* Dark mode styles for step 1 */
+body.dark #fetch-status.success {
+    background: #1e4a2e;
+    color: #a2c6ae;
+    border-color: #2d5a3d;
+}
+
+body.dark #fetch-status.error {
+    background: #4a1e1e;
+    color: #c6a2a2;
+    border-color: #5a2d2d;
+}
+
+body.dark #fetch-status.info {
+    background: #1e3a4a;
+    color: #a2c6c6;
+    border-color: #2d4a5a;
+}
+
+/* Responsive design for step 1 */
+@media (max-width: 600px) {
+    .url-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .large-url-input {
+        min-width: auto;
+    }
+    
+    .fetch-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .add-item-step1 {
+        padding: 20px 10px;
+    }
+}
+
+/* Fetched data notice */
+.fetched-data-notice {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.fetched-data-notice p {
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Dark mode for fetched data notice */
+body.dark .fetched-data-notice {
+    background: #1e4a2e;
+    color: #a2c6ae;
+    border-color: #2d5a3d;
+}

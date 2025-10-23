@@ -42,6 +42,30 @@ $("#paste-image").on("paste", function(e){
         }
     }
 });
+
+// Handle URL input in paste image field
+$("#paste-image").on("input", function() {
+    const inputValue = $(this).val().trim();
+    const pasteImageHidden = $("#paste-image-hidden");
+    const previewContainer = $("#preview_container");
+    
+    if (inputValue && isValidUrl(inputValue)) {
+        // It's a valid URL, store it and show preview
+        pasteImageHidden.val(inputValue);
+        
+        // Show preview
+        previewContainer.find("img").attr("src", inputValue);
+        previewContainer.removeClass("hidden");
+        
+        // Update button text
+        $(".file-input").text("Change Image");
+    } else if (inputValue === '') {
+        // Clear the preview if input is empty
+        pasteImageHidden.val('');
+        previewContainer.addClass("hidden");
+        $(".file-input").text("Choose Item Image");
+    }
+});
 // show image preview on change
 $("#image, .file-input + input").on("change", function(){
     $input = $(this);
@@ -237,3 +261,31 @@ function isValidUrl(string) {
         return false;
     }
 }
+
+// Handle fetched image URL on page load
+$(document).ready(function() {
+    const pasteImageInput = $("#paste-image");
+    const pasteImageHidden = $("#paste-image-hidden");
+    const previewContainer = $("#preview_container");
+    
+    // Check if there's a fetched image URL
+    if (pasteImageInput.val() && pasteImageInput.val().trim() !== '') {
+        const imageUrl = pasteImageInput.val().trim();
+        
+        // If it's a valid URL, show preview
+        if (isValidUrl(imageUrl)) {
+            // Update hidden field
+            pasteImageHidden.val(imageUrl);
+            
+            // Clear the visible input field so user doesn't see the URL
+            pasteImageInput.val("");
+            
+            // Show preview
+            previewContainer.find("img").attr("src", imageUrl);
+            previewContainer.removeClass("hidden");
+            
+            // Update button text
+            $(".file-input").text("Change Image");
+        }
+    }
+});
