@@ -1384,6 +1384,8 @@ class UrlMetadataService
             '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Size:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
             // Walmart pattern: <span class="b">Clothing Size<!-- -->:</span><span class="ml1">VALUE</span>
             '/<span[^>]*class="b"[^>]*>Clothing Size.*?:<\/span><span[^>]*class="ml1"[^>]*>([^<]+)<\/span>/i',
+            // Target pattern: <div class="styles_headerWrapper__Xzdtg"><span class="styles_headerSpan__wl9MD">Size</span>VALUE<span class="h-margin-l-x2">...</span></div>
+            '/<div[^>]*class="[^"]*styles_headerWrapper__[^"]*"[^>]*><span[^>]*class="[^"]*styles_headerSpan__[^"]*"[^>]*>Size<\/span>([^<]+)<span[^>]*class="[^"]*h-margin-l-x2[^"]*"[^>]*>/i',
             '/<span[^>]*>Clothing Size[^<]*:<\/span><span[^>]*>([^<]+)<\/span>/i',
             // Look for Size: in a span followed by another span
             '/<span[^>]*>Size:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
@@ -1420,6 +1422,8 @@ class UrlMetadataService
             '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Color:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
             // Walmart pattern: <span class="b">Color<!-- -->:</span><span class="ml1">VALUE</span>
             '/<span[^>]*class="b"[^>]*>Color.*?:<\/span><span[^>]*class="ml1"[^>]*>([^<]+)<\/span>/i',
+            // Target pattern: <div class="styles_headerWrapper__Xzdtg"><span class="styles_headerSpan__wl9MD">Color</span>VALUE</div>
+            '/<div[^>]*class="[^"]*styles_headerWrapper__[^"]*"[^>]*><span[^>]*class="[^"]*styles_headerSpan__[^"]*"[^>]*>Color<\/span>([^<]+)<\/div>/i',
             '/<span[^>]*>Color[^<]*:<\/span><span[^>]*>([^<]+)<\/span>/i',
             // Look for Color: in a span followed by another span
             '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
