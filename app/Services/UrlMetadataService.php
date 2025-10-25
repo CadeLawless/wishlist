@@ -379,10 +379,8 @@ class UrlMetadataService
         // Extract image
         $metadata['image'] = $this->extractImage($dom);
         
-        // Extract additional product details
-        // Temporarily disable product details extraction due to CSS styling issues
-        // TODO: Implement more robust product details extraction
-        $metadata['product_details'] = '';
+        // Extract Size and Color only (most useful product details)
+        $metadata['product_details'] = $this->extractSizeAndColor($dom, $html, $url);
 
         return $metadata;
     }
@@ -1321,7 +1319,192 @@ class UrlMetadataService
             return true;
         }
         
+        // Allow legitimate size and color data even if they match some patterns
+        $legitimatePatterns = [
+            '/^(XS|S|M|L|XL|XXL|XXXL|Small|Medium|Large|Extra Large|X-Large|XX-Large|XXX-Large)$/i',
+            '/^(Red|Blue|Green|Yellow|Black|White|Gray|Grey|Pink|Purple|Orange|Brown|Silver|Gold|Navy|Maroon|Beige|Tan|Cream|Ivory|Dark Purple|Light Blue|Dark Blue|Light Green|Dark Green|Wine Red|Coffee|Khaki|Grey Blue|Navy Blue|Forest Green|Royal Blue|Burgundy|Charcoal|Olive|Coral|Teal|Mint|Lavender|Rose|Sage|Camel|Champagne|Pearl|Platinum|Bronze|Copper)$/i'
+        ];
+        
+        foreach ($legitimatePatterns as $pattern) {
+            if (preg_match($pattern, $data)) {
+                return false; // This is legitimate data, don't filter it out
+            }
+        }
+        
         return false;
+    }
+
+    /**
+     * Extract Size and Color only (most useful product details)
+     */
+    private function extractSizeAndColor(\DOMDocument $dom, string $html, string $url): string
+    {
+        $details = [];
+        
+        // First try to extract from title (often contains size and color)
+        $title = $this->extractTitle($dom, $html, $url);
+        if (!empty($title)) {
+            $sizeFromTitle = $this->extractSizeFromTitle($title);
+            $colorFromTitle = $this->extractColorFromTitle($title);
+            
+            if (!empty($sizeFromTitle)) {
+                $details[] = "Size: $sizeFromTitle";
+            }
+            if (!empty($colorFromTitle)) {
+                $details[] = "Color: $colorFromTitle";
+            }
+        }
+        
+        // Only use HTML extraction if title extraction failed
+        if (empty($sizeFromTitle)) {
+            $size = $this->extractSizeTargeted($dom, $html, $url);
+            if (!empty($size)) {
+                $details[] = "Size: $size";
+            }
+        }
+        
+        if (empty($colorFromTitle)) {
+            $color = $this->extractColorTargeted($dom, $html, $url);
+            if (!empty($color)) {
+                $details[] = "Color: $color";
+            }
+        }
+        
+        return implode("\n", $details);
+    }
+
+    /**
+     * Extract size with very targeted selectors to avoid CSS styling
+     */
+    private function extractSizeTargeted(\DOMDocument $dom, string $html, string $url): string
+    {
+        // Look for "Size:" followed by the actual size (either directly or in a span)
+        $sizePatterns = [
+            '/Size:\s*([A-Za-z0-9\-\/]+)/i',
+            '/Size\s*:\s*([A-Za-z0-9\-\/]+)/i',
+            '/Size\s+([A-Za-z0-9\-\/]+)/i',
+            // Look for Size: followed by a span
+            '/Size:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Size\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Size\s+<span[^>]*>([^<]+)<\/span>/i',
+            // Look for Size: in a span/div followed by another span/div
+            '/<span[^>]*>Size:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<div[^>]*>Size:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*>Size:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
+            '/<div[^>]*>Size:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i'
+        ];
+        
+        foreach ($sizePatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $size = trim($matches[1]);
+                if (!empty($size) && strlen($size) < 20) {
+                    return $size;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract color with very targeted selectors to avoid CSS styling
+     */
+    private function extractColorTargeted(\DOMDocument $dom, string $html, string $url): string
+    {
+        // Look for "Color:" followed by the actual color (either directly or in a span)
+        $colorPatterns = [
+            '/Color:\s*([A-Za-z\s]+)/i',
+            '/Color\s*:\s*([A-Za-z\s]+)/i',
+            '/Color\s+([A-Za-z\s]+)/i',
+            '/Colour:\s*([A-Za-z\s]+)/i',
+            '/Colour\s*:\s*([A-Za-z\s]+)/i',
+            '/Colour\s+([A-Za-z\s]+)/i',
+            // Look for Color: followed by a span
+            '/Color:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Color\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Color\s+<span[^>]*>([^<]+)<\/span>/i',
+            '/Colour:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Colour\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Colour\s+<span[^>]*>([^<]+)<\/span>/i',
+            // Look for Color: in a span/div followed by another span/div
+            '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<div[^>]*>Color:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*>Color:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
+            '/<div[^>]*>Color:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i',
+            '/<span[^>]*>Colour:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<div[^>]*>Colour:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*>Colour:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
+            '/<div[^>]*>Colour:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i'
+        ];
+        
+        foreach ($colorPatterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $color = trim($matches[1]);
+                if (!empty($color) && strlen($color) < 30) {
+                    return $color;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract size from product title
+     */
+    private function extractSizeFromTitle(string $title): string
+    {
+        // Look for size patterns in title
+        $sizePatterns = [
+            '/\b(XS|S|M|L|XL|XXL|XXXL|Small|Medium|Large|Extra Large|X-Large|XX-Large|XXX-Large)\b/i'
+        ];
+        
+        foreach ($sizePatterns as $pattern) {
+            if (preg_match_all($pattern, $title, $matches)) {
+                // Find the best size match (prefer longer, more specific sizes)
+                $bestSize = '';
+                $bestLength = 0;
+                
+                foreach ($matches[1] as $match) {
+                    $size = trim($match);
+                    if (!empty($size) && !$this->isIrrelevantData($size)) {
+                        // Prefer longer, more specific sizes (XL over S, Large over S, etc.)
+                        if (strlen($size) > $bestLength) {
+                            $bestSize = $size;
+                            $bestLength = strlen($size);
+                        }
+                    }
+                }
+                
+                if (!empty($bestSize)) {
+                    return $bestSize;
+                }
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Extract color from product title
+     */
+    private function extractColorFromTitle(string $title): string
+    {
+        // Look for color patterns in title
+        $colorPatterns = [
+            '/\b(Red|Blue|Green|Yellow|Black|White|Gray|Grey|Pink|Purple|Orange|Brown|Silver|Gold|Navy|Maroon|Beige|Tan|Cream|Ivory|Dark Purple|Light Blue|Dark Blue|Light Green|Dark Green|Wine Red|Coffee|Khaki|Grey Blue|Navy Blue|Forest Green|Royal Blue|Burgundy|Charcoal|Olive|Coral|Teal|Mint|Lavender|Rose|Sage|Camel|Champagne|Pearl|Platinum|Bronze|Copper)\b/i'
+        ];
+        
+        foreach ($colorPatterns as $pattern) {
+            if (preg_match($pattern, $title, $matches)) {
+                $color = trim($matches[1]);
+                if (!empty($color) && !$this->isIrrelevantData($color)) {
+                    return $color;
+                }
+            }
+        }
+        
+        return '';
     }
 }
 
