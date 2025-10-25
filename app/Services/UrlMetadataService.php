@@ -287,7 +287,7 @@ class UrlMetadataService
             strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         } elseif (strpos($url, 'etsy.com') !== false) {
-            $timeout = 15; // Etsy needs a bit more time even with minimal params
+            $timeout = 25; // Etsy needs more time for complex pages
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
