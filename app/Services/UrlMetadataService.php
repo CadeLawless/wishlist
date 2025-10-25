@@ -72,7 +72,7 @@ class UrlMetadataService
             } elseif (strpos($url, 'bestbuy.com') !== false) {
                 $response['error'] = 'Best Buy blocks automated requests. Please enter the product details manually.';
             } elseif (strpos($url, 'etsy.com') !== false) {
-                $response['error'] = 'Etsy blocks automated requests. Please enter the product details manually.';
+                $response['error'] = 'Etsy is difficult to access automatically. Please enter the product details manually.';
             } else {
                 $response['error'] = 'Unable to fetch URL content. The site may be blocking automated requests or the URL is inaccessible.';
             }
@@ -84,7 +84,7 @@ class UrlMetadataService
         
         // Check for Etsy blocking (title is just "etsy.com")
         if (strpos($url, 'etsy.com') !== false && $metadata['title'] === 'etsy.com') {
-            $response['error'] = 'Etsy is blocking automated requests. Please enter the product details manually.';
+            $response['error'] = 'Etsy is difficult to access automatically. Please enter the product details manually.';
             return $response;
         }
         
@@ -287,7 +287,7 @@ class UrlMetadataService
             strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         } elseif (strpos($url, 'etsy.com') !== false) {
-            $timeout = 30; // Longer timeout for Etsy (needs more time)
+            $timeout = 20; // Moderate timeout for Etsy
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
@@ -314,7 +314,14 @@ class UrlMetadataService
         $html = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+        $totalTime = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
         curl_close($ch);
+        
+        // Handle timeout errors gracefully
+        if (!empty($error) && strpos($error, 'timeout') !== false) {
+            error_log("ScraperAPI timeout for $url after {$totalTime}s");
+            return false;
+        }
         
         if ($html !== false && $httpCode === 200 && empty($error)) {
             // Only check for specific blocking indicators, not general "error" words
