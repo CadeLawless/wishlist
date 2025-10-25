@@ -1378,20 +1378,20 @@ class UrlMetadataService
      */
     private function extractSizeTargeted(\DOMDocument $dom, string $html, string $url): string
     {
-        // Look for "Size:" followed by the actual size (either directly or in a span)
+        // Look for Amazon-specific size patterns
         $sizePatterns = [
-            '/Size:\s*([A-Za-z0-9\-\/]+)/i',
-            '/Size\s*:\s*([A-Za-z0-9\-\/]+)/i',
-            '/Size\s+([A-Za-z0-9\-\/]+)/i',
+            // Amazon pattern: <span class="a-size-base a-color-secondary"> Size: </span> <span class="..."> VALUE </span>
+            '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Size:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            // Look for Size: in a span followed by another span
+            '/<span[^>]*>Size:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
             // Look for Size: followed by a span
             '/Size:\s*<span[^>]*>([^<]+)<\/span>/i',
             '/Size\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
             '/Size\s+<span[^>]*>([^<]+)<\/span>/i',
-            // Look for Size: in a span/div followed by another span/div
-            '/<span[^>]*>Size:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<div[^>]*>Size:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<span[^>]*>Size:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
-            '/<div[^>]*>Size:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i'
+            // Direct text patterns
+            '/Size:\s*([A-Za-z0-9\-\/]+)/i',
+            '/Size\s*:\s*([A-Za-z0-9\-\/]+)/i',
+            '/Size\s+([A-Za-z0-9\-\/]+)/i'
         ];
         
         foreach ($sizePatterns as $pattern) {
@@ -1411,30 +1411,23 @@ class UrlMetadataService
      */
     private function extractColorTargeted(\DOMDocument $dom, string $html, string $url): string
     {
-        // Look for "Color:" followed by the actual color (either directly or in a span)
+        // Look for Amazon-specific color patterns
         $colorPatterns = [
+            // Amazon pattern: <span class="a-size-base a-color-secondary"> Color: </span> <span class="..."> VALUE </span>
+            '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Color:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            // Look for Color: in a span followed by another span
+            '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            // Look for Color: followed by a span
+            '/Color:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Color\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
+            '/Color\s+<span[^>]*>([^<]+)<\/span>/i',
+            // Direct text patterns
             '/Color:\s*([A-Za-z\s]+)/i',
             '/Color\s*:\s*([A-Za-z\s]+)/i',
             '/Color\s+([A-Za-z\s]+)/i',
             '/Colour:\s*([A-Za-z\s]+)/i',
             '/Colour\s*:\s*([A-Za-z\s]+)/i',
-            '/Colour\s+([A-Za-z\s]+)/i',
-            // Look for Color: followed by a span
-            '/Color:\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/Color\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/Color\s+<span[^>]*>([^<]+)<\/span>/i',
-            '/Colour:\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/Colour\s*:\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/Colour\s+<span[^>]*>([^<]+)<\/span>/i',
-            // Look for Color: in a span/div followed by another span/div
-            '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<div[^>]*>Color:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<span[^>]*>Color:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
-            '/<div[^>]*>Color:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i',
-            '/<span[^>]*>Colour:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<div[^>]*>Colour:<\/div>\s*<span[^>]*>([^<]+)<\/span>/i',
-            '/<span[^>]*>Colour:<\/span>\s*<div[^>]*>([^<]+)<\/div>/i',
-            '/<div[^>]*>Colour:<\/div>\s*<div[^>]*>([^<]+)<\/div>/i'
+            '/Colour\s+([A-Za-z\s]+)/i'
         ];
         
         foreach ($colorPatterns as $pattern) {
