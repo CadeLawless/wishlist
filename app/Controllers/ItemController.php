@@ -70,7 +70,7 @@ class ItemController extends Controller
         $price = $fetchedData['price'] ?? $this->request->input('price', '');
         $link = $fetchedData['link'] ?? $this->request->input('link', '');
         $image = $fetchedData['image'] ?? $this->request->input('image_url', '');
-        $product_details = $fetchedData['product_details'] ?? '';
+        $notes = $fetchedData['product_details'] ?? $this->request->input('notes', '');
         
         $data = [
             'user' => $user,
@@ -80,7 +80,7 @@ class ItemController extends Controller
             'quantity' => $this->request->input('quantity', '1'),
             'unlimited' => $this->request->input('unlimited', 'No'),
             'link' => $link,
-            'notes' => $this->request->input('notes', $product_details),
+            'notes' => $notes,
             'priority' => $this->request->input('priority', '1'),
             'filename' => $this->request->input('filename', ''),
             'priority_options' => ["1", "2", "3", "4"],
