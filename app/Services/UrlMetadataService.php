@@ -380,7 +380,9 @@ class UrlMetadataService
         $metadata['image'] = $this->extractImage($dom);
         
         // Extract additional product details
-        $metadata['product_details'] = $this->extractProductDetails($dom, $html, $url);
+        // Temporarily disable product details extraction due to CSS styling issues
+        // TODO: Implement more robust product details extraction
+        $metadata['product_details'] = '';
 
         return $metadata;
     }
@@ -971,16 +973,20 @@ class UrlMetadataService
     {
         $xpath = new \DOMXPath($dom);
         
-        // Common size selectors
+        // More specific size selectors to avoid CSS styling
         $sizeQueries = [
-            "//span[contains(@class, 'size')]",
-            "//div[contains(@class, 'size')]",
-            "//span[contains(@class, 'variant')]",
-            "//div[contains(@class, 'variant')]",
+            // Amazon-specific selectors
+            "//span[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//div[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//span[contains(@class, 'selection')]",
+            "//div[contains(@class, 'selection')]",
+            // Generic product selectors
             "//select[@name='size']//option[@selected]",
             "//input[@name='size'][@checked]",
             "//span[contains(text(), 'Size:')]/following-sibling::span",
-            "//div[contains(text(), 'Size:')]/following-sibling::div"
+            "//div[contains(text(), 'Size:')]/following-sibling::div",
+            "//span[contains(text(), 'Size:')]/following-sibling::*",
+            "//div[contains(text(), 'Size:')]/following-sibling::*"
         ];
         
         foreach ($sizeQueries as $query) {
@@ -1020,16 +1026,20 @@ class UrlMetadataService
     {
         $xpath = new \DOMXPath($dom);
         
-        // Common color selectors
+        // More specific color selectors to avoid CSS styling
         $colorQueries = [
-            "//span[contains(@class, 'color')]",
-            "//div[contains(@class, 'color')]",
-            "//span[contains(@class, 'colour')]",
-            "//div[contains(@class, 'colour')]",
+            // Amazon-specific selectors
+            "//span[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//div[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//span[contains(@class, 'selection')]",
+            "//div[contains(@class, 'selection')]",
+            // Generic product selectors
             "//select[@name='color']//option[@selected]",
             "//input[@name='color'][@checked]",
             "//span[contains(text(), 'Color:')]/following-sibling::span",
-            "//div[contains(text(), 'Color:')]/following-sibling::div"
+            "//div[contains(text(), 'Color:')]/following-sibling::div",
+            "//span[contains(text(), 'Color:')]/following-sibling::*",
+            "//div[contains(text(), 'Color:')]/following-sibling::*"
         ];
         
         foreach ($colorQueries as $query) {
@@ -1068,12 +1078,18 @@ class UrlMetadataService
     {
         $xpath = new \DOMXPath($dom);
         
-        // Common material selectors
+        // More specific material selectors to avoid CSS styling
         $materialQueries = [
-            "//span[contains(@class, 'material')]",
-            "//div[contains(@class, 'material')]",
+            // Amazon-specific selectors
+            "//span[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//div[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//span[contains(@class, 'selection')]",
+            "//div[contains(@class, 'selection')]",
+            // Generic product selectors
             "//span[contains(text(), 'Material:')]/following-sibling::span",
-            "//div[contains(text(), 'Material:')]/following-sibling::div"
+            "//div[contains(text(), 'Material:')]/following-sibling::div",
+            "//span[contains(text(), 'Material:')]/following-sibling::*",
+            "//div[contains(text(), 'Material:')]/following-sibling::*"
         ];
         
         foreach ($materialQueries as $query) {
@@ -1141,14 +1157,18 @@ class UrlMetadataService
     {
         $xpath = new \DOMXPath($dom);
         
-        // Common dimension selectors
+        // More specific dimension selectors to avoid CSS styling
         $dimensionQueries = [
-            "//span[contains(@class, 'dimension')]",
-            "//div[contains(@class, 'dimension')]",
-            "//span[contains(@class, 'weight')]",
-            "//div[contains(@class, 'weight')]",
+            // Amazon-specific selectors
+            "//span[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//div[contains(@class, 'a-size-base') and contains(@class, 'a-color-base')]",
+            "//span[contains(@class, 'selection')]",
+            "//div[contains(@class, 'selection')]",
+            // Generic product selectors
             "//span[contains(text(), 'Dimensions:')]/following-sibling::span",
-            "//div[contains(text(), 'Dimensions:')]/following-sibling::div"
+            "//div[contains(text(), 'Dimensions:')]/following-sibling::div",
+            "//span[contains(text(), 'Dimensions:')]/following-sibling::*",
+            "//div[contains(text(), 'Dimensions:')]/following-sibling::*"
         ];
         
         foreach ($dimensionQueries as $query) {
@@ -1248,7 +1268,36 @@ class UrlMetadataService
             'top', 'bottom', 'middle', // CSS positioning
             'auto', 'inherit', 'initial', 'unset', // CSS values
             'block', 'inline', 'flex', 'grid', // CSS display
-            'hidden', 'visible', 'scroll', 'overflow' // CSS visibility
+            'hidden', 'visible', 'scroll', 'overflow', // CSS visibility
+            // Additional CSS and HTML patterns
+            'opt', 'option', 'select', 'input', 'button', 'div', 'span', // HTML elements
+            'quality', 'good', 'bad', 'best', 'worst', // Generic quality terms
+            'new', 'old', 'used', 'refurbished', // Generic condition terms
+            'red', 'blue', 'green', 'yellow', 'black', 'white', 'gray', 'grey', // CSS color names
+            'arial', 'helvetica', 'times', 'serif', 'sans-serif', // Font families
+            '14px', '12px', '16px', '18px', '20px', '24px', // Common font sizes
+            'sponsored', 'ad', 'advertisement', 'promo', // Ad-related
+            'click', 'hover', 'active', 'focus', // CSS pseudo-classes
+            'width', 'height', 'max-width', 'min-width', // CSS dimensions
+            'display', 'position', 'float', 'clear', // CSS layout
+            'text-align', 'vertical-align', 'line-height', // CSS text
+            'border', 'outline', 'box-shadow', 'text-shadow', // CSS effects
+            'transition', 'animation', 'transform', // CSS animations
+            'media', 'query', 'responsive', 'mobile', // CSS media queries
+            'webkit', 'moz', 'ms', 'o-', // CSS vendor prefixes
+            'rgba', 'hsla', 'hsl', 'rgb', // CSS color functions
+            'calc', 'var(', 'attr(', 'url(', // CSS functions
+            '!important', 'important', // CSS importance
+            'z-index', 'opacity', 'visibility', // CSS visibility
+            'overflow', 'clip', 'ellipsis', // CSS overflow
+            'flex', 'grid', 'table', 'inline-block', // CSS display
+            'absolute', 'relative', 'fixed', 'sticky', // CSS positioning
+            'static', 'inherit', 'initial', 'unset', // CSS values
+            'auto', 'none', 'normal', 'bold', 'italic', // CSS values
+            'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', // CSS borders
+            'thin', 'medium', 'thick', // CSS border widths
+            'transparent', 'inherit', 'initial', 'unset', // CSS colors
+            'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy' // CSS font families
         ];
         
         foreach ($irrelevantPatterns as $pattern) {
