@@ -1370,12 +1370,51 @@ class UrlMetadataService
             }
         }
         
+        // Check for Etsy variations (custom seller fields)
+        if (strpos($url, 'etsy.com') !== false) {
+            $etsyDetails = $this->extractEtsyVariations($dom, $html);
+            if (!empty($etsyDetails)) {
+                $details = array_merge($details, $etsyDetails);
+            }
+        }
+        
         // Only return product details if we found at least one valid size or color
         if (empty($details)) {
             return '';
         }
         
         return implode("\n", $details);
+    }
+
+    /**
+     * Extract Etsy variations (custom seller fields)
+     */
+    private function extractEtsyVariations(\DOMDocument $dom, string $html): array
+    {
+        $details = [];
+        
+        // Working pattern for Etsy label/select combinations
+        $pattern = '/<label[^>]*>.*?<span[^>]*data-label[^>]*>(.*?)<\/span>.*?<\/label>.*?<div[^>]*class="[^"]*wt-select[^"]*"[^>]*>.*?<select[^>]*>(.*?)<\/select>/is';
+        
+        if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $label = trim($match[1]);
+                $selectContent = $match[2];
+                
+                // Find the selected option
+                $optionPattern = '/<option[^>]*selected[^>]*>\s*([^<]+)\s*<\/option>/i';
+                if (preg_match($optionPattern, $selectContent, $optionMatch)) {
+                    $selectedValue = trim($optionMatch[1]);
+                    
+                    // Skip "Select a..." placeholder options
+                    if (!preg_match('/^Select\s+a/i', $selectedValue) && !empty($selectedValue)) {
+                        $details[] = "$label: $selectedValue";
+                    }
+                }
+            }
+        }
+        
+        return $details;
     }
 
     /**
