@@ -922,7 +922,26 @@ class UrlMetadataService
      */
     private function cleanPrice(string $price): string
     {
-        // Remove currency symbols, commas, and whitespace
+        // Remove currency symbols and extra whitespace
+        $price = trim(preg_replace('/[^\d.,\s]/', '', $price));
+        
+        // Handle different decimal separators
+        // If there's a comma, it might be a decimal separator (European format)
+        if (strpos($price, ',') !== false && strpos($price, '.') === false) {
+            // European format: 10,95 -> 10.95
+            $price = str_replace(',', '.', $price);
+        } elseif (strpos($price, ',') !== false && strpos($price, '.') !== false) {
+            // Mixed format: 1,234.56 -> 1234.56 (remove thousands separator)
+            $price = str_replace(',', '', $price);
+        } elseif (strpos($price, ' ') !== false && strpos($price, '.') === false && strpos($price, ',') === false) {
+            // Space-separated: 10 95 -> 10.95 (assuming last 2 digits are cents)
+            $parts = explode(' ', $price);
+            if (count($parts) === 2 && strlen($parts[1]) === 2) {
+                $price = $parts[0] . '.' . $parts[1];
+            }
+        }
+        
+        // Remove any remaining non-digit characters except dots
         $price = preg_replace('/[^\d.]/', '', $price);
         
         // Validate it's a number
