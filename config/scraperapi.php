@@ -18,5 +18,5 @@ $dotenv->safeLoad();
 return [
     'api_key' => $_ENV['SCRAPERAPI_KEY'] ?? '', // Set in .env file
     'enabled' => !empty($_ENV['SCRAPERAPI_KEY'] ?? ''),
-    'free_tier_limit' => 2000, // Free requests per month
+    'free_tier_limit' => 5000, // Free requests per month
 ];
