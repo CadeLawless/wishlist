@@ -1378,10 +1378,13 @@ class UrlMetadataService
      */
     private function extractSizeTargeted(\DOMDocument $dom, string $html, string $url): string
     {
-        // Look for Amazon-specific size patterns
+        // Look for size patterns from various e-commerce sites
         $sizePatterns = [
             // Amazon pattern: <span class="a-size-base a-color-secondary"> Size: </span> <span class="..."> VALUE </span>
             '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Size:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            // Walmart pattern: <span class="b">Clothing Size<!-- -->:</span><span class="ml1">VALUE</span>
+            '/<span[^>]*class="b"[^>]*>Clothing Size.*?:<\/span><span[^>]*class="ml1"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*>Clothing Size[^<]*:<\/span><span[^>]*>([^<]+)<\/span>/i',
             // Look for Size: in a span followed by another span
             '/<span[^>]*>Size:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
             // Look for Size: followed by a span
@@ -1411,10 +1414,13 @@ class UrlMetadataService
      */
     private function extractColorTargeted(\DOMDocument $dom, string $html, string $url): string
     {
-        // Look for Amazon-specific color patterns
+        // Look for color patterns from various e-commerce sites
         $colorPatterns = [
             // Amazon pattern: <span class="a-size-base a-color-secondary"> Color: </span> <span class="..."> VALUE </span>
             '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Color:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
+            // Walmart pattern: <span class="b">Color:</span><span class="ml1">VALUE</span>
+            '/<span[^>]*class="[^"]*b[^"]*"[^>]*>Color[^<]*:<\/span><span[^>]*class="[^"]*ml1[^"]*"[^>]*>([^<]+)<\/span>/i',
+            '/<span[^>]*>Color[^<]*:<\/span><span[^>]*>([^<]+)<\/span>/i',
             // Look for Color: in a span followed by another span
             '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
             // Look for Color: followed by a span
