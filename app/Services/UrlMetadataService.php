@@ -1363,44 +1363,45 @@ class UrlMetadataService
     {
         $details = [];
         
-        // First try to extract from title (often contains size and color)
-        $title = $this->extractTitle($dom, $html, $url);
-        if (!empty($title)) {
-            $sizeFromTitle = $this->extractSizeFromTitle($title);
-            $colorFromTitle = $this->extractColorFromTitle($title);
-            
-            if (!empty($sizeFromTitle)) {
-                $details[] = "Size: $sizeFromTitle";
-            }
-            if (!empty($colorFromTitle)) {
-                $details[] = "Color: $colorFromTitle";
-            }
-        }
-        
-        // Only use HTML extraction if title extraction failed
-        if (empty($sizeFromTitle)) {
-            $size = $this->extractSizeTargeted($dom, $html, $url);
-            if (!empty($size)) {
-                $details[] = "Size: $size";
-            }
-        }
-        
-        if (empty($colorFromTitle)) {
-            $color = $this->extractColorTargeted($dom, $html, $url);
-            if (!empty($color)) {
-                $details[] = "Color: $color";
-            }
-        }
-        
-        // Check for Etsy variations (custom seller fields)
+        // For Etsy, only use custom seller variations (no generic Size/Color)
         if (strpos($url, 'etsy.com') !== false) {
             $etsyDetails = $this->extractEtsyVariations($dom, $html);
             if (!empty($etsyDetails)) {
                 $details = array_merge($details, $etsyDetails);
             }
+        } else {
+            // For other sites, use generic Size/Color extraction
+            // First try to extract from title (often contains size and color)
+            $title = $this->extractTitle($dom, $html, $url);
+            if (!empty($title)) {
+                $sizeFromTitle = $this->extractSizeFromTitle($title);
+                $colorFromTitle = $this->extractColorFromTitle($title);
+                
+                if (!empty($sizeFromTitle)) {
+                    $details[] = "Size: $sizeFromTitle";
+                }
+                if (!empty($colorFromTitle)) {
+                    $details[] = "Color: $colorFromTitle";
+                }
+            }
+            
+            // Only use HTML extraction if title extraction failed
+            if (empty($sizeFromTitle)) {
+                $size = $this->extractSizeTargeted($dom, $html, $url);
+                if (!empty($size)) {
+                    $details[] = "Size: $size";
+                }
+            }
+            
+            if (empty($colorFromTitle)) {
+                $color = $this->extractColorTargeted($dom, $html, $url);
+                if (!empty($color)) {
+                    $details[] = "Color: $color";
+                }
+            }
         }
         
-        // Only return product details if we found at least one valid size or color
+        // Only return product details if we found at least one valid detail
         if (empty($details)) {
             return '';
         }
