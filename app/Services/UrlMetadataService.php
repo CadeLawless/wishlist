@@ -50,6 +50,7 @@ class UrlMetadataService
                 if (strpos($url, 'etsy.com') !== false) {
                     $parsedUrl = parse_url($url);
                     $scraperUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+                    error_log("Etsy URL stripped: $url -> $scraperUrl");
                 }
                 $html = $this->fetchWithScraperAPI($scraperUrl, $scraperConfig['api_key']);
             } else {
