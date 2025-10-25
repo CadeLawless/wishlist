@@ -169,9 +169,13 @@ function fetchUrlDetails() {
     showLoadingState(true);
     showStatusMessage("Fetching product details...", "info");
     
+    // Get wishlist ID from form data attribute
+    const wishlistId = $('form[data-wishlist-id]').data('wishlist-id');
+    const apiUrl = wishlistId ? `/wishlist/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
+    
     // Make AJAX request
     $.ajax({
-        url: '/api/fetch-url-metadata',
+        url: apiUrl,
         method: 'POST',
         data: {
             url: url

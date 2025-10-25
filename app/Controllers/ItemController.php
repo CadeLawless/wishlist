@@ -35,6 +35,11 @@ class ItemController extends Controller
             return $this->redirect('/wishlist')->withError('Wishlist not found.');
         }
 
+        // Clear any existing fetched data when starting fresh
+        if (isset($_SESSION['fetched_item_data'])) {
+            unset($_SESSION['fetched_item_data']);
+        }
+
         // Get background image for theme
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
@@ -62,8 +67,15 @@ class ItemController extends Controller
         // Get background image for theme
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
-        // Check for fetched data in session
+        // Check for fetched data in session with timestamp expiry (10 minutes)
         $fetchedData = $_SESSION['fetched_item_data'] ?? null;
+        if ($fetchedData && isset($fetchedData['timestamp'])) {
+            $age = time() - $fetchedData['timestamp'];
+            if ($age > 600) { // 10 minutes
+                unset($_SESSION['fetched_item_data']);
+                $fetchedData = null;
+            }
+        }
         
         // Use session data if available, otherwise use URL parameters as fallback
         $itemName = $fetchedData['title'] ?? $this->request->input('name', '');
@@ -127,8 +139,14 @@ class ItemController extends Controller
                 $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         } elseif (!empty($data['paste_image'])) {
-            // Handle paste image (base64)
-            $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
+            // Check if it's a URL or base64 data
+            if (filter_var($data['paste_image'], FILTER_VALIDATE_URL)) {
+                // Handle image URL
+                $uploadResult = $this->fileUploadService->uploadFromUrl($data['paste_image'], $wishlistId, $data['name']);
+            } else {
+                // Handle paste image (base64)
+                $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
+            }
             
             if (!$uploadResult['success']) {
                 $errors['item_image'][] = $uploadResult['error'];
@@ -498,6 +516,7 @@ class ItemController extends Controller
                 'title' => $result['title'],
                 'price' => $result['price'],
                 'image' => $result['image'],
+                'product_details' => $result['product_details'] ?? '',
                 'error' => $result['error']
             ]);
 
@@ -526,6 +545,11 @@ class ItemController extends Controller
             $link = $this->request->input('link', '');
             $image = $this->request->input('image', '');
             $product_details = $this->request->input('product_details', '');
+            
+            // Truncate title to 100 characters (database limit)
+            if (strlen($title) > 100) {
+                $title = substr($title, 0, 97) . '...';
+            }
             
             // Store in session
             $_SESSION['fetched_item_data'] = [
