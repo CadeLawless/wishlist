@@ -41,13 +41,13 @@ class UrlMetadataService
             return $response;
         }
 
-        // Check if it's Amazon and use ScraperAPI directly
-        if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false) {
+        // Check if it's Amazon or Etsy and use ScraperAPI directly
+        if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false || strpos($url, 'etsy.com') !== false) {
             $scraperConfig = require __DIR__ . '/../../config/scraperapi.php';
             if ($scraperConfig['enabled']) {
                 $html = $this->fetchWithScraperAPI($url, $scraperConfig['api_key']);
             } else {
-                $response['error'] = 'Amazon URLs are not supported due to their anti-bot measures. Please enter the product details manually.';
+                $response['error'] = 'Amazon and Etsy URLs are not supported due to their anti-bot measures. Please enter the product details manually.';
                 return $response;
             }
         } else {
@@ -267,21 +267,27 @@ class UrlMetadataService
             return false;
         }
 
-        $apiUrl = self::SCRAPERAPI_URL . '?' . http_build_query([
+        // Use minimal parameters for better success rates
+        $params = [
             'api_key' => $apiKey,
-            'url' => $url,
-            'render' => 'true', // Enable JavaScript rendering
-            'country_code' => 'us', // US for Amazon
-            'premium' => 'false' // Use free tier
-        ]);
+            'url' => $url
+        ];
+        
+        // Add render for sites that need JavaScript
+        if (strpos($url, 'amazon.com') !== false || strpos($url, 'etsy.com') !== false) {
+            $params['render'] = 'true';
+        }
+        
+        $apiUrl = self::SCRAPERAPI_URL . '?' . http_build_query($params);
 
-        // Use shorter timeout for known problematic sites
+        // Configure timeout based on site requirements
         $timeout = self::TIMEOUT;
         if (strpos($url, 'walmart.com') !== false || 
             strpos($url, 'target.com') !== false || 
-            strpos($url, 'bestbuy.com') !== false ||
-            strpos($url, 'etsy.com') !== false) {
+            strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
+        } elseif (strpos($url, 'etsy.com') !== false) {
+            $timeout = 30; // Longer timeout for Etsy (needs more time)
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
