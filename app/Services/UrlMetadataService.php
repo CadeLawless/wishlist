@@ -1060,7 +1060,7 @@ class UrlMetadataService
         foreach ($colorPatterns as $pattern) {
             if (preg_match($pattern, $html, $matches)) {
                 $color = trim($matches[1]);
-                if (!empty($color) && strlen($color) < 30) {
+                if (!empty($color) && strlen($color) < 30 && $this->isValidColor($color)) {
                     return $color;
                 }
             }
@@ -1370,6 +1370,11 @@ class UrlMetadataService
             }
         }
         
+        // Only return product details if we found at least one valid size or color
+        if (empty($details)) {
+            return '';
+        }
+        
         return implode("\n", $details);
     }
 
@@ -1402,13 +1407,58 @@ class UrlMetadataService
         foreach ($sizePatterns as $pattern) {
             if (preg_match($pattern, $html, $matches)) {
                 $size = trim($matches[1]);
-                if (!empty($size) && strlen($size) < 20) {
+                if (!empty($size) && strlen($size) < 20 && $this->isValidSize($size)) {
                     return $size;
                 }
             }
         }
         
         return '';
+    }
+
+    /**
+     * Validate if a size value is legitimate (not CSS or irrelevant data)
+     */
+    private function isValidSize(string $size): bool
+    {
+        $size = trim($size);
+        
+        // Reject obviously invalid sizes
+        if (empty($size) || 
+            strlen($size) > 20 || 
+            is_numeric($size) && (int)$size > 50 || // Numbers like "1" are likely CSS
+            in_array(strtolower($size), ['var', 'px', 'em', 'rem', 'pt', '%', 'vh', 'vw', 'auto', 'inherit', 'initial', 'unset']) ||
+            preg_match('/^[0-9]+$/', $size) && (int)$size < 2 // Single digits like "1" are likely CSS
+        ) {
+            return false;
+        }
+        
+        // Accept common size patterns
+        return preg_match('/^(XS|S|M|L|XL|XXL|XXXL|\d+|\d+[A-Z]|Small|Medium|Large|Extra Large|X-Large|XX-Large|XXX-Large|One Size|OS|Petite|Regular|Tall|Short|Wide|Narrow)$/i', $size);
+    }
+
+    /**
+     * Validate if a color value is legitimate (not CSS or irrelevant data)
+     */
+    private function isValidColor(string $color): bool
+    {
+        $color = trim($color);
+        
+        // Reject obviously invalid colors
+        if (empty($color) || 
+            strlen($color) > 30 || 
+            in_array(strtolower($color), ['var', 'transparent', 'inherit', 'initial', 'unset', 'currentcolor', 'auto', 'none', 'px', 'em', 'rem', 'pt', '%']) ||
+            preg_match('/^#[0-9a-f]{3,6}$/i', $color) || // Hex colors like #fff
+            preg_match('/^rgb\(/', $color) || // RGB colors
+            preg_match('/^rgba\(/', $color) || // RGBA colors
+            preg_match('/^hsl\(/', $color) || // HSL colors
+            preg_match('/^hsla\(/', $color) // HSLA colors
+        ) {
+            return false;
+        }
+        
+        // Accept common color names and descriptive colors
+        return preg_match('/^[A-Za-z\s\-]+$/', $color) && strlen($color) >= 2;
     }
 
     /**
@@ -1443,7 +1493,7 @@ class UrlMetadataService
         foreach ($colorPatterns as $pattern) {
             if (preg_match($pattern, $html, $matches)) {
                 $color = trim($matches[1]);
-                if (!empty($color) && strlen($color) < 30) {
+                if (!empty($color) && strlen($color) < 30 && $this->isValidColor($color)) {
                     return $color;
                 }
             }
