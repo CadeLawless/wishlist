@@ -71,6 +71,8 @@ class UrlMetadataService
                 $response['error'] = 'Target.com blocks automated requests. Please enter the product details manually.';
             } elseif (strpos($url, 'bestbuy.com') !== false) {
                 $response['error'] = 'Best Buy blocks automated requests. Please enter the product details manually.';
+            } elseif (strpos($url, 'etsy.com') !== false) {
+                $response['error'] = 'Etsy blocks automated requests. Please enter the product details manually.';
             } else {
                 $response['error'] = 'Unable to fetch URL content. The site may be blocking automated requests or the URL is inaccessible.';
             }
@@ -79,6 +81,12 @@ class UrlMetadataService
 
         // Parse HTML and extract metadata
         $metadata = $this->parseHtml($html, $url);
+        
+        // Check for Etsy blocking (title is just "etsy.com")
+        if (strpos($url, 'etsy.com') !== false && $metadata['title'] === 'etsy.com') {
+            $response['error'] = 'Etsy is blocking automated requests. Please enter the product details manually.';
+            return $response;
+        }
         
         // If we got a title but no price, that's still success (many sites don't have price in meta tags)
         if (!empty($metadata['title'])) {
@@ -271,7 +279,8 @@ class UrlMetadataService
         $timeout = self::TIMEOUT;
         if (strpos($url, 'walmart.com') !== false || 
             strpos($url, 'target.com') !== false || 
-            strpos($url, 'bestbuy.com') !== false) {
+            strpos($url, 'bestbuy.com') !== false ||
+            strpos($url, 'etsy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         }
         
