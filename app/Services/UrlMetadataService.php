@@ -273,8 +273,8 @@ class UrlMetadataService
             'url' => $url
         ];
         
-        // Add render for sites that need JavaScript
-        if (strpos($url, 'amazon.com') !== false || strpos($url, 'etsy.com') !== false) {
+        // Add render only for Amazon (Etsy works better without render)
+        if (strpos($url, 'amazon.com') !== false) {
             $params['render'] = 'true';
         }
         
@@ -287,7 +287,7 @@ class UrlMetadataService
             strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         } elseif (strpos($url, 'etsy.com') !== false) {
-            $timeout = 20; // Moderate timeout for Etsy
+            $timeout = 10; // Shorter timeout for Etsy (works better with minimal params)
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
