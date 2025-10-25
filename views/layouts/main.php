@@ -14,11 +14,6 @@
         h2 {
             font-size: 28px;
         }
-        .form-container {
-            margin: clamp(20px, 4vw, 60px) auto 30px;
-            background-color: var(--background-darker);
-            max-width: 500px;
-        }
         input:not([type=submit], #new_password, #current_password) {
             margin-bottom: 0;
         }
