@@ -1418,8 +1418,8 @@ class UrlMetadataService
         $colorPatterns = [
             // Amazon pattern: <span class="a-size-base a-color-secondary"> Color: </span> <span class="..."> VALUE </span>
             '/<span[^>]*class="[^"]*a-size-base[^"]*a-color-secondary[^"]*"[^>]*>\s*Color:\s*<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
-            // Walmart pattern: <span class="b">Color:</span><span class="ml1">VALUE</span>
-            '/<span[^>]*class="[^"]*b[^"]*"[^>]*>Color[^<]*:<\/span><span[^>]*class="[^"]*ml1[^"]*"[^>]*>([^<]+)<\/span>/i',
+            // Walmart pattern: <span class="b">Color<!-- -->:</span><span class="ml1">VALUE</span>
+            '/<span[^>]*class="b"[^>]*>Color.*?:<\/span><span[^>]*class="ml1"[^>]*>([^<]+)<\/span>/i',
             '/<span[^>]*>Color[^<]*:<\/span><span[^>]*>([^<]+)<\/span>/i',
             // Look for Color: in a span followed by another span
             '/<span[^>]*>Color:<\/span>\s*<span[^>]*>([^<]+)<\/span>/i',
