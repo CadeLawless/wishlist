@@ -1663,8 +1663,9 @@ class UrlMetadataService
         
         // Reject obviously invalid colors
         if (empty($color) || 
-            strlen($color) > 30 || 
-            in_array(strtolower($color), ['var', 'transparent', 'inherit', 'initial', 'unset', 'currentcolor', 'auto', 'none', 'px', 'em', 'rem', 'pt', '%', 'rgba']) ||
+            strlen($color) > 30 ||
+            strlen($color) < 3 || // Too short to be a real color
+            in_array(strtolower($color), ['var', 'transparent', 'inherit', 'initial', 'unset', 'currentcolor', 'auto', 'none', 'px', 'em', 'rem', 'pt', '%', 'rgba', 'aok']) ||
             // Reject any color value that contains CSS color function patterns
             stripos($color, 'rgb(') !== false ||
             stripos($color, 'rgba(') !== false ||
@@ -1681,8 +1682,17 @@ class UrlMetadataService
             return false;
         }
         
+        // Reject if it looks like CSS shorthand or abbreviations (often 3-4 chars)
+        if (strlen($color) <= 4 && !in_array(strtolower($color), ['blue', 'pink', 'rose', 'sage', 'teal', 'mint', 'gold', 'navy'])) {
+            // Allow only legitimate very short color names
+            $validShortColors = ['red', 'tan', 'ivory'];
+            if (!in_array(strtolower($color), $validShortColors)) {
+                return false;
+            }
+        }
+        
         // Accept common color names and descriptive colors
-        return preg_match('/^[A-Za-z\s\-]+$/', $color) && strlen($color) >= 2;
+        return preg_match('/^[A-Za-z\s\-]+$/', $color);
     }
 
     /**
