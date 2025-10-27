@@ -1012,6 +1012,48 @@ class UrlMetadataService
         // Trim and normalize whitespace
         $title = preg_replace('/\s+/', ' ', trim($title));
         
+        // Intelligent shortening: Keep only the core product name (before SEO keywords)
+        // Common separator keywords that indicate the start of SEO stuffing
+        $seoSeparators = [
+            ' - ', ' | ', ' – ', ' — ',  // Separators
+            ' for ', ' with ', ' featuring ', ' including ', ' plus ', // Features
+            ' ideal for ', ' perfect for ', ' great for ', // Use cases
+            ' in ', ' on ', ' at ', ' from ', // Locational prepositions (often SEO)
+        ];
+        
+        // Split title by SEO separators and take the first part (the actual product name)
+        foreach ($seoSeparators as $separator) {
+            if (stripos($title, $separator) !== false) {
+                $parts = explode($separator, $title);
+                // Take first part if it's substantial (at least 10 chars)
+                if (strlen(trim($parts[0])) >= 10) {
+                    $title = trim($parts[0]);
+                    break;
+                }
+            }
+        }
+        
+        // Remove common SEO/stuffing phrases
+        $seoPhrases = [
+            '/\b(free shipping|fast shipping|prime eligible|prime|amazon prime)\b/i',
+            '/\b(buy now|shop now|order now|add to cart)\b/i',
+            '/\b(in stock|available now|ready to ship)\b/i',
+            '/\b(limited time|special offer|on sale|discount)\b/i',
+            '/\b(as advertised|as seen on|tv commercial)\b/i',
+            '/\b(pack of \d+|quantity|case of \d+)\b/i',
+            '/\b(bulk|wholesale|reseller|retail)\b/i',
+        ];
+        
+        foreach ($seoPhrases as $pattern) {
+            $title = preg_replace($pattern, '', $title);
+        }
+        
+        // Remove redundant words (consecutive repeated words)
+        $title = preg_replace('/\b(\w+)\s+\1\b/i', '$1', $title);
+        
+        // Trim and normalize whitespace again
+        $title = preg_replace('/\s+/', ' ', trim($title));
+        
         // Limit length (database field is 200 chars)
         if (strlen($title) > 200) {
             $title = substr($title, 0, 197) . '...';
