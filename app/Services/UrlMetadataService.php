@@ -288,7 +288,7 @@ class UrlMetadataService
             strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         } elseif (strpos($url, 'etsy.com') !== false) {
-            $timeout = 60; // Etsy needs much more time, especially with params
+            $timeout = 15; // Etsy timeout - match problematic sites to fail faster
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
@@ -320,13 +320,19 @@ class UrlMetadataService
         
         // Handle timeout errors gracefully
         if (!empty($error) && strpos($error, 'timeout') !== false) {
-            error_log("ScraperAPI timeout for $url after {$totalTime}s");
+            error_log("ScraperAPI timeout for $url after {$totalTime}s with error: $error");
             return false;
+        }
+        
+        // Log if we got a non-200 response or other errors
+        if ($httpCode !== 200 || !empty($error)) {
+            error_log("ScraperAPI error for $url: HTTP $httpCode, error: $error, time: {$totalTime}s");
         }
         
         if ($html !== false && $httpCode === 200 && empty($error)) {
             // Only check for specific blocking indicators, not general "error" words
             if (!$this->isBlockedResponse($html)) {
+                error_log("ScraperAPI success for $url in {$totalTime}s");
                 return $html;
             }
         }
