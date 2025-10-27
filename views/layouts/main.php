@@ -14,9 +14,6 @@
         h2 {
             font-size: 28px;
         }
-        input:not([type=submit], #new_password, #current_password) {
-            margin-bottom: 0;
-        }
         h3 {
             margin-bottom: 0.5em;
         }
