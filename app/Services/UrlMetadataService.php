@@ -8,7 +8,7 @@ class UrlMetadataService
     private const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
     
     // Third-party API configuration
-    private const SCRAPERAPI_URL = 'http://api.scraperapi.com';
+    private const SCRAPERAPI_URL = 'https://api.scraperapi.com';
     
     // Amazon-specific user agents to rotate
     private const AMAZON_USER_AGENTS = [
@@ -45,29 +45,18 @@ class UrlMetadataService
         if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false || strpos($url, 'etsy.com') !== false) {
             $scraperConfig = require __DIR__ . '/../../config/scraperapi.php';
             if ($scraperConfig['enabled']) {
-                // For Etsy URLs, keep only variation parameters (needed for size/color)
-                // Strip tracking params that cause timeouts
-                if (strpos($url, 'etsy.com') !== false && strpos($url, '?') !== false) {
+                // For Etsy URLs, strip all parameters to avoid timeouts
+                // Only return name and image (price/details require params that cause timeouts)
+                if (strpos($url, 'etsy.com') !== false) {
                     $parsedUrl = parse_url($url);
                     $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
                     
-                    // Parse query string and keep only variation params
-                    parse_str($parsedUrl['query'] ?? '', $params);
-                    $variationParams = array_filter($params, function($key) {
-                        return strpos($key, 'variation') === 0;
-                    }, ARRAY_FILTER_USE_KEY);
+                    error_log("Etsy URL stripped to base: $url -> $baseUrl");
                     
-                    // Build clean URL with only variation params
-                    if (!empty($variationParams)) {
-                        $cleanUrl = $baseUrl . '?' . http_build_query($variationParams);
-                    } else {
-                        $cleanUrl = $baseUrl;
-                    }
-                    
-                    error_log("Etsy URL cleaned: $url -> $cleanUrl");
-                    $html = $this->fetchWithScraperAPI($cleanUrl, $scraperConfig['api_key']);
+                    // Always use base URL for Etsy (params cause timeouts on free tier)
+                    $html = $this->fetchWithScraperAPI($baseUrl, $scraperConfig['api_key']);
                 } else {
-                    // Send full URL to ScraperAPI (params needed for selected variations)
+                    // Send full URL to ScraperAPI for other sites
                     $html = $this->fetchWithScraperAPI($url, $scraperConfig['api_key']);
                 }
             } else {
@@ -116,9 +105,17 @@ class UrlMetadataService
         if (!empty($metadata['title'])) {
             $response['success'] = true;
             $response['title'] = $metadata['title'];
-            $response['price'] = $metadata['price'];
-            $response['image'] = $metadata['image'];
-            $response['product_details'] = $metadata['product_details'];
+            
+            // For Etsy, only return name and image (params cause timeouts on free tier)
+            if (strpos($url, 'etsy.com') !== false) {
+                $response['price'] = ''; // Don't return incorrect price
+                $response['image'] = $metadata['image'];
+                $response['product_details'] = ''; // Don't return incorrect details
+            } else {
+                $response['price'] = $metadata['price'];
+                $response['image'] = $metadata['image'];
+                $response['product_details'] = $metadata['product_details'];
+            }
         } else {
             $response['error'] = 'No product information found. Please enter details manually.';
         }
@@ -297,9 +294,17 @@ class UrlMetadataService
             'url' => $url
         ];
         
-        // Add render only for Amazon (Etsy works better without render)
+        // Add render only for Amazon
+        // Etsy should NOT use render=true on free tier (causes timeouts)
         if (strpos($url, 'amazon.com') !== false) {
             $params['render'] = 'true';
+        }
+        
+        // For Etsy with complex URLs, use session_number to improve success rate
+        if (strpos($url, 'etsy.com') !== false && strpos($url, 'variation') !== false) {
+            // Use a consistent session number for Etsy URLs with variations
+            // This helps ScraperAPI reuse browser sessions and avoid timeouts
+            $params['session_number'] = '1';
         }
         
         $apiUrl = self::SCRAPERAPI_URL . '?' . http_build_query($params);
@@ -311,7 +316,7 @@ class UrlMetadataService
             strpos($url, 'bestbuy.com') !== false) {
             $timeout = 15; // Shorter timeout for problematic sites
         } elseif (strpos($url, 'etsy.com') !== false) {
-            $timeout = 15; // Etsy timeout - match problematic sites to fail faster
+            $timeout = 30; // Etsy timeout - longer for complex pages with variations
         }
         
         // Use cURL for ScraperAPI to handle compressed content properly
