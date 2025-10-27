@@ -41,6 +41,11 @@
             }
         }
     </style>
+    <?php if(isset($customStyles) && !empty($customStyles)): ?>
+    <style>
+    <?php echo $customStyles; ?>
+    </style>
+    <?php endif; ?>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
       <?php if(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
