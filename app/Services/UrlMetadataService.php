@@ -516,6 +516,14 @@ class UrlMetadataService
             }
         }
 
+        // Try Etsy-specific price extraction (only for Etsy URLs)
+        if (strpos($url, 'etsy.com') !== false) {
+            $etsyPrice = $this->extractEtsyPrice($html);
+            if (!empty($etsyPrice)) {
+                return $etsyPrice;
+            }
+        }
+
         // Try Target-specific price extraction (only for Target URLs)
         if (strpos($url, 'target.com') !== false) {
             $targetPrice = $this->extractTargetPrice($html);
@@ -720,6 +728,53 @@ class UrlMetadataService
             return $this->cleanPrice($prices[0]);
         }
 
+        return '';
+    }
+
+    /**
+     * Extract Etsy-specific product price
+     * Handles sale prices vs original prices correctly
+     * 
+     * @param string $html
+     * @return string
+     */
+    private function extractEtsyPrice(string $html): string
+    {
+        // Etsy price patterns (prioritize sale price over original price)
+        // Etsy shows sale price in larger text, original price is struck through
+        
+        // First, try to find the sale price (in wt-text-title-larger, not struck through)
+        $salePricePattern = '/<p[^>]*class="[^"]*wt-text-title-larger[^"]*"[^>]*>\s*[^<]*\$([^<]+)<\/p>/i';
+        if (preg_match($salePricePattern, $html, $matches)) {
+            $price = trim($matches[1]);
+            $cleanedPrice = $this->cleanPrice($price);
+            if (!empty($cleanedPrice)) {
+                return $cleanedPrice;
+            }
+        }
+        
+        // Fallback: Look for any price that's NOT in a struck-through element
+        // Etsy uses wt-text-strikethrough for original prices
+        if (preg_match_all('/\$[\d,]+\.?\d*/', $html, $matches, PREG_OFFSET_CAPTURE)) {
+            foreach ($matches[0] as $match) {
+                $price = $match[0];
+                $offset = $match[1];
+                
+                // Check if this price is NOT in a struck-through element
+                $start = max(0, $offset - 200);
+                $end = min(strlen($html), $offset + 200);
+                $context = substr($html, $start, $end - $start);
+                
+                // If not in struck-through element, it's the sale price
+                if (stripos($context, 'strikethrough') === false && stripos($context, 'wt-text-strikethrough') === false) {
+                    $cleanedPrice = $this->cleanPrice($price);
+                    if (!empty($cleanedPrice)) {
+                        return $cleanedPrice;
+                    }
+                }
+            }
+        }
+        
         return '';
     }
 
@@ -1458,6 +1513,29 @@ class UrlMetadataService
                     // Skip "Select a..." placeholder options
                     if (!preg_match('/^Select\s+a/i', $selectedValue) && !empty($selectedValue)) {
                         $details[] = "$label: $selectedValue";
+                    }
+                }
+            }
+        }
+        
+        // Also check for variation values that are already selected and shown in the page
+        // Etsy sometimes shows selected values in different elements
+        if (preg_match_all('/<span[^>]*class="[^"]*wt-text-truncate[^"]*"[^>]*>\s*([^<]+)\s*<\/span>/i', $html, $variationMatches)) {
+            foreach ($variationMatches[1] as $variationValue) {
+                $variationValue = trim($variationValue);
+                // Skip if it looks like a size/color variation (usually short)
+                if (strlen($variationValue) <= 20 && !empty($variationValue)) {
+                    // Check if this value appears near a label
+                    $valuePos = strpos($html, $variationValue);
+                    if ($valuePos !== false) {
+                        $context = substr($html, max(0, $valuePos - 200), 400);
+                        
+                        // Look for size/color indicators near this value
+                        if (preg_match('/Size[^<]*>/i', $context) && !in_array("Size: $variationValue", $details)) {
+                            $details[] = "Size: $variationValue";
+                        } elseif (preg_match('/Color[^<]*>/i', $context) && !in_array("Color: $variationValue", $details)) {
+                            $details[] = "Color: $variationValue";
+                        }
                     }
                 }
             }
