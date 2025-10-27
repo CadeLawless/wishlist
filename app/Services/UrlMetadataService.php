@@ -1003,8 +1003,8 @@ class UrlMetadataService
      */
     private function cleanTitle(string $title): string
     {
-        // Remove common site prefixes (e.g., "Amazon.com: Product Name")
-        $title = preg_replace('/^(Amazon\.com|Amazon):\s*/i', '', $title);
+        // Remove common site prefixes (e.g., "Amazon.com: Product Name" or "Amazon.com : Product Name")
+        $title = preg_replace('/^(Amazon\.com|Amazon)\s*:\s*/i', '', $title);
         
         // Remove common separators and site names at the end (e.g., "Product Name | Amazon.com")
         $title = preg_replace('/\s*[\|\-–—]\s*[^|\-–—]*(?:Amazon|eBay|Walmart|Target|Etsy|\.com).*$/i', '', $title);
