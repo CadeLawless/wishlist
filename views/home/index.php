@@ -15,19 +15,9 @@ if($account_created){
     </div>";
 }
 ?>
-
-<?php if($user): ?>
-    <!-- Authenticated user content -->
-    <div class="big-buttons-container">
-        <a class="big-button create-wish-list" href="/wishlist/create"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>Create Wish List</a>
-        <a class="big-button view-wish-list" href="/wishlist/wishlists"><?php require(__DIR__ . "/../../public/images/site-images/icons/search.php"); ?>View Wish Lists</a>
-    </div>
-<?php else: ?>
-    <!-- Guest user content -->
-    <div class="big-buttons-container">
-        <a class="big-button login-button" href="/wishlist/login"><?php require(__DIR__ . "/../../public/images/site-images/icons/view.php"); ?>Login</a>
-        <a class="big-button register-button" href="/wishlist/register"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>Create Account</a>
-    </div>
-<?php endif; ?>
+<div class="big-buttons-container">
+    <a class="big-button create-wish-list" href="/wishlist/create"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>Create Wish List</a>
+    <a class="big-button view-wish-list" href="/wishlist/wishlists"><?php require(__DIR__ . "/../../public/images/site-images/icons/search.php"); ?>View Wish Lists</a>
+</div>
 
 <script src="js/popup.js"></script>

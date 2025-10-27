@@ -38,7 +38,7 @@ Router::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware
 Router::get('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 // Home route
-Router::get('/', [HomeController::class, 'index']);
+Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 
 // Profile routes (must come before generic /{id} routes)
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
