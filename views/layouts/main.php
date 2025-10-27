@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="public/images/site-images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <title><?php echo $title ?? 'Wish List'; ?></title>
+    <style>
+        h1 {
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 28px;
+        }
+        h3 {
+            margin-bottom: 0.5em;
+        }
+        #container {
+            padding: 0 10px 110px;
+        }
+        h1 {
+            display: inline-block;
+        }
+        h2.items-list-title {
+            position: relative;
+        }
+        #container .background-theme.mobile-background {
+            display: none;
+        }
+        @media (max-width: 600px){
+            #container .background-theme.mobile-background {
+                display: block;
+            }
+            #container .background-theme.desktop-background {
+                display: none;
+            }
+        }
+    </style>
+    <?php if(isset($customStyles) && !empty($customStyles)): ?>
+    <style>
+    <?php echo $customStyles; ?>
+    </style>
+    <?php endif; ?>
+</head>
+<body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
+      <?php if(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
+      <?php if(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
+      <?php if(isset($wishlist_id)): ?>data-base-url="/wishlist/<?php echo $wishlist_id; ?>"<?php endif; ?>>
+    <div id="body">
+        <?php include __DIR__ . '/../components/header.php'; ?>
+        <div id="container">
+            <?php echo $content; ?>
+        </div>
+    </div>
+    <?php include __DIR__ . '/../components/footer.php'; ?>
+</body>
+</html>
