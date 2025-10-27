@@ -46,13 +46,13 @@ Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AuthController::class, 'admin'])->middleware('admin');
-Router::get('/admin/users', [AuthController::class, 'adminUsers'])->middleware('admin');
+Router::get('/admin/users', [AuthController::class, 'admin'])->middleware('admin');
 Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists'])->middleware('admin');
 
 
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/create', [WishlistController::class, 'create'])->middleware('auth');
-Router::get('/wishlists', [WishlistController::class, 'wishlists'])->middleware('auth');
+Router::get('/wishlists', [WishlistController::class, 'index'])->middleware('auth');
 Router::post('/', [WishlistController::class, 'store'])->middleware('auth');
 Router::get('/{id}', [WishlistController::class, 'show'])->middleware('auth');
 Router::get('/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');

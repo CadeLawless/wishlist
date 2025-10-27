@@ -511,29 +511,6 @@ class AuthController extends Controller
         return $this->view('auth/admin', $data);
     }
 
-    public function adminUsers(): Response
-    {
-        $user = $this->auth();
-        
-        // Get paginated users
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-        
-        $users = User::paginate($perPage, $offset);
-        $totalUsers = User::count();
-        $totalPages = ceil($totalUsers / $perPage);
-        
-        $data = [
-            'user' => $user,
-            'users' => $users,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalUsers' => $totalUsers
-        ];
-        
-        return $this->view('auth/admin', $data);
-    }
 
     public function adminWishlists(): Response
     {
