@@ -743,6 +743,10 @@ class UrlMetadataService
         // Etsy price patterns (prioritize sale price over original price)
         // Etsy shows sale price in larger text, original price is struck through
         
+        // Based on the user's HTML:
+        // Sale price: <p class="wt-text-title-larger">$45.00</p>
+        // Original price: <span class="wt-text-strikethrough">$50.00</span>
+        
         // First, try to find the sale price (in wt-text-title-larger, not struck through)
         $salePricePattern = '/<p[^>]*class="[^"]*wt-text-title-larger[^"]*"[^>]*>\s*[^<]*\$([^<]+)<\/p>/i';
         if (preg_match($salePricePattern, $html, $matches)) {
@@ -753,25 +757,41 @@ class UrlMetadataService
             }
         }
         
-        // Fallback: Look for any price that's NOT in a struck-through element
-        // Etsy uses wt-text-strikethrough for original prices
+        // Better fallback: Look for prices and check their context more carefully
+        // We want prices that are NOT in struck-through elements
         if (preg_match_all('/\$[\d,]+\.?\d*/', $html, $matches, PREG_OFFSET_CAPTURE)) {
+            $nonStruckPrices = [];
+            
             foreach ($matches[0] as $match) {
                 $price = $match[0];
                 $offset = $match[1];
                 
-                // Check if this price is NOT in a struck-through element
-                $start = max(0, $offset - 200);
-                $end = min(strlen($html), $offset + 200);
+                // Get more context around the price (500 chars before and after)
+                $start = max(0, $offset - 500);
+                $end = min(strlen($html), $offset + 500);
                 $context = substr($html, $start, $end - $start);
                 
-                // If not in struck-through element, it's the sale price
-                if (stripos($context, 'strikethrough') === false && stripos($context, 'wt-text-strikethrough') === false) {
+                // Check if this price is NOT in a struck-through element
+                $isStruckThrough = (
+                    stripos($context, 'strikethrough') !== false ||
+                    stripos($context, 'wt-text-strikethrough') !== false ||
+                    stripos($context, 'wt-text-strikethrough wt-nudge-b-1') !== false
+                );
+                
+                // Also check if it's in the main price display area (has wt-text-title-larger nearby)
+                $isMainPrice = stripos($context, 'wt-text-title-larger') !== false;
+                
+                if (!$isStruckThrough && $isMainPrice) {
                     $cleanedPrice = $this->cleanPrice($price);
                     if (!empty($cleanedPrice)) {
-                        return $cleanedPrice;
+                        $nonStruckPrices[] = $cleanedPrice;
                     }
                 }
+            }
+            
+            // Return the first non-struck-through price we found
+            if (!empty($nonStruckPrices)) {
+                return $nonStruckPrices[0];
             }
         }
         
