@@ -1664,12 +1664,19 @@ class UrlMetadataService
         // Reject obviously invalid colors
         if (empty($color) || 
             strlen($color) > 30 || 
-            in_array(strtolower($color), ['var', 'transparent', 'inherit', 'initial', 'unset', 'currentcolor', 'auto', 'none', 'px', 'em', 'rem', 'pt', '%']) ||
-            preg_match('/^#[0-9a-f]{3,6}$/i', $color) || // Hex colors like #fff
-            preg_match('/^rgb\(/', $color) || // RGB colors
-            preg_match('/^rgba\(/', $color) || // RGBA colors
-            preg_match('/^hsl\(/', $color) || // HSL colors
-            preg_match('/^hsla\(/', $color) // HSLA colors
+            in_array(strtolower($color), ['var', 'transparent', 'inherit', 'initial', 'unset', 'currentcolor', 'auto', 'none', 'px', 'em', 'rem', 'pt', '%', 'rgba']) ||
+            // Reject any color value that contains CSS color function patterns
+            stripos($color, 'rgb(') !== false ||
+            stripos($color, 'rgba(') !== false ||
+            stripos($color, 'hsl(') !== false ||
+            stripos($color, 'hsla(') !== false ||
+            stripos($color, 'rgba') !== false ||
+            stripos($color, 'rgb') !== false ||
+            stripos($color, 'hsl') !== false ||
+            // Reject hex colors
+            preg_match('/^#[0-9a-f]{3,6}$/i', $color) ||
+            // Reject colors that start with CSS function patterns
+            preg_match('/^(rgb|rgba|hsl|hsla)\(/i', $color)
         ) {
             return false;
         }
