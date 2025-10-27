@@ -29,8 +29,8 @@
     <label for="image">Item Image:<br></label>
     <a class="file-input">Choose Item Image</a>
     <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
-    <input type="text" placeholder="Or paste an image here..." id="paste-image" />
-    <input type="hidden" name="paste_image" id="paste-image-hidden" />
+    <input type="text" placeholder="Or paste an image here..." id="paste-image" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
+    <input type="hidden" name="paste_image" id="paste-image-hidden" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
     <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
     <?php if($add ?? false){ ?>
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">

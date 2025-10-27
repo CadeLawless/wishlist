@@ -19,6 +19,7 @@ Router::middleware('admin', new AdminMiddleware());
 // Test route
 Router::get('/test', [TestController::class, 'index']);
 
+
 // Dark theme toggle (must be first to avoid conflicts)
 Router::post('/toggle-dark-mode', [AuthController::class, 'toggleDarkMode'])->middleware('auth');
 
@@ -37,7 +38,7 @@ Router::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware
 Router::get('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 // Home route
-Router::get('/', [HomeController::class, 'index']);
+Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 
 // Profile routes (must come before generic /{id} routes)
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
@@ -75,9 +76,15 @@ Router::post('/{id}/paginate', [WishlistController::class, 'paginateItems'])->mi
 Router::post('/{id}/filter', [WishlistController::class, 'filterItems'])->middleware('auth');
 Router::post('/{id}/items', [WishlistController::class, 'getOtherWishlistItems'])->middleware('auth');
 
-// Item routes
+// Item routes - Two-step flow
+Router::get('/{wishlistId}/item/add', [ItemController::class, 'addStep1'])->middleware('auth');
 Router::get('/{wishlistId}/item/create', [ItemController::class, 'create'])->middleware('auth');
 Router::post('/{wishlistId}/item', [ItemController::class, 'store'])->middleware('auth');
+
+// API routes for URL metadata fetching
+Router::post('/{wishlistId}/api/fetch-url-metadata', [ItemController::class, 'fetchUrlMetadata'])->middleware('auth');
+Router::post('/{wishlistId}/api/store-fetched-data', [ItemController::class, 'storeFetchedData'])->middleware('auth');
+Router::get('/{wishlistId}/api/test-json', [ItemController::class, 'testJson'])->middleware('auth');
 Router::get('/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit'])->middleware('auth');
 Router::post('/{wishlistId}/item/{id}', [ItemController::class, 'update'])->middleware('auth');
 Router::delete('/{wishlistId}/item/{id}', [ItemController::class, 'delete'])->middleware('auth');

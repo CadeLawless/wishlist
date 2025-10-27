@@ -342,7 +342,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
                     All Items
-                    <a href='/wishlist/<?php echo $wishlistID; ?>/item/create' class='icon-container add-item'>
+                    <a href='/wishlist/<?php echo $wishlistID; ?>/item/add' class='icon-container add-item'>
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
                         <div class='inline-label'>Add</div>
                     </a>
@@ -361,7 +361,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     endforeach; 
                                     ?>
                                 <?php else: ?>
-                                    <a class='item-container add-placeholder' href='/wishlist/<?php echo $wishlist['id']; ?>/item/create'>
+                                    <a class='item-container add-placeholder' href='/wishlist/<?php echo $wishlist['id']; ?>/item/add'>
                                         <div class='item-image-container'>
                                             <img class='item-image' src='public/images/site-images/default-photo.png' alt='wishlist item image'>
                                         </div>

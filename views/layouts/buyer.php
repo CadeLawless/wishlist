@@ -50,6 +50,11 @@
             }
         }
     </style>
+    <?php if(isset($customStyles) && !empty($customStyles)): ?>
+    <style>
+    <?php echo $customStyles; ?>
+    </style>
+    <?php endif; ?>
 </head>
 <body class="" 
       data-current-page="<?php echo $pageno ?? 1; ?>" 

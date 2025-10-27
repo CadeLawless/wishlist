@@ -33,7 +33,11 @@ class AuthController extends Controller
         $data = [
             'username' => $this->request->input('username', ''),
             'password' => '',
-            'remember_me' => $this->request->input('remember_me', false)
+            'remember_me' => $this->request->input('remember_me', false),
+            'customStyles' =>
+                'input:not([type=submit], #new_password, #current_password) {
+                margin-bottom: 0;
+            }'
         ];
 
         return $this->view('auth/login', $data, 'auth');
@@ -101,7 +105,11 @@ class AuthController extends Controller
             'name' => $this->request->input('name', ''),
             'email' => $this->request->input('email', ''),
             'password' => '',
-            'password_confirmation' => ''
+            'password_confirmation' => '',
+            'customStyles' =>
+                'input:not([type=submit], #new_password, #current_password) {
+                margin-bottom: 0;
+            }'
         ];
 
         return $this->view('auth/register', $data, 'auth');

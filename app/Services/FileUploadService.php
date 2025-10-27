@@ -483,4 +483,110 @@ class FileUploadService
         }
         return true; // File doesn't exist, consider it "deleted"
     }
+
+    /**
+     * Download and save image from URL
+     * 
+     * @param string $imageUrl The URL of the image to download
+     * @param string $wishlistId The wishlist ID for the directory
+     * @param string $itemName The item name for filename generation
+     * @return array Result with success, filename, filepath, error
+     */
+    public function uploadFromUrl(string $imageUrl, string $wishlistId, string $itemName): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'filepath' => null,
+            'error' => null
+        ];
+
+        // Validate URL
+        if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            $result['error'] = 'Invalid image URL.';
+            return $result;
+        }
+
+        // Create directory if it doesn't exist
+        $uploadDir = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create upload directory for URL: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory. Please check permissions.';
+                return $result;
+            }
+        }
+
+        // Download image using cURL (more reliable for external URLs)
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $imageUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 5,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            CURLOPT_HTTPHEADER => [
+                'Accept: image/webp,image/apng,image/*,*/*;q=0.8',
+                'Accept-Language: en-US,en;q=0.5',
+                'Accept-Encoding: gzip, deflate',
+                'Connection: keep-alive',
+                'Cache-Control: no-cache'
+            ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_ENCODING => '', // Let cURL handle encoding
+        ]);
+
+        $imageData = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($imageData === false || $httpCode !== 200 || !empty($error)) {
+            $result['error'] = 'Failed to download image from URL. The image may be inaccessible or blocked.';
+            return $result;
+        }
+
+        // Check file size (5MB limit)
+        if (strlen($imageData) > $this->maxFileSize) {
+            $result['error'] = 'Image file is too large. Maximum size is 5MB.';
+            return $result;
+        }
+
+        // Validate image format
+        $imageInfo = getimagesizefromstring($imageData);
+        if ($imageInfo === false) {
+            $result['error'] = 'Invalid image format. Please use JPG, PNG, or WEBP.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $extension = $this->getExtensionFromMimeType($mimeType);
+        
+        if (!$extension) {
+            $result['error'] = 'Unsupported image format. Please use JPG, PNG, or WEBP.';
+            return $result;
+        }
+
+        // Generate filename with timestamp to ensure uniqueness
+        $timestamp = date('Y-m-d_H-i-s');
+        $filename = $this->sanitizeFilename($itemName) . '_' . $timestamp . '.' . $extension;
+        $filename = $this->getUniqueFilename($uploadDir, $filename);
+
+        // Save image
+        $targetPath = $uploadDir . $filename;
+        if (file_put_contents($targetPath, $imageData)) {
+            // Optimize image if needed
+            $this->optimizeImage($targetPath);
+            
+            $result['success'] = true;
+            $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
+        } else {
+            $result['error'] = 'Failed to save downloaded image. Please try again.';
+        }
+
+        return $result;
+    }
 }
