@@ -1546,7 +1546,7 @@ class UrlMetadataService
         } else {
             // For other sites, use generic Size/Color extraction
             // First try to extract from title (often contains size and color)
-            $title = $this->extractTitle($dom, $html, $url);
+            $title = $this->extractTitle($dom);
             if (!empty($title)) {
                 $sizeFromTitle = $this->extractSizeFromTitle($title);
                 $colorFromTitle = $this->extractColorFromTitle($title);
@@ -1666,7 +1666,7 @@ class UrlMetadataService
         foreach ($sizePatterns as $pattern) {
             if (preg_match($pattern, $html, $matches)) {
                 $size = trim($matches[1]);
-                if (!empty($size) && strlen($size) < 20 && $this->isValidSize($size)) {
+                if (!empty($size) && $this->isValidSize($size)) {
                     return $size;
                 }
             }
@@ -1684,7 +1684,7 @@ class UrlMetadataService
         
         // Reject obviously invalid sizes
         if (empty($size) || 
-            strlen($size) > 20 || 
+            strlen($size) > 60 || // Increased from 20 to allow descriptive sizes like "22 Pound (Pack of 1)"
             is_numeric($size) && (int)$size > 50 || // Numbers like "1" are likely CSS
             in_array(strtolower($size), ['var', 'px', 'em', 'rem', 'pt', '%', 'vh', 'vw', 'auto', 'inherit', 'initial', 'unset']) ||
             preg_match('/^[0-9]+$/', $size) && (int)$size < 2 // Single digits like "1" are likely CSS
@@ -1692,8 +1692,8 @@ class UrlMetadataService
             return false;
         }
         
-        // Accept common size patterns
-        return preg_match('/^(XS|S|M|L|XL|XXL|XXXL|\d+|\d+[A-Z]|Small|Medium|Large|Extra Large|X-Large|XX-Large|XXX-Large|One Size|OS|Petite|Regular|Tall|Short|Wide|Narrow)$/i', $size);
+        // Accept common size patterns and descriptive sizes (e.g., "22 Pound (Pack of 1)")
+        return preg_match('/^(XS|S|M|L|XL|XXL|XXXL|\d+|\d+[A-Z]|Small|Medium|Large|Extra Large|X-Large|XX-Large|XXX-Large|One Size|OS|Petite|Regular|Tall|Short|Wide|Narrow|\d+\s*(Pound|Ounce|Oz|Lb|Lbs|Pack|Count)\s*(\([^)]+\))?)$/i', $size);
     }
 
     /**
