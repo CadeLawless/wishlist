@@ -45,8 +45,16 @@ class UrlMetadataService
         if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false || strpos($url, 'etsy.com') !== false) {
             $scraperConfig = require __DIR__ . '/../../config/scraperapi.php';
             if ($scraperConfig['enabled']) {
-                // Send full URL to ScraperAPI (params needed for selected variations)
-                $html = $this->fetchWithScraperAPI($url, $scraperConfig['api_key']);
+                // For Etsy URLs with complex parameters, try without params first (timeout workaround)
+                if (strpos($url, 'etsy.com') !== false && strpos($url, '?') !== false && strlen(parse_url($url, PHP_URL_QUERY)) > 100) {
+                    // Etsy URLs with complex parameters often timeout - try base URL first
+                    $parsedUrl = parse_url($url);
+                    $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+                    $html = $this->fetchWithScraperAPI($baseUrl, $scraperConfig['api_key']);
+                } else {
+                    // Send full URL to ScraperAPI (params needed for selected variations)
+                    $html = $this->fetchWithScraperAPI($url, $scraperConfig['api_key']);
+                }
             } else {
                 $response['error'] = 'Amazon and Etsy URLs are not supported due to their anti-bot measures. Please enter the product details manually.';
                 return $response;
