@@ -6,18 +6,18 @@ class ItemRenderService
 {
     public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher'): string
     {
-        $itemName = htmlspecialchars($item['name']);
-        $itemNameShort = htmlspecialchars(substr($item['name'], 0, 25));
+        $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
+        $itemNameShort = htmlspecialchars(substr($item['name'], 0, 25), ENT_QUOTES, 'UTF-8');
         if (strlen($item['name']) > 25) $itemNameShort .= '...';
         
-        $price = htmlspecialchars($item['price']);
-        $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity']);
-        $notes = htmlspecialchars($item['notes']);
-        $notesShort = htmlspecialchars(substr($item['notes'], 0, 30));
+        $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
+        $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8');
+        $notes = htmlspecialchars($item['notes'], ENT_QUOTES, 'UTF-8');
+        $notesShort = htmlspecialchars(substr($item['notes'], 0, 30), ENT_QUOTES, 'UTF-8');
         if (strlen($item['notes']) > 30) $notesShort .= '...';
         
-        $link = htmlspecialchars($item['link']);
-        $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time());
+        $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
+        $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
@@ -26,7 +26,7 @@ class ItemRenderService
         if ($type === 'buyer') {
             // For buyer view, get the wisher's name from the wishlist
             $wisherName = \App\Models\Wishlist::getWisherName($wishlistId) ?? 'User';
-            $wisherName = htmlspecialchars($wisherName);
+            $wisherName = htmlspecialchars($wisherName, ENT_QUOTES, 'UTF-8');
         } else {
             // For wisher view, get current user's name
             $wisherName = \App\Services\SessionManager::get('name', 'User');
@@ -177,7 +177,7 @@ class ItemRenderService
                                     </div>
                                     <div class='popup-content'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
-                                        <p><?php echo htmlspecialchars($item['name']); ?></p>
+                                        <p><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
                                         <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary purchase-button' href='#' id='purchase-<?php echo $item['id']; ?>'>Yes</a></p>
                                     </div>
                                 </div>

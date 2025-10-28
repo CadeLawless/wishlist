@@ -613,7 +613,7 @@ class WishlistController extends Controller
         $copyCounter = 0;
         
         foreach ($items as $item) {
-            $itemName = htmlspecialchars(string: $item['name']);
+            $itemName = htmlspecialchars(string: $item['name'], flags: ENT_QUOTES, encoding: 'UTF-8');
             $itemId = $item['id'];
             $itemCopyId = $item['copy_id'];
             $itemImage = $item['image'];
@@ -629,12 +629,12 @@ class WishlistController extends Controller
             }
             
             // Determine image path - use source wishlist ID for image location
-            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage);
+            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage, flags: ENT_QUOTES, encoding: 'UTF-8');
             
             if (!file_exists($absoluteImagePath)) {
                 $imagePath = "/wishlist/public/images/site-images/default-photo.png";
             } else {
-                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage);
+                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage, flags: ENT_QUOTES, encoding: 'UTF-8');
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
