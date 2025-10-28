@@ -95,7 +95,7 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
     <div class='popup image-popup'>
         <div class='close-container transparent-background'>
             <a href='#' class='close-button'>
-                <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'menu-close.php'); ?>
+                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
             </a>
         </div>
         <img class='popup-image' src='' alt='wishlist item image'>
