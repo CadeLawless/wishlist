@@ -7,20 +7,16 @@ class ItemRenderService
     public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher'): string
     {
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
-        $itemNameShort = substr($item['name'], 0, 25);
-        if (strlen($itemNameShort) >= 25) $itemNameShort .= '...';
+        $itemNameShort = mb_substr($item['name'], 0, 25, 'UTF-8');
+        if (mb_strlen($item['name'], 'UTF-8') > 25) $itemNameShort .= '...';
         $itemNameShort = htmlspecialchars($itemNameShort, ENT_QUOTES, 'UTF-8');
         
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
         $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8');
         $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
-        $notesShort = substr($item['notes'] ?? '', 0, 30);
-        if (strlen($notesShort) >= 30) $notesShort .= '...';
+        $notesShort = mb_substr($item['notes'] ?? '', 0, 30, 'UTF-8');
+        if (mb_strlen($item['notes'] ?? '', 'UTF-8') > 30) $notesShort .= '...';
         $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
-        
-        // Debug: Log the notes values
-        error_log("DEBUG - Original notes: " . var_export($item['notes'] ?? 'NULL', true));
-        error_log("DEBUG - Notes short: " . var_export($notesShort, true));
         
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
         $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
@@ -100,7 +96,6 @@ class ItemRenderService
                                     <h2 style='margin-top: 0;'>Item Details</h2>
                                     <p><label>Item Name:<br /></label><?php echo $itemName; ?></p>
                                     <p><label>Item Price:<br /></label>$<?php echo $price; ?></p>
-                                    <p><label>Website Link:<br /></label><a target='_blank' href='<?php echo $link; ?>'>View on Website</a></p>
                                     <p><label>Notes: </label><br /><?php echo nl2br($notes); ?></p>
                                     <p><label>Priority:<br /></label>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></p>
                                     <p><label>Date Added:<br /></label><?php echo $dateAdded; ?></p>
