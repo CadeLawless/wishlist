@@ -237,7 +237,7 @@ class SessionManager
     /**
      * Get a session value
      */
-    public static function get(string $key, $default = null)
+    public static function get(string $key, $default = null): mixed
     {
         self::startSession();
         return $_SESSION[$key] ?? $default;

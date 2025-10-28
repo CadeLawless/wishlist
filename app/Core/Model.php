@@ -26,7 +26,7 @@ abstract class Model
         return $result ?: null;
     }
 
-    public static function where(string $column, string $operator, $value): array
+    public static function where(string $column, string $operator, mixed $value): array
     {
         $stmt = Database::query("SELECT * FROM " . static::$table . " WHERE {$column} {$operator} ?", [$value]);
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
