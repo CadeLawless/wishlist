@@ -1,5 +1,9 @@
+// Test if script is loading
+console.log("item-form.js script loaded!");
+
 // Wait for DOM and jQuery to be ready
 $(document).ready(function() {
+    console.log("jQuery document ready fired!");
     // Wait for autosize to be available, then autosize textareas
     function initializeAutosize() {
         if (typeof autosize !== 'undefined') {
@@ -14,7 +18,10 @@ $(document).ready(function() {
     initializeAutosize();
 
     // on click of file input button, open file picker
+    console.log("Attaching click handler to .file-input");
+    console.log("Found .file-input elements:", $(".file-input").length);
     $(".file-input").on("click", function(e){
+        console.log("File input button clicked!");
         e.preventDefault();
         $(this).next().click();
     });
@@ -74,6 +81,8 @@ $(document).ready(function() {
     }
     });
     // show image preview on change
+    console.log("Attaching change handler to #image");
+    console.log("Found #image element:", $("#image").length);
     $("#image").on("change", function(){
         console.log("File input changed"); // Debug log
         $input = $(this);
