@@ -180,7 +180,7 @@ class ItemController extends Controller
             'priority' => $data['priority'] ?? '1',
             'quantity_purchased' => 0,
             'purchased' => 'No',
-            'date_added' => date('Y-m-d H:i:s')
+            'date_added' => date(format: 'Y-m-d H:i:s')
         ];
         
         $item = $this->wishlistService->addItem($wishlistId, $itemData);
@@ -347,7 +347,7 @@ class ItemController extends Controller
             'link' => $data['link'],
             'image' => $filename,
             'priority' => $data['priority'] ?? '1',
-            'date_modified' => date('Y-m-d H:i:s') // Add current timestamp for synchronization
+            'date_modified' => date(format: 'Y-m-d H:i:s') // Add current timestamp for synchronization
         ];
         
         // Handle purchased status when quantity changes

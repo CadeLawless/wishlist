@@ -89,7 +89,7 @@ class Router
         }
 
         // 404 Not Found
-        return new Response('404 Not Found', 404);
+        return new Response(content: '404 Not Found', status: 404);
     }
 
     public static function getMiddleware(string $name): ?callable

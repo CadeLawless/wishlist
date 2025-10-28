@@ -500,7 +500,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return new Response('Wishlist not found', 404);
+            return new Response(content: 'Wishlist not found', status: 404);
         }
 
         // Get filter parameters
@@ -509,7 +509,7 @@ class WishlistController extends Controller
         
         // Validate filter options using FilterService
         if (!FilterService::validateWisherFilters($sortPriority, $sortPrice)) {
-            return new Response('<strong>Invalid filter. Please try again.</strong>', 400);
+            return new Response(content: '<strong>Invalid filter. Please try again.</strong>', status: 400);
         }
         
         // Update session with filter preferences using SessionManager
@@ -577,7 +577,7 @@ class WishlistController extends Controller
         
         $html = $this->generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom);
 
-        return new Response($html);
+        return new Response(content: $html);
     }
 
     private function generateItemsHtml(array $items, int $wishlistId, int $page): string
@@ -613,7 +613,7 @@ class WishlistController extends Controller
         $copyCounter = 0;
         
         foreach ($items as $item) {
-            $itemName = htmlspecialchars($item['name']);
+            $itemName = htmlspecialchars(string: $item['name']);
             $itemId = $item['id'];
             $itemCopyId = $item['copy_id'];
             $itemImage = $item['image'];
@@ -629,12 +629,12 @@ class WishlistController extends Controller
             }
             
             // Determine image path - use source wishlist ID for image location
-            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage);
             
             if (!file_exists($absoluteImagePath)) {
                 $imagePath = "/wishlist/public/images/site-images/default-photo.png";
             } else {
-                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
+                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage);
             }
             
             $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';

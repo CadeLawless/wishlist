@@ -258,7 +258,7 @@ class AuthController extends Controller
         // Check authentication without redirecting for AJAX requests
         $user = $this->auth();
         if (!$user) {
-            return new Response('unauthorized', 401);
+            return new Response(content: 'unauthorized', status: 401);
         }
         
         $dark = $this->request->input('dark');
@@ -365,7 +365,7 @@ class AuthController extends Controller
             try {
                 // Generate email verification key
                 $emailKey = StringHelper::generateRandomString(50);
-                $emailKeyExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+24 hours'));
                 
                 User::update($user['id'], [
                     'unverified_email' => $data['email'],
@@ -454,7 +454,7 @@ class AuthController extends Controller
             try {
                 // Generate reset key
                 $resetKey = StringHelper::generateRandomString(50);
-                $resetExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                $resetExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+24 hours'));
                 
                 User::update($user['id'], [
                     'reset_password_key' => $resetKey,

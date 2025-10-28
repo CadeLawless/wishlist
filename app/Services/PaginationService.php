@@ -26,7 +26,7 @@ class PaginationService
             $this->offset = ($this->currentPage - 1) * $this->itemsPerPage;
         }
 
-        return array_slice($items, $this->offset, $this->itemsPerPage);
+        return array_slice(array: $items, offset: $this->offset, length: $this->itemsPerPage);
     }
 
     public function getCurrentPage(): int
