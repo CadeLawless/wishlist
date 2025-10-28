@@ -46,10 +46,10 @@ $priority_options = ["1", "2", "3", "4"];
 
 <script>
 // Load autosize and item-form scripts
-document.addEventListener('DOMContentLoaded', function() {
+function loadScripts() {
     // Load autosize script
     const autosizeScript = document.createElement('script');
-    autosizeScript.src = '/wishlist/public/scripts/autosize-master/autosize-master/dist/autosize.js';
+    autosizeScript.src = '/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js';
     autosizeScript.onload = function() {
         // Load item-form script after autosize is loaded
         const itemFormScript = document.createElement('script');
@@ -57,5 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(itemFormScript);
     };
     document.head.appendChild(autosizeScript);
-});
+}
+
+// Load scripts immediately if DOM is ready, otherwise wait for it
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadScripts);
+} else {
+    loadScripts();
+}
 </script>
