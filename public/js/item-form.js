@@ -74,11 +74,8 @@ $(document).ready(function() {
     }
     });
     // show image preview on change
-    $("#image, .file-input + input").on("change", function(){
+    $("#image").on("change", function(){
         console.log("File input changed"); // Debug log
-        console.log("Files:", this.files); // Debug log
-        console.log("Preview container:", $("#preview_container")); // Debug log
-        
         $input = $(this);
         if (this.files && this.files[0]) {
             console.log("File selected:", this.files[0].name); // Debug log
@@ -90,7 +87,6 @@ $(document).ready(function() {
                 $("#preview_container").find("img").attr("src", e.target.result);
                 // Show the preview container
                 $("#preview_container").removeClass("hidden");
-                console.log("Preview container should be visible now"); // Debug log
                 // Clear any paste image data since we're using a file now
                 $("#paste-image").val("");
                 $("#paste-image-hidden").val("");
