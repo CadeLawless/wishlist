@@ -103,7 +103,7 @@ class ThemePopupHelper
                             echo "<a class='button primary continue-button' href='#'>Continue</a>";
                         }else{
                             // Get the current wishlist ID from the URL or session
-                            $wishlistId = $_GET['id'] ?? $_SESSION['wisher_wishlist_id'] ?? '';
+                            $wishlistId = $_GET['id'] ?? \App\Services\SessionManager::get('wisher_wishlist_id', '');
                             echo "
                             <form action='/wishlist/$wishlistId/theme' method='POST' style='display: inline;'>
                                 <input type='hidden' id='theme_background_id' name='theme_background_id' value='' />

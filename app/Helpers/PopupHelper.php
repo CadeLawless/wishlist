@@ -19,9 +19,9 @@ class PopupHelper
         ];
 
         foreach ($popups as $sessionKey => $message) {
-            if (isset($_SESSION[$sessionKey])) {
+            if (\App\Services\SessionManager::has($sessionKey)) {
                 self::displayPopup($message);
-                unset($_SESSION[$sessionKey]);
+                \App\Services\SessionManager::remove($sessionKey);
             }
         }
     }
@@ -53,14 +53,14 @@ class PopupHelper
      */
     public static function handleFlashMessages(): void
     {
-        if (isset($_SESSION['flash']['success'])) {
-            self::displayPopup($_SESSION['flash']['success'], 'success');
-            unset($_SESSION['flash']['success']);
+        if (\App\Services\SessionManager::has('flash.success')) {
+            self::displayPopup(\App\Services\SessionManager::get('flash.success'), 'success');
+            \App\Services\SessionManager::remove('flash.success');
         }
 
-        if (isset($_SESSION['flash']['error'])) {
-            self::displayPopup($_SESSION['flash']['error'], 'error');
-            unset($_SESSION['flash']['error']);
+        if (\App\Services\SessionManager::has('flash.error')) {
+            self::displayPopup(\App\Services\SessionManager::get('flash.error'), 'error');
+            \App\Services\SessionManager::remove('flash.error');
         }
     }
 }

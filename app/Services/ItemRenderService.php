@@ -22,7 +22,7 @@ class ItemRenderService
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
         // Priority descriptions with user's name
-        $userName = $_SESSION['name'] ?? 'User';
+        $userName = \App\Services\SessionManager::get('name', 'User');
         $priorities = [
             1 => "{$userName} absolutely needs this item",
             2 => "{$userName} really wants this item", 

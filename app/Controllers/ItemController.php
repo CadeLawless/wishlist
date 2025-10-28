@@ -36,9 +36,7 @@ class ItemController extends Controller
         }
 
         // Clear any existing fetched data when starting fresh
-        if (isset($_SESSION['fetched_item_data'])) {
-            unset($_SESSION['fetched_item_data']);
-        }
+        \App\Services\SessionManager::clearFetchedItemData();
 
         // Get background image for theme
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
@@ -68,14 +66,7 @@ class ItemController extends Controller
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         // Check for fetched data in session with timestamp expiry (10 minutes)
-        $fetchedData = $_SESSION['fetched_item_data'] ?? null;
-        if ($fetchedData && isset($fetchedData['timestamp'])) {
-            $age = time() - $fetchedData['timestamp'];
-            if ($age > 600) { // 10 minutes
-                unset($_SESSION['fetched_item_data']);
-                $fetchedData = null;
-            }
-        }
+        $fetchedData = \App\Services\SessionManager::getFetchedItemData();
         
         // Use session data if available, otherwise use URL parameters as fallback
         $itemName = $fetchedData['title'] ?? $this->request->input('name', '');
@@ -115,9 +106,7 @@ class ItemController extends Controller
         }
         
         // Clear fetched data from session after form submission
-        if (isset($_SESSION['fetched_item_data'])) {
-            unset($_SESSION['fetched_item_data']);
-        }
+        \App\Services\SessionManager::clearFetchedItemData();
 
         $data = $this->request->input();
         $errors = $this->itemValidator->validateItem($data);
@@ -551,15 +540,14 @@ class ItemController extends Controller
                 $title = substr($title, 0, 97) . '...';
             }
             
-            // Store in session
-            $_SESSION['fetched_item_data'] = [
+            // Store in session using SessionManager
+            \App\Services\SessionManager::setFetchedItemData([
                 'title' => $title,
                 'price' => $price,
                 'link' => $link,
                 'image' => $image,
-                'product_details' => $product_details,
-                'timestamp' => time()
-            ];
+                'product_details' => $product_details
+            ]);
             
             return $this->json(['success' => true]);
             

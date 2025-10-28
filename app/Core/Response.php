@@ -52,10 +52,7 @@ class Response
 
     public function withFlash(string $type, string $message): self
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $_SESSION['flash'][$type] = $message;
+        \App\Services\SessionManager::set("flash.{$type}", $message);
         return $this;
     }
 
