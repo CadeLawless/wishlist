@@ -49,25 +49,5 @@ $priority_options = ["1", "2", "3", "4"];
     </form>
 </div>
 
-<script>
-// Load autosize and item-form scripts
-function loadScripts() {
-    // Load autosize script
-    const autosizeScript = document.createElement('script');
-    autosizeScript.src = '/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js';
-    autosizeScript.onload = function() {
-        // Load item-form script after autosize is loaded
-        const itemFormScript = document.createElement('script');
-        itemFormScript.src = '/wishlist/public/js/item-form.js';
-        document.head.appendChild(itemFormScript);
-    };
-    document.head.appendChild(autosizeScript);
-}
-
-// Load scripts immediately if DOM is ready, otherwise wait for it
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadScripts);
-} else {
-    loadScripts();
-}
-</script>
+<script src="/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/wishlist/public/js/item-form.js"></script>
