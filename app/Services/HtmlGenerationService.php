@@ -82,7 +82,7 @@ class HtmlGenerationService
         $html .= "
         </div>
         <p class='center" . ($copyCounter == count($items) ? ' hidden' : '') . "'>
-            <a class='button primary' href='#' onclick='copyItems()'>Copy Selected Items</a>
+            <input type='submit' class='button primary' name='copy_" . ($copyFrom ? "from" : "to") . "_submit' value='Copy Selected Items' />
         </p>";
         
         return $html;
