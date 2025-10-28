@@ -11,16 +11,12 @@ use App\Services\ThemeService;
 
 class ItemController extends Controller
 {
-    private WishlistService $wishlistService;
-    private ItemRequestValidator $itemValidator;
-    private FileUploadService $fileUploadService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private WishlistService $wishlistService = new WishlistService(),
+        private ItemRequestValidator $itemValidator = new ItemRequestValidator(),
+        private FileUploadService $fileUploadService = new FileUploadService()
+    ) {
         parent::__construct();
-        $this->wishlistService = new WishlistService();
-        $this->itemValidator = new ItemRequestValidator();
-        $this->fileUploadService = new FileUploadService();
     }
 
     /**

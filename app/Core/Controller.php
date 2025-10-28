@@ -10,16 +10,11 @@ namespace App\Core;
  */
 abstract class Controller
 {
-    protected View $view;
-    protected Request $request;
-    protected Response $response;
-
-    public function __construct()
-    {
-        $this->view = new View();
-        $this->request = new Request();
-        $this->response = new Response();
-    }
+    public function __construct(
+        protected View $view = new View(),
+        protected Request $request = new Request(),
+        protected Response $response = new Response()
+    ) {}
 
     protected function view(string $view, array $data = [], string $layout = 'main'): Response
     {

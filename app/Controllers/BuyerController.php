@@ -12,14 +12,11 @@ use Exception;
 
 class BuyerController extends Controller
 {
-    private WishlistService $wishlistService;
-    private PaginationService $paginationService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private WishlistService $wishlistService = new WishlistService(),
+        private PaginationService $paginationService = new PaginationService()
+    ) {
         parent::__construct();
-        $this->wishlistService = new WishlistService();
-        $this->paginationService = new PaginationService();
     }
 
     public function show(string $secretKey): Response

@@ -8,14 +8,10 @@ use App\Models\User;
 
 class WishlistService
 {
-    private Wishlist $wishlist;
-    private Item $item;
-
-    public function __construct()
-    {
-        $this->wishlist = new Wishlist();
-        $this->item = new Item();
-    }
+    public function __construct(
+        private Wishlist $wishlist = new Wishlist(),
+        private Item $item = new Item()
+    ) {}
 
     public function createWishlist(string $username, array $data): ?array
     {

@@ -8,12 +8,9 @@ use App\Services\AuthService;
 
 class AdminMiddleware
 {
-    private AuthService $authService;
-
-    public function __construct()
-    {
-        $this->authService = new AuthService();
-    }
+    public function __construct(
+        private AuthService $authService = new AuthService()
+    ) {}
 
     public function __invoke(Request $request): ?Response
     {

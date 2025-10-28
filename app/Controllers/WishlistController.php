@@ -14,18 +14,13 @@ use App\Services\PopupManager;
 
 class WishlistController extends Controller
 {
-    private WishlistService $wishlistService;
-    private WishlistRequestValidator $wishlistValidator;
-    private PaginationService $paginationService;
-    private ItemCopyService $itemCopyService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private WishlistService $wishlistService = new WishlistService(),
+        private WishlistRequestValidator $wishlistValidator = new WishlistRequestValidator(),
+        private PaginationService $paginationService = new PaginationService(),
+        private ItemCopyService $itemCopyService = new ItemCopyService()
+    ) {
         parent::__construct();
-        $this->wishlistService = new WishlistService();
-        $this->wishlistValidator = new WishlistRequestValidator();
-        $this->paginationService = new PaginationService();
-        $this->itemCopyService = new ItemCopyService();
     }
 
     /**

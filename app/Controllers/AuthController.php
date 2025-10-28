@@ -15,16 +15,12 @@ use App\Helpers\StringHelper;
 
 class AuthController extends Controller
 {
-    private AuthService $authService;
-    private UserRequestValidator $userValidator;
-    private EmailService $emailService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private AuthService $authService = new AuthService(),
+        private UserRequestValidator $userValidator = new UserRequestValidator(),
+        private EmailService $emailService = new EmailService()
+    ) {
         parent::__construct();
-        $this->authService = new AuthService();
-        $this->userValidator = new UserRequestValidator();
-        $this->emailService = new EmailService();
     }
 
     public function showLogin(): Response

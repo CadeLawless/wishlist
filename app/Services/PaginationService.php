@@ -4,16 +4,14 @@ namespace App\Services;
 
 class PaginationService
 {
-    private int $itemsPerPage;
     private int $currentPage;
     private int $totalItems;
     private int $totalPages;
     private int $offset;
 
-    public function __construct(int $itemsPerPage = 12)
-    {
-        $this->itemsPerPage = $itemsPerPage;
-    }
+    public function __construct(
+        private int $itemsPerPage = 12
+    ) {}
 
     public function paginate(array $items, int $page = 1): array
     {

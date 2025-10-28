@@ -6,10 +6,6 @@ use App\Models\User;
 
 class AuthService
 {
-    public function __construct()
-    {
-        // No need for user instance since we use static methods
-    }
 
     public function login(string $username, string $password, bool $remember = false): bool
     {
