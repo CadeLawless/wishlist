@@ -1,14 +1,29 @@
 // Wait for DOM and jQuery to be ready
 $(document).ready(function() {
+    console.log("Item form script loaded and DOM ready"); // Debug log
+    
     // autosize textareas
     for(const textarea of document.querySelectorAll("textarea")){
         autosize(textarea);
     }
 
     // on click of file input button, open file picker
-    $(".file-input").on("click", function(e){
+    $(document).on("click", ".file-input", function(e){
         e.preventDefault();
+        console.log("File input button clicked"); // Debug log
         $(this).next().click();
+    });
+    
+    // Fallback with vanilla JavaScript
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('file-input')) {
+            e.preventDefault();
+            console.log("File input button clicked (vanilla JS)"); // Debug log
+            const fileInput = e.target.nextElementSibling;
+            if (fileInput && fileInput.type === 'file') {
+                fileInput.click();
+            }
+        }
     });
     $("#paste-image").on("paste", function(e){
     e.preventDefault();
