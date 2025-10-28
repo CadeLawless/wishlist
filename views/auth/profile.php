@@ -85,15 +85,17 @@ if (isset($flash['error'])) {
                 <div style="margin: 0 0 22px;">
                     Password Requirements:
                     <ul>
-                        <li>Must include at least one letter and one number</li>
-                        <li>Must be at least 6 characters long</li>
+                        <li>Must be at least 8 characters long</li>
+                        <li>Must contain at least one uppercase letter</li>
+                        <li>Must contain at least one lowercase letter</li>
+                        <li>Must contain at least one number</li>
                     </ul>
                 </div>
             </div>
             <div class="large-input">
                 <label for="new_password">New Password: </label><br>
                 <div class="password-input">
-                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password); ?>" pattern="^(?=.*[0-9])(?=.*[a-zA-Z])(.+){6,}$">
+                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password); ?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
                     <span class="password-view hide-password-new hidden"><?php include __DIR__ . '/../../public/images/site-images/icons/hide-view.php'; ?></span>
                     <span class="password-view view-password-new"><?php include __DIR__ . '/../../public/images/site-images/icons/view.php'; ?></span>
                     <span class="error-msg hidden">Please match the requirements</span>
