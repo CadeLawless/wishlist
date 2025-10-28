@@ -32,11 +32,14 @@ class ItemRenderService
         
         $priorityText = $priorities[$item['priority']] ?? '';
 
+        // Check if this is a purchased item in buyer view
+        $isPurchasedInBuyerView = $type === 'buyer' && $item['purchased'] === 'Yes';
+
         // Use output buffering to capture the PHP includes
         ob_start();
         ?>
         <div class='item-container'>
-            <?php if($type === 'buyer' && $item['purchased'] === 'Yes'): ?>
+            <?php if($isPurchasedInBuyerView): ?>
                 <?php
                 // Get the wishlist's gift wrap theme
                 $wishlist = \App\Models\Wishlist::find($wishlistId);
@@ -60,18 +63,18 @@ class ItemRenderService
             </div>
             <div class='item-description'>
                 <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
-                <?php if(!($type === 'buyer' && $item['purchased'] === 'Yes')): ?>
+                <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                 <?php endif; ?>
                 <?php if($type === 'wisher'): ?>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
                 <?php endif; ?>
-                <?php if(!($type === 'buyer' && $item['purchased'] === 'Yes')): ?>
+                <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
                     <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
                 <?php endif; ?>
                 <div class='icon-options item-options <?php echo $type; ?>-item-options'>
-                    <?php if(!($type === 'buyer' && $item['purchased'] === 'Yes')): ?>
+                    <?php if(!$isPurchasedInBuyerView): ?>
                         <a class='icon-container popup-button' href='#'>
                             <?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?>
                             <div class='inline-label'>View</div>
