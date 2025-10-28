@@ -23,7 +23,9 @@ $(document).ready(function() {
     $(".file-input").on("click", function(e){
         console.log("File input button clicked!");
         e.preventDefault();
+        console.log("About to trigger file input click");
         $(this).next().click();
+        console.log("File input click triggered");
     });
     $("#paste-image").on("paste", function(e){
     e.preventDefault();
@@ -93,8 +95,9 @@ $(document).ready(function() {
         }
     }, 100);
     
-    // Try both selectors
-    $("#image, input[type='file']").on("change", function(){
+    try {
+        // Try both selectors
+        $("#image, input[type='file']").on("change", function(){
         console.log("File input changed"); // Debug log
         console.log("Changed element:", this.id || this.name);
         $input = $(this);
@@ -124,6 +127,9 @@ $(document).ready(function() {
             this.previousElementSibling.textContent = "Choose Image";
         }
     });
+    } catch (error) {
+        console.error("Error attaching file input change handler:", error);
+    }
     
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
