@@ -22,29 +22,6 @@ abstract class Controller
         return Response::make($content);
     }
 
-    /**
-     * Add page-specific CSS to the layout's head section
-     * 
-     * Pass custom CSS through the data array using the 'customStyles' key.
-     * The CSS will be automatically injected into the layout's <head> section
-     * in a <style> block, maintaining clean MVC separation.
-     * 
-     * Example usage:
-     * return $this->view('wishlist/show', [
-     *     'wishlist' => $wishlist,
-     *     'customStyles' => '
-     *         .special-element { color: red; }
-     *         .wishlist-specific { margin: 20px; }
-     *     '
-     * ]);
-     * 
-     * @param string $css The CSS rules to inject into the page
-     * @return string The CSS wrapped in a style block
-     */
-    protected function addCustomStyles(string $css): string
-    {
-        return $css;
-    }
 
     protected function json(array $data, int $status = 200): Response
     {
@@ -56,31 +33,7 @@ abstract class Controller
         return Response::redirect($url, $status);
     }
 
-    protected function redirectBack(): Response
-    {
-        $referer = $this->request->server('HTTP_REFERER', '/');
-        return $this->redirect($referer);
-    }
 
-    protected function redirectWithSuccess(string $url, string $message): Response
-    {
-        return $this->redirect($url)->withSuccess($message);
-    }
-
-    protected function redirectWithError(string $url, string $message): Response
-    {
-        return $this->redirect($url)->withError($message);
-    }
-
-    protected function redirectBackWithError(string $message): Response
-    {
-        return $this->redirectBack()->withError($message);
-    }
-
-    protected function redirectBackWithSuccess(string $message): Response
-    {
-        return $this->redirectBack()->withSuccess($message);
-    }
 
     protected function validate(array $rules, array $data = null): array
     {
