@@ -1,6 +1,6 @@
-// Wait for DOM and jQuery to be ready
-$(document).ready(function() {
-    console.log("Item form script loaded and DOM ready"); // Debug log
+// Function to initialize the form functionality
+function initializeItemForm() {
+    console.log("Item form script loaded"); // Debug log
     
     // autosize textareas
     for(const textarea of document.querySelectorAll("textarea")){
@@ -25,96 +25,83 @@ $(document).ready(function() {
             }
         }
     });
+
     $("#paste-image").on("paste", function(e){
-    e.preventDefault();
-    const clipboardData = e.originalEvent.clipboardData;
-    
-    if (clipboardData && clipboardData.items) {
-        for (let i = 0; i < clipboardData.items.length; i++) {
-            const item = clipboardData.items[i];
-            
-            if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                const reader = new FileReader();
-                
-                reader.onload = function(event) {
-                    // Store the base64 data in the hidden input field
-                    $("#paste-image-hidden").val(event.target.result);
+        e.preventDefault();
+        const clipboardData = e.originalEvent.clipboardData;
+        
+        if (clipboardData && clipboardData.items) {
+            for (let i = 0; i < clipboardData.items.length; i++) {
+                const item = clipboardData.items[i];
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
                     
-                    // Clear the visible input field so user doesn't see base64 data
-                    $("#paste-image").val("");
+                    reader.onload = function(e) {
+                        const pasteImageHidden = $("#paste-image-hidden");
+                        const previewContainer = $("#preview_container");
+                        
+                        // Store the image data
+                        pasteImageHidden.val(e.target.result);
+                        
+                        // Show preview
+                        previewContainer.find("img").attr("src", e.target.result);
+                        previewContainer.removeClass("hidden");
+                        
+                        // Update button text
+                        $(".file-input").text("Change Image");
+                    };
                     
-                    // Show preview
-                    $("#preview_container").find("img").attr("src", event.target.result);
-                    $("#preview_container").removeClass("hidden");
-                    
-                    // Update button text
-                    $(".file-input").text("Change Image");
-                };
-                
-                reader.readAsDataURL(file);
-                break;
+                    reader.readAsDataURL(file);
+                    break;
+                }
             }
         }
-    }
+    });
+
     // Handle URL input in paste image field
     $("#paste-image").on("input", function() {
-    const inputValue = $(this).val().trim();
-    const pasteImageHidden = $("#paste-image-hidden");
-    const previewContainer = $("#preview_container");
-    
-    if (inputValue && isValidUrl(inputValue)) {
-        // It's a valid URL, store it and show preview
-        pasteImageHidden.val(inputValue);
+        const inputValue = $(this).val().trim();
+        const pasteImageHidden = $("#paste-image-hidden");
+        const previewContainer = $("#preview_container");
         
-        // Show preview
-        previewContainer.find("img").attr("src", inputValue);
-        previewContainer.removeClass("hidden");
-        
-        // Update button text
-        $(".file-input").text("Change Image");
-    } else if (inputValue === '') {
-        // Clear the preview if input is empty
-        pasteImageHidden.val('');
-        previewContainer.addClass("hidden");
-        $(".file-input").text("Choose Item Image");
-    }
+        if (inputValue && isValidUrl(inputValue)) {
+            // It's a valid URL, store it and show preview
+            pasteImageHidden.val(inputValue);
+            
+            // Show preview
+            previewContainer.find("img").attr("src", inputValue);
+            previewContainer.removeClass("hidden");
+            
+            // Update button text
+            $(".file-input").text("Change Image");
+        } else if (inputValue === '') {
+            // Clear the preview if input is empty
+            pasteImageHidden.val('');
+            previewContainer.addClass("hidden");
+            $(".file-input").text("Choose Item Image");
+        }
     });
+
     // show image preview on change
     $("#image, .file-input + input").on("change", function(){
-    $input = $(this);
-    if (this.files && this.files[0]) {
-        var reader = new FileReader();
+        $input = $(this);
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
 
-        reader.onload = function (e) {
-            $("#preview_container").find("img").attr("src", e.target.result);
+            reader.onload = function (e) {
+                $("#preview_container").find("img").attr("src", e.target.result);
+            }
+
+            reader.readAsDataURL(this.files[0]);
+            document.querySelector("#preview_container").classList.remove("hidden");
+            this.previousElementSibling.textContent = "Change Image";
+        }else{
+            document.querySelector("#preview_container").classList.add("hidden");
+            this.previousElementSibling.textContent = "Choose Image";
         }
+    });
 
-        reader.readAsDataURL(this.files[0]);
-        document.querySelector("#preview_container").classList.remove("hidden");
-        this.previousElementSibling.textContent = "Change Image";
-    }else{
-        document.querySelector("#preview_container").classList.add("hidden");
-        $("#paste-image").val("");
-        $("#paste-image-hidden").val(""); // Clear hidden paste data too
-        this.previousElementSibling.textContent = "Choose Image";
-    }
-});
-function readURL(input) {
-    if (input.files && input.files[0]) {
-        $('#preview_container').show();
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-            $('#preview').attr('src', e.target.result);
-        }
-
-        reader.readAsDataURL(input.files[0]);
-    }else{
-        $('#preview_container').hide();
-    }
-    }
-    
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
             setTimeout(() => {
@@ -152,134 +139,17 @@ function readURL(input) {
     });
 
     // Auto-fetch when URL is pasted (optional)
-    $("#link").on("paste", function(){
+    $("#url").on("paste", function(){
         setTimeout(() => {
-            const url = $(this).val();
-            if (url && isValidUrl(url)) {
-                // Auto-fetch after a short delay to allow paste to complete
+            const urlValue = $(this).val().trim();
+            if (urlValue && isValidUrl(urlValue)) {
                 setTimeout(() => {
                     fetchUrlDetails();
                 }, 500);
             }
         }, 100);
     });
-});
 
-// URL fetch function
-function fetchUrlDetails() {
-    const url = $("#link").val().trim();
-    
-    if (!url) {
-        showStatusMessage("Please enter a URL first", "error");
-        return;
-    }
-    
-    if (!isValidUrl(url)) {
-        showStatusMessage("Please enter a valid URL", "error");
-        return;
-    }
-    
-    // Show loading state
-    showLoadingState(true);
-    showStatusMessage("Fetching product details...", "info");
-    
-    // Get wishlist ID from form data attribute
-    const wishlistId = $('form[data-wishlist-id]').data('wishlist-id');
-    const apiUrl = wishlistId ? `/wishlist/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
-    
-    // Make AJAX request
-    $.ajax({
-        url: apiUrl,
-        method: 'POST',
-        data: {
-            url: url
-        },
-        dataType: 'json',
-        success: function(response) {
-            showLoadingState(false);
-            
-            if (response.success) {
-                // Populate form fields with fetched data
-                if (response.title && !$("#name").val()) {
-                    $("#name").val(response.title);
-                }
-                
-                if (response.price && !$("#price").val()) {
-                    $("#price").val(response.price);
-                }
-                
-                if (response.image && !$("#paste-image-hidden").val()) {
-                    // If we got an image URL, we could potentially fetch and display it
-                    // For now, just show success message
-                }
-                
-                showStatusMessage("Product details fetched successfully!", "success");
-                
-                // Trigger autosize for textarea
-                if (response.title) {
-                    autosize.update($("#name")[0]);
-                }
-            } else {
-                showStatusMessage(response.error || "Could not fetch product details", "error");
-            }
-        },
-        error: function(xhr, status, error) {
-            showLoadingState(false);
-            
-            let errorMessage = "An error occurred while fetching product details";
-            
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                errorMessage = xhr.responseJSON.error;
-            } else if (xhr.status === 401) {
-                errorMessage = "Please log in to use this feature";
-            } else if (xhr.status === 0) {
-                errorMessage = "Network error. Please check your connection";
-            }
-            
-            showStatusMessage(errorMessage, "error");
-        }
-    });
-}
-
-// Show/hide loading state
-function showLoadingState(loading) {
-    const $btn = $("#fetch-details-btn");
-    const $spinner = $("#fetch-spinner");
-    
-    if (loading) {
-        $btn.prop("disabled", true).text("Fetching...");
-        $spinner.removeClass("hidden");
-    } else {
-        $btn.prop("disabled", false).text("Fetch Details");
-        $spinner.addClass("hidden");
-    }
-}
-
-// Show status message
-function showStatusMessage(message, type) {
-    const $status = $("#fetch-status");
-    
-    $status.removeClass("success error info").addClass(type);
-    $status.text(message).removeClass("hidden");
-    
-    // Auto-hide success messages after 3 seconds
-    if (type === "success") {
-        setTimeout(() => {
-            $status.addClass("hidden");
-        }, 3000);
-    }
-}
-
-// Validate URL format
-function isValidUrl(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
-    }
-    }
-    
     // Handle fetched image URL on page load
     const pasteImageInput = $("#paste-image");
     const pasteImageHidden = $("#paste-image-hidden");
@@ -311,4 +181,89 @@ function isValidUrl(string) {
     if (existingImage.length && existingImage.attr("src") && !previewContainer.hasClass("hidden")) {
         $(".file-input").text("Change Image");
     }
-});
+}
+
+// Initialize immediately if DOM is ready, otherwise wait for it
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeItemForm);
+} else {
+    initializeItemForm();
+}
+
+// URL fetch function
+function fetchUrlDetails() {
+    const url = $("#url").val().trim();
+    
+    if (!url || !isValidUrl(url)) {
+        alert("Please enter a valid URL");
+        return;
+    }
+    
+    // Show loading state
+    $("#fetch-details-btn").text("Fetching...").prop("disabled", true);
+    
+    // Make AJAX request to fetch item details
+    $.ajax({
+        url: "/wishlist/item/fetch-details",
+        method: "POST",
+        data: { url: url },
+        success: function(response) {
+            if (response.success) {
+                // Populate form fields
+                if (response.data.title) {
+                    $("#name").val(response.data.title);
+                }
+                if (response.data.price) {
+                    $("#price").val(response.data.price);
+                }
+                if (response.data.image) {
+                    $("#paste-image").val(response.data.image);
+                    $("#paste-image-hidden").val(response.data.image);
+                    $("#preview_container").find("img").attr("src", response.data.image);
+                    $("#preview_container").removeClass("hidden");
+                    $(".file-input").text("Change Image");
+                }
+                if (response.data.link) {
+                    $("#url").val(response.data.link);
+                }
+                if (response.data.description) {
+                    $("#notes").val(response.data.description);
+                }
+            } else {
+                alert("Failed to fetch item details: " + (response.message || "Unknown error"));
+            }
+        },
+        error: function() {
+            alert("Error fetching item details. Please try again.");
+        },
+        complete: function() {
+            // Reset button state
+            $("#fetch-details-btn").text("Fetch Details").prop("disabled", false);
+        }
+    });
+}
+
+// Helper function to validate URLs
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        $('#preview_container').show();
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#preview').attr('src', e.target.result);
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }else{
+        $('#preview_container').hide();
+    }
+}
