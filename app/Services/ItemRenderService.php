@@ -21,13 +21,27 @@ class ItemRenderService
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
-        // Priority descriptions with user's name
-        $userName = \App\Services\SessionManager::get('name', 'User');
+        // Get wisher's name for personalized messages
+        $wisherName = 'User';
+        if ($type === 'buyer') {
+            // For buyer view, get the wisher's name from the wishlist
+            $wishlist = \App\Models\Wishlist::find($wishlistId);
+            if ($wishlist && $wishlist['username']) {
+                $stmt = \App\Core\Database::query("SELECT name FROM wishlist_users WHERE username = ?", [$wishlist['username']]);
+                $nameResult = $stmt->get_result()->fetch_assoc();
+                $wisherName = $nameResult ? htmlspecialchars($nameResult['name']) : $wishlist['username'];
+            }
+        } else {
+            // For wisher view, get current user's name
+            $wisherName = \App\Services\SessionManager::get('name', 'User');
+        }
+        
+        // Priority descriptions with wisher's name
         $priorities = [
-            1 => "{$userName} absolutely needs this item",
-            2 => "{$userName} really wants this item", 
-            3 => "It would be cool if {$userName} had this item",
-            4 => "Eh, {$userName} could do without this item"
+            1 => "{$wisherName} absolutely needs this item",
+            2 => "{$wisherName} really wants this item", 
+            3 => "It would be cool if {$wisherName} had this item",
+            4 => "Eh, {$wisherName} could do without this item"
         ];
         
         $priorityText = $priorities[$item['priority']] ?? '';
@@ -108,7 +122,7 @@ class ItemRenderService
                                     </div>
                                     <div class='popup-content'>
                                         <h2 style='margin-top: 0;'>Purchase Reminder</h2>
-                                        <p>Please make sure to come back and mark this item as purchased if you buy it. Nick will not see that you purchased it.</p>
+                                        <p>Please make sure to come back and mark this item as purchased if you buy it. <?php echo $wisherName; ?> will not see that you purchased it.</p>
                                         <div style='margin: 16px 0;' class='center'>
                                             <a class='button primary' href='<?php echo $link; ?>' target='_blank'>View Item on Website</a>
                                         </div>
