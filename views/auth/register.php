@@ -1,6 +1,6 @@
 <p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
 <form id="login-form" method="POST" action="">
-    <p><a href="/login">Back to Login</a></p>
+    <p><a href="/wishlist/login">Back to Login</a></p>
     <?php if(isset($error_msg)) echo $error_msg?>
     <div class="large-input center">
         <label for="name">First Name: </label><br>

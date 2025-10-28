@@ -20,9 +20,6 @@
         #container {
             padding: 0 10px 110px;
         }
-        h1 {
-            display: inline-block;
-        }
         h2.items-list-title {
             position: relative;
         }

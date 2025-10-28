@@ -155,12 +155,20 @@ abstract class BaseValidator
      */
     public function formatErrorsForDisplay(array $errors): string
     {
-        $messages = [];
+        if (empty($errors)) {
+            return '';
+        }
+
+        $html = '<div class="submit-error"><strong>Please correct the following errors:</strong><ul>';
         
         foreach ($errors as $field => $fieldErrors) {
-            $messages = array_merge($messages, $fieldErrors);
+            foreach ($fieldErrors as $error) {
+                $html .= '<li>' . htmlspecialchars($error) . '</li>';
+            }
         }
         
-        return implode(' ', $messages);
+        $html .= '</ul></div>';
+        
+        return $html;
     }
 }
