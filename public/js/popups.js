@@ -79,10 +79,11 @@ $(document).ready(function() {
         // Hide the popup
         hidePopup($popupContainer);
         
-        // Clean up popup animations
+        // Clean up popup animations - only target popups within this specific container
         $popupContainer.find(".popup:not(.first, .second)").each(function() {
             const popup = this;
-            popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right", "hidden");
+            // Only remove animation classes, not the hidden class
+            popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right");
             if (popup.className.includes("yes")) {
                 popup.classList.add("hidden");
             }
