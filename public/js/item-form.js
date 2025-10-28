@@ -75,38 +75,30 @@ $(document).ready(function() {
     });
     // show image preview on change
     $("#image, .file-input + input").on("change", function(){
-    $input = $(this);
-    if (this.files && this.files[0]) {
-        var reader = new FileReader();
+        $input = $(this);
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
 
-        reader.onload = function (e) {
-            $("#preview_container").find("img").attr("src", e.target.result);
+            reader.onload = function (e) {
+                // Update the image source
+                $("#preview_container").find("img").attr("src", e.target.result);
+                // Show the preview container
+                $("#preview_container").removeClass("hidden");
+                // Clear any paste image data since we're using a file now
+                $("#paste-image").val("");
+                $("#paste-image-hidden").val("");
+            }
+
+            reader.readAsDataURL(this.files[0]);
+            this.previousElementSibling.textContent = "Change Image";
+        } else {
+            // No file selected
+            $("#preview_container").addClass("hidden");
+            $("#paste-image").val("");
+            $("#paste-image-hidden").val("");
+            this.previousElementSibling.textContent = "Choose Image";
         }
-
-        reader.readAsDataURL(this.files[0]);
-        document.querySelector("#preview_container").classList.remove("hidden");
-        this.previousElementSibling.textContent = "Change Image";
-    }else{
-        document.querySelector("#preview_container").classList.add("hidden");
-        $("#paste-image").val("");
-        $("#paste-image-hidden").val(""); // Clear hidden paste data too
-        this.previousElementSibling.textContent = "Choose Image";
-    }
-});
-function readURL(input) {
-    if (input.files && input.files[0]) {
-        $('#preview_container').show();
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-            $('#preview').attr('src', e.target.result);
-        }
-
-        reader.readAsDataURL(input.files[0]);
-    }else{
-        $('#preview_container').hide();
-    }
-    }
+    });
     
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
