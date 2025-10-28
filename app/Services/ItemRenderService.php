@@ -13,10 +13,14 @@ class ItemRenderService
         
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
         $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8');
-        $notes = htmlspecialchars($item['notes'], ENT_QUOTES, 'UTF-8');
-        $notesShort = substr($item['notes'], 0, 30);
+        $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
+        $notesShort = substr($item['notes'] ?? '', 0, 30);
         if (strlen($notesShort) >= 30) $notesShort .= '...';
         $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
+        
+        // Debug: Log the notes values
+        error_log("DEBUG - Original notes: " . var_export($item['notes'] ?? 'NULL', true));
+        error_log("DEBUG - Notes short: " . var_export($notesShort, true));
         
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
         $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
