@@ -53,7 +53,7 @@ class ItemRenderService
                 // Get a random gift wrap number (1-8) for variety
                 $giftWrapNumber = (($item['id'] ?? 1) % 8) + 1;
                 ?>
-                <img src='public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
+                <img src='/wishlist/public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
