@@ -43,7 +43,7 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
             'form_class' => 'filter-form center',
             'sort_priority' => $sort_priority,
             'sort_price' => $sort_price,
-            'data_attributes' => 'data-base-url="/buyer/' . $secret_key . '"'
+            'data_attributes' => 'data-base-url="/wishlist/buyer/' . $secret_key . '"'
         ];
         include __DIR__ . '/../components/sort-filter-form.php';
         ?>
