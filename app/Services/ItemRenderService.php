@@ -8,14 +8,14 @@ class ItemRenderService
     {
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
         $itemNameShort = substr($item['name'], 0, 25);
-        if (strlen($item['name']) > 25) $itemNameShort .= '...';
+        if (strlen($itemNameShort) >= 25) $itemNameShort .= '...';
         $itemNameShort = htmlspecialchars($itemNameShort, ENT_QUOTES, 'UTF-8');
         
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
         $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8');
         $notes = htmlspecialchars($item['notes'], ENT_QUOTES, 'UTF-8');
         $notesShort = substr($item['notes'], 0, 30);
-        if (strlen($item['notes']) > 30) $notesShort .= '...';
+        if (strlen($notesShort) >= 30) $notesShort .= '...';
         $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
         
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
