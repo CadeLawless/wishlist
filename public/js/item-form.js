@@ -59,6 +59,8 @@ $(document).ready(function() {
             }
         }
     }
+    });
+    
     // Handle URL input in paste image field
     $("#paste-image").on("input", function() {
     const inputValue = $(this).val().trim();
