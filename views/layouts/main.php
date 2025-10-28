@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="public/images/site-images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo $title ?? 'Wish List'; ?></title>
