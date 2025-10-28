@@ -20,13 +20,7 @@ $stmt = \App\Core\Database::query("SELECT name FROM wishlist_users WHERE usernam
 $name_result = $stmt->get_result()->fetch_assoc();
 $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 
-// Initialize sort variables using SessionManager
-$sort_priority = \App\Services\SessionManager::get('buyer_sort_priority', '');
-$sort_price = \App\Services\SessionManager::get('buyer_sort_price', '');
-
-// Build SQL order clause based on filters (like original)
-$priority_order = $sort_priority ? "priority ASC, " : "";
-$price_order = $sort_price ? "price * 1 ASC, " : "";
+// Sort variables are passed from the controller
 ?>
 
 <?php if($background_image): ?>
@@ -46,6 +40,7 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
         <!-- Sort and Filter Form -->
         <?php 
         $options = [
+            'form_action' => "/buyer/{$secret_key}",
             'sort_priority' => $sort_priority,
             'sort_price' => $sort_price
         ];
@@ -167,5 +162,23 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
                 disableForReducedMotion: true,
             });
         });
+    });
+    
+    // Handle sort/filter form submission for buyer view
+    $(".select-filter").on("change", function() {
+        const form = $(this).closest('form');
+        const formData = {
+            sort_priority: $("#sort-priority").val(),
+            sort_price: $("#sort-price").val()
+        };
+        
+        // Build URL with sort parameters
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('sort_priority', formData.sort_priority);
+        currentUrl.searchParams.set('sort_price', formData.sort_price);
+        currentUrl.searchParams.set('pageno', '1'); // Reset to page 1 when sorting
+        
+        // Reload page with new parameters
+        window.location.href = currentUrl.toString();
     });
 </script>
