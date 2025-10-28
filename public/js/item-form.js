@@ -1,9 +1,5 @@
-// Test if script is loading
-console.log("item-form.js script loaded!");
-
 // Wait for DOM and jQuery to be ready
 $(document).ready(function() {
-    console.log("jQuery document ready fired!");
     // Wait for autosize to be available, then autosize textareas
     function initializeAutosize() {
         if (typeof autosize !== 'undefined') {
@@ -18,14 +14,9 @@ $(document).ready(function() {
     initializeAutosize();
 
     // on click of file input button, open file picker
-    console.log("Attaching click handler to .file-input");
-    console.log("Found .file-input elements:", $(".file-input").length);
     $(".file-input").on("click", function(e){
-        console.log("File input button clicked!");
         e.preventDefault();
-        console.log("About to trigger file input click");
         $(this).next().click();
-        console.log("File input click triggered");
     });
     $("#paste-image").on("paste", function(e){
     e.preventDefault();
@@ -85,30 +76,12 @@ $(document).ready(function() {
     }
     });
     // show image preview on change
-    console.log("Attaching change handler to #image");
-    console.log("Found #image element:", $("#image").length);
-    
-    // Try again after a short delay in case element isn't ready yet
-    setTimeout(function() {
-        console.log("Delayed check - Found #image element:", $("#image").length);
-        if ($("#image").length === 0) {
-            console.log("Still no #image element found, trying alternative selector");
-            console.log("File inputs found:", $("input[type='file']").length);
-        }
-    }, 100);
-    
-    try {
-        // Try both selectors
-        $("#image, input[type='file']").on("change", function(){
-        console.log("File input changed"); // Debug log
-        console.log("Changed element:", this.id || this.name);
+    $("#image, input[type='file']").on("change", function(){
         $input = $(this);
         if (this.files && this.files[0]) {
-            console.log("File selected:", this.files[0].name); // Debug log
             var reader = new FileReader();
 
             reader.onload = function (e) {
-                console.log("File reader loaded, updating preview"); // Debug log
                 // Update the image source
                 $("#preview_container").find("img").attr("src", e.target.result);
                 // Show the preview container
@@ -121,17 +94,13 @@ $(document).ready(function() {
             reader.readAsDataURL(this.files[0]);
             this.previousElementSibling.textContent = "Change Image";
         } else {
-            console.log("No file selected"); // Debug log
             // No file selected
             $("#preview_container").addClass("hidden");
             $("#paste-image").val("");
             $("#paste-image-hidden").val("");
             this.previousElementSibling.textContent = "Choose Image";
         }
-        });
-    } catch (error) {
-        console.error("Error attaching file input change handler:", error);
-    }
+    });
     
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
