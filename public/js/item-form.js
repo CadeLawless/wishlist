@@ -1,15 +1,16 @@
-// autosize textareas
-for(const textarea of document.querySelectorAll("textarea")){
-    autosize(textarea);
-}
+// Wait for DOM and jQuery to be ready
+$(document).ready(function() {
+    // autosize textareas
+    for(const textarea of document.querySelectorAll("textarea")){
+        autosize(textarea);
+    }
 
-// on click of file input button, open file picker
-$(".file-input").on("click", function(e){
-    e.preventDefault();
-    $(this).next().click();
-});
-
-$("#paste-image").on("paste", function(e){
+    // on click of file input button, open file picker
+    $(".file-input").on("click", function(e){
+        e.preventDefault();
+        $(this).next().click();
+    });
+    $("#paste-image").on("paste", function(e){
     e.preventDefault();
     const clipboardData = e.originalEvent.clipboardData;
     
@@ -41,10 +42,8 @@ $("#paste-image").on("paste", function(e){
             }
         }
     }
-});
-
-// Handle URL input in paste image field
-$("#paste-image").on("input", function() {
+    // Handle URL input in paste image field
+    $("#paste-image").on("input", function() {
     const inputValue = $(this).val().trim();
     const pasteImageHidden = $("#paste-image-hidden");
     const previewContainer = $("#preview_container");
@@ -65,9 +64,9 @@ $("#paste-image").on("input", function() {
         previewContainer.addClass("hidden");
         $(".file-input").text("Choose Item Image");
     }
-});
-// show image preview on change
-$("#image, .file-input + input").on("change", function(){
+    });
+    // show image preview on change
+    $("#image, .file-input + input").on("change", function(){
     $input = $(this);
     if (this.files && this.files[0]) {
         var reader = new FileReader();
@@ -99,8 +98,8 @@ function readURL(input) {
     }else{
         $('#preview_container').hide();
     }
-}
-$(document).ready(function(){
+    }
+    
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
             setTimeout(() => {
@@ -264,10 +263,9 @@ function isValidUrl(string) {
     } catch (_) {
         return false;
     }
-}
-
-// Handle fetched image URL on page load
-$(document).ready(function() {
+    }
+    
+    // Handle fetched image URL on page load
     const pasteImageInput = $("#paste-image");
     const pasteImageHidden = $("#paste-image-hidden");
     const previewContainer = $("#preview_container");
