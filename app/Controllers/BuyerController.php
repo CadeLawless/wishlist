@@ -90,6 +90,87 @@ class BuyerController extends Controller
         return $this->redirect("/buyer/{$secretKey}")->withError('Unable to mark item as purchased.');
     }
 
+    public function filterItems(string $secretKey): Response
+    {
+        $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
+        
+        if (!$wishlist) {
+            header('Content-Type: application/json');
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Wishlist not found',
+                'html' => '',
+                'current' => 1,
+                'total' => 1,
+                'paginationInfo' => ''
+            ]);
+            exit;
+        }
+
+        if ($wishlist['visibility'] !== 'Public' || $wishlist['complete'] === 'Yes') {
+            header('Content-Type: application/json');
+            http_response_code(403);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Wishlist not available',
+                'html' => '',
+                'current' => 1,
+                'total' => 1,
+                'paginationInfo' => ''
+            ]);
+            exit;
+        }
+
+        // Get filter parameters
+        $sortPriority = $this->request->input('sort_priority', '');
+        $sortPrice = $this->request->input('sort_price', '');
+        
+        // Process filters and sorting using FilterService
+        $requestData = $this->request->input();
+        $filters = FilterService::processBuyerFilters($requestData);
+        
+        // Get filtered items (reset to page 1 after filtering)
+        $items = $this->wishlistService->getWishlistItems($wishlist['id'], $filters);
+        $paginatedItems = $this->paginationService->paginate($items, 1);
+        $totalPages = $this->paginationService->getTotalPages();
+        $totalRows = count($items);
+
+        // Generate HTML for items only (no pagination controls)
+        try {
+            $itemsHtml = $this->generateItemsHtml($paginatedItems, $wishlist['id'], 1);
+        } catch (Exception $e) {
+            $itemsHtml = '<div class="error">Error loading items</div>';
+        }
+        
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = 1;
+        $paginationInfoEnd = min($itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
+
+        // Clear any output buffering first
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set headers and output JSON directly
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        $jsonData = [
+            'status' => 'success',
+            'message' => 'Filter applied successfully',
+            'html' => $itemsHtml,
+            'current' => 1,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
+        ];
+        
+        echo json_encode($jsonData);
+        exit;
+    }
+
     public function paginateItems(string $secretKey): Response
     {
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);

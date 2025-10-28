@@ -40,9 +40,10 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
         <!-- Sort and Filter Form -->
         <?php 
         $options = [
-            'form_action' => "/buyer/{$secret_key}",
+            'form_class' => 'filter-form center',
             'sort_priority' => $sort_priority,
-            'sort_price' => $sort_price
+            'sort_price' => $sort_price,
+            'data_attributes' => 'data-base-url="/buyer/' . $secret_key . '"'
         ];
         include __DIR__ . '/../components/sort-filter-form.php';
         ?>
@@ -164,21 +165,4 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
         });
     });
     
-    // Handle sort/filter form submission for buyer view
-    $(".select-filter").on("change", function() {
-        const form = $(this).closest('form');
-        const formData = {
-            sort_priority: $("#sort-priority").val(),
-            sort_price: $("#sort-price").val()
-        };
-        
-        // Build URL with sort parameters
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('sort_priority', formData.sort_priority);
-        currentUrl.searchParams.set('sort_price', formData.sort_price);
-        currentUrl.searchParams.set('pageno', '1'); // Reset to page 1 when sorting
-        
-        // Reload page with new parameters
-        window.location.href = currentUrl.toString();
-    });
 </script>
