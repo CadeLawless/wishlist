@@ -30,6 +30,18 @@ class Wishlist extends Model
         return $result ?: null;
     }
 
+    public static function getWisherName(int $wishlistId): ?string
+    {
+        $stmt = Database::query(
+            "SELECT u.name FROM " . static::$table . " w 
+             JOIN wishlist_users u ON w.username = u.username 
+             WHERE w.id = ?", 
+            [$wishlistId]
+        );
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ? $result['name'] : null;
+    }
+
     public static function findDuplicates(string $type, string $wishlistName, string $username): int
     {
         $stmt = Database::query("SELECT id FROM " . static::$table . " WHERE type = ? AND wishlist_name = ? AND username = ?", [$type, $wishlistName, $username]);

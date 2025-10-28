@@ -25,12 +25,8 @@ class ItemRenderService
         $wisherName = 'User';
         if ($type === 'buyer') {
             // For buyer view, get the wisher's name from the wishlist
-            $wishlist = \App\Models\Wishlist::find($wishlistId);
-            if ($wishlist && $wishlist['username']) {
-                $stmt = \App\Core\Database::query("SELECT name FROM wishlist_users WHERE username = ?", [$wishlist['username']]);
-                $nameResult = $stmt->get_result()->fetch_assoc();
-                $wisherName = $nameResult ? htmlspecialchars($nameResult['name']) : $wishlist['username'];
-            }
+            $wisherName = \App\Models\Wishlist::getWisherName($wishlistId) ?? 'User';
+            $wisherName = htmlspecialchars($wisherName);
         } else {
             // For wisher view, get current user's name
             $wisherName = \App\Services\SessionManager::get('name', 'User');
