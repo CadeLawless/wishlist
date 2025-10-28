@@ -762,7 +762,7 @@ body.dark .dark-mode-link {
     padding: 5px 10px;
 }
 .wishlist-grid-item:hover {
-    border: 3px solid var(--text);
+    outline: 3px solid var(--text);
 }
 .wishlist-grid-item:hover .wishlist-name {
     font-weight: bold;
