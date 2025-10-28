@@ -37,7 +37,23 @@ class ItemRenderService
         ?>
         <div class='item-container'>
             <?php if($type === 'buyer' && $item['purchased'] === 'Yes'): ?>
-                <img src='public/images/site-images/themes/gift-wraps/default/1.png' class='gift-wrap' alt='gift wrap'>
+                <?php
+                // Get the wishlist's gift wrap theme
+                $wishlist = \App\Models\Wishlist::find($wishlistId);
+                $giftWrapImage = null;
+                if ($wishlist && $wishlist['theme_gift_wrap_id']) {
+                    $giftWrapImage = \App\Services\ThemeService::getGiftWrapImage($wishlist['theme_gift_wrap_id']);
+                }
+                
+                // Use default gift wrap if no theme is set
+                if (!$giftWrapImage) {
+                    $giftWrapImage = 'default';
+                }
+                
+                // Get a random gift wrap number (1-8) for variety
+                $giftWrapNumber = (($item['id'] ?? 1) % 8) + 1;
+                ?>
+                <img src='public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
