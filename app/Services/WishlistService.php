@@ -280,7 +280,7 @@ class WishlistService
         ];
     }
 
-    public function searchWishlists(string $query, string $username = null): array
+    public function searchWishlists(string $query, ?string $username = null): array
     {
         return Wishlist::searchByName($query, $username);
     }

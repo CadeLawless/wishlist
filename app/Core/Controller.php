@@ -35,7 +35,7 @@ abstract class Controller
 
 
 
-    protected function validate(array $rules, array $data = null): array
+    protected function validate(array $rules, ?array $data = null): array
     {
         $data = $data ?? $this->request->input();
         $errors = [];

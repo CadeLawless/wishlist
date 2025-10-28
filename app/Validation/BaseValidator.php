@@ -23,7 +23,7 @@ abstract class BaseValidator
     /**
      * Validate string length
      */
-    protected function validateLength(array $data, string $field, int $min = null, int $max = null): array
+    protected function validateLength(array $data, string $field, ?int $min = null, ?int $max = null): array
     {
         $errors = [];
         
@@ -97,7 +97,7 @@ abstract class BaseValidator
     /**
      * Validate numeric values
      */
-    protected function validateNumeric(array $data, string $field, float $min = null, float $max = null): array
+    protected function validateNumeric(array $data, string $field, ?float $min = null, ?float $max = null): array
     {
         $errors = [];
         

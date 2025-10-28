@@ -19,7 +19,7 @@ class Config
         self::$config['database'] = require __DIR__ . '/../../config/database.php';
     }
 
-    public static function get(string $key, $default = null): mixed
+    public static function get(string $key, mixed $default = null): mixed
     {
         $keys = explode('.', $key);
         $value = self::$config;
@@ -35,7 +35,7 @@ class Config
     }
 }
 
-function env(string $key, $default = null): mixed
+function env(string $key, mixed $default = null): mixed
 {
     return $_ENV[$key] ?? $default;
 }

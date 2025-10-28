@@ -59,7 +59,7 @@ class ThemeService
      * @param string $type The theme type (Birthday/Christmas)
      * @return array Array of background theme data
      */
-    public static function getBackgroundThemes(string $type = null): array
+    public static function getBackgroundThemes(?string $type = null): array
     {
         if ($type) {
             $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Background' AND theme_tag = ? ORDER BY theme_name ASC", [$type]);
@@ -75,7 +75,7 @@ class ThemeService
      * @param string $type The theme type (Birthday/Christmas)
      * @return array Array of gift wrap theme data
      */
-    public static function getGiftWrapThemes(string $type = null): array
+    public static function getGiftWrapThemes(?string $type = null): array
     {
         if ($type) {
             $stmt = Database::query("SELECT * FROM themes WHERE theme_type = 'Gift Wrap' AND theme_tag = ? ORDER BY theme_name ASC", [$type]);
