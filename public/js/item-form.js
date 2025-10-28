@@ -83,8 +83,20 @@ $(document).ready(function() {
     // show image preview on change
     console.log("Attaching change handler to #image");
     console.log("Found #image element:", $("#image").length);
-    $("#image").on("change", function(){
+    
+    // Try again after a short delay in case element isn't ready yet
+    setTimeout(function() {
+        console.log("Delayed check - Found #image element:", $("#image").length);
+        if ($("#image").length === 0) {
+            console.log("Still no #image element found, trying alternative selector");
+            console.log("File inputs found:", $("input[type='file']").length);
+        }
+    }, 100);
+    
+    // Try both selectors
+    $("#image, input[type='file']").on("change", function(){
         console.log("File input changed"); // Debug log
+        console.log("Changed element:", this.id || this.name);
         $input = $(this);
         if (this.files && this.files[0]) {
             console.log("File selected:", this.files[0].name); // Debug log
