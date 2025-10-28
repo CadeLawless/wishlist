@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Core\Constants;
+
 class PaginationService
 {
     private int $currentPage;
@@ -10,7 +12,7 @@ class PaginationService
     private int $offset;
 
     public function __construct(
-        private int $itemsPerPage = 12
+        private readonly int $itemsPerPage = Constants::ITEMS_PER_PAGE
     ) {}
 
     public function paginate(array $items, int $page = 1): array
@@ -74,7 +76,7 @@ class PaginationService
         return $this->hasPreviousPage() ? $this->currentPage - 1 : null;
     }
 
-    public function getPageNumbers(int $maxVisible = 5): array
+    public function getPageNumbers(int $maxVisible = Constants::MAX_VISIBLE_PAGES): array
     {
         $pages = [];
         $start = max(1, $this->currentPage - floor($maxVisible / 2));

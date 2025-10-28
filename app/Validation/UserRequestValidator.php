@@ -2,6 +2,8 @@
 
 namespace App\Validation;
 
+use App\Core\Constants;
+
 use App\Models\User;
 
 class UserRequestValidator extends BaseValidator
@@ -18,11 +20,11 @@ class UserRequestValidator extends BaseValidator
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Username validation
-        $usernameErrors = $this->validateLength($data, 'username', 3, 50);
+        $usernameErrors = $this->validateLength($data, 'username', Constants::MIN_USERNAME_LENGTH, Constants::MAX_USERNAME_LENGTH);
         $errors = $this->mergeErrors($errors, $usernameErrors);
         
         // Name validation
-        $nameErrors = $this->validateLength($data, 'name', 2, 100);
+        $nameErrors = $this->validateLength($data, 'name', Constants::MIN_NAME_LENGTH, Constants::MAX_NAME_LENGTH);
         $errors = $this->mergeErrors($errors, $nameErrors);
         
         // Email validation
@@ -78,7 +80,7 @@ class UserRequestValidator extends BaseValidator
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Name validation
-        $nameErrors = $this->validateLength($data, 'name', 2, 100);
+        $nameErrors = $this->validateLength($data, 'name', Constants::MIN_NAME_LENGTH, Constants::MAX_NAME_LENGTH);
         $errors = $this->mergeErrors($errors, $nameErrors);
         
         return $errors;

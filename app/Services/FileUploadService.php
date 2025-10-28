@@ -3,11 +3,18 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Core\Constants;
 
 class FileUploadService
 {
-    private array $allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
-    private int $maxFileSize = 5 * 1024 * 1024; // 5MB
+    private readonly array $allowedTypes;
+    private readonly int $maxFileSize;
+
+    public function __construct()
+    {
+        $this->allowedTypes = Constants::ALLOWED_IMAGE_TYPES;
+        $this->maxFileSize = Constants::MAX_FILE_SIZE_BYTES;
+    }
 
     /**
      * Get the base upload directory path (absolute path)
@@ -30,7 +37,7 @@ class FileUploadService
 
         // Validate file
         if (!$this->validateFile($file)) {
-            $result['error'] = 'Invalid file. Please upload a valid image file (JPG, PNG, WEBP) under 5MB.';
+            $result['error'] = Constants::ERROR_INVALID_FILE;
             return $result;
         }
 
@@ -39,7 +46,7 @@ class FileUploadService
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 error_log("Failed to create upload directory: {$uploadDir}");
-                $result['error'] = 'Failed to create upload directory. Please check permissions.';
+                $result['error'] = Constants::ERROR_DIRECTORY_CREATION;
                 return $result;
             }
         }
@@ -510,9 +517,9 @@ class FileUploadService
             CURLOPT_URL => $imageUrl,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => 5,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            CURLOPT_MAXREDIRS => Constants::CURL_MAX_REDIRECTS,
+            CURLOPT_TIMEOUT => Constants::CURL_TIMEOUT,
+            CURLOPT_USERAGENT => Constants::DEFAULT_USER_AGENT,
             CURLOPT_HTTPHEADER => [
                 'Accept: image/webp,image/apng,image/*,*/*;q=0.8',
                 'Accept-Language: en-US,en;q=0.5',

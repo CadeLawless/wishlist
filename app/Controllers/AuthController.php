@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Constants;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Validation\UserRequestValidator;
@@ -364,8 +365,8 @@ class AuthController extends Controller
             
             try {
                 // Generate email verification key
-                $emailKey = StringHelper::generateRandomString(50);
-                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+24 hours'));
+                $emailKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::EMAIL_VERIFICATION_HOURS . ' hours'));
                 
                 User::update($user['id'], [
                     'unverified_email' => $data['email'],
@@ -453,8 +454,8 @@ class AuthController extends Controller
             
             try {
                 // Generate reset key
-                $resetKey = StringHelper::generateRandomString(50);
-                $resetExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+24 hours'));
+                $resetKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_RESET);
+                $resetExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::PASSWORD_RESET_HOURS . ' hours'));
                 
                 User::update($user['id'], [
                     'reset_password_key' => $resetKey,
@@ -489,7 +490,7 @@ class AuthController extends Controller
         
         // Get paginated users for the admin view
         $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
+        $perPage = Constants::ADMIN_ITEMS_PER_PAGE;
         $offset = ($page - 1) * $perPage;
         
         $users = User::paginate($perPage, $offset);
@@ -514,7 +515,7 @@ class AuthController extends Controller
         
         // Get paginated wishlists
         $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
+        $perPage = Constants::ADMIN_ITEMS_PER_PAGE;
         $offset = ($page - 1) * $perPage;
         
         $wishlists = \App\Models\Wishlist::paginate($perPage, $offset);

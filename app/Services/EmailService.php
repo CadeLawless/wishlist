@@ -4,16 +4,15 @@ namespace App\Services;
 
 class EmailService
 {
+    private readonly string $fromEmail;
+    private readonly string $fromName;
+
     public function __construct(
-        private string $fromEmail = '',
-        private string $fromName = ''
+        string $fromEmail = '',
+        string $fromName = ''
     ) {
-        if (empty($this->fromEmail)) {
-            $this->fromEmail = \App\Core\Config::get('app.email.from');
-        }
-        if (empty($this->fromName)) {
-            $this->fromName = \App\Core\Config::get('app.email.from_name');
-        }
+        $this->fromEmail = $fromEmail ?: \App\Core\Config::get('app.email.from');
+        $this->fromName = $fromName ?: \App\Core\Config::get('app.email.from_name');
     }
 
     public function sendVerificationEmail(string $email, string $username): bool
