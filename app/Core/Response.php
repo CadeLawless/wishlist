@@ -52,7 +52,10 @@ class Response
 
     public function withFlash(string $type, string $message): self
     {
-        \App\Services\SessionManager::set("flash.{$type}", $message);
+        // Get existing flash messages
+        $flash = \App\Services\SessionManager::get('flash', []);
+        $flash[$type] = $message;
+        \App\Services\SessionManager::set('flash', $flash);
         return $this;
     }
 

@@ -121,6 +121,16 @@ class SessionManager
         self::startSession();
         $messages = [];
         
+        // Check for new format (flash.success, flash.error)
+        if (isset($_SESSION['flash'])) {
+            $flash = $_SESSION['flash'];
+            if (is_array($flash)) {
+                $messages = array_merge($messages, $flash);
+            }
+            unset($_SESSION['flash']);
+        }
+        
+        // Check for old format (success, error) for backward compatibility
         $flashKeys = ['success', 'error', 'wishlist_hidden', 'wishlist_public', 'wishlist_complete', 'wishlist_reactivated'];
         
         foreach ($flashKeys as $key) {

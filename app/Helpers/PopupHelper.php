@@ -53,14 +53,19 @@ class PopupHelper
      */
     public static function handleFlashMessages(): void
     {
-        if (\App\Services\SessionManager::has('flash.success')) {
-            self::displayPopup(\App\Services\SessionManager::get('flash.success'), 'success');
-            \App\Services\SessionManager::remove('flash.success');
+        $flash = \App\Services\SessionManager::get('flash', []);
+        
+        if (isset($flash['success'])) {
+            self::displayPopup($flash['success'], 'success');
         }
 
-        if (\App\Services\SessionManager::has('flash.error')) {
-            self::displayPopup(\App\Services\SessionManager::get('flash.error'), 'error');
-            \App\Services\SessionManager::remove('flash.error');
+        if (isset($flash['error'])) {
+            self::displayPopup($flash['error'], 'error');
+        }
+        
+        // Clear flash messages after displaying
+        if (!empty($flash)) {
+            \App\Services\SessionManager::remove('flash');
         }
     }
 }
