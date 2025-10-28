@@ -128,7 +128,7 @@ $(document).ready(function() {
             $("#paste-image-hidden").val("");
             this.previousElementSibling.textContent = "Choose Image";
         }
-    });
+        });
     } catch (error) {
         console.error("Error attaching file input change handler:", error);
     }
@@ -181,121 +181,120 @@ $(document).ready(function() {
             }
         }, 100);
     });
-});
-
-// URL fetch function
-function fetchUrlDetails() {
-    const url = $("#link").val().trim();
     
-    if (!url) {
-        showStatusMessage("Please enter a URL first", "error");
-        return;
-    }
-    
-    if (!isValidUrl(url)) {
-        showStatusMessage("Please enter a valid URL", "error");
-        return;
-    }
-    
-    // Show loading state
-    showLoadingState(true);
-    showStatusMessage("Fetching product details...", "info");
-    
-    // Get wishlist ID from form data attribute
-    const wishlistId = $('form[data-wishlist-id]').data('wishlist-id');
-    const apiUrl = wishlistId ? `/wishlist/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
-    
-    // Make AJAX request
-    $.ajax({
-        url: apiUrl,
-        method: 'POST',
-        data: {
-            url: url
-        },
-        dataType: 'json',
-        success: function(response) {
-            showLoadingState(false);
-            
-            if (response.success) {
-                // Populate form fields with fetched data
-                if (response.title && !$("#name").val()) {
-                    $("#name").val(response.title);
-                }
-                
-                if (response.price && !$("#price").val()) {
-                    $("#price").val(response.price);
-                }
-                
-                if (response.image && !$("#paste-image-hidden").val()) {
-                    // If we got an image URL, we could potentially fetch and display it
-                    // For now, just show success message
-                }
-                
-                showStatusMessage("Product details fetched successfully!", "success");
-                
-                // Trigger autosize for textarea
-                if (response.title && typeof autosize !== 'undefined') {
-                    autosize.update($("#name")[0]);
-                }
-            } else {
-                showStatusMessage(response.error || "Could not fetch product details", "error");
-            }
-        },
-        error: function(xhr, status, error) {
-            showLoadingState(false);
-            
-            let errorMessage = "An error occurred while fetching product details";
-            
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                errorMessage = xhr.responseJSON.error;
-            } else if (xhr.status === 401) {
-                errorMessage = "Please log in to use this feature";
-            } else if (xhr.status === 0) {
-                errorMessage = "Network error. Please check your connection";
-            }
-            
-            showStatusMessage(errorMessage, "error");
+    // URL fetch function
+    function fetchUrlDetails() {
+        const url = $("#link").val().trim();
+        
+        if (!url) {
+            showStatusMessage("Please enter a URL first", "error");
+            return;
         }
-    });
-}
-
-// Show/hide loading state
-function showLoadingState(loading) {
-    const $btn = $("#fetch-details-btn");
-    const $spinner = $("#fetch-spinner");
-    
-    if (loading) {
-        $btn.prop("disabled", true).text("Fetching...");
-        $spinner.removeClass("hidden");
-    } else {
-        $btn.prop("disabled", false).text("Fetch Details");
-        $spinner.addClass("hidden");
+        
+        if (!isValidUrl(url)) {
+            showStatusMessage("Please enter a valid URL", "error");
+            return;
+        }
+        
+        // Show loading state
+        showLoadingState(true);
+        showStatusMessage("Fetching product details...", "info");
+        
+        // Get wishlist ID from form data attribute
+        const wishlistId = $('form[data-wishlist-id]').data('wishlist-id');
+        const apiUrl = wishlistId ? `/wishlist/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
+        
+        // Make AJAX request
+        $.ajax({
+            url: apiUrl,
+            method: 'POST',
+            data: {
+                url: url
+            },
+            dataType: 'json',
+            success: function(response) {
+                showLoadingState(false);
+                
+                if (response.success) {
+                    // Populate form fields with fetched data
+                    if (response.title && !$("#name").val()) {
+                        $("#name").val(response.title);
+                    }
+                    
+                    if (response.price && !$("#price").val()) {
+                        $("#price").val(response.price);
+                    }
+                    
+                    if (response.image && !$("#paste-image-hidden").val()) {
+                        // If we got an image URL, we could potentially fetch and display it
+                        // For now, just show success message
+                    }
+                    
+                    showStatusMessage("Product details fetched successfully!", "success");
+                    
+                    // Trigger autosize for textarea
+                    if (response.title && typeof autosize !== 'undefined') {
+                        autosize.update($("#name")[0]);
+                    }
+                } else {
+                    showStatusMessage(response.error || "Could not fetch product details", "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                showLoadingState(false);
+                
+                let errorMessage = "An error occurred while fetching product details";
+                
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                } else if (xhr.status === 401) {
+                    errorMessage = "Please log in to use this feature";
+                } else if (xhr.status === 0) {
+                    errorMessage = "Network error. Please check your connection";
+                }
+                
+                showStatusMessage(errorMessage, "error");
+            }
+        });
     }
-}
 
-// Show status message
-function showStatusMessage(message, type) {
-    const $status = $("#fetch-status");
-    
-    $status.removeClass("success error info").addClass(type);
-    $status.text(message).removeClass("hidden");
-    
-    // Auto-hide success messages after 3 seconds
-    if (type === "success") {
-        setTimeout(() => {
-            $status.addClass("hidden");
-        }, 3000);
+    // Show/hide loading state
+    function showLoadingState(loading) {
+        const $btn = $("#fetch-details-btn");
+        const $spinner = $("#fetch-spinner");
+        
+        if (loading) {
+            $btn.prop("disabled", true).text("Fetching...");
+            $spinner.removeClass("hidden");
+        } else {
+            $btn.prop("disabled", false).text("Fetch Details");
+            $spinner.addClass("hidden");
+        }
     }
-}
 
-// Validate URL format
-function isValidUrl(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
+    // Show status message
+    function showStatusMessage(message, type) {
+        const $status = $("#fetch-status");
+        
+        $status.removeClass("success error info").addClass(type);
+        $status.text(message).removeClass("hidden");
+        
+        // Auto-hide success messages after 3 seconds
+        if (type === "success") {
+            setTimeout(() => {
+                $status.addClass("hidden");
+            }, 3000);
+        }
     }
+
+    // Validate URL format
+    function isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
     }
     
     // Handle fetched image URL on page load
