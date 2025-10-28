@@ -203,7 +203,7 @@ class AuthController extends Controller
 
         // In a real implementation, you would generate a reset token and send email
         // For now, just show success message
-        return $this->redirect('/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
+        return $this->redirect('/wishlist/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
     }
 
     public function showResetPassword(): Response
@@ -211,7 +211,7 @@ class AuthController extends Controller
 
         $token = $this->request->get('token');
         if (!$token) {
-            return $this->redirect('/login')->withError('Invalid reset token.');
+            return $this->redirect('/wishlist/login')->withError('Invalid reset token.');
         }
 
         return $this->view('auth/reset-password', [
@@ -238,7 +238,7 @@ class AuthController extends Controller
 
         // In a real implementation, you would validate the token and update password
         // For now, just show success message
-        return $this->redirect('/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+        return $this->redirect('/wishlist/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
     }
 
     public function verifyEmail(): Response
@@ -247,14 +247,14 @@ class AuthController extends Controller
         $token = $this->request->get('token');
 
         if (!$username || !$token) {
-            return $this->redirect('/login')->withError('Invalid verification link.');
+            return $this->redirect('/wishlist/login')->withError('Invalid verification link.');
         }
 
         if ($this->authService->verifyEmail($username)) {
-            return $this->redirect('/login')->withSuccess('Email verified successfully! You can now log in.');
+            return $this->redirect('/wishlist/login')->withSuccess('Email verified successfully! You can now log in.');
         }
 
-        return $this->redirect('/login')->withError('Email verification failed. Please try again.');
+        return $this->redirect('/wishlist/login')->withError('Email verification failed. Please try again.');
     }
 
     public function toggleDarkMode(): Response
@@ -315,7 +315,7 @@ class AuthController extends Controller
             
             try {
                 User::update($user['id'], ['name' => $data['name']]);
-                return $this->redirect('/profile')->withSuccess('Name updated successfully!');
+                return $this->redirect('/wishlist/profile')->withSuccess('Name updated successfully!');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', [
                     'user' => $user,
@@ -380,7 +380,7 @@ class AuthController extends Controller
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $user['username']);
                 
-                return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+                return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', [
                     'user' => $user,
@@ -423,7 +423,7 @@ class AuthController extends Controller
                 $hashedPassword = password_hash($data['new_password'], PASSWORD_DEFAULT);
                 User::update($user['id'], ['password' => $hashedPassword]);
                 
-                return $this->redirect('/profile')->withSuccess('Password changed successfully!');
+                return $this->redirect('/wishlist/profile')->withSuccess('Password changed successfully!');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', [
                     'user' => $user,
@@ -468,7 +468,7 @@ class AuthController extends Controller
                 // Send reset email
                 $this->emailService->sendPasswordResetEmail($user['email'], $resetKey);
                 
-                return $this->redirect('/profile')->withSuccess('Password reset email sent! Please check your email.');
+                return $this->redirect('/wishlist/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', [
                     'user' => $user,
@@ -484,7 +484,7 @@ class AuthController extends Controller
             }
         }
         
-        return $this->redirect('/profile');
+        return $this->redirect('/wishlist/profile');
     }
 
     public function admin(): Response
