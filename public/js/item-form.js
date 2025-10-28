@@ -292,4 +292,10 @@ $(document).ready(function() {
             $(".file-input").text("Change Image");
         }
     }
+    
+    // Check if there's already an existing image displayed (for edit forms)
+    const existingImage = previewContainer.find("img");
+    if (existingImage.length && existingImage.attr("src") && !previewContainer.hasClass("hidden")) {
+        $(".file-input").text("Change Image");
+    }
 });
