@@ -20,11 +20,9 @@ $stmt = \App\Core\Database::query("SELECT name FROM wishlist_users WHERE usernam
 $name_result = $stmt->get_result()->fetch_assoc();
 $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 
-// Initialize sort variables (like original)
-$sort_priority = $_SESSION['buyer_sort_priority'] ?? "";
-$sort_price = $_SESSION['buyer_sort_price'] ?? "";
-$_SESSION['buyer_sort_priority'] = $sort_priority;
-$_SESSION['buyer_sort_price'] = $sort_price;
+// Initialize sort variables using SessionManager
+$sort_priority = \App\Services\SessionManager::get('buyer_sort_priority', '');
+$sort_price = \App\Services\SessionManager::get('buyer_sort_price', '');
 
 // Build SQL order clause based on filters (like original)
 $priority_order = $sort_priority ? "priority ASC, " : "";
@@ -43,33 +41,24 @@ $price_order = $sort_price ? "price * 1 ASC, " : "";
 </div>
 
 <div class='items-list-container'>
+    <?php if(!empty($items)): ?>
+
+        <!-- Sort and Filter Form -->
+        <?php 
+        $options = [
+            'sort_priority' => $sort_priority,
+            'sort_price' => $sort_price
+        ];
+        include __DIR__ . '/../components/sort-filter-form.php';
+        ?>
+    <?php endif; ?>
+    
     <h2 class="transparent-background items-list-title" id='paginate-top' class='center'>All Items</h2>
     
     <?php if(!empty($items)): ?>
-                <!-- Top Pagination controls -->
-                <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
         
-        <!-- Sort and Filter Form (like original) -->
-        <form class="filter-form center" method="POST" action="">
-            <div class="filter-inputs">
-                <div class="filter-input">
-                    <label for="sort-priority">Sort by Priority</label><br>
-                    <select class="select-filter" id="sort-priority" name="sort_priority">
-                        <option value="">None</option>
-                        <option value="1" <?php if($sort_priority == "1") echo "selected"; ?>>Highest to Lowest</option>
-                        <option value="2" <?php if($sort_priority == "2") echo "selected"; ?>>Lowest to Highest</option>
-                    </select>
-                </div>
-                <div class="filter-input">
-                    <label for="sort-price">Sort by Price</label><br>
-                    <select class="select-filter" id="sort-price" name="sort_price">
-                        <option value="">None</option>
-                        <option value="1" <?php if($sort_price == "1") echo "selected"; ?>>Lowest to Highest</option>
-                        <option value="2" <?php if($sort_price == "2") echo "selected"; ?>>Highest to Lowest</option>
-                    </select>
-                </div>
-            </div>
-        </form>
+        <!-- Top Pagination controls -->
+        <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
     <?php endif; ?>
     
     <?php if(empty($items)): ?>

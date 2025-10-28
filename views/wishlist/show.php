@@ -316,26 +316,16 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     <!-- Sort/Filter section -->
                     <?php if(count($items) > 0): ?>
                     <div class="sort-filters">
-                        <form class="filter-form center" method="POST" action="/wishlist/<?php echo $wishlistID; ?>/filter" id="filter-form">
-                            <div class="filter-inputs">
-                                <div class="filter-input">
-                                    <label for="sort-priority">Sort by Priority</label><br>
-                                    <select class="select-filter" id="sort-priority" name="sort_priority" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
-                                        <option value="">None</option>
-                                        <option value="1" <?php echo $filters['sort_priority'] == "1" ? 'selected' : ''; ?>>Highest to Lowest</option>
-                                        <option value="2" <?php echo $filters['sort_priority'] == "2" ? 'selected' : ''; ?>>Lowest to Highest</option>
-                                    </select>
-                                </div>
-                                <div class="filter-input">
-                                    <label for="sort-price">Sort by Price</label><br>
-                                    <select class="select-filter" id="sort-price" name="sort_price" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
-                                        <option value="">None</option>
-                                        <option value="1" <?php echo $filters['sort_price'] == "1" ? 'selected' : ''; ?>>Lowest to Highest</option>
-                                        <option value="2" <?php echo $filters['sort_price'] == "2" ? 'selected' : ''; ?>>Highest to Lowest</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </form>
+                        <?php 
+                        $options = [
+                            'form_action' => "/wishlist/{$wishlistID}/filter",
+                            'form_class' => 'filter-form center',
+                            'sort_priority' => $filters['sort_priority'] ?? '',
+                            'sort_price' => $filters['sort_price'] ?? '',
+                            'data_attributes' => 'data-base-url="/wishlist/' . $wishlistID . '"'
+                        ];
+                        include __DIR__ . '/../components/sort-filter-form.php';
+                        ?>
                     </div>
                     <?php endif; ?>
 
