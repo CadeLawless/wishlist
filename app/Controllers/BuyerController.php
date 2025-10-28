@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\Response;
 use App\Services\WishlistService;
 use App\Services\PaginationService;
+use App\Services\HtmlGenerationService;
 use App\Services\FilterService;
 use App\Services\SessionManager;
 use Exception;
@@ -135,7 +136,7 @@ class BuyerController extends Controller
 
         // Generate HTML for items only (no pagination controls)
         try {
-            $itemsHtml = $this->generateItemsHtml($paginatedItems, $wishlist['id'], 1);
+            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $wishlist['id'], 1, 'buyer');
         } catch (Exception $e) {
             $itemsHtml = '<div class="error">Error loading items</div>';
         }
@@ -223,7 +224,7 @@ class BuyerController extends Controller
 
         // Generate HTML for items only (no pagination controls)
         try {
-            $itemsHtml = $this->generateItemsHtml($paginatedItems, $wishlist['id'], $page);
+            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $wishlist['id'], $page, 'buyer');
         } catch (Exception $e) {
             $itemsHtml = '<div class="error">Error loading items</div>';
         }
@@ -256,12 +257,4 @@ class BuyerController extends Controller
         exit;
     }
 
-    private function generateItemsHtml(array $items, int $wishlistId, int $page): string
-    {
-        $html = '';
-        foreach ($items as $item) {
-            $html .= \App\Services\ItemRenderService::renderItem($item, $wishlistId, $page, 'buyer');
-        }
-        return $html;
-    }
 }

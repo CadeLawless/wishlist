@@ -11,6 +11,7 @@ use App\Services\ItemCopyService;
 use App\Services\FilterService;
 use App\Services\SessionManager;
 use App\Services\PopupManager;
+use App\Services\HtmlGenerationService;
 
 class WishlistController extends Controller
 {
@@ -462,7 +463,7 @@ class WishlistController extends Controller
         $totalRows = count($items);
 
         // Generate HTML for items only (no pagination controls)
-        $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
+        $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, $page);
         
         // Calculate pagination info
         $itemsPerPage = 12;
@@ -509,7 +510,7 @@ class WishlistController extends Controller
         
         // Validate filter options using FilterService
         if (!FilterService::validateWisherFilters($sortPriority, $sortPrice)) {
-            return new Response(content: '<strong>Invalid filter. Please try again.</strong>', status: 400);
+            return new Response(content: HtmlGenerationService::generateFilterErrorHtml(), status: 400);
         }
         
         // Update session with filter preferences using SessionManager
@@ -524,7 +525,7 @@ class WishlistController extends Controller
         $totalPages = $this->paginationService->getTotalPages($items);
         $totalRows = count($items);
         
-        $html = $this->generateItemsHtml($paginatedItems, $id, 1, $totalPages);
+        $html = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, 1);
         
         // Calculate pagination info
         $itemsPerPage = 12;
@@ -575,93 +576,13 @@ class WishlistController extends Controller
             $targetWishlistId = $otherWishlistId;
         }
         
-        $html = $this->generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom);
+        $html = HtmlGenerationService::generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom, $this->wishlistService);
 
         return new Response(content: $html);
     }
 
-    private function generateItemsHtml(array $items, int $wishlistId, int $page): string
-    {
-        $html = '';
-        
-        foreach ($items as $item) {
-            $html .= $this->generateItemHtml($item, $wishlistId, $page);
-        }
-        
-        return $html;
-    }
 
-    public function generateItemHtml(array $item, int $wishlistId, int $page): string
-    {
-        return \App\Services\ItemRenderService::renderItem($item, $wishlistId, $page);
-    }
 
-    private function generateItemCheckboxes(array $items, int $sourceWishlistId, int $targetWishlistId, bool $copyFrom): string
-    {
-        $html = '';
-        
-        // Add "All Items" checkbox
-        $html .= "
-        <div class='checkboxes-container'>
-            <div class='select-item-container select-all'>
-                <div class='option-title'>All Items</div>
-                <div class='option-checkbox'>
-                    <input type='checkbox' name='copy_" . ($copyFrom ? "from" : "to") . "_select_all' class='check-all' />
-                </div>
-            </div>";
-        
-        $copyCounter = 0;
-        
-        foreach ($items as $item) {
-            $itemName = htmlspecialchars(string: $item['name'], flags: ENT_QUOTES, encoding: 'UTF-8');
-            $itemId = $item['id'];
-            $itemCopyId = $item['copy_id'];
-            $itemImage = $item['image'];
-            
-            // Check if item already exists in the target wishlist (by copy_id)
-            $alreadyInList = false;
-            if ($itemCopyId) {
-                $alreadyInList = $this->wishlistService->itemExistsInWishlist($itemCopyId, $targetWishlistId);
-            }
-            
-            if ($alreadyInList) {
-                $copyCounter++;
-            }
-            
-            // Determine image path - use source wishlist ID for image location
-            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage, flags: ENT_QUOTES, encoding: 'UTF-8');
-            
-            if (!file_exists($absoluteImagePath)) {
-                $imagePath = "/wishlist/public/images/site-images/default-photo.png";
-            } else {
-                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage, flags: ENT_QUOTES, encoding: 'UTF-8');
-            }
-            
-            $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
-            $checkboxClass = $alreadyInList ? 'already-in-list' : '';
-            $disabled = $alreadyInList ? 'disabled' : '';
-            $alreadyInListText = $alreadyInList ? ' (Already in list)' : '';
-            
-            $html .= "
-            <div class='{$containerClass}'>
-                <div class='option-image'>
-                    <img src='{$imagePath}?t=" . time() . "' alt='wishlist item image'>
-                </div>
-                <div class='option-title'>{$itemName}{$alreadyInListText}</div>
-                <div class='option-checkbox'>
-                    <input type='checkbox' class='{$checkboxClass}' name='item_ids[]' value='{$itemId}' {$disabled} />
-                </div>
-            </div>";
-        }
-        
-        $html .= "
-        </div>
-        <p class='center" . ($copyCounter == count($items) ? ' hidden' : '') . "'>
-            <input type='submit' class='button text' name='copy_" . ($copyFrom ? "from" : "to") . "_submit' value='Copy Items' />
-        </p>";
-        
-        return $html;
-    }
 
     private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string
     {
