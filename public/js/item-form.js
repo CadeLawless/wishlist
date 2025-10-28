@@ -75,15 +75,22 @@ $(document).ready(function() {
     });
     // show image preview on change
     $("#image, .file-input + input").on("change", function(){
+        console.log("File input changed"); // Debug log
+        console.log("Files:", this.files); // Debug log
+        console.log("Preview container:", $("#preview_container")); // Debug log
+        
         $input = $(this);
         if (this.files && this.files[0]) {
+            console.log("File selected:", this.files[0].name); // Debug log
             var reader = new FileReader();
 
             reader.onload = function (e) {
+                console.log("File reader loaded, updating preview"); // Debug log
                 // Update the image source
                 $("#preview_container").find("img").attr("src", e.target.result);
                 // Show the preview container
                 $("#preview_container").removeClass("hidden");
+                console.log("Preview container should be visible now"); // Debug log
                 // Clear any paste image data since we're using a file now
                 $("#paste-image").val("");
                 $("#paste-image-hidden").val("");
@@ -92,6 +99,7 @@ $(document).ready(function() {
             reader.readAsDataURL(this.files[0]);
             this.previousElementSibling.textContent = "Change Image";
         } else {
+            console.log("No file selected"); // Debug log
             // No file selected
             $("#preview_container").addClass("hidden");
             $("#paste-image").val("");
