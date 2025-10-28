@@ -347,19 +347,12 @@ class FileUploadService
             $newHeight = (int)($height * $ratio);
 
             // Create image resource based on type
-            switch ($mimeType) {
-                case 'image/jpeg':
-                    $source = imagecreatefromjpeg($filePath);
-                    break;
-                case 'image/png':
-                    $source = imagecreatefrompng($filePath);
-                    break;
-                case 'image/webp':
-                    $source = imagecreatefromwebp($filePath);
-                    break;
-                default:
-                    return false;
-            }
+            $source = match ($mimeType) {
+                'image/jpeg' => imagecreatefromjpeg($filePath),
+                'image/png' => imagecreatefrompng($filePath),
+                'image/webp' => imagecreatefromwebp($filePath),
+                default => false
+            };
 
             if (!$source) {
                 return false;
@@ -377,18 +370,12 @@ class FileUploadService
             imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
             // Save optimized image
-            $success = false;
-            switch ($mimeType) {
-                case 'image/jpeg':
-                    $success = imagejpeg($resized, $filePath, 85); // 85% quality
-                    break;
-                case 'image/png':
-                    $success = imagepng($resized, $filePath, 8); // 8 compression level
-                    break;
-                case 'image/webp':
-                    $success = imagewebp($resized, $filePath, 85); // 85% quality
-                    break;
-            }
+            $success = match ($mimeType) {
+                'image/jpeg' => imagejpeg($resized, $filePath, 85), // 85% quality
+                'image/png' => imagepng($resized, $filePath, 8), // 8 compression level
+                'image/webp' => imagewebp($resized, $filePath, 85), // 85% quality
+                default => false
+            };
 
             // Clean up
             imagedestroy($source);

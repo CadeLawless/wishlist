@@ -111,45 +111,15 @@ abstract class Controller
             $ruleValue = null;
         }
 
-        switch ($ruleName) {
-            case 'required':
-                if (empty($value)) {
-                    return ucfirst($field) . ' is required.';
-                }
-                break;
-
-            case 'email':
-                if (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                    return ucfirst($field) . ' must be a valid email address.';
-                }
-                break;
-
-            case 'min':
-                if (!empty($value) && strlen($value) < (int)$ruleValue) {
-                    return ucfirst($field) . ' must be at least ' . $ruleValue . ' characters.';
-                }
-                break;
-
-            case 'max':
-                if (!empty($value) && strlen($value) > (int)$ruleValue) {
-                    return ucfirst($field) . ' must not exceed ' . $ruleValue . ' characters.';
-                }
-                break;
-
-            case 'numeric':
-                if (!empty($value) && !is_numeric($value)) {
-                    return ucfirst($field) . ' must be numeric.';
-                }
-                break;
-
-            case 'url':
-                if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-                    return ucfirst($field) . ' must be a valid URL.';
-                }
-                break;
-        }
-
-        return null;
+        return match ($ruleName) {
+            'required' => empty($value) ? ucfirst($field) . ' is required.' : null,
+            'email' => (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) ? ucfirst($field) . ' must be a valid email address.' : null,
+            'min' => (!empty($value) && strlen($value) < (int)$ruleValue) ? ucfirst($field) . ' must be at least ' . $ruleValue . ' characters.' : null,
+            'max' => (!empty($value) && strlen($value) > (int)$ruleValue) ? ucfirst($field) . ' must not exceed ' . $ruleValue . ' characters.' : null,
+            'numeric' => (!empty($value) && !is_numeric($value)) ? ucfirst($field) . ' must be numeric.' : null,
+            'url' => (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) ? ucfirst($field) . ' must be a valid URL.' : null,
+            default => null
+        };
     }
 
     protected function auth(): ?array
