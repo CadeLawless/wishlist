@@ -63,3 +63,7 @@ if (isset($flash['error'])) {
     <div class="center count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_wishlists)); ?> of <?php echo count($all_wishlists); ?> wishlists</div>
     <?php endif; ?>
 <?php endif; ?>
+
+<?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
+<script src="/wishlist/public/js/wishlists-pagination.js"></script>
+<?php endif; ?>
