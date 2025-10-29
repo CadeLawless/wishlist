@@ -2561,40 +2561,184 @@ img.gift-wrap {
     opacity: 0.7;
 }
 
-#fetch-spinner {
-    font-size: 18px;
-    animation: spin 1s linear infinite;
+/* Loading Animation Container */
+.loading-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px;
+    overflow: visible;
+    padding: 10px;
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--background-darker);
+    border-radius: 50%;
+    position: relative;
+    animation: spinPulse 3s ease-in-out infinite;
+    scale: 2;
+    margin: 1rem 0 3rem;
 }
 
-#fetch-status {
-    margin-top: 16px;
-    padding: 12px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
+.loading-spinner::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 4px solid transparent;
+    border-top: 4px solid var(--primary-link);
+    border-radius: 50%;
+    animation: spinArc 3s ease-in-out infinite;
 }
 
-#fetch-status.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+
+.loading-success,
+.loading-error {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+    scale: 2.2;
+    margin: 1rem 0 3rem;
 }
 
-#fetch-status.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.loading-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 4px solid var(--primary-link);
+    border-radius: 50%;
+    animation: circleGrow 0.4s ease-out forwards;
 }
 
-#fetch-status.info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
+.loading-error::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 4px solid #e74c3c;
+    border-radius: 50%;
+    animation: circleGrow 0.4s ease-out forwards;
+}
+
+.checkmark,
+.error-x {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: var(--primary-link);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    z-index: 1;
+    position: relative;
+    overflow: visible;
+}
+
+.error-x {
+    stroke: #e74c3c;
+}
+
+/* Circle growth animation */
+@keyframes circleGrow {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Checkmark animation */
+.checkmark {
+    animation: checkmarkAppear 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+/* Error X animation */
+.error-x {
+    animation: errorAppear 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+/* Spinner animation with pulsing motion */
+@keyframes spinPulse {
+    0% { 
+        transform: rotate(0deg) scale(1);
+    }
+    50% { 
+        transform: rotate(180deg) scale(0.9);
+    }
+    100% { 
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes spinArc {
+    0% { 
+        transform: rotate(0deg);
+    }
+    50% { 
+        transform: rotate(180deg);
+    }
+    100% { 
+        transform: rotate(360deg);
+    }
+}
+
+/* Checkmark appear animation */
+@keyframes checkmarkAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Error X appear animation */
+@keyframes errorAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
 }
 
 .divider {
@@ -2637,23 +2781,17 @@ img.gift-wrap {
     color: var(--text);
 }
 
-/* Dark mode styles for step 1 */
-body.dark #fetch-status.success {
-    background: #1e4a2e;
-    color: #a2c6ae;
-    border-color: #2d5a3d;
+/* Dark mode styles for loading animations */
+body.dark .loading-spinner {
+    border-color: var(--background-darker);
 }
 
-body.dark #fetch-status.error {
-    background: #4a1e1e;
-    color: #c6a2a2;
-    border-color: #5a2d2d;
+body.dark .checkmark {
+    stroke: var(--primary);
 }
 
-body.dark #fetch-status.info {
-    background: #1e3a4a;
-    color: #a2c6c6;
-    border-color: #2d4a5a;
+body.dark .error-x {
+    stroke: #e74c3c;
 }
 
 /* Responsive design for step 1 */
@@ -2674,6 +2812,33 @@ body.dark #fetch-status.info {
     
     .add-item-step1 {
         padding: 20px 10px;
+    }
+    
+    .loading-container {
+        margin-top: 16px;
+        min-height: 50px;
+    }
+    
+    .loading-spinner {
+        width: 36px;
+        height: 36px;
+        border-width: 3px;
+    }
+    
+    .loading-spinner::before {
+        border-width: 3px;
+    }
+    
+    .loading-success::before,
+    .loading-error::before {
+        border-width: 3px;
+    }
+    
+    .checkmark,
+    .error-x {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2.5;
     }
 }
 
