@@ -30,12 +30,23 @@ $background_image = $wishlist['background_image'] ?? '';
             >
             <button type="submit" id="fetch-details-btn" class="fetch-button">
                 <span class="button-text">Fetch Details</span>
-                <span id="fetch-spinner" class="hidden">⏳</span>
             </button>
         </div>
-        <div id="fetch-status" class="hidden"></div>
+        <div id="loading-animation" class="loading-container hidden">
+            <div class="loading-spinner"></div>
+            <div class="loading-success hidden">
+                <svg class="checkmark" viewBox="0 0 24 24">
+                    <path class="checkmark-path" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div class="loading-error hidden">
+                <svg class="error-x" viewBox="0 0 24 24">
+                    <path class="error-x-path" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </div>
+        </div>
     </form>
-    <p>Rather enter all the details yourself? <a href="/wishlist/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
+    <p id="manual-link">Rather enter all the details yourself? <a href="/wishlist/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
 </div>
 
 <script>
@@ -43,8 +54,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('url-fetch-form');
     const urlInput = document.getElementById('product-url');
     const fetchBtn = document.getElementById('fetch-details-btn');
-    const spinner = document.getElementById('fetch-spinner');
-    const status = document.getElementById('fetch-status');
+    const loadingContainer = document.getElementById('loading-animation');
+    const loadingSpinner = loadingContainer.querySelector('.loading-spinner');
+    const loadingSuccess = loadingContainer.querySelector('.loading-success');
+    const loadingError = loadingContainer.querySelector('.loading-error');
+    const manualLink = document.getElementById('manual-link');
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -67,17 +81,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = urlInput.value.trim();
         
         if (!url) {
-            showStatusMessage("Please enter a URL first", "error");
             return;
         }
         
         if (!isValidUrl(url)) {
-            showStatusMessage("Please enter a valid URL", "error");
             return;
         }
         
         showLoadingState(true);
-        showStatusMessage("Fetching product details...", "info");
         
         fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
             method: 'POST',
@@ -109,10 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(data => {
-            showLoadingState(false);
-            
             if (data.success) {
-                showStatusMessage("Product details fetched successfully! Redirecting to form...", "success");
+                showSuccessAnimation();
                 
                 // Store data in session via AJAX
                 fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
@@ -124,10 +133,36 @@ document.addEventListener('DOMContentLoaded', function() {
                           '&price=' + encodeURIComponent(data.price || '') + 
                           '&link=' + encodeURIComponent(url) + 
                           '&image=' + encodeURIComponent(data.image || '') +
-                          '&product_details=' + encodeURIComponent(data.product_details || '')
+                          '&product_details=' + encodeURIComponent(data.product_details || '') +
+                          '&fetch_error=false'
                 })
                 .then(() => {
-                    // Redirect to form (data will be loaded from session)
+                    // Redirect to form after animation
+                    setTimeout(() => {
+                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                    }, 800);
+                })
+                .catch(error => {
+                    console.error('Error storing data:', error);
+                    // Still redirect even if storage fails
+                    setTimeout(() => {
+                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                    }, 800);
+                });
+            } else {
+                showErrorAnimation();
+                
+                // Store error state and redirect
+                fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'link=' + encodeURIComponent(url) + 
+                          '&fetch_error=true&error_message=' + encodeURIComponent(data.error || 'We had trouble getting product details from this URL. Please enter them manually.')
+                })
+                .then(() => {
+                    // Redirect to form after animation
                     setTimeout(() => {
                         window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
@@ -139,14 +174,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 });
-            } else {
-                showStatusMessage(data.error || "Could not fetch product details", "error");
             }
         })
         .catch(error => {
-            showLoadingState(false);
             console.error('Error:', error);
-            showStatusMessage("An error occurred while fetching product details. Please try again.", "error");
+            showErrorAnimation();
+            
+            // Store error state and redirect
+            fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'link=' + encodeURIComponent(url) + 
+                      '&fetch_error=true&error_message=' + encodeURIComponent('We had trouble getting product details from this URL. Please enter them manually.')
+            })
+            .then(() => {
+                // Redirect to form after animation
+                setTimeout(() => {
+                    window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error storing data:', error);
+                // Still redirect even if storage fails
+                setTimeout(() => {
+                    window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                }, 1000);
+            });
         });
     }
     
@@ -154,24 +209,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (loading) {
             fetchBtn.disabled = true;
             fetchBtn.querySelector('.button-text').textContent = 'Fetching...';
-            spinner.classList.remove('hidden');
+            loadingContainer.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            loadingSuccess.classList.add('hidden');
+            loadingError.classList.add('hidden');
+            manualLink.style.display = 'none';
         } else {
             fetchBtn.disabled = false;
             fetchBtn.querySelector('.button-text').textContent = 'Fetch Details';
-            spinner.classList.add('hidden');
+            loadingContainer.classList.add('hidden');
+            manualLink.style.display = 'block';
         }
     }
     
-    function showStatusMessage(message, type) {
-        status.textContent = message;
-        status.className = type;
-        status.classList.remove('hidden');
-        
-        if (type === 'success') {
-            setTimeout(() => {
-                status.classList.add('hidden');
-            }, 3000);
-        }
+    function showSuccessAnimation() {
+        loadingSpinner.classList.add('hidden');
+        loadingSuccess.classList.remove('hidden');
+        // Animation will be handled by CSS
+    }
+    
+    function showErrorAnimation() {
+        loadingSpinner.classList.add('hidden');
+        loadingError.classList.remove('hidden');
+        // Animation will be handled by CSS
     }
     
     function isValidUrl(string) {
