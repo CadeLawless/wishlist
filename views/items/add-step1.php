@@ -65,17 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchUrlDetails();
     });
     
-    // Auto-fetch on paste
-    urlInput.addEventListener('paste', function() {
-        setTimeout(() => {
-            const url = urlInput.value.trim();
-            if (url && isValidUrl(url)) {
-                setTimeout(() => {
-                    fetchUrlDetails();
-                }, 500);
-            }
-        }, 100);
-    });
+    // Note: Auto-fetch on paste has been removed - users must click "Fetch Details" button
     
     function fetchUrlDetails() {
         const url = urlInput.value.trim();
@@ -140,14 +130,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Redirect to form after animation
                     setTimeout(() => {
                         window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
-                    }, 800);
+                    }, 1200);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
                         window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
-                    }, 800);
+                    }, 1200);
                 });
             } else {
                 showErrorAnimation();
