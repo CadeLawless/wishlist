@@ -12,6 +12,7 @@ use App\Services\FilterService;
 use App\Services\SessionManager;
 use App\Services\PopupManager;
 use App\Services\HtmlGenerationService;
+use App\Services\WishlistRenderService;
 
 class WishlistController extends Controller
 {
@@ -36,11 +37,23 @@ class WishlistController extends Controller
     {
         
         $user = $this->auth();
-        $wishlists = $this->wishlistService->getUserWishlists($user['username']);
+        
+        // Get pagination number
+        $pageno = (int) $this->request->get('pageno', 1);
+        
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        
+        // Apply pagination to get only 12 wishlists per page
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
+        $totalPages = $this->paginationService->getTotalPages();
         
         $data = [
             'user' => $user,
-            'wishlists' => $wishlists
+            'wishlists' => $paginatedWishlists,
+            'all_wishlists' => $allWishlists,
+            'pageno' => $pageno,
+            'total_pages' => $totalPages
         ];
 
         return $this->view('wishlist/index', $data);
@@ -581,8 +594,50 @@ class WishlistController extends Controller
         return new Response(content: $html);
     }
 
-
-
+    public function paginateWishlists(): Response
+    {
+        
+        $user = $this->auth();
+        
+        $page = (int) $this->request->input('new_page', 1);
+        
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $page);
+        $totalPages = $this->paginationService->getTotalPages();
+        $totalRows = count($allWishlists);
+        
+        // Generate HTML for wishlist grid items only (no pagination controls)
+        $wishlistsHtml = WishlistRenderService::generateWishlistsHtml($paginatedWishlists);
+        
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} wishlists";
+        
+        // Clear any output buffering first
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set headers and output JSON directly
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        $jsonData = [
+            'status' => 'success',
+            'message' => 'Wishlists loaded successfully',
+            'html' => $wishlistsHtml,
+            'current' => $page,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
+        ];
+        
+        echo json_encode($jsonData);
+        flush();
+        exit;
+    }
 
     private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string
     {

@@ -2787,7 +2787,7 @@ body.dark .loading-spinner {
 }
 
 body.dark .checkmark {
-    stroke: var(--primary);
+    stroke: var(--primary-link);
 }
 
 body.dark .error-x {

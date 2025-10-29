@@ -53,6 +53,7 @@ Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists'])->midd
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/create', [WishlistController::class, 'create'])->middleware('auth');
 Router::get('/wishlists', [WishlistController::class, 'index'])->middleware('auth');
+Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishlists'])->middleware('auth');
 Router::post('/', [WishlistController::class, 'store'])->middleware('auth');
 Router::get('/{id}', [WishlistController::class, 'show'])->middleware('auth');
 Router::get('/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');
