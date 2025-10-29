@@ -53,7 +53,14 @@ class WishlistController extends Controller
             'wishlists' => $paginatedWishlists,
             'all_wishlists' => $allWishlists,
             'pageno' => $pageno,
-            'total_pages' => $totalPages
+            'total_pages' => $totalPages,
+            'customStyles' => 
+                '.paginate-container:last-of-type {
+                    margin: 2rem 0 0.5rem;
+                }
+                .paginate-container {
+                    margin: 0 0 2rem;
+                }'
         ];
 
         return $this->view('wishlist/index', $data);

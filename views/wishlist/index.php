@@ -38,7 +38,10 @@ if (isset($flash['error'])) {
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
     <!-- Top Pagination controls -->
-    <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
+    <?php 
+    $position = 'top';
+    include __DIR__ . '/../components/pagination-controls.php'; 
+    ?>
 <?php endif; ?>
 
 <div class="wishlist-grid" 
@@ -57,7 +60,10 @@ if (isset($flash['error'])) {
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
     <!-- Bottom Pagination controls -->
-    <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
+    <?php 
+    $position = 'bottom';
+    include __DIR__ . '/../components/pagination-controls.php'; 
+    ?>
     
     <?php if(count($all_wishlists) > 0): ?>
     <div class="center count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_wishlists)); ?> of <?php echo count($all_wishlists); ?> wishlists</div>
