@@ -21,7 +21,12 @@ class WishlistService
 
     public function getUserWishlists(string $username): array
     {
-        return Wishlist::where('username', '=', $username);
+        // Query wishlists and order by most recently created first
+        $stmt = \App\Core\Database::query(
+            "SELECT * FROM wishlists WHERE username = ? ORDER BY date_created DESC",
+            [$username]
+        );
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getWishlistById(string $username, int $id): ?array
