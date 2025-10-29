@@ -71,6 +71,19 @@ class ItemController extends Controller
         $image = $fetchedData['image'] ?? $this->request->input('image_url', '');
         $notes = $fetchedData['product_details'] ?? $this->request->input('notes', '');
         
+        // Check if we have partial data (some fields filled but not all)
+        $hasPartialData = false;
+        if ($fetchedData && !($fetchedData['fetch_error'] ?? false)) {
+            $filledFields = 0;
+            if (!empty($itemName)) $filledFields++;
+            if (!empty($price)) $filledFields++;
+            if (!empty($image)) $filledFields++;
+            if (!empty($notes)) $filledFields++;
+            
+            // If we have some but not all fields, it's partial data
+            $hasPartialData = ($filledFields > 0 && $filledFields < 4);
+        }
+        
         $data = [
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
@@ -85,7 +98,10 @@ class ItemController extends Controller
             'priority_options' => ["1", "2", "3", "4"],
             'add' => true,
             'fetched_data' => $fetchedData, // Pass to view for display
-            'fetched_image_url' => $image // Pass fetched image URL to form
+            'fetched_image_url' => $image, // Pass fetched image URL to form
+            'fetch_error' => $fetchedData['fetch_error'] ?? false, // Pass error state
+            'fetch_error_message' => $fetchedData['error_message'] ?? '', // Pass error message
+            'has_partial_data' => $hasPartialData // Pass partial data flag
         ];
 
         return $this->view('items/create', $data);
@@ -530,6 +546,11 @@ class ItemController extends Controller
             $link = $this->request->input('link', '');
             $image = $this->request->input('image', '');
             $product_details = $this->request->input('product_details', '');
+            $fetch_error = $this->request->input('fetch_error', 'false');
+            $error_message = $this->request->input('error_message', '');
+            
+            // Convert string to boolean
+            $isError = ($fetch_error === 'true' || $fetch_error === true);
             
             // Truncate title to 100 characters (database limit)
             if (strlen($title) > 100) {
@@ -542,7 +563,9 @@ class ItemController extends Controller
                 'price' => $price,
                 'link' => $link,
                 'image' => $image,
-                'product_details' => $product_details
+                'product_details' => $product_details,
+                'fetch_error' => $isError,
+                'error_message' => $error_message
             ]);
             
             return $this->json(['success' => true]);

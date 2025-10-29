@@ -148,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'link=' + encodeURIComponent(url) + 
-                          '&fetch_error=true&error_message=' + encodeURIComponent(data.error || 'We had trouble getting product details from this URL. Please enter them manually.')
+                body: 'link=' + encodeURIComponent(url) + 
+                      '&fetch_error=true&error_message=' + encodeURIComponent(data.error || 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!')
                 })
                 .then(() => {
                     // Redirect to form after animation
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: 'link=' + encodeURIComponent(url) + 
-                      '&fetch_error=true&error_message=' + encodeURIComponent('We had trouble getting product details from this URL. Please enter them manually.')
+                      '&fetch_error=true&error_message=' + encodeURIComponent('Couldn\'t find product details for this URL - you\'ll need to fill them in manually!')
             })
             .then(() => {
                 // Redirect to form after animation
