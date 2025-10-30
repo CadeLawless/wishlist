@@ -83,14 +83,7 @@ class ItemRenderService
                 // Compute this purchased item's position among all purchased items in this wishlist
                 $position = 1;
                 if (!empty($item['id'])) {
-                    $stmtPos = \App\Core\Database::query(
-                        "SELECT COUNT(*) AS cnt FROM items WHERE wishlist_id = ? AND purchased = 'Yes' AND id <= ?",
-                        [$wishlistId, (int)$item['id']]
-                    );
-                    $rowPos = $stmtPos->get_result()->fetch_assoc();
-                    if ($rowPos && isset($rowPos['cnt'])) {
-                        $position = max(1, (int)$rowPos['cnt']);
-                    }
+                    $position = \App\Models\Item::getPurchasedPosition($wishlistId, (int)$item['id']);
                 }
                 
                 // Assign wrap number based on purchase order, cycling through available wraps

@@ -77,4 +77,14 @@ class Item extends Model
         $stmt = Database::query("DELETE FROM " . static::$table . " WHERE wishlist_id = ?", [$wishlistId]);
         return $stmt->affected_rows > 0;
     }
+
+    public static function getPurchasedPosition(int $wishlistId, int $itemId): int
+    {
+        $stmt = Database::query(
+            "SELECT COUNT(*) AS cnt FROM " . static::$table . " WHERE wishlist_id = ? AND purchased = 'Yes' AND id <= ?",
+            [$wishlistId, $itemId]
+        );
+        $row = $stmt->get_result()->fetch_assoc();
+        return isset($row['cnt']) ? (int)$row['cnt'] : 1;
+    }
 }
