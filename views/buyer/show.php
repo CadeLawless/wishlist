@@ -89,80 +89,88 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 
 <script>$type = "buyer";</script>
 <script>
-    $(document).ready(function(){
-        // confetti on mark as purchased
-        $(document.body).on("click", ".purchase-button", function(e){
-            e.preventDefault();
-            let button = this;
-            let item_id = button.id.split("-")[1];
-            setTimeout(function(){
-                let pageno_url = (document.querySelector(".page-number")) ? "&pageno="+document.querySelector(".page-number").textContent : "";
-                window.location = "/wishlist/buyer/<?php echo $wishlist['secret_key']; ?>/purchase/" + item_id + pageno_url;
-            }, 3000);
-            button.style.pointerEvents = "none";
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            let position = button.getBoundingClientRect();
-            let left = position.left;
-            let top = position.top;
-            let centerX = left + button.offsetWidth / 2;
-            centerX = centerX / windowWidth * 100;
-            let centerY = top + button.offsetHeight / 2;
-            centerY = centerY / windowHeight * 100;
-            button.style.backgroundColor = "var(--accent)";
-            confetti("tsparticles", {
-                angle: 90,
-                count: 200,
-                position: {
-                    x: centerX,
-                    y: centerY,
-                },
-                spread: 60,
-                startVelocity: 45,
-                decay: 0.9,
-                gravity: 1,
-                drift: 0,
-                ticks: 200,
-                shapes: ["image"],
-                shapeOptions: {
-                    image: [
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-1.png',
-                            width: 100,
-                            height: 100,
-                        },
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-2.png',
-                            width: 100,
-                            height: 100,
-                        },
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-3.png',
-                            width: 100,
-                            height: 100,
-                        },
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-4.png',
-                            width: 100,
-                            height: 100,
-                        },
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-5.png',
-                            width: 100,
-                            height: 100,
-                        },
-                        {
-                            src: '/wishlist/public/images/site-images/confetti/christmas-confetti-6.png',
-                            width: 100,
-                            height: 100,
-                        }
-                    ],
-                },
-                scalar: 3,
-                zIndex: 1002,
-                disableForReducedMotion: true,
-            });
-        });
-    });
-    
+	$(document).ready(function(){
+		// sync quantity inputs into hidden fields before submit
+		$(document.body).on('input change', "input[id^='purchase-qty-']", function(){
+			var input = this;
+			var id = input.id.replace('purchase-qty-','');
+			var hidden = $(input).closest('.popup-content').find("input[type='hidden'][name='quantity'][data-bind-from='purchase-qty-"+id+"']");
+			if(hidden.length){ hidden.val(input.value || 1); }
+		});
+
+		// confetti on mark as purchased and submit form
+		$(document.body).on("click", ".purchase-button", function(e){
+			e.preventDefault();
+			let button = this;
+			let form = $(button).closest('form')[0];
+			let item_id = $(button).data('item-id');
+			setTimeout(function(){
+				if(form) { form.submit(); }
+			}, 3000);
+			button.style.pointerEvents = "none";
+			var windowWidth = window.innerWidth;
+			var windowHeight = window.innerHeight;
+			let position = button.getBoundingClientRect();
+			let left = position.left;
+			let top = position.top;
+			let centerX = left + button.offsetWidth / 2;
+			centerX = centerX / windowWidth * 100;
+			let centerY = top + button.offsetHeight / 2;
+			centerY = centerY / windowHeight * 100;
+			button.style.backgroundColor = "var(--accent)";
+			confetti("tsparticles", {
+				angle: 90,
+				count: 200,
+				position: {
+					x: centerX,
+					y: centerY,
+				},
+				spread: 60,
+				startVelocity: 45,
+				decay: 0.9,
+				gravity: 1,
+				drift: 0,
+				ticks: 200,
+				shapes: ["image"],
+				shapeOptions: {
+					image: [
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-1.png',
+							width: 100,
+							height: 100,
+						},
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-2.png',
+							width: 100,
+							height: 100,
+						},
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-3.png',
+							width: 100,
+							height: 100,
+						},
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-4.png',
+							width: 100,
+							height: 100,
+						},
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-5.png',
+							width: 100,
+							height: 100,
+						},
+						{
+							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-6.png',
+							width: 100,
+							height: 100,
+						}
+					],
+				},
+				scalar: 3,
+				zIndex: 1002,
+				disableForReducedMotion: true,
+			});
+		});
+	});
+	
 </script>

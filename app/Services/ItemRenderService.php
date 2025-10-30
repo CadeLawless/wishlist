@@ -168,7 +168,8 @@ class ItemRenderService
                 <?php endif; ?>
                 </div>
                 <?php if($type === 'buyer'): ?>
-                    <?php if($item['purchased'] !== 'Yes'): ?>
+                    <?php if($item['purchased'] !== 'Yes' && $item['unlimited'] !== 'Yes'): ?>
+                        <?php $wishlistForBuyer = \App\Models\Wishlist::find($wishlistId); $secretKey = $wishlistForBuyer ? $wishlistForBuyer['secret_key'] : ''; ?>
                         <div style='margin: 18px 0;' class='center'>
                             <input class='purchased-button popup-button' type='checkbox' id='<?php echo $item['id']; ?>'><label for='<?php echo $item['id']; ?>'> Mark as Purchased</label>
                             <div class='popup-container purchased-popup-<?php echo $item['id']; ?> hidden'>
@@ -181,12 +182,28 @@ class ItemRenderService
                                     <div class='popup-content'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
                                         <p><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                                        <p class='center'><a class='button secondary no-button' href='#'>No</a><a class='button primary purchase-button' href='#' id='purchase-<?php echo $item['id']; ?>'>Yes</a></p>
+                                        <?php if((int)($item['quantity'] ?? 1) > 1): ?>
+                                            <div class='center' style='margin: 12px 0;'>
+                                                <label for='purchase-qty-<?php echo $item['id']; ?>'>How many did you buy?</label>
+                                                <input id='purchase-qty-<?php echo $item['id']; ?>' name='quantity' type='number' min='1' max='<?php echo (int)$item['quantity']; ?>' value='1' style='width: 80px; margin-left: 8px;'>
+                                            </div>
+                                        <?php endif; ?>
+                                        <p class='center'>
+                                            <a class='button secondary no-button' href='#'>No</a>
+                                            <form method='POST' action='/wishlist/buyer/<?php echo $secretKey; ?>/purchase/<?php echo $item['id']; ?>' style='display: inline;' class='buyer-purchase-form'>
+                                                <?php if((int)($item['quantity'] ?? 1) > 1): ?>
+                                                    <input type='hidden' name='quantity' value='1' data-bind-from='purchase-qty-<?php echo $item['id']; ?>'>
+                                                <?php else: ?>
+                                                    <input type='hidden' name='quantity' value='1'>
+                                                <?php endif; ?>
+                                                <button type='submit' class='button primary purchase-button' data-item-id='<?php echo $item['id']; ?>'>Yes</button>
+                                            </form>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <?php else: ?>
+                    <?php elseif($item['purchased'] === 'Yes'): ?>
                         <div class='center' style="margin: 0.5rem 0;">
                             <h4 class='center'>This item has been purchased!</h4>
                             <span class='unmark-msg'>If you need to unmark an item as purchased, email <a style="font-size: 14px;" href='mailto:support@cadelawless.com'>support@cadelawless.com</a> for help.</span>
