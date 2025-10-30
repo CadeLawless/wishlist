@@ -55,11 +55,11 @@ class WishlistController extends Controller
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'customStyles' => 
-                '.paginate-container:last-of-type {
-                    margin: 2rem 0 0.5rem;
-                }
-                .paginate-container {
+                '.paginate-container {
                     margin: 0 0 2rem;
+                }
+                .paginate-container.bottom {
+                    margin: 0.5rem 0;
                 }'
         ];
 
