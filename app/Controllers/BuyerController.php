@@ -82,10 +82,10 @@ class BuyerController extends Controller
         $quantity = (int)$this->request->input('quantity', 1);
         
         if ($this->wishlistService->purchaseItem($wishlist['id'], $itemId, $quantity)) {
-            return $this->redirect("/buyer/{$secretKey}")->withSuccess('Item marked as purchased!');
+            return $this->redirect("/wishlist/buyer/{$secretKey}")->withSuccess('Item marked as purchased!');
         }
 
-        return $this->redirect("/buyer/{$secretKey}")->withError('Unable to mark item as purchased.');
+        return $this->redirect("/wishlist/buyer/{$secretKey}")->withError('Unable to mark item as purchased.');
     }
 
     public function filterItems(string $secretKey): Response
