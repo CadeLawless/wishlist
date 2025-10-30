@@ -14,7 +14,16 @@ class ItemRenderService
         $itemNameShort = htmlspecialchars($itemNameShort, ENT_QUOTES, 'UTF-8');
         
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
-        $quantity = $item['unlimited'] == 'Yes' ? 'Unlimited' : htmlspecialchars($item['quantity'], ENT_QUOTES, 'UTF-8');
+        $quantityDisplay = '';
+        if ($item['unlimited'] == 'Yes') {
+            $quantityDisplay = 'Unlimited';
+        } else {
+            $qtyTotal = (int)($item['quantity'] ?? 0);
+            $qtyPurchased = (int)($item['quantity_purchased'] ?? 0);
+            $qtyRemaining = max(0, $qtyTotal - $qtyPurchased);
+            // For buyer view show remaining needed; for wisher show total
+            $quantityDisplay = $type === 'buyer' ? (string)$qtyRemaining : (string)$qtyTotal;
+        }
         $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
         $notesShort = mb_substr($item['notes'] ?? '', 0, Constants::ITEM_NOTES_SHORT_LENGTH, 'UTF-8');
         if (mb_strlen($item['notes'] ?? '', 'UTF-8') > Constants::ITEM_NOTES_SHORT_LENGTH) $notesShort .= '...';
@@ -76,10 +85,10 @@ class ItemRenderService
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
             <div class='item-description'>
-                <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
+                <div class='line'><h3><?php echo $itemNameShort . " $quantityDisplay"; ?></h3></div>
                 <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
-                    <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantity; ?></div>
+                    <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
                     <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
                     <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
                     <div class='icon-options item-options <?php echo $type; ?>-item-options'>
@@ -103,6 +112,14 @@ class ItemRenderService
                                     <p><label>Date Added:<br /></label><?php echo $dateAdded; ?></p>
                                     <?php if($dateModified): ?>
                                     <p><label>Last Date Modified:</label><br /><?php echo $dateModified; ?></p>
+                                    <?php endif; ?>
+                                    <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
+                                    <?php $qtyTotal = (int)($item['quantity'] ?? 0); $qtyPurchased = (int)($item['quantity_purchased'] ?? 0); $qtyRemaining = max(0, $qtyTotal - $qtyPurchased); ?>
+                                    <p><label>Remaining Needed:<br /></label><?php echo $qtyRemaining; ?> (of <?php echo $qtyTotal; ?>)</p>
+                                    <?php elseif($item['unlimited'] === 'Yes'): ?>
+                                    <p><label>Quantity:<br /></label>Unlimited</p>
+                                    <?php else: ?>
+                                    <p><label>Quantity:<br /></label><?php echo (int)($item['quantity'] ?? 0); ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -182,23 +199,23 @@ class ItemRenderService
                                     <div class='popup-content'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
                                         <p><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                                        <?php if((int)($item['quantity'] ?? 1) > 1): ?>
+                                        <?php if((int)($quantity ?? 1) > 1): ?>
                                             <div class='center' style='margin: 12px 0;'>
                                                 <label for='purchase-qty-<?php echo $item['id']; ?>'>How many did you buy?</label>
-                                                <input id='purchase-qty-<?php echo $item['id']; ?>' name='quantity' type='number' min='1' max='<?php echo (int)$item['quantity']; ?>' value='1' style='width: 80px; margin-left: 8px;'>
+                                                <input id='purchase-qty-<?php echo $item['id']; ?>' name='quantity' type='number' min='1' max='<?php echo (int)$quantity; ?>' value='1' style='width: 80px; margin-left: 8px;'>
                                             </div>
                                         <?php endif; ?>
-                                        <p class='center'>
+                                        <div style="margin: 1rem auto;" class='center'>
                                             <a class='button secondary no-button' href='#'>No</a>
                                             <form method='POST' action='/wishlist/buyer/<?php echo $secretKey; ?>/purchase/<?php echo $item['id']; ?>' style='display: inline;' class='buyer-purchase-form'>
-                                                <?php if((int)($item['quantity'] ?? 1) > 1): ?>
+                                                <?php if((int)($quantity ?? 1) > 1): ?>
                                                     <input type='hidden' name='quantity' value='1' data-bind-from='purchase-qty-<?php echo $item['id']; ?>'>
                                                 <?php else: ?>
                                                     <input type='hidden' name='quantity' value='1'>
                                                 <?php endif; ?>
                                                 <button type='submit' class='button primary purchase-button' data-item-id='<?php echo $item['id']; ?>'>Yes</button>
                                             </form>
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
