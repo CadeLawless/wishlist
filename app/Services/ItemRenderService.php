@@ -79,7 +79,22 @@ class ItemRenderService
                 // Determine available wrap count and select deterministic wrap number within range
                 $wrapCount = \App\Services\ThemeService::getGiftWrapFileCount($giftWrapImage);
                 if ($wrapCount < 1) { $wrapCount = 1; }
-                $giftWrapNumber = (($item['id'] ?? 1) % $wrapCount) + 1;
+                
+                // Compute this purchased item's position among all purchased items in this wishlist
+                $position = 1;
+                if (!empty($item['id'])) {
+                    $stmtPos = \App\Core\Database::query(
+                        "SELECT COUNT(*) AS cnt FROM items WHERE wishlist_id = ? AND purchased = 'Yes' AND id <= ?",
+                        [$wishlistId, (int)$item['id']]
+                    );
+                    $rowPos = $stmtPos->get_result()->fetch_assoc();
+                    if ($rowPos && isset($rowPos['cnt'])) {
+                        $position = max(1, (int)$rowPos['cnt']);
+                    }
+                }
+                
+                // Assign wrap number based on purchase order, cycling through available wraps
+                $giftWrapNumber = (($position - 1) % $wrapCount) + 1;
                 ?>
                 <img src='/wishlist/public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
