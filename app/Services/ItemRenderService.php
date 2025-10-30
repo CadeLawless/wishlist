@@ -76,8 +76,10 @@ class ItemRenderService
                     $giftWrapImage = 'default';
                 }
                 
-                // Get a random gift wrap number (1-8) for variety
-                $giftWrapNumber = (($item['id'] ?? 1) % 8) + 1;
+                // Determine available wrap count and select deterministic wrap number within range
+                $wrapCount = \App\Services\ThemeService::getGiftWrapFileCount($giftWrapImage);
+                if ($wrapCount < 1) { $wrapCount = 1; }
+                $giftWrapNumber = (($item['id'] ?? 1) % $wrapCount) + 1;
                 ?>
                 <img src='/wishlist/public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
