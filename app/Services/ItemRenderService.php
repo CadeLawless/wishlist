@@ -85,7 +85,7 @@ class ItemRenderService
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
             <div class='item-description'>
-                <div class='line'><h3><?php echo $itemNameShort . " $quantityDisplay"; ?></h3></div>
+                <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
                 <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
@@ -199,16 +199,16 @@ class ItemRenderService
                                     <div class='popup-content'>
                                         <label>Are you sure you want to mark this item as purchased?</label>
                                         <p><?php echo htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                                        <?php if((int)($quantity ?? 1) > 1): ?>
+                                        <?php if((int)($qtyRemaining ?? 1) > 1): ?>
                                             <div class='center' style='margin: 12px 0;'>
                                                 <label for='purchase-qty-<?php echo $item['id']; ?>'>How many did you buy?</label>
-                                                <input id='purchase-qty-<?php echo $item['id']; ?>' name='quantity' type='number' min='1' max='<?php echo (int)$quantity; ?>' value='1' style='width: 80px; margin-left: 8px;'>
+                                                <input id='purchase-qty-<?php echo $item['id']; ?>' name='quantity' type='number' min='1' max='<?php echo (int)$qtyRemaining; ?>' value='1' style='width: 80px; margin-left: 8px;'>
                                             </div>
                                         <?php endif; ?>
                                         <div style="margin: 1rem auto;" class='center'>
                                             <a class='button secondary no-button' href='#'>No</a>
                                             <form method='POST' action='/wishlist/buyer/<?php echo $secretKey; ?>/purchase/<?php echo $item['id']; ?>' style='display: inline;' class='buyer-purchase-form'>
-                                                <?php if((int)($quantity ?? 1) > 1): ?>
+                                                <?php if((int)($qtyRemaining ?? 1) > 1): ?>
                                                     <input type='hidden' name='quantity' value='1' data-bind-from='purchase-qty-<?php echo $item['id']; ?>'>
                                                 <?php else: ?>
                                                     <input type='hidden' name='quantity' value='1'>
