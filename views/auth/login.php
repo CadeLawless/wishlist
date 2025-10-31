@@ -23,8 +23,19 @@
     <p style="font-size: 14px" class="large-input center">Don't have an account? <a style="font-size: inherit;" href="/wishlist/register">Create one here</a></p>
 </form>
 
+<script src="/wishlist/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
+    // Initialize form validation
+    FormValidator.init('#login-form', {
+        username: {
+            required: true
+        },
+        password: {
+            required: true
+        }
+    });
+
     $(".view-password").on("click", function(){
         $("#password").attr("type", "text");
         $(this).addClass("hidden");

@@ -151,8 +151,51 @@ if (isset($flash['error'])) {
     <?php endif; ?>
 </div>
 
+<script src="/wishlist/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
+    // Initialize validation for name form
+    const nameForm = $('form').has('#name_submit_button');
+    if (nameForm.length) {
+        FormValidator.init(nameForm, {
+            name: {
+                required: true,
+                minLength: 2,
+                maxLength: 50
+            }
+        });
+    }
+
+    // Initialize validation for email form
+    const emailForm = $('form').has('#email_submit_button');
+    if (emailForm.length) {
+        FormValidator.init(emailForm, {
+            email: {
+                required: true,
+                email: true
+            }
+        });
+    }
+
+    // Initialize validation for password form
+    const passwordForm = $('form').has('#password_submit_button');
+    if (passwordForm.length) {
+        FormValidator.init(passwordForm, {
+            current_password: {
+                required: true
+            },
+            new_password: {
+                required: true,
+                password: true
+            },
+            confirm_password: {
+                required: true,
+                confirmPassword: '#new_password'
+            }
+        });
+    }
+
+    // Keep existing pattern mismatch handling
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
             setTimeout(() => {

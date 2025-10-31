@@ -42,8 +42,36 @@
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Start Wishing"></p>
 </form>
 
+<script src="/wishlist/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
+    // Initialize form validation
+    FormValidator.init('#login-form', {
+        name: {
+            required: true,
+            minLength: 2,
+            maxLength: 50
+        },
+        username: {
+            required: true,
+            minLength: 3,
+            maxLength: 50
+        },
+        email: {
+            required: true,
+            email: true
+        },
+        password: {
+            required: true,
+            password: true
+        },
+        password_confirmation: {
+            required: true,
+            confirmPassword: '#password'
+        }
+    });
+
+    // Keep existing pattern mismatch handling
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
             setTimeout(() => {
@@ -65,22 +93,14 @@ $(document).ready(function(){
     });
 
     $(".view-password").on("click", function(){
-        $("#password").attr("type", "text");
+        $("#password, #password_confirmation").attr("type", "text");
         $(this).addClass("hidden");
         $(".hide-password").removeClass("hidden");
     });
     $(".hide-password").on("click", function(){
-        $("#password").attr("type", "password");
+        $("#password, #password_confirmation").attr("type", "password");
         $(this).addClass("hidden");
         $(".view-password").removeClass("hidden");
-    });
-
-    $("#confirm_password").on("input", function(){
-        if($(this).val() != $("#password").val()){
-            $(this).addClass("invalid");
-        }else{
-            $(this).removeClass("invalid");
-        }
     });
 });
 </script>
