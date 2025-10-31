@@ -271,10 +271,13 @@ class AuthController extends Controller
         
         $user = $this->auth();
         
+        // Use unverified_email if email is not set (newly registered users)
+        $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+        
         $data = [
             'user' => $user,
             'name' => $this->request->input('name', $user['name']),
-            'email' => $this->request->input('email', $user['email']),
+            'email' => $this->request->input('email', $currentEmail),
             'current_password' => $this->request->input('current_password', ''),
             'new_password' => $this->request->input('new_password', ''),
             'confirm_password' => $this->request->input('confirm_password', ''),
@@ -297,10 +300,11 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateNameUpdate($data);
             
             if ($this->userValidator->hasErrors($errors)) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $data['name'] ?? $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -314,10 +318,11 @@ class AuthController extends Controller
                 User::update($user['id'], ['name' => $data['name']]);
                 return $this->redirect('/wishlist/profile')->withSuccess('Name updated successfully!');
             } catch (\Exception $e) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $data['name'] ?? $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -333,10 +338,11 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateEmailUpdate($data);
             
             if ($this->userValidator->hasErrors($errors)) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
+                    'email' => $data['email'] ?? $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -350,10 +356,11 @@ class AuthController extends Controller
             $existingUsers = User::where('email', '=', $data['email']);
             $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
             if ($existingUser && $existingUser['id'] != $user['id']) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
+                    'email' => $data['email'] ?? $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -379,10 +386,11 @@ class AuthController extends Controller
                 
                 return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
+                    'email' => $data['email'] ?? $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -403,10 +411,11 @@ class AuthController extends Controller
             }
             
             if ($this->userValidator->hasErrors($errors)) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => $data['current_password'] ?? '',
                     'new_password' => $data['new_password'] ?? '',
                     'confirm_password' => $data['confirm_password'] ?? '',
@@ -422,10 +431,11 @@ class AuthController extends Controller
                 
                 return $this->redirect('/wishlist/profile')->withSuccess('Password changed successfully!');
             } catch (\Exception $e) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => $data['current_password'] ?? '',
                     'new_password' => $data['new_password'] ?? '',
                     'confirm_password' => $data['confirm_password'] ?? '',
@@ -436,13 +446,33 @@ class AuthController extends Controller
             }
         }
         
+        // Handle resend verification email
+        if (isset($data['resend_verification_button'])) {
+            $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            
+            if (empty($currentEmail)) {
+                return $this->redirect('/wishlist/profile')->withError('No email address found to send verification to.');
+            }
+            
+            try {
+                // Send verification email
+                $this->emailService->sendVerificationEmail($currentEmail, $user['username']);
+                
+                return $this->redirect('/wishlist/profile')->withSuccess('Verification email resent! Please check your inbox.');
+            } catch (\Exception $e) {
+                return $this->redirect('/wishlist/profile')->withError('Failed to resend verification email. Please try again.');
+            }
+        }
+        
         // Handle forgot password
         if (isset($data['forgot_password_submit_button'])) {
-            if (empty($user['email'])) {
+            $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            
+            if (empty($currentEmail)) {
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',
@@ -462,15 +492,15 @@ class AuthController extends Controller
                     'reset_password_expiration' => $resetExpiration
                 ]);
                 
-                // Send reset email
-                $this->emailService->sendPasswordResetEmail($user['email'], $resetKey);
+                // Send reset email to the current email (verified or unverified)
+                $this->emailService->sendPasswordResetEmail($currentEmail, $resetKey);
                 
                 return $this->redirect('/wishlist/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', [
                     'user' => $user,
                     'name' => $user['name'],
-                    'email' => $user['email'],
+                    'email' => $currentEmail,
                     'current_password' => '',
                     'new_password' => '',
                     'confirm_password' => '',

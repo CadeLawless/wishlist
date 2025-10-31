@@ -268,6 +268,7 @@ class ItemController extends Controller
             'link' => $this->request->input('link', $item['link']),
             'notes' => $this->request->input('notes', $item['notes']),
             'priority' => $this->request->input('priority', $item['priority']),
+            'filename' => $item['image'], // Pass existing image filename
             'otherCopies' => $otherCopies,
             'numberOfOtherCopies' => $numberOfOtherCopies,
             'priority_options' => ["1", "2", "3", "4"]
@@ -312,16 +313,33 @@ class ItemController extends Controller
                 $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
             }
         } elseif (!empty($data['paste_image'])) {
-            // Handle paste image (base64)
-            $uploadResult = $this->fileUploadService->uploadFromBase64($data['paste_image'], $wishlistId, $data['name']);
+            // Only process paste_image if it's a URL or valid base64 data
+            $pasteData = trim($data['paste_image']);
             
-            if (!$uploadResult['success']) {
-                $errors['item_image'][] = $uploadResult['error'];
-            } else {
-                $filename = $uploadResult['filename'];
-                $imageChanged = true;
-                $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
+            // Check if it's a URL pointing to an external resource (not our local images)
+            if (filter_var($pasteData, FILTER_VALIDATE_URL) && strpos($pasteData, '/wishlist/public/images/') === false) {
+                $uploadResult = $this->fileUploadService->uploadFromUrl($pasteData, $wishlistId, $data['name']);
+                
+                if (!$uploadResult['success']) {
+                    $errors['item_image'][] = $uploadResult['error'];
+                } else {
+                    $filename = $uploadResult['filename'];
+                    $imageChanged = true;
+                    $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
+                }
+            } elseif (strpos($pasteData, 'data:image') === 0 || (strlen($pasteData) > 100 && base64_decode($pasteData, true) !== false)) {
+                // It's base64 data - either with data URI prefix or raw base64
+                $uploadResult = $this->fileUploadService->uploadFromBase64($pasteData, $wishlistId, $data['name']);
+                
+                if (!$uploadResult['success']) {
+                    $errors['item_image'][] = $uploadResult['error'];
+                } else {
+                    $filename = $uploadResult['filename'];
+                    $imageChanged = true;
+                    $uploadedFiles[] = $uploadResult['filepath']; // Track for cleanup
+                }
             }
+            // If it's neither URL nor base64, ignore it (likely leftover form data)
         } elseif (!empty($data['existing_image']) && $data['existing_image'] !== $item['image']) {
             // Use existing uploaded image from previous validation error
             $filename = $data['existing_image'];
@@ -339,13 +357,13 @@ class ItemController extends Controller
                 'user' => $user,
                 'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
                 'item' => $item,
-                'item_name' => $data['name'] ?? '',
-                'price' => $data['price'] ?? '',
-                'quantity' => $data['quantity'] ?? '1',
-                'unlimited' => $data['unlimited'] ?? 'No',
-                'link' => $data['link'] ?? '',
-                'notes' => $data['notes'] ?? '',
-                'priority' => $data['priority'] ?? '1',
+                'item_name' => $data['name'] ?? $item['name'],
+                'price' => $data['price'] ?? $item['price'],
+                'quantity' => $data['quantity'] ?? $item['quantity'],
+                'unlimited' => $data['unlimited'] ?? $item['unlimited'],
+                'link' => $data['link'] ?? $item['link'],
+                'notes' => $data['notes'] ?? $item['notes'],
+                'priority' => $data['priority'] ?? $item['priority'],
                 'filename' => $filename,
                 'otherCopies' => $otherCopies ?? false,
                 'numberOfOtherCopies' => $numberOfOtherCopies ?? 0,
@@ -404,13 +422,13 @@ class ItemController extends Controller
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item' => $item,
-            'item_name' => $data['name'] ?? '',
-            'price' => $data['price'] ?? '',
-            'quantity' => $data['quantity'] ?? '1',
-            'unlimited' => $data['unlimited'] ?? 'No',
-            'link' => $data['link'] ?? '',
-            'notes' => $data['notes'] ?? '',
-            'priority' => $data['priority'] ?? '1',
+            'item_name' => $data['name'] ?? $item['name'],
+            'price' => $data['price'] ?? $item['price'],
+            'quantity' => $data['quantity'] ?? $item['quantity'],
+            'unlimited' => $data['unlimited'] ?? $item['unlimited'],
+            'link' => $data['link'] ?? $item['link'],
+            'notes' => $data['notes'] ?? $item['notes'],
+            'priority' => $data['priority'] ?? $item['priority'],
             'filename' => $filename,
             'otherCopies' => $otherCopies ?? false,
             'numberOfOtherCopies' => $numberOfOtherCopies ?? 0,

@@ -24,7 +24,7 @@ class ItemRequestValidator extends BaseValidator
         $errors = $this->mergeErrors($errors, $priceErrors);
         
         // Quantity validation (if not unlimited)
-        if (!empty($data['quantity']) && $data['unlimited'] !== 'Yes') {
+        if (!empty($data['quantity']) && ($data['unlimited'] ?? 'No') !== 'Yes') {
             $quantityErrors = $this->validateNumeric($data, 'quantity', 1);
             $errors = $this->mergeErrors($errors, $quantityErrors);
         }

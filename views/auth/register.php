@@ -4,7 +4,7 @@
     <?php if(isset($error_msg)) echo $error_msg?>
     <div class="large-input center">
         <label for="name">First Name: </label><br>
-        <input required type="text" name="name" placeholder="Dwight" value="<?php echo $name?>" id="name">
+        <input required type="text" name="name" placeholder="Dwight" value="<?php echo $name?>" id="name" maxlength="50">
     </div>
     <div class="large-input center">
         <label for="username">Username: </label><br>

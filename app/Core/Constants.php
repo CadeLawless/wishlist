@@ -18,7 +18,7 @@ class Constants
     public const MAX_ITEM_NAME_LENGTH = 100;
     public const MAX_WISHLIST_NAME_LENGTH = 100;
     public const MAX_USERNAME_LENGTH = 50;
-    public const MAX_NAME_LENGTH = 100;
+    public const MAX_NAME_LENGTH = 50;
     public const MIN_USERNAME_LENGTH = 3;
     public const MIN_NAME_LENGTH = 2;
     public const MIN_ITEM_NAME_LENGTH = 1;

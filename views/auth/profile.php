@@ -43,7 +43,7 @@ if (isset($flash['error'])) {
         <div class="flex form-flex">
             <div class="large-input">
                 <label for="name">Name:<br></label>
-                <input required type="text" name="name" id="name" autocapitalize="words" value="<?php echo htmlspecialchars($name); ?>" />
+                <input required type="text" name="name" id="name" autocapitalize="words" value="<?php echo htmlspecialchars($name ?? ''); ?>" maxlength="50" />
             </div>
             <p class="large-input"><input type="submit" class="button text" id="name_submit_button" name="name_submit_button" value="Change Name"></p>
         </div>
@@ -51,20 +51,48 @@ if (isset($flash['error'])) {
     <br />
 
     <!-- Email Update Form -->
-    <form method="POST" action="">
-        <h3>Change Your Email</h3>
+    <?php if (empty($user['email']) && !empty($user['unverified_email'])): ?>
+        <!-- Unverified Email - Show Verification Message -->
+        <h3>Verify Your Email</h3>
         <?php echo $email_error_msg ?? ""; ?>
         <div class="flex form-flex">
-            <?php if (empty($user['email'])): ?>
-                <p class='large-input no-margin-top'>Set up your email in case you ever forget your password!</p>
-            <?php endif; ?>
-            <div class="large-input">
-                <label for="email">Email:<br></label>
-                <input required name="email" type="email" id="email" inputmode="email" value="<?php echo htmlspecialchars($email); ?>" />
-            </div>
-            <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="<?php echo empty($user['email']) ? "Set Up" : "Change"; ?> Email"></p>
+            <p class='large-input no-margin-top'>
+                A verification email has been sent to <strong><?php echo htmlspecialchars($user['unverified_email']); ?></strong>. 
+                Please check your inbox and click the verification link to activate your email.
+            </p>
+            <form method="POST" action="">
+                <p class='large-input'><input type='submit' class='button text' id='resend_verification_button' name='resend_verification_button' value='Resend Verification Email' /></p>
+            </form>
+            <p class='large-input' style='margin-top: 20px;'>
+                <strong>Need to use a different email?</strong>
+            </p>
         </div>
-    </form>
+        <form method="POST" action="">
+            <div class="flex form-flex">
+                <div class="large-input">
+                    <label for="email">Enter New Email:<br></label>
+                    <input required name="email" type="email" id="email" inputmode="email" value="" />
+                </div>
+                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="Update Email"></p>
+            </div>
+        </form>
+    <?php else: ?>
+        <!-- Normal Email Form -->
+        <form method="POST" action="">
+            <h3>Change Your Email</h3>
+            <?php echo $email_error_msg ?? ""; ?>
+            <div class="flex form-flex">
+                <?php if (empty($user['email']) && empty($user['unverified_email'])): ?>
+                    <p class='large-input no-margin-top'>Set up your email in case you ever forget your password!</p>
+                <?php endif; ?>
+                <div class="large-input">
+                    <label for="email">Email:<br></label>
+                    <input required name="email" type="email" id="email" inputmode="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" />
+                </div>
+                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="<?php echo empty($user['email']) ? 'Set Up' : 'Change'; ?> Email"></p>
+            </div>
+        </form>
+    <?php endif; ?>
     <br />
 
     <!-- Password Change Form -->
@@ -75,7 +103,7 @@ if (isset($flash['error'])) {
             <div class="large-input">
                 <label for="current_password">Current Password:<br></label>
                 <div class="password-input">
-                    <input required type="password" name="current_password" id="current_password" value="<?php echo htmlspecialchars($current_password); ?>" />
+                    <input required type="password" name="current_password" id="current_password" value="<?php echo htmlspecialchars($current_password ?? ''); ?>" />
                     <span class="password-view hide-password hidden"><?php include __DIR__ . '/../../public/images/site-images/icons/hide-view.php'; ?></span>
                     <span class="password-view view-password"><?php include __DIR__ . '/../../public/images/site-images/icons/view.php'; ?></span>
                     <span class="error-msg hidden">Please match the requirements</span>
@@ -95,7 +123,7 @@ if (isset($flash['error'])) {
             <div class="large-input">
                 <label for="new_password">New Password: </label><br>
                 <div class="password-input">
-                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password); ?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
+                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password ?? ''); ?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
                     <span class="password-view hide-password-new hidden"><?php include __DIR__ . '/../../public/images/site-images/icons/hide-view.php'; ?></span>
                     <span class="password-view view-password-new"><?php include __DIR__ . '/../../public/images/site-images/icons/view.php'; ?></span>
                     <span class="error-msg hidden">Please match the requirements</span>
@@ -103,7 +131,7 @@ if (isset($flash['error'])) {
             </div>
             <div class="large-input">
                 <label for="confirm_password">Confirm New Password: </label><br>
-                <input required type="password" name="confirm_password" value="<?php echo htmlspecialchars($confirm_password); ?>" id="confirm_password">
+                <input required type="password" name="confirm_password" value="<?php echo htmlspecialchars($confirm_password ?? ''); ?>" id="confirm_password">
                 <span class="error-msg hidden">Passwords must match</span>
             </div>
 
@@ -114,7 +142,7 @@ if (isset($flash['error'])) {
 
     <!-- Forgot Password Form -->
     <h3>Forgot Your Password?</h3>
-    <?php if (empty($user['email'])): ?>
+    <?php if (empty($user['email']) && empty($user['unverified_email'])): ?>
         <p>In order for you to reset a password that you don't know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>
     <?php else: ?>
         <form method='POST' action=''>
