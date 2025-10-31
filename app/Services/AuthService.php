@@ -35,12 +35,12 @@ class AuthService
         
         // Clear remember me cookie with proper path
         if (isset($_COOKIE['wishlist_session_id'])) {
-            setcookie('wishlist_session_id', '', time() - 3600, '/');
+            setcookie('wishlist_session_id', '', time() - 3600, '/wishlist');
         }
         
         // Clear session cookie (optional, for thoroughness)
         if (isset($_COOKIE['PHPSESSID'])) {
-            setcookie('PHPSESSID', '', time() - 3600, '/');
+            setcookie('PHPSESSID', '', time() - 3600, '/wishlist');
         }
     }
 

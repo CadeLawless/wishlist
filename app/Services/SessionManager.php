@@ -230,7 +230,7 @@ class SessionManager
         // Handle remember me
         if ($remember) {
             $cookieTime = 3600 * 24 * 365; // 1 year
-            setcookie('wishlist_session_id', session_id(), time() + $cookieTime);
+            setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '/wishlist');
         }
     }
 
