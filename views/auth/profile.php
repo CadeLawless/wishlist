@@ -79,10 +79,10 @@ if (isset($flash['error'])) {
         <form method="POST" action="">
             <div class="flex form-flex">
                 <div class="large-input">
-                    <label for="email">Enter New Email:<br></label>
-                    <input required name="email" type="email" id="email" inputmode="email" value="" />
+                    <label for="new_email">Enter New Email:<br></label>
+                    <input required name="email" type="email" id="new_email" inputmode="email" value="" />
                 </div>
-                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="Update Email"></p>
+                <p class="large-input"><input type="submit" class="button text" id="new_email_submit_button" name="email_submit_button" value="Update Email"></p>
             </div>
         </form>
     <?php else: ?>
@@ -175,10 +175,21 @@ $(document).ready(function(){
         });
     }
 
-    // Initialize validation for email form
+    // Initialize validation for email form (normal email change)
     const emailForm = $('form').has('#email_submit_button');
     if (emailForm.length) {
         FormValidator.init(emailForm, {
+            email: {
+                required: true,
+                email: true
+            }
+        });
+    }
+
+    // Initialize validation for new email form (when changing unverified email)
+    const newEmailForm = $('form').has('#new_email_submit_button');
+    if (newEmailForm.length) {
+        FormValidator.init(newEmailForm, {
             email: {
                 required: true,
                 email: true

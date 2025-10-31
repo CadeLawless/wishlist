@@ -308,7 +308,11 @@ class AuthController extends Controller
             'confirm_password' => $this->request->input('confirm_password', ''),
             'name_error_msg' => '',
             'email_error_msg' => '',
-            'password_error_msg' => ''
+            'password_error_msg' => '',
+            'customStyles' =>
+                '.form-flex {
+                    max-width: unset;
+                }'
         ];
 
         return $this->view('auth/profile', $data);
