@@ -38,6 +38,8 @@ const FormValidator = {
 
             // Set up event listeners
             field.on('input', () => {
+                // Clear error immediately when user starts typing
+                this.clearErrors(field);
                 this.debounceValidation(field, fieldName, rules);
             });
 
@@ -154,9 +156,17 @@ const FormValidator = {
             errorContainer.show();
         } else {
             // Clear errors
-            field.removeClass('invalid');
-            errorContainer.html('').hide();
+            this.clearErrors(field);
         }
+    },
+
+    /**
+     * Clear validation errors from a field
+     */
+    clearErrors: function(field) {
+        field.removeClass('invalid');
+        const errorContainer = field.next('.validation-error');
+        errorContainer.html('').hide();
     },
 
     /**
