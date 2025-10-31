@@ -324,6 +324,9 @@ class AuthController extends Controller
         $user = $this->auth();
         $data = $this->request->input();
         
+        // Debug: Log what button was pressed
+        error_log('UpdateProfile called. Data keys: ' . implode(', ', array_keys($data)));
+        
         // Handle name update
         if (isset($data['name_submit_button'])) {
             $errors = $this->userValidator->validateNameUpdate($data);
