@@ -39,7 +39,6 @@ if (isset($flash['error'])) {
     <div class="large-input center">
         <label for="username">Username or Email: </label><br>
         <input required type="text" value="<?php echo $username; ?>" name="username" id="username">
-        <span class="error-msg hidden">Username must include</span>
     </div>
     <div class="large-input center">
         <label for="password">Password: </label><br>

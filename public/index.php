@@ -19,6 +19,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Check for remember me cookie and auto-login if needed
+$authService = new \App\Services\AuthService();
+$authService->checkSession();
+
 // Load routes
 require_once __DIR__ . '/../routes/web.php';
 
