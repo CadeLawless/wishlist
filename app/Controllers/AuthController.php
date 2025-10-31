@@ -240,18 +240,43 @@ class AuthController extends Controller
 
     public function verifyEmail(): Response
     {
-        $username = $this->request->get('user');
-        $token = $this->request->get('token');
+        $username = $this->request->get('username');
+        $key = $this->request->get('key');
 
-        if (!$username || !$token) {
+        if (!$username || !$key) {
             return $this->redirect('/wishlist/login')->withError('Invalid verification link.');
         }
 
-        if ($this->authService->verifyEmail($username)) {
-            return $this->redirect('/wishlist/login')->withSuccess('Email verified successfully! You can now log in.');
+        // Get user by username
+        $user = User::findByUsernameOrEmail($username);
+        
+        if (!$user) {
+            return $this->redirect('/wishlist/login')->withError('User not found.');
         }
 
-        return $this->redirect('/wishlist/login')->withError('Email verification failed. Please try again.');
+        // Verify the key matches and hasn't expired
+        if ($user['email_key'] !== $key) {
+            return $this->redirect('/wishlist/login')->withError('Invalid verification link.');
+        }
+
+        // Check if key has expired
+        if (isset($user['email_key_expiration']) && strtotime($user['email_key_expiration']) < time()) {
+            return $this->redirect('/wishlist/login')->withError('Verification link has expired. Please request a new one.');
+        }
+
+        // Move unverified_email to email field and clear the verification fields
+        try {
+            User::update($user['id'], [
+                'email' => $user['unverified_email'],
+                'unverified_email' => null,
+                'email_key' => null,
+                'email_key_expiration' => null
+            ]);
+            
+            return $this->redirect('/wishlist/login')->withSuccess('Email verified successfully! You can now log in.');
+        } catch (\Exception $e) {
+            return $this->redirect('/wishlist/login')->withError('Email verification failed. Please try again.');
+        }
     }
 
     public function toggleDarkMode(): Response
