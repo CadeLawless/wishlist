@@ -1041,17 +1041,19 @@ textarea {
 /* Real-time validation errors */
 .validation-error {
     display: none;
-    color: #d32f2f;
     font-size: 13px;
-    margin-top: 4px;
-    margin-bottom: 8px;
 }
 .validation-error .error-item {
     display: block;
-    margin-bottom: 2px;
+    color: #d32f2f;
+    text-align: left;
+    margin-bottom: 4px;
 }
-.validation-error .error-item:before {
-    content: "• ";
+.validation-error .error-item:last-child {
+    margin-bottom: 20px;
+}
+:is(input, select, textarea).invalid {
+    margin-bottom: 4px;
 }
 
 /* popup css */

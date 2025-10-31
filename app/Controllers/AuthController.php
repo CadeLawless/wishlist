@@ -563,4 +563,52 @@ class AuthController extends Controller
         return $this->view('auth/admin', $data);
     }
 
+    /**
+     * AJAX endpoint to check if username exists
+     */
+    public function checkUsername(): Response
+    {
+        $username = $this->request->input('username');
+        
+        if (empty($username)) {
+            return new Response(
+                content: json_encode(['available' => true]),
+                status: 200,
+                headers: ['Content-Type' => 'application/json']
+            );
+        }
+        
+        $existingUser = User::findByUsernameOrEmail($username);
+        
+        return new Response(
+            content: json_encode(['available' => !$existingUser]),
+            status: 200,
+            headers: ['Content-Type' => 'application/json']
+        );
+    }
+
+    /**
+     * AJAX endpoint to check if email exists
+     */
+    public function checkEmail(): Response
+    {
+        $email = $this->request->input('email');
+        
+        if (empty($email)) {
+            return new Response(
+                content: json_encode(['available' => true]),
+                status: 200,
+                headers: ['Content-Type' => 'application/json']
+            );
+        }
+        
+        $existingUser = User::findByUsernameOrEmail($email);
+        
+        return new Response(
+            content: json_encode(['available' => !$existingUser]),
+            status: 200,
+            headers: ['Content-Type' => 'application/json']
+        );
+    }
+
 }

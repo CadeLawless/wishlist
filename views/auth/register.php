@@ -31,13 +31,11 @@
             <input required type="password" name="password" id="password" value="<?php echo $password?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
             <span class="password-view hide-password hidden"><?php require(__DIR__ . "/../../public/images/site-images/icons/hide-view.php"); ?></span>
             <span class="password-view view-password"><?php require(__DIR__ . "/../../public/images/site-images/icons/view.php"); ?></span>
-            <span class="error-msg hidden">Please match the requirements</span>
         </div>
     </div>
     <div class="large-input center">
         <label for="password_confirmation">Confirm Password: </label><br>
         <input required type="password" name="password_confirmation" value="<?php echo $password_confirmation?>" id="password_confirmation">
-        <span class="error-msg hidden">Passwords must match</span>
     </div>
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Start Wishing"></p>
 </form>
@@ -55,11 +53,13 @@ $(document).ready(function(){
         username: {
             required: true,
             minLength: 3,
-            maxLength: 50
+            maxLength: 50,
+            checkUnique: '/api/check-username'
         },
         email: {
             required: true,
-            email: true
+            email: true,
+            checkUnique: '/api/check-email'
         },
         password: {
             required: true,
@@ -68,27 +68,6 @@ $(document).ready(function(){
         password_confirmation: {
             required: true,
             confirmPassword: '#password'
-        }
-    });
-
-    // Keep existing pattern mismatch handling
-    $("input").on("input", function(){
-        if(this.validity.patternMismatch){
-            setTimeout(() => {
-                if(this.validity.patternMismatch){
-                    if($(this).hasClass("price-input")){
-                        $(this).parent().addClass("invalid");
-                    }else{
-                        $(this).addClass("invalid");
-                    }
-                }
-            }, 2500);
-        }else{
-            if($(this).hasClass("price-input")){
-                $(this).parent().removeClass("invalid");
-            }else{
-                $(this).removeClass("invalid");
-            }
         }
     });
 

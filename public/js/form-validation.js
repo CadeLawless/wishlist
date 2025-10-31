@@ -104,6 +104,12 @@ const FormValidator = {
                     errors.push('Passwords do not match.');
                 }
             }
+
+            // AJAX validation for username/email uniqueness
+            if (rules.checkUnique && errors.length === 0) {
+                this.checkUniqueness(field, fieldName, value, rules.checkUnique);
+                return; // Exit early, AJAX will handle displaying results
+            }
         }
 
         // Display errors or clear them
@@ -167,6 +173,32 @@ const FormValidator = {
         field.removeClass('invalid');
         const errorContainer = field.next('.validation-error');
         errorContainer.html('').hide();
+    },
+
+    /**
+     * Check uniqueness via AJAX (username or email)
+     */
+    checkUniqueness: function(field, fieldName, value, endpoint) {
+        const self = this;
+        
+        $.ajax({
+            url: '/wishlist' + endpoint,
+            method: 'POST',
+            data: { [fieldName]: value },
+            dataType: 'json',
+            success: function(response) {
+                if (!response.available) {
+                    const errors = [self.formatFieldName(fieldName) + ' already exists.'];
+                    self.displayErrors(field, errors);
+                } else {
+                    self.displayErrors(field, []);
+                }
+            },
+            error: function() {
+                // Silently fail - don't show error to user for AJAX issues
+                self.displayErrors(field, []);
+            }
+        });
     },
 
     /**
