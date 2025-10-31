@@ -36,6 +36,15 @@ if (isset($flash['error'])) {
 <div class="form-container">
     <h2>Your Profile</h2>
     
+    <!-- Username Display (Read-only) -->
+    <div class="flex form-flex">
+        <div class="large-input">
+            <label for="username_display">Username:<br></label>
+            <input type="text" id="username_display" value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>" disabled style="background-color: var(--background-darker); cursor: not-allowed;" />
+        </div>
+    </div>
+    <br />
+    
     <!-- Name Update Form -->
     <form method="POST" action="">
         <h3>Change Your Name</h3>
