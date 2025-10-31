@@ -32,7 +32,7 @@ Router::get('/forgot-password', [AuthController::class, 'forgotPassword'])->midd
 Router::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('guest');
 Router::get('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest');
 Router::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest');
-Router::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('guest');
+Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
 
 // AJAX validation endpoints
 Router::post('/api/check-username', [AuthController::class, 'checkUsername']);

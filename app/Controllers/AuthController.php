@@ -244,24 +244,40 @@ class AuthController extends Controller
         $key = $this->request->get('key');
 
         if (!$username || !$key) {
-            return $this->redirect('/wishlist/login')->withError('Invalid verification link.');
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
         }
 
         // Get user by username
         $user = User::findByUsernameOrEmail($username);
         
         if (!$user) {
-            return $this->redirect('/wishlist/login')->withError('User not found.');
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
         }
 
-        // Verify the key matches and hasn't expired
+        // Verify the key matches
         if ($user['email_key'] !== $key) {
-            return $this->redirect('/wishlist/login')->withError('Invalid verification link.');
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
         }
 
         // Check if key has expired
         if (isset($user['email_key_expiration']) && strtotime($user['email_key_expiration']) < time()) {
-            return $this->redirect('/wishlist/login')->withError('Verification link has expired. Please request a new one.');
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => true,
+                'notFound' => false
+            ], 'auth');
         }
 
         // Move unverified_email to email field and clear the verification fields
@@ -273,9 +289,17 @@ class AuthController extends Controller
                 'email_key_expiration' => null
             ]);
             
-            return $this->redirect('/wishlist/login')->withSuccess('Email verified successfully! You can now log in.');
+            return $this->view('auth/verify-email', [
+                'success' => true,
+                'expired' => false,
+                'notFound' => false
+            ], 'auth');
         } catch (\Exception $e) {
-            return $this->redirect('/wishlist/login')->withError('Email verification failed. Please try again.');
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => false
+            ], 'auth');
         }
     }
 
@@ -323,9 +347,6 @@ class AuthController extends Controller
         
         $user = $this->auth();
         $data = $this->request->input();
-        
-        // Debug: Log what button was pressed
-        error_log('UpdateProfile called. Data keys: ' . implode(', ', array_keys($data)));
         
         // Handle name update
         if (isset($data['name_submit_button'])) {
