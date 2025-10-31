@@ -77,12 +77,13 @@ if (isset($flash['error'])) {
             </p>
         </div>
         <form method="POST" action="">
+            <input type="hidden" name="new_email_submit_button" value="1" />
             <div class="flex form-flex">
                 <div class="large-input">
                     <label for="new_email">Enter New Email:<br></label>
                     <input required name="email" type="email" id="new_email" inputmode="email" value="" />
                 </div>
-                <p class="large-input"><input type="submit" class="button text" id="new_email_submit_button" name="email_submit_button" value="Update Email"></p>
+                <p class="large-input"><input type="submit" class="button text" id="new_email_submit_button" value="Update Email"></p>
             </div>
         </form>
     <?php else: ?>

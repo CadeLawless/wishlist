@@ -433,6 +433,74 @@ class AuthController extends Controller
             }
         }
         
+        // Handle new email submission (when user already has unverified email)
+        if (isset($data['new_email_submit_button'])) {
+            $errors = $this->userValidator->validateEmailUpdate($data);
+            
+            if ($this->userValidator->hasErrors($errors)) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $currentEmail,
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            // Check if email already exists
+            $existingUsers = User::where('email', '=', $data['email']);
+            $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
+            if ($existingUser && $existingUser['id'] != $user['id']) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $currentEmail,
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>',
+                    'password_error_msg' => ''
+                ]);
+            }
+            
+            try {
+                // Generate email verification key
+                $emailKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::EMAIL_VERIFICATION_HOURS . ' hours'));
+                
+                User::update($user['id'], [
+                    'unverified_email' => $data['email'],
+                    'email_key' => $emailKey,
+                    'email_key_expiration' => $emailKeyExpiration
+                ]);
+                
+                // Send verification email
+                $this->emailService->sendVerificationEmail($data['email'], $user['username']);
+                
+                return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+            } catch (\Exception $e) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', [
+                    'user' => $user,
+                    'name' => $user['name'],
+                    'email' => $data['email'] ?? $currentEmail,
+                    'current_password' => '',
+                    'new_password' => '',
+                    'confirm_password' => '',
+                    'name_error_msg' => '',
+                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>',
+                    'password_error_msg' => ''
+                ]);
+            }
+        }
+        
         // Handle password update
         if (isset($data['password_submit_button'])) {
             $errors = $this->userValidator->validatePasswordChange($data);
