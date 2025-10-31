@@ -22,7 +22,16 @@ const FormValidator = {
      */
     init: function(formSelector, validationRules) {
         const form = $(formSelector);
-        if (!form.length) return;
+        
+        if (!form.length) {
+            return;
+        }
+
+        // Disable HTML5 validation to use our custom validation
+        form.attr('novalidate', 'novalidate');
+
+        // Store validation rules on the form for later use
+        form.data('validationRules', validationRules);
 
         // Set up validation for each field
         Object.keys(validationRules).forEach(fieldName => {
@@ -46,6 +55,40 @@ const FormValidator = {
             field.on('blur', () => {
                 this.validateField(field, fieldName, rules);
             });
+        });
+
+        // Prevent form submission if there are validation errors
+        const self = this;
+        let isSubmitting = false; // Flag to prevent recursive validation
+        
+        form.on('submit', function(e) {
+            // If already validated and submitting, allow it through
+            if (isSubmitting) {
+                return true;
+            }
+            
+            // Prevent default submission
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            
+            const isValid = self.validateFormBeforeSubmit($(this), validationRules);
+            
+            if (!isValid) {
+                // Scroll to first error
+                const firstError = $(this).find('.invalid').first();
+                if (firstError.length) {
+                    firstError[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+                
+                return false;
+            }
+            
+            // Form is valid - submit it
+            isSubmitting = true;
+            
+            // Submit the form using native submit (bypasses jQuery event handlers)
+            this.submit();
         });
     },
 
@@ -233,6 +276,84 @@ const FormValidator = {
                 isValid = false;
             }
         });
+
+        return isValid;
+    },
+
+    /**
+     * Validate form before submission (synchronous check)
+     */
+    validateFormBeforeSubmit: function(form, validationRules) {
+        let isValid = true;
+
+        // First, validate all fields synchronously (non-AJAX validations)
+        Object.keys(validationRules).forEach(fieldName => {
+            const field = form.find(`[name="${fieldName}"]`);
+            if (!field.length) return;
+
+            const rules = validationRules[fieldName];
+            const value = field.val().trim();
+            const errors = [];
+
+            // Check if field already has an invalid state (from AJAX validation)
+            const hadInvalidClass = field.hasClass('invalid');
+            const existingErrors = field.next('.validation-error').html();
+
+            // Required validation
+            if (rules.required && !value) {
+                errors.push(this.formatFieldName(fieldName) + ' is required.');
+            }
+
+            // Only run other validations if field has a value
+            if (value) {
+                // Length validation
+                if (rules.minLength && value.length < rules.minLength) {
+                    errors.push(this.formatFieldName(fieldName) + ` must be at least ${rules.minLength} characters.`);
+                }
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    errors.push(this.formatFieldName(fieldName) + ` must not exceed ${rules.maxLength} characters.`);
+                }
+
+                // Email validation
+                if (rules.email && !this.isValidEmail(value)) {
+                    errors.push('Please enter a valid email address.');
+                }
+
+                // Password validation
+                if (rules.password) {
+                    const passwordErrors = this.validatePassword(value);
+                    errors.push(...passwordErrors);
+                }
+
+                // Confirm password match
+                if (rules.confirmPassword) {
+                    const originalPassword = $(rules.confirmPassword).val();
+                    if (value !== originalPassword) {
+                        errors.push('Passwords do not match.');
+                    }
+                }
+            }
+
+            // Only display new errors if we have some, or if there were no existing AJAX errors
+            if (errors.length > 0) {
+                this.displayErrors(field, errors);
+            } else if (hadInvalidClass && existingErrors) {
+                // Preserve AJAX validation error
+                // Don't call displayErrors as it would clear the existing error
+            } else {
+                this.displayErrors(field, errors);
+            }
+
+            // Check if field has errors (either new or existing)
+            if (errors.length > 0 || field.hasClass('invalid')) {
+                isValid = false;
+            }
+        });
+
+        // Also check if any fields currently have the invalid class (from AJAX validation)
+        if (form.find('.invalid').length > 0) {
+            isValid = false;
+        }
 
         return isValid;
     }
