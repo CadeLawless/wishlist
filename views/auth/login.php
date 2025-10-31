@@ -1,3 +1,38 @@
+<?php
+// Display flash messages
+if (isset($flash['success'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
+if (isset($flash['error'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+?>
+
 <p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
 <form id="login-form" style="max-width: 350px;" method="POST" action="">
     <?php if(isset($error_msg)) echo $error_msg; ?>
