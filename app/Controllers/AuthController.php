@@ -234,8 +234,8 @@ class AuthController extends Controller
                 return $this->view('auth/reset-password', [
                     'key' => $data['key'] ?? '',
                     'email' => $data['email'] ?? '',
-                    'password' => '',
-                    'password_confirmation' => '',
+                    'password' => $data['password'] ?? '',
+                    'password_confirmation' => $data['password_confirmation'] ?? '',
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
                 ], 'auth');
             }

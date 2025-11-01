@@ -59,7 +59,7 @@ if (isset($flash['error'])) {
         <div class="large-input">
             <label for="password">New Password: </label><br>
             <div class="password-input">
-                <input required type="password" name="password" id="password" value="" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
+                <input required type="password" name="password" id="password" value="<?php echo htmlspecialchars($password ?? ''); ?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
                 <span class="password-view hide-password hidden"><?php require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); ?></span>
                 <span class="password-view view-password"><?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?></span>
             </div>
@@ -67,7 +67,7 @@ if (isset($flash['error'])) {
         
         <div class="large-input">
             <label for="password_confirmation">Confirm New Password: </label><br>
-            <input required type="password" name="password_confirmation" value="" id="password_confirmation">
+            <input required type="password" name="password_confirmation" value="<?php echo htmlspecialchars($password_confirmation ?? ''); ?>" id="password_confirmation">
         </div>
         
         <p class="large-input center"><input type="submit" class="button text" id="password_submit_button" name="password_submit_button" value="Change Password"></p>
