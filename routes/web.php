@@ -37,6 +37,7 @@ Router::get('/verify-email', [AuthController::class, 'verifyEmail']);
 // AJAX validation endpoints
 Router::post('/api/check-username', [AuthController::class, 'checkUsername']);
 Router::post('/api/check-email', [AuthController::class, 'checkEmail']);
+Router::post('/api/resend-verification', [AuthController::class, 'resendVerification']);
 
 // Logout
 Router::get('/logout', [AuthController::class, 'logout'])->middleware('auth');

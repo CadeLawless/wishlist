@@ -5,7 +5,11 @@
         <p><a class='button primary' href='/wishlist/'>Go home</a></p>
     <?php elseif ($expired): ?>
         <p>Uh oh! This email verification link has expired. Try again!</p>
-        <p><a href='/wishlist/profile' class='button primary'>Go to your profile</a></p>
+        <form method="POST" action="/wishlist/api/resend-verification">
+            <input type="hidden" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" />
+            <p><button type="submit" class='button primary'>Resend Verification Email</button></p>
+        </form>
+        <p><a href='/wishlist/profile' class='button'>Go to your profile</a></p>
     <?php elseif ($notFound): ?>
         <p>Uh oh! No account found for this email verification.</p>
         <p><a href='/wishlist/profile' class='button primary'>Go to your profile</a></p>

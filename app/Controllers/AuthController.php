@@ -185,6 +185,15 @@ class AuthController extends Controller
             $user = User::findByUsernameOrEmail($data['identifier']);
             
             if ($user) {
+                // Check if user has unverified email (no verified email yet)
+                if (empty($user['email']) && !empty($user['unverified_email'])) {
+                    // Send verification email instead of reset link
+                    $this->emailService->sendVerificationEmail($user['unverified_email'], $user['username']);
+                    
+                    // Return with special message about email verification
+                    return $this->redirect('/wishlist/login')->withSuccess('Your email address needs to be verified first. A verification email has been sent. Please check your inbox and verify your email before resetting your password.');
+                }
+                
                 // Generate reset password key
                 $resetPasswordKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
                 $resetPasswordExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
@@ -323,7 +332,8 @@ class AuthController extends Controller
             return $this->view('auth/verify-email', [
                 'success' => false,
                 'expired' => true,
-                'notFound' => false
+                'notFound' => false,
+                'username' => $username
             ], 'auth');
         }
 
@@ -347,6 +357,36 @@ class AuthController extends Controller
                 'expired' => false,
                 'notFound' => false
             ], 'auth');
+        }
+    }
+
+    public function resendVerification(): Response
+    {
+        $username = $this->request->input('username');
+        
+        if (!$username) {
+            return $this->redirect('/wishlist/login')->withError('Invalid request.');
+        }
+        
+        $user = User::findByUsernameOrEmail($username);
+        
+        if (!$user) {
+            return $this->redirect('/wishlist/login')->withError('User not found.');
+        }
+        
+        // Get the email to send to
+        $emailToUse = $user['email'] ?? $user['unverified_email'] ?? '';
+        
+        if (empty($emailToUse)) {
+            return $this->redirect('/wishlist/login')->withError('No email address found.');
+        }
+        
+        // Send verification email
+        try {
+            $this->emailService->sendVerificationEmail($emailToUse, $username);
+            return $this->redirect('/wishlist/login')->withSuccess('Verification email resent! Please check your inbox.');
+        } catch (\Exception $e) {
+            return $this->redirect('/wishlist/login')->withError('Failed to resend verification email. Please try again.');
         }
     }
 
