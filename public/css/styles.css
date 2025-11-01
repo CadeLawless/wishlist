@@ -36,6 +36,8 @@ body {
     --bar-text-placeholder: #c9c9c9;
     --contrast: white;
     --input-background: #ffffffc4;
+    --border-invalid: red;
+    --text-invalid: #d32f2f;
 }
 body.dark {
     --text: #d1d4d6;
@@ -59,6 +61,8 @@ body.dark {
     --bar-text-placeholder: #c9c9c9;
     --contrast: black;
     --input-background: #3a3a3ac2;
+    --border-invalid: #ffa2a2;
+    --text-invalid: #ffb4b4;
 }
 /* general css */
 * {
@@ -1022,8 +1026,8 @@ textarea {
 
 /* input validation error css */
 .invalid {
-    outline: 1px solid red;
-    border-color: red !important;
+    outline: 1px solid var(--border-invalid);
+    border-color: var(--border-invalid) !important;
 }
 .error-msg {
     color: var(--text);
@@ -1045,7 +1049,7 @@ textarea {
 }
 .validation-error .error-item {
     display: block;
-    color: #d32f2f;
+    color: var(--text-invalid);
     text-align: left;
     margin-bottom: 4px;
 }
