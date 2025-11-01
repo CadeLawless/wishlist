@@ -175,67 +175,122 @@ class AuthController extends Controller
         ], 'auth');
     }
 
-    public function showForgotPassword(): Response
+    public function forgotPassword(): Response
     {
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            $errors = $this->userValidator->validatePasswordReset($data);
 
-        $data = [
-            'email' => $this->request->input('email', '')
-        ];
+            if ($this->userValidator->hasErrors($errors)) {
+                return $this->view('auth/forgot-password', [
+                    'email' => $data['email'] ?? '',
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
 
-        return $this->view('auth/forgot-password', $data, 'auth');
-    }
-
-    public function sendResetLink(): Response
-    {
-
-        $data = $this->request->input();
-        $errors = $this->userValidator->validatePasswordReset($data);
-
-        if ($this->userValidator->hasErrors($errors)) {
-            return $this->view('auth/forgot-password', [
-                'email' => $data['email'] ?? '',
-                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-            ], 'auth');
+            // Check if email exists
+            $user = User::findByUsernameOrEmail($data['email']);
+            
+            if ($user) {
+                // Generate reset password key
+                $resetPasswordKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $resetPasswordExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                
+                // Update user with reset key
+                User::update($user['id'], [
+                    'reset_password_key' => $resetPasswordKey,
+                    'reset_password_expiration' => $resetPasswordExpiration
+                ]);
+                
+                // Send password reset email
+                $this->emailService->sendPasswordResetEmailWithUsername($user['email'], $user['username'], $resetPasswordKey);
+            }
+            
+            // Always show success message for security (don't reveal if email exists)
+            return $this->redirect('/wishlist/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
         }
 
-        // In a real implementation, you would generate a reset token and send email
-        // For now, just show success message
-        return $this->redirect('/wishlist/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
-    }
-
-    public function showResetPassword(): Response
-    {
-
-        $token = $this->request->get('token');
-        if (!$token) {
-            return $this->redirect('/wishlist/login')->withError('Invalid reset token.');
-        }
-
-        return $this->view('auth/reset-password', [
-            'token' => $token,
-            'password' => '',
-            'password_confirmation' => ''
+        // Show forgot password form for GET requests
+        return $this->view('auth/forgot-password', [
+            'email' => '',
+            'error_msg' => ''
         ], 'auth');
     }
 
     public function resetPassword(): Response
     {
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            $errors = $this->userValidator->validateNewPassword($data);
 
-        $data = $this->request->input();
-        $errors = $this->userValidator->validateNewPassword($data);
+            if ($this->userValidator->hasErrors($errors)) {
+                return $this->view('auth/reset-password', [
+                    'key' => $data['key'] ?? '',
+                    'email' => $data['email'] ?? '',
+                    'password' => '',
+                    'password_confirmation' => '',
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
 
-        if ($this->userValidator->hasErrors($errors)) {
-            return $this->view('auth/reset-password', [
-                'token' => $data['token'] ?? '',
-                'password' => '',
-                'password_confirmation' => '',
-                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+            // Validate the reset key and expiration
+            $user = User::findByUsernameOrEmail($data['email']);
+            
+            if (!$user || $user['reset_password_key'] !== $data['key']) {
+                return $this->redirect('/wishlist/login')->withError('Invalid reset link.');
+            }
+            
+            if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
+                return $this->redirect('/wishlist/login')->withError('Reset link has expired. Please request a new one.');
+            }
+            
+            // Update password and clear reset fields
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            User::update($user['id'], [
+                'password' => $hashedPassword,
+                'reset_password_key' => null,
+                'reset_password_expiration' => null
+            ]);
+            
+            return $this->redirect('/wishlist/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+        }
+
+        // Show reset password form for GET requests
+        $key = $this->request->get('key');
+        $email = $this->request->get('email');
+        
+        if (!$key || !$email) {
+            return $this->redirect('/wishlist/login')->withError('Invalid reset link.');
+        }
+
+        // Validate the reset key and expiration
+        $user = User::findByUsernameOrEmail($email);
+        
+        if (!$user || $user['reset_password_key'] !== $key) {
+            return $this->view('auth/reset-password-error', [
+                'error' => 'Invalid reset link.',
+                'link_text' => 'Go to Login',
+                'link_url' => '/wishlist/login'
+            ], 'auth');
+        }
+        
+        if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
+            return $this->view('auth/reset-password-error', [
+                'error' => 'This password reset link has expired. Try again!',
+                'link_text' => 'Go to Login',
+                'link_url' => '/wishlist/login'
             ], 'auth');
         }
 
-        // In a real implementation, you would validate the token and update password
-        // For now, just show success message
-        return $this->redirect('/wishlist/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+        return $this->view('auth/reset-password', [
+            'key' => $key,
+            'email' => $email,
+            'password' => '',
+            'password_confirmation' => '',
+            'error_msg' => ''
+        ], 'auth');
     }
 
     public function verifyEmail(): Response

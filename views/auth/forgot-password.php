@@ -39,13 +39,13 @@ if (isset($flash['error'])) {
     <p><a href="/wishlist/login">Back to Login</a></p>
     
     <h2 class="center">Forgot Password?</h2>
-    <p class="large-input center">Enter your email below. If the email is associated with your account, you will receive an email with a password reset link.</p>
+    <p class="large-input center">Enter your email or username below. If your account is found, you will receive an email with a password reset link.</p>
     
     <?php echo $error_msg ?? ''; ?>
     
     <div class="large-input center" style="max-width: 350px; margin: auto;">
-        <label for="email">Email: </label><br>
-        <input required type="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" name="email" id="email">
+        <label for="identifier">Email or Username: </label><br>
+        <input required type="text" value="<?php echo htmlspecialchars($identifier ?? ''); ?>" name="identifier" id="identifier" placeholder="Enter email or username">
     </div>
     
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Send Email"></p>
@@ -55,9 +55,8 @@ if (isset($flash['error'])) {
 <script>
 $(document).ready(function() {
     FormValidator.init('#forgot-password-form', {
-        email: {
-            required: true,
-            email: true
+        identifier: {
+            required: true
         }
     });
 });
