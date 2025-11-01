@@ -62,17 +62,15 @@ if (isset($flash['error'])) {
                 <input required type="password" name="password" id="password" value="" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
                 <span class="password-view hide-password hidden"><?php require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); ?></span>
                 <span class="password-view view-password"><?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?></span>
-                <span class="error-msg hidden">Please match the requirements</span>
             </div>
         </div>
         
         <div class="large-input">
             <label for="password_confirmation">Confirm New Password: </label><br>
             <input required type="password" name="password_confirmation" value="" id="password_confirmation">
-            <span class="error-msg hidden">Passwords must match</span>
         </div>
         
-        <p class="large-input"><input type="submit" class="button text" id="password_submit_button" name="password_submit_button" value="Change Password"></p>
+        <p class="large-input center"><input type="submit" class="button text" id="password_submit_button" name="password_submit_button" value="Change Password"></p>
     </div>
 </form>
 
