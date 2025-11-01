@@ -131,19 +131,6 @@ class AuthController extends Controller
                 ], 'auth');
             }
 
-            // Check if username or email already exists
-            $existingUser = $this->authService->getCurrentUser();
-            if ($existingUser) {
-                return $this->view('auth/register', [
-                    'username' => $data['username'] ?? '',
-                    'name' => $data['name'] ?? '',
-                    'email' => $data['email'] ?? '',
-                    'password' => '',
-                    'password_confirmation' => '',
-                    'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Username or email already exists</li></ul></div>'
-                ], 'auth');
-            }
-
             if ($this->authService->register($data)) {
                 // Set up session and cookies
                 SessionManager::setupRegistrationSession($data);
