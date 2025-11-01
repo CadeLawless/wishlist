@@ -410,23 +410,58 @@ class AuthController extends Controller
         // Use unverified_email if email is not set (newly registered users)
         $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
         
-        $data = [
+        $data = $this->buildProfileViewData(
+            $user,
+            name: $this->request->input('name', $user['name']),
+            email: $this->request->input('email', $currentEmail),
+            currentPassword: $this->request->input('current_password', ''),
+            newPassword: $this->request->input('new_password', ''),
+            confirmPassword: $this->request->input('confirm_password', '')
+        );
+
+        return $this->view('auth/profile', $data);
+    }
+
+    /**
+     * Build profile view data with consistent structure
+     * 
+     * @param array $user Current user data
+     * @param string $name Name value
+     * @param string $email Email value
+     * @param string $currentPassword Current password value
+     * @param string $newPassword New password value
+     * @param string $confirmPassword Confirm password value
+     * @param string $nameErrorMsg Name error message
+     * @param string $emailErrorMsg Email error message
+     * @param string $passwordErrorMsg Password error message
+     * @return array Complete profile view data
+     */
+    private function buildProfileViewData(
+        array $user,
+        string $name = '',
+        string $email = '',
+        string $currentPassword = '',
+        string $newPassword = '',
+        string $confirmPassword = '',
+        string $nameErrorMsg = '',
+        string $emailErrorMsg = '',
+        string $passwordErrorMsg = ''
+    ): array {
+        return [
             'user' => $user,
-            'name' => $this->request->input('name', $user['name']),
-            'email' => $this->request->input('email', $currentEmail),
-            'current_password' => $this->request->input('current_password', ''),
-            'new_password' => $this->request->input('new_password', ''),
-            'confirm_password' => $this->request->input('confirm_password', ''),
-            'name_error_msg' => '',
-            'email_error_msg' => '',
-            'password_error_msg' => '',
+            'name' => $name ?: ($user['name'] ?? ''),
+            'email' => $email,
+            'current_password' => $currentPassword,
+            'new_password' => $newPassword,
+            'confirm_password' => $confirmPassword,
+            'name_error_msg' => $nameErrorMsg,
+            'email_error_msg' => $emailErrorMsg,
+            'password_error_msg' => $passwordErrorMsg,
             'customStyles' =>
                 '.form-flex {
                     max-width: unset;
                 }'
         ];
-
-        return $this->view('auth/profile', $data);
     }
 
     public function updateProfile(): Response
@@ -441,17 +476,12 @@ class AuthController extends Controller
             
             if ($this->userValidator->hasErrors($errors)) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $data['name'] ?? $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
-                    'email_error_msg' => '',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    name: $data['name'] ?? $user['name'],
+                    email: $currentEmail,
+                    nameErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             try {
@@ -459,17 +489,12 @@ class AuthController extends Controller
                 return $this->redirect('/wishlist/profile')->withSuccess('Name updated successfully!');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $data['name'] ?? $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '<div class="submit-error"><strong>Name could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your name</li></ul></div>',
-                    'email_error_msg' => '',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    name: $data['name'] ?? $user['name'],
+                    email: $currentEmail,
+                    nameErrorMsg: '<div class="submit-error"><strong>Name could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your name</li></ul></div>'
+                ));
             }
         }
         
@@ -479,17 +504,11 @@ class AuthController extends Controller
             
             if ($this->userValidator->hasErrors($errors)) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             // Check if email already exists
@@ -497,17 +516,11 @@ class AuthController extends Controller
             $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
             if ($existingUser && $existingUser['id'] != $user['id']) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>'
+                ));
             }
             
             try {
@@ -527,17 +540,11 @@ class AuthController extends Controller
                 return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>'
+                ));
             }
         }
         
@@ -547,17 +554,11 @@ class AuthController extends Controller
             
             if ($this->userValidator->hasErrors($errors)) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             // Check if email already exists
@@ -565,17 +566,11 @@ class AuthController extends Controller
             $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
             if ($existingUser && $existingUser['id'] != $user['id']) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>'
+                ));
             }
             
             try {
@@ -595,17 +590,11 @@ class AuthController extends Controller
                 return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>'
+                ));
             }
         }
         
@@ -620,17 +609,14 @@ class AuthController extends Controller
             
             if ($this->userValidator->hasErrors($errors)) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => $data['current_password'] ?? '',
-                    'new_password' => $data['new_password'] ?? '',
-                    'confirm_password' => $data['confirm_password'] ?? '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    currentPassword: $data['current_password'] ?? '',
+                    newPassword: $data['new_password'] ?? '',
+                    confirmPassword: $data['confirm_password'] ?? '',
+                    passwordErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             try {
@@ -640,17 +626,14 @@ class AuthController extends Controller
                 return $this->redirect('/wishlist/profile')->withSuccess('Password changed successfully!');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => $data['current_password'] ?? '',
-                    'new_password' => $data['new_password'] ?? '',
-                    'confirm_password' => $data['confirm_password'] ?? '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => '<div class="submit-error"><strong>Password could not be changed due to the following errors:</strong><ul><li>Something went wrong while trying to change your password</li></ul></div>'
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    currentPassword: $data['current_password'] ?? '',
+                    newPassword: $data['new_password'] ?? '',
+                    confirmPassword: $data['confirm_password'] ?? '',
+                    passwordErrorMsg: '<div class="submit-error"><strong>Password could not be changed due to the following errors:</strong><ul><li>Something went wrong while trying to change your password</li></ul></div>'
+                ));
             }
         }
         
@@ -677,17 +660,11 @@ class AuthController extends Controller
             $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
             
             if (empty($currentEmail)) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<p>In order for you to reset a password that you don\'t know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>',
-                    'password_error_msg' => ''
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    emailErrorMsg: '<p>In order for you to reset a password that you don\'t know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>'
+                ));
             }
             
             try {
@@ -705,17 +682,11 @@ class AuthController extends Controller
                 
                 return $this->redirect('/wishlist/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $currentEmail,
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => '<div class="submit-error"><strong>Something went wrong while trying to send the reset email</strong></div>'
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    passwordErrorMsg: '<div class="submit-error"><strong>Something went wrong while trying to send the reset email</strong></div>'
+                ));
             }
         }
         
