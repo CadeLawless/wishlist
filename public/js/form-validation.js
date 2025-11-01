@@ -46,7 +46,12 @@ const FormValidator = {
             }
 
             // Set up event listeners
-            field.on('input', () => {
+            const fieldType = field.prop('tagName').toLowerCase();
+            
+            // Use 'input' for text inputs, 'change' for selects
+            const inputEvent = fieldType === 'select' ? 'change' : 'input';
+            
+            field.on(inputEvent, () => {
                 // Clear error immediately when user starts typing
                 this.clearErrors(field);
                 this.debounceValidation(field, fieldName, rules);

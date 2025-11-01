@@ -1,6 +1,40 @@
 <?php
 use App\Helpers\ThemePopupHelper;
 ?>
+<?php
+// Display flash messages
+if (isset($flash['success'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
+if (isset($flash['error'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+?>
 <div>
     <div class="form-container">
         <h1>New Wish List</h1>
@@ -54,9 +88,23 @@ use App\Helpers\ThemePopupHelper;
     }
 </style>
 
+<script src="/wishlist/public/js/form-validation.js"></script>
 <script src="/wishlist/public/js/popups.js"></script>
 <script src="/wishlist/public/js/choose-theme.js"></script>
 <script>
+$(document).ready(function() {
+    FormValidator.init('form', {
+        wishlist_type: {
+            required: true
+        },
+        wishlist_name: {
+            required: true,
+            minLength: 1,
+            maxLength: 100
+        }
+    });
+});
+
     let name_input = document.querySelector("#wishlist_name");
     name_input.addEventListener("focus", function(){
         this.select();
