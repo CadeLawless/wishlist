@@ -43,8 +43,8 @@ class EmailService
 
     public function sendPasswordResetEmailWithUsername(string $email, string $username, string $resetToken): bool
     {
-        $subject = 'Reset Your Password';
-        $resetLink = $this->generateResetLink($resetToken);
+        $subject = 'Reset Your Password for Wish List';
+        $resetLink = $this->generateResetLinkWithEmail($resetToken, $email);
         
         $message = $this->getPasswordResetEmailTemplate($username, $resetLink);
         
@@ -103,6 +103,12 @@ class EmailService
     {
         $baseUrl = \App\Core\Config::get('app.url');
         return $baseUrl . '/reset-password?token=' . $token;
+    }
+    
+    private function generateResetLinkWithEmail(string $key, string $email): string
+    {
+        $baseUrl = \App\Core\Config::get('app.url');
+        return $baseUrl . '/reset-password?key=' . $key . '&email=' . urlencode($email);
     }
 
     private function generateToken(string $data): string

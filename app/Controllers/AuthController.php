@@ -180,17 +180,22 @@ class AuthController extends Controller
         // Only process form submission on POST requests
         if ($this->request->isPost()) {
             $data = $this->request->input();
-            $errors = $this->userValidator->validatePasswordReset($data);
-
+            
+            // Validate that identifier field is not empty
+            $errors = [];
+            if (empty($data['identifier'])) {
+                $errors['identifier'][] = 'Email or username is required.';
+            }
+            
             if ($this->userValidator->hasErrors($errors)) {
                 return $this->view('auth/forgot-password', [
-                    'email' => $data['email'] ?? '',
+                    'identifier' => $data['identifier'] ?? '',
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
                 ], 'auth');
             }
 
-            // Check if email exists
-            $user = User::findByUsernameOrEmail($data['email']);
+            // Check if email or username exists
+            $user = User::findByUsernameOrEmail($data['identifier']);
             
             if ($user) {
                 // Generate reset password key
@@ -207,13 +212,13 @@ class AuthController extends Controller
                 $this->emailService->sendPasswordResetEmailWithUsername($user['email'], $user['username'], $resetPasswordKey);
             }
             
-            // Always show success message for security (don't reveal if email exists)
-            return $this->redirect('/wishlist/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
+            // Always show success message for security (don't reveal if account exists)
+            return $this->redirect('/wishlist/login')->withSuccess('If an account with that email or username exists, a password reset link has been sent.');
         }
 
         // Show forgot password form for GET requests
         return $this->view('auth/forgot-password', [
-            'email' => '',
+            'identifier' => '',
             'error_msg' => ''
         ], 'auth');
     }
