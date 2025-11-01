@@ -200,7 +200,7 @@ class AuthController extends Controller
             if ($user) {
                 // Generate reset password key
                 $resetPasswordKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
-                $resetPasswordExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                $resetPasswordExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 
                 // Update user with reset key
                 User::update($user['id'], [
