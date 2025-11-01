@@ -47,6 +47,7 @@ if (isset($flash['error'])) {
     
     <!-- Name Update Form -->
     <form method="POST" action="">
+        <input type="hidden" name="name_submit_button" value="1" />
         <h3>Change Your Name</h3>
         <?php echo $name_error_msg ?? ""; ?>
         <div class="flex form-flex">
@@ -54,7 +55,7 @@ if (isset($flash['error'])) {
                 <label for="name">Name:<br></label>
                 <input required type="text" name="name" id="name" autocapitalize="words" value="<?php echo htmlspecialchars($name ?? ''); ?>" maxlength="50" />
             </div>
-            <p class="large-input"><input type="submit" class="button text" id="name_submit_button" name="name_submit_button" value="Change Name"></p>
+            <p class="large-input"><input type="submit" class="button text" id="name_submit_button" value="Change Name"></p>
         </div>
     </form>
     <br />
@@ -78,7 +79,7 @@ if (isset($flash['error'])) {
         </div>
         <form method="POST" action="">
             <input type="hidden" name="new_email_submit_button" value="1" />
-            <div class="flex form-flex">
+            <div class="flex form-flex"></div>
                 <div class="large-input">
                     <label for="new_email">Enter New Email:<br></label>
                     <input required name="email" type="email" id="new_email" inputmode="email" value="" />
@@ -89,6 +90,7 @@ if (isset($flash['error'])) {
     <?php else: ?>
         <!-- Normal Email Form -->
         <form method="POST" action="">
+            <input type="hidden" name="email_submit_button" value="1" />
             <h3>Change Your Email</h3>
             <?php echo $email_error_msg ?? ""; ?>
             <div class="flex form-flex">
@@ -99,7 +101,7 @@ if (isset($flash['error'])) {
                     <label for="email">Email:<br></label>
                     <input required name="email" type="email" id="email" inputmode="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" />
                 </div>
-                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="<?php echo empty($user['email']) ? 'Set Up' : 'Change'; ?> Email"></p>
+                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" value="<?php echo empty($user['email']) ? 'Set Up' : 'Change'; ?> Email"></p>
             </div>
         </form>
     <?php endif; ?>
@@ -107,6 +109,7 @@ if (isset($flash['error'])) {
 
     <!-- Password Change Form -->
     <form method="POST" action="">
+        <input type="hidden" name="password_submit_button" value="1" />
         <h3>Change Your Password</h3>
         <?php echo $password_error_msg ?? ""; ?>
         <div class="flex form-flex">
@@ -145,14 +148,14 @@ if (isset($flash['error'])) {
                 <span class="error-msg hidden">Passwords must match</span>
             </div>
 
-            <p class="large-input"><input type="submit" class="button text" id="password_submit_button" name="password_submit_button" value="Change Password"></p>
+            <p class="large-input"><input type="submit" class="button text" id="password_submit_button" value="Change Password"></p>
         </div>
     </form>
     <br />
 
     <!-- Forgot Password Form -->
     <h3>Forgot Your Password?</h3>
-    <?php if (empty($user['email']) && empty($user['unverified_email'])): ?>
+    <?php if (empty($user['email'])): ?>
         <p>In order for you to reset a password that you don't know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>
     <?php else: ?>
         <form method='POST' action=''>
