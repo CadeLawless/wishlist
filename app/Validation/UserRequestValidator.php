@@ -162,18 +162,23 @@ class UserRequestValidator extends BaseValidator
     {
         $errors = [];
         
-        // Required fields
-        $requiredErrors = $this->validateRequired($data, ['password', 'confirm_password']);
+        // Required fields - check for both naming conventions
+        $confirmField = isset($data['password_confirmation']) ? 'password_confirmation' : 'confirm_password';
+        $requiredFields = ['password', $confirmField];
+        $requiredErrors = $this->validateRequired($data, $requiredFields);
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Password validation
         $passwordErrors = $this->validatePassword($data);
         $errors = $this->mergeErrors($errors, $passwordErrors);
         
-        // Confirm password match
-        if (!empty($data['password']) && !empty($data['confirm_password'])) {
-            if ($data['password'] !== $data['confirm_password']) {
-                $errors['confirm_password'][] = 'Passwords do not match.';
+        // Confirm password match - check for both naming conventions
+        $passwordValue = $data['password'] ?? '';
+        $confirmValue = $data['password_confirmation'] ?? $data['confirm_password'] ?? '';
+        
+        if (!empty($passwordValue) && !empty($confirmValue)) {
+            if ($passwordValue !== $confirmValue) {
+                $errors[$confirmField][] = 'Passwords do not match.';
             }
         }
         
