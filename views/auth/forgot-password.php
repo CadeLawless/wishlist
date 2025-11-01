@@ -35,7 +35,7 @@ if (isset($flash['error'])) {
 
 <p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
 
-<form id="forgot-password-form" style="max-width: 500px;" method="POST" action="">
+<form id="login-form" style="max-width: 500px;" method="POST" action="">
     <p><a href="/wishlist/login">Back to Login</a></p>
     
     <h2 class="center">Forgot Password?</h2>
@@ -54,7 +54,7 @@ if (isset($flash['error'])) {
 <script src="/wishlist/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function() {
-    FormValidator.init('#forgot-password-form', {
+    FormValidator.init('#login-form', {
         identifier: {
             required: true
         }
