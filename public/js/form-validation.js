@@ -116,7 +116,7 @@ const FormValidator = {
      * Validate a single field
      */
     validateField: function(field, fieldName, rules) {
-        const value = field.val().trim();
+        const value = field.val() ? field.val().trim() : '';
         const errors = [];
 
         // Required validation
@@ -297,7 +297,7 @@ const FormValidator = {
             if (!field.length) return;
 
             const rules = validationRules[fieldName];
-            const value = field.val().trim();
+            const value = field.val() ? field.val().trim() : '';
             const errors = [];
 
             // Check if field already has an invalid state (from AJAX validation)
