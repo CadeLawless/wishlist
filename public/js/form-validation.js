@@ -74,7 +74,6 @@ const FormValidator = {
             
             // Prevent default submission
             e.preventDefault();
-            e.stopImmediatePropagation();
             
             const isValid = self.validateFormBeforeSubmit($(this), validationRules);
             
