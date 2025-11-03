@@ -17,6 +17,37 @@ $(document).ready(function() {
     const contentSelector = $('.wishlist-grid').length ? '.wishlist-grid' : '.items-list.main';
     const urlHash = contentSelector === '.items-list.main' ? '#paginate-top' : '';
     
+    // Function to build URL with preserved parameters
+    function buildUrlWithParams(pageNumber) {
+        const searchParams = new URLSearchParams(window.location.search);
+        
+        // Build URL with base URL and pagination
+        let url = paginationState.baseUrl + '?pageno=' + pageNumber;
+        
+        // Preserve existing URL parameters (id, key, etc.)
+        if (searchParams.has('id')) {
+            url += '&id=' + searchParams.get('id');
+        }
+        if (searchParams.has('key')) {
+            url += '&key=' + searchParams.get('key');
+        }
+        
+        // Add hash if needed
+        if (urlHash) {
+            url += urlHash;
+        }
+        
+        return url;
+    }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener("popstate", function() {
+        window.location.reload();
+    });
+    
+    // Initialize history state on page load
+    window.history.pushState({}, "", window.location.href);
+    
     // Expose state management globally
     window.Pagination = {
         updateState: function(current, total) {
@@ -87,9 +118,9 @@ $(document).ready(function() {
                             }
                         });
                         
-                        // Update URL without page refresh
-                        const newUrl = paginationState.baseUrl + "?pageno=" + data.current + urlHash;
-                        history.pushState(null, null, newUrl);
+                        // Update URL without page refresh, preserving existing parameters
+                        const newUrl = buildUrlWithParams(data.current);
+                        history.replaceState(null, null, newUrl);
                         
                         // Update the pagination variables for next pagination
                         paginationState.currentPage = data.current;
