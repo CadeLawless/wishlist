@@ -59,12 +59,10 @@ if (isset($flash['error'])) {
     <!-- Bottom Pagination controls -->
     <?php 
     $position = 'bottom';
+    $total_count = count($all_wishlists);
+    $item_label = 'wishlists';
     include __DIR__ . '/../components/pagination-controls.php'; 
     ?>
-    
-    <?php if(count($all_wishlists) > 0): ?>
-    <div class="center count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_wishlists)); ?> of <?php echo count($all_wishlists); ?> wishlists</div>
-    <?php endif; ?>
 <?php endif; ?>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>

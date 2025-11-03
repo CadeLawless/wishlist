@@ -365,11 +365,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                     
                             <!-- Pagination controls -->
-                            <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
-                            
-                            <?php if(count($all_items) > 0): ?>
-                            <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
-                            <?php endif; ?>
+                            <?php 
+                            $position = 'bottom';
+                            $total_count = count($all_items);
+                            $item_label = 'items';
+                            include __DIR__ . '/../components/pagination-controls.php'; 
+                            ?>
                 </div>
             </div>
 

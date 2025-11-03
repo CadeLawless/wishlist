@@ -69,9 +69,12 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
         </div>
         
         <!-- Pagination controls -->
-        <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
-        
-        <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
+        <?php 
+        $position = 'bottom';
+        $total_count = count($all_items);
+        $item_label = 'items';
+        include __DIR__ . '/../components/pagination-controls.php'; 
+        ?>
     <?php endif; ?>
 </div>
 

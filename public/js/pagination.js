@@ -95,7 +95,8 @@ $(document).ready(function() {
                         // Update pagination controls
                         $('.page-number').text(data.current);
                         $('.last-page').text(data.total);
-                        $('.count-showing').text(data.paginationInfo);
+                        // Update count-showing if it exists (inside bottom paginate-container)
+                        $('.paginate-container.bottom .count-showing, .count-showing').text(data.paginationInfo);
                         
                         // Update arrow states based on new page
                         const totalPages = parseInt(data.total);
