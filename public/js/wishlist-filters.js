@@ -58,8 +58,8 @@ $(document).ready(function() {
                     history.pushState(null, null, newUrl);
                     
                     // Update the pagination variables for next pagination
-                    if (window.WishlistPagination) {
-                        window.WishlistPagination.updateState(data.current, data.total);
+                    if (window.Pagination) {
+                        window.Pagination.updateState(data.current, data.total);
                     }
                 } else {
                     console.error('Filter error:', data.message);

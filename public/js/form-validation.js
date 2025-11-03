@@ -49,7 +49,7 @@ const FormValidator = {
             const fieldType = field.prop('tagName').toLowerCase();
             
             // Use 'input' for text inputs, 'change' for selects
-            const inputEvent = fieldType === 'select' ? 'change' : 'input';
+            const inputEvent = fieldType === 'select' ? 'change' : (field.prop('type') === 'hidden' ? 'change' : 'input');
             
             field.on(inputEvent, () => {
                 // Clear error immediately when user starts typing
@@ -120,7 +120,11 @@ const FormValidator = {
 
         // Required validation
         if (rules.required && !value) {
-            errors.push(this.formatFieldName(fieldName) + ' is required.');
+            if(rules.requiredMsg === undefined){
+                errors.push(this.formatFieldName(fieldName) + ' is required.');
+            }else{
+                errors.push(rules.requiredMsg);
+            }
         }
 
         // Only run other validations if field has a value
@@ -289,26 +293,25 @@ const FormValidator = {
      */
     validateFormBeforeSubmit: function(form, validationRules) {
         let isValid = true;
-
-        // First, validate all fields synchronously (non-AJAX validations)
+    
         Object.keys(validationRules).forEach(fieldName => {
             const field = form.find(`[name="${fieldName}"]`);
             if (!field.length) return;
-
+    
             const rules = validationRules[fieldName];
             const value = field.val() ? field.val().trim() : '';
             const errors = [];
-
-            // Check if field already has an invalid state (from AJAX validation)
-            const hadInvalidClass = field.hasClass('invalid');
-            const existingErrors = field.next('.validation-error').html();
-
-            // Required validation
+    
+            // Required validation (now supports custom messages)
             if (rules.required && !value) {
-                errors.push(this.formatFieldName(fieldName) + ' is required.');
+                if (rules.requiredMsg === undefined) {
+                    errors.push(this.formatFieldName(fieldName) + ' is required.');
+                } else {
+                    errors.push(rules.requiredMsg);
+                }
             }
-
-            // Only run other validations if field has a value
+    
+            // Only check other validations if field has a value
             if (value) {
                 // Length validation
                 if (rules.minLength && value.length < rules.minLength) {
@@ -317,19 +320,19 @@ const FormValidator = {
                 if (rules.maxLength && value.length > rules.maxLength) {
                     errors.push(this.formatFieldName(fieldName) + ` must not exceed ${rules.maxLength} characters.`);
                 }
-
+    
                 // Email validation
                 if (rules.email && !this.isValidEmail(value)) {
                     errors.push('Please enter a valid email address.');
                 }
-
+    
                 // Password validation
                 if (rules.password) {
                     const passwordErrors = this.validatePassword(value);
                     errors.push(...passwordErrors);
                 }
-
-                // Confirm password match
+    
+                // Confirm password validation
                 if (rules.confirmPassword) {
                     const originalPassword = $(rules.confirmPassword).val();
                     if (value !== originalPassword) {
@@ -337,28 +340,21 @@ const FormValidator = {
                     }
                 }
             }
-
-            // Only display new errors if we have some, or if there were no existing AJAX errors
-            if (errors.length > 0) {
-                this.displayErrors(field, errors);
-            } else if (hadInvalidClass && existingErrors) {
-                // Preserve AJAX validation error
-                // Don't call displayErrors as it would clear the existing error
-            } else {
-                this.displayErrors(field, errors);
-            }
-
-            // Check if field has errors (either new or existing)
+    
+            // Display or clear errors
+            this.displayErrors(field, errors);
+    
+            // Update overall validity flag
             if (errors.length > 0 || field.hasClass('invalid')) {
                 isValid = false;
             }
         });
-
-        // Also check if any fields currently have the invalid class (from AJAX validation)
+    
+        // If any AJAX validation has already flagged fields as invalid
         if (form.find('.invalid').length > 0) {
             isValid = false;
         }
-
+    
         return isValid;
     }
 };

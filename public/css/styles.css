@@ -2202,7 +2202,7 @@ img.gift-wrap {
         padding-left: 20px;
     }
     #body {
-        padding-top: 65px;
+        padding-top: 95px;
     }
     #container {
         min-height: calc(100vh - 155px);
@@ -2369,9 +2369,6 @@ img.gift-wrap {
     .theme-background-display.desktop-background-display {
         display: none;
     }
-    .theme-gift-wrap-display {
-        grid-template-rows: 18px;
-    }
     .theme-popup-container .background-theme.mobile-background {
         display: block;
     }
@@ -2424,9 +2421,6 @@ img.gift-wrap {
     }
     }
 @media (max-width: 475px){
-    .wishlist-grid, .items-list-container {
-        margin-bottom: 55px;
-    }
     #login-form {
         margin-bottom: 50px;
     }

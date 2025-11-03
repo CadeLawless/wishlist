@@ -60,7 +60,7 @@ $(document).ready(function() {
             $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("selected");
             $(this).addClass("selected");
             $wrap_id = $(this).find(".value").data("wrap-id");
-            $("#theme_gift_wrap_id").val($wrap_id);
+            $("#theme_gift_wrap_id").val($wrap_id).trigger("change");
             $wrap_image = $(this).find(".value").data("wrap-image");
             $number_of_files = parseInt($(this).find(".value").data("number-of-files"));
             $selected_option = $($popup_container+".image-dropdown.gift-wrap .selected-option");
@@ -81,7 +81,7 @@ $(document).ready(function() {
             $($popup_container+".image-dropdown.background .options .option").removeClass("selected");
             $(this).addClass("selected");
             $background_id = $(this).find(".value").data("background-id");
-            $("#theme_background_id").val($background_id);
+            $("#theme_background_id").val($background_id).trigger("change");
             $background_image = $(this).find(".value").data("background-image");
             $default_gift_wrap = $(this).find(".value").data("default-gift-wrap");
             $selected_option = $($popup_container+".image-dropdown.background .selected-option");

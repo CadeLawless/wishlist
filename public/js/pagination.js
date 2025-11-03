@@ -1,19 +1,27 @@
 /**
- * Wishlist Pagination Functionality
- * Handles pagination of wishlist items
+ * Generic Pagination Functionality
+ * Handles pagination for any page type (wishlists, wishlist items, etc.)
  */
 
 $(document).ready(function() {
     
     // Initialize pagination state
+    // Can be initialized from different elements depending on the page
+    const $stateElement = $(".wishlist-grid, body").first();
+    
     const paginationState = {
-        currentPage: parseInt($('body').data('current-page')) || 1,
-        totalPages: parseInt($('body').data('total-pages')) || 1,
-        baseUrl: $('body').data('base-url') || ''
+        currentPage: parseInt($stateElement.data('current-page')) || 1,
+        totalPages: parseInt($stateElement.data('total-pages')) || 1,
+        baseUrl: $stateElement.data('base-url') || ''
     };
     
+    // Determine the content selector based on what exists on the page
+    // This allows the same script to work for different page types
+    const contentSelector = $('.wishlist-grid').length ? '.wishlist-grid' : '.items-list.main';
+    const urlHash = contentSelector === '.items-list.main' ? '#paginate-top' : '';
+    
     // Expose state management globally
-    window.WishlistPagination = {
+    window.Pagination = {
         updateState: function(current, total) {
             paginationState.currentPage = current;
             paginationState.totalPages = total;
@@ -27,13 +35,11 @@ $(document).ready(function() {
     $(document).on("click", ".paginate-arrow", function(e) {
         e.preventDefault();
         
-        
         if ($(this).hasClass("disabled")) {
             return;
         }
         
         let newPage = paginationState.currentPage;
-        
         
         if ($(this).hasClass("paginate-first")) {
             newPage = 1;
@@ -55,8 +61,8 @@ $(document).ready(function() {
                     // jQuery automatically parses JSON when dataType is "json"
                     
                     if (data.status === 'success') {
-                        // Update items HTML
-                        $(".items-list.main").html(data.html);
+                        // Update content HTML dynamically based on page type
+                        $(contentSelector).html(data.html);
                         
                         // Update pagination controls
                         $('.page-number').text(data.current);
@@ -85,7 +91,7 @@ $(document).ready(function() {
                         });
                         
                         // Update URL without page refresh
-                        const newUrl = paginationState.baseUrl + "?pageno=" + data.current + "#paginate-top";
+                        const newUrl = paginationState.baseUrl + "?pageno=" + data.current + urlHash;
                         history.pushState(null, null, newUrl);
                         
                         // Update the pagination variables for next pagination
