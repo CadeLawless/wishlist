@@ -122,6 +122,15 @@ $(document).ready(function() {
                         const newUrl = buildUrlWithParams(data.current);
                         history.replaceState(null, null, newUrl);
                         
+                        // Scroll to top of container on page change
+                        const $container = $('#container');
+                        if ($container.length) {
+                            $container[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else {
+                            // Fallback to scrolling to top of page
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                        
                         // Update the pagination variables for next pagination
                         paginationState.currentPage = data.current;
                         paginationState.totalPages = data.total;
