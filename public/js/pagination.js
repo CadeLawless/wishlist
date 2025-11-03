@@ -122,10 +122,21 @@ $(document).ready(function() {
                         const newUrl = buildUrlWithParams(data.current);
                         history.replaceState(null, null, newUrl);
                         
-                        // Scroll to top pagination controls on page change
-                        const $topPagination = $('.paginate-container.top').first();
+                        // Scroll to top pagination controls on page change, accounting for fixed header
+                        const $topPagination = $('.paginate-container').first();
                         if ($topPagination.length) {
-                            $topPagination[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Get header height dynamically (header height varies by screen size)
+                            const $header = $('.header-container, .header').first();
+                            const headerHeight = $header.length ? $header.outerHeight(true) : 0;
+                            
+                            // Calculate position: pagination top position minus header height, with small padding
+                            const paginationOffset = $topPagination.offset().top;
+                            const scrollPosition = paginationOffset - headerHeight - 10; // 10px padding
+                            
+                            window.scrollTo({ 
+                                top: Math.max(0, scrollPosition), 
+                                behavior: 'smooth' 
+                            });
                         } else {
                             // Fallback to scrolling to top of page
                             window.scrollTo({ top: 0, behavior: 'smooth' });
