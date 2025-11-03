@@ -5,14 +5,11 @@
 
 $(document).ready(function() {
     
-    // Initialize pagination state
-    // Can be initialized from different elements depending on the page
-    const $stateElement = $(".wishlist-grid, body").first();
-    
+    // Initialize pagination state from body element
     const paginationState = {
-        currentPage: parseInt($stateElement.data('current-page')) || 1,
-        totalPages: parseInt($stateElement.data('total-pages')) || 1,
-        baseUrl: $stateElement.data('base-url') || ''
+        currentPage: parseInt($('body').data('current-page')) || 1,
+        totalPages: parseInt($('body').data('total-pages')) || 1,
+        baseUrl: $('body').data('base-url') || ''
     };
     
     // Determine the content selector based on what exists on the page

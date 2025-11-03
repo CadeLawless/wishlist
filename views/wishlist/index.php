@@ -44,10 +44,7 @@ if (isset($flash['error'])) {
     ?>
 <?php endif; ?>
 
-<div class="wishlist-grid" 
-     data-current-page="<?php echo $pageno ?? 1; ?>"
-     data-total-pages="<?php echo $total_pages ?? 1; ?>"
-     data-base-url="/wishlist/wishlists">
+<div class="wishlist-grid">
     <?php
     if(count($wishlists) > 0){
         // Use WishlistRenderService to generate the HTML
