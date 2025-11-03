@@ -295,14 +295,14 @@ class WishlistController extends Controller
         $errors = $this->wishlistValidator->validateWishlistName($name);
 
         if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->redirect("/wishlist/{$id}")->withError($this->wishlistValidator->formatErrorsForDisplay($errors));
+            return $this->redirect("/wishlist/{$id}")->withFlash('rename_error', $this->wishlistValidator->formatErrorsForDisplay($errors));
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {
             return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist renamed successfully!');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to rename wishlist. Please try again.');
+        return $this->redirect("/wishlist/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
     }
 
     public function updateTheme(int $id): Response

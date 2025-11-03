@@ -1,37 +1,4 @@
 <?php
-// Display flash messages
-if (isset($flash['success'])) {
-    echo "
-    <div class='popup-container'>
-        <div class='popup active'>
-            <div class='close-container'>
-                <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
-                echo "</a>
-            </div>
-            <div class='popup-content'>
-                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
-            </div>
-        </div>
-    </div>";
-}
-
-if (isset($flash['error'])) {
-    echo "
-    <div class='popup-container'>
-        <div class='popup active'>
-            <div class='close-container'>
-                <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
-                echo "</a>
-            </div>
-            <div class='popup-content'>
-                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
-            </div>
-        </div>
-    </div>";
-}
-
 // Wishlist data
 $wishlistID = $wishlist['id'];
 $wishlist_name_input = $wishlist['wishlist_name'];
@@ -53,7 +20,7 @@ $background_image = \App\Services\ThemeService::getBackgroundImage($theme_backgr
 
 // Handle all popup messages using the helper
 \App\Helpers\PopupHelper::handleSessionPopups();
-\App\Helpers\PopupHelper::handleFlashMessages();
+\App\Helpers\PopupHelper::handleFlashMessages($flash);
 
 // Initialize copy form variables
 $other_wishlist_copy_from = "";
@@ -118,11 +85,16 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             </div>
                                             <div class='popup-content'>
                                             <h2 style="margin-top: 0;">Rename Wish List</h2>
+                                            <?php if (isset($flash['rename_error'])): ?>
+                                                <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                    <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['rename_error']); ?></span>
+                                                </div>
+                                            <?php endif; ?>
                                             <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/rename">
                                                 <div class="flex form-flex">
                                                     <div class="large-input">
                                                         <label for="wishlist_name">Name:<br/></label>
-                                                        <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
+                                                        <input required maxlength="100" type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
                                                     </div>
                                                     <div class="large-input">
                                                         <p class="center"><input type="submit" class="button text" name="rename_submit_button" id="submitButton" value="Rename" /></p>
@@ -399,5 +371,40 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="public/js/pagination.js"></script>
 <script src="public/js/choose-theme.js"></script>
 <script src="public/js/popup.js"></script>
+<script src="public/js/form-validation.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
+<script>
+$(document).ready(function() {
+    // Initialize form validation for rename form
+    const renameForm = $('form[action*="/rename"]');
+    if (renameForm.length) {
+        FormValidator.init('form[action*="/rename"]', {
+            wishlist_name: {
+                required: true,
+                minLength: 1,
+                maxLength: 100
+            }
+        });
+    }
+    
+    // Auto-open popups if there's a rename error
+    <?php if (isset($flash['rename_error'])): ?>
+    // Open settings popup first, then rename popup
+    const settingsButton = $('.button.primary.flex-button.popup-button');
+    if (settingsButton.length) {
+        // Click settings button to open settings popup
+        settingsButton.trigger('click');
+        
+        // Wait for settings popup to open, then open rename popup
+        setTimeout(function() {
+            // Find the rename button within the wishlist-options section
+            const renameButton = $('.wishlist-options .icon-container.popup-button').first();
+            if (renameButton.length) {
+                renameButton.trigger('click');
+            }
+        }, 150);
+    }
+    <?php endif; ?>
+});
+</script>
 

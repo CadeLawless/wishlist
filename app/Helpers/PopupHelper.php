@@ -50,10 +50,15 @@ class PopupHelper
 
     /**
      * Handle modern flash messages from Response class
+     * @param array|null $flash Optional flash data array (if null, will try to get from session)
      */
-    public static function handleFlashMessages(): void
+    public static function handleFlashMessages(?array $flash = null): void
     {
-        $flash = \App\Services\SessionManager::get('flash', []);
+        // If flash data not provided, try to get from session
+        // (though it may have already been cleared by getFlashMessages() in View constructor)
+        if ($flash === null) {
+            $flash = \App\Services\SessionManager::get('flash', []);
+        }
         
         if (isset($flash['success'])) {
             self::displayPopup($flash['success'], 'success');
@@ -63,9 +68,7 @@ class PopupHelper
             self::displayPopup($flash['error'], 'error');
         }
         
-        // Clear flash messages after displaying
-        if (!empty($flash)) {
-            \App\Services\SessionManager::remove('flash');
-        }
+        // Don't clear rename_error - it's handled separately in the rename form popup
+        // The flash data was already cleared by getFlashMessages() in View constructor
     }
 }
