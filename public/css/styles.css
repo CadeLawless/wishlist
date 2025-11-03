@@ -780,7 +780,7 @@ body.dark .dark-mode-link {
     align-items: center;
     justify-items: center;
     column-gap: 2vmin;
-    row-gap: 1vmin;
+    gap: 1vmin;
     background-color: var(--transparent-background);
     border-radius: 5px;
     padding: 5px;
@@ -789,6 +789,9 @@ body.dark .dark-mode-link {
 }
 .paginate-container.bottom {
     grid-template-rows: auto auto;
+}
+.paginate-container.bottom .count-showing {
+    grid-column: 1 / -1;
 }
 .paginate-title, .paginate-title > span {
     font-size: 24px;
