@@ -16,6 +16,7 @@ body {
     --text-lighter: #727d84;
     --text-transparent: #292c2e4f;
     --text-disabled: #727d84;
+    --option-disabled: #727d84;
     --background: #f6f6e9;
     --background-lighter: #eeeee6;
     --background-hover: #d9d9cd;
@@ -45,6 +46,7 @@ body.dark {
     --text-lighter: #a2a6a8;
     --text-transparent: #d1d4d64f;
     --text-disabled: #494d4f;
+    --option-disabled: #959595;
     --background: #222b25;
     --background-lighter: #161609;
     --background-hover: #55554a;
@@ -899,6 +901,9 @@ label.normal-text {
 input, textarea, select {
     box-sizing: border-box;
     font-size: 1rem;
+}
+select option:disabled {
+    color: var(--option-disabled);
 }
 #quantity {
     flex-basis: 50px;

@@ -25,17 +25,39 @@ class HtmlGenerationService
     {
         $html = '';
         
+        // First pass: check which items are already in the list and store results
+        $copyCounter = 0;
+        $alreadyInListMap = [];
+        foreach ($items as $item) {
+            $itemCopyId = $item['copy_id'] ?? null;
+            $alreadyInList = false;
+            if ($itemCopyId) {
+                $alreadyInList = $wishlistService->itemExistsInWishlist($itemCopyId, $targetWishlistId);
+                $alreadyInListMap[$item['id']] = $alreadyInList;
+                if ($alreadyInList) {
+                    $copyCounter++;
+                }
+            } else {
+                $alreadyInListMap[$item['id']] = false;
+            }
+        }
+        
+        // Calculate selectable items (items not already in target list)
+        $totalItems = count($items);
+        $selectableItemsCount = $totalItems - $copyCounter;
+        $allItemsDisabled = $selectableItemsCount === 0;
+        
         // Add "All Items" checkbox
+        $allItemsDisabledAttr = $allItemsDisabled ? 'disabled' : '';
+        $allItemsDisabledClass = $allItemsDisabled ? ' already-in-list' : '';
         $html .= "
         <div class='checkboxes-container'>
-            <div class='select-item-container select-all'>
+            <div class='select-item-container select-all{$allItemsDisabledClass}'>
                 <div class='option-title'>All Items</div>
                 <div class='option-checkbox'>
-                    <input type='checkbox' name='copy_" . ($copyFrom ? "from" : "to") . "_select_all' class='check-all' />
+                    <input type='checkbox' name='copy_" . ($copyFrom ? "from" : "to") . "_select_all' class='check-all{$allItemsDisabledClass}' {$allItemsDisabledAttr} />
                 </div>
             </div>";
-        
-        $copyCounter = 0;
         
         foreach ($items as $item) {
             $itemName = htmlspecialchars(string: $item['name'], flags: ENT_QUOTES, encoding: 'UTF-8');
@@ -43,15 +65,8 @@ class HtmlGenerationService
             $itemCopyId = $item['copy_id'];
             $itemImage = $item['image'];
             
-            // Check if item already exists in the target wishlist (by copy_id)
-            $alreadyInList = false;
-            if ($itemCopyId) {
-                $alreadyInList = $wishlistService->itemExistsInWishlist($itemCopyId, $targetWishlistId);
-            }
-            
-            if ($alreadyInList) {
-                $copyCounter++;
-            }
+            // Use pre-calculated already-in-list status
+            $alreadyInList = $alreadyInListMap[$itemId] ?? false;
             
             // Determine image path - use source wishlist ID for image location
             $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars(string: $itemImage, flags: ENT_QUOTES, encoding: 'UTF-8');

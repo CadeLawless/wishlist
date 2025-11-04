@@ -84,6 +84,12 @@ class WishlistController extends Controller
         // Get other wishlists for copy functionality
         $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
         
+        // Add item counts to each wishlist for copy from dropdown
+        foreach ($otherWishlists as &$otherWishlist) {
+            $otherWishlist['item_count'] = \App\Models\Item::countItems($otherWishlist['id'], $user['username']);
+        }
+        unset($otherWishlist); // Break reference
+        
         // Get sorting/filter preferences from session
         SessionManager::setWishlistContext($id, $pageno);
 

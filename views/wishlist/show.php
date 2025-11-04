@@ -129,9 +129,15 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                             foreach($other_wishlist_options as $opt){
                                                                 $other_id = $opt['id'];
                                                                 $other_name = htmlspecialchars($opt['wishlist_name']);
+                                                                $item_count = isset($opt['item_count']) ? (int)$opt['item_count'] : 0;
+                                                                $item_count_text = $item_count === 1 ? "1 item" : "$item_count items";
                                                                 echo "<option value='$other_id'";
-                                                                if($other_id == $other_wishlist_copy_from) echo " selected";
-                                                                echo ">$other_name</option>";
+                                                                if($item_count === 0) {
+                                                                    echo " disabled";
+                                                                } else if($other_id == $other_wishlist_copy_from) {
+                                                                    echo " selected";
+                                                                }
+                                                                echo ">$other_name ($item_count_text)</option>";
                                                             }
                                                             ?>
                                                         </select>

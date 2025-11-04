@@ -19,8 +19,11 @@ class ItemCopyService
                 continue;
             }
 
-            // Check if item already exists in destination (by copy_id)
-            if ($this->itemExistsInWishlist($sourceItem['copy_id'], $toWishlistId)) {
+            // Determine the original copy_id for checking duplicates
+            $originalCopyId = $sourceItem['copy_id'] ?: $sourceItem['id'];
+
+            // Check if item already exists in destination (by original copy_id)
+            if ($this->itemExistsInWishlist($originalCopyId, $toWishlistId)) {
                 continue;
             }
 
@@ -36,11 +39,9 @@ class ItemCopyService
     public function copyItem(array $sourceItem, int $toWishlistId): bool
     {
         try {
-            // Update copy_id to track original item
-            $stmt = Database::query(
-                "UPDATE items SET copy_id = ? WHERE id = ?", 
-                [$sourceItem['id'], $sourceItem['id']]
-            );
+            // Determine the original copy_id - if source item is already a copy, use its copy_id
+            // Otherwise, use the source item's id as the original
+            $originalCopyId = $sourceItem['copy_id'] ?: $sourceItem['id'];
 
             // Copy item image if it exists
             $newImageName = $this->duplicateItemImage(
@@ -49,13 +50,13 @@ class ItemCopyService
                 $sourceItem['image']
             );
 
-            // Insert new item
+            // Insert new item with original copy_id to maintain chain across all wishlists
             $dateAdded = date('Y-m-d H:i:s');
             $stmt = Database::query(
                 "INSERT INTO items (wishlist_id, copy_id, name, notes, price, quantity, unlimited, link, image, priority, quantity_purchased, purchased, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     $toWishlistId,
-                    $sourceItem['id'],
+                    $originalCopyId,
                     $sourceItem['name'],
                     $sourceItem['notes'],
                     $sourceItem['price'],
