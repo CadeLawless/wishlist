@@ -18,9 +18,23 @@ $background_image = \App\Services\ThemeService::getBackgroundImage($theme_backgr
 
 // All popup messages are now handled by PopupHelper
 
-// Handle all popup messages using the helper
+// Check for copy-to error and preserve selected wishlist BEFORE handling flash messages
+$copy_to_error = isset($_GET['copy_to_error']) && $_GET['copy_to_error'] == '1';
+$copy_to_wishlist_id = null;
+if ($copy_to_error && isset($_GET['copy_to_wishlist_id'])) {
+    $copy_to_wishlist_id = (int)$_GET['copy_to_wishlist_id'];
+}
+
+// Handle all popup messages using the helper, but skip general error popup for copy-to errors
 \App\Helpers\PopupHelper::handleSessionPopups();
-\App\Helpers\PopupHelper::handleFlashMessages($flash);
+if (!$copy_to_error) {
+    \App\Helpers\PopupHelper::handleFlashMessages($flash);
+} else {
+    // Only show success messages, not errors (copy-to errors are shown in the popup)
+    if (isset($flash['success'])) {
+        \App\Helpers\PopupHelper::handleFlashMessages(['success' => $flash['success']]);
+    }
+}
 
 // Initialize copy form variables
 $other_wishlist_copy_from = "";
@@ -28,6 +42,11 @@ $copy_from_select_all = "Yes";
 $other_wishlist_copy_to = "";
 $copy_to_select_all = "Yes";
 $other_wishlist_options = $other_wishlists;
+
+// Preserve selected wishlist if there's a copy-to error
+if ($copy_to_error && $copy_to_wishlist_id !== null) {
+    $other_wishlist_copy_to = $copy_to_wishlist_id;
+}
 
 // Initialize filter variables
 $sort_priority = $_SESSION['wisher_sort_priority'] ?? "";
@@ -62,7 +81,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/settings.php'); ?>
                         <span>Wish List Options</span>
                     </a>
-                    <div class='popup-container hidden'>
+                    <div class='popup-container<?php echo ($copy_to_error ? '' : ' hidden'); ?>'>
                         <div class='popup'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
@@ -155,7 +174,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     if(count($items) > 0){ ?>
                                         <!-- Copy To popup -->
                                         <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-to.php'); ?><div class="inline-label">Copy To...</div></a>
-                                        <div class='popup-container first center-items hidden'>
+                                        <div class='popup-container first center-items<?php echo ($copy_to_error ? '' : ' hidden'); ?>'>
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
@@ -164,6 +183,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </div>
                                                 <div class='popup-content'>
                                                     <h2>Copy Items to Another Wish List</h2>
+                                                    <?php if ($copy_to_error && isset($flash['error'])): ?>
+                                                        <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                            <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
+                                                        </div>
+                                                    <?php endif; ?>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-to">
                                                         <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
                                                         <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
@@ -410,6 +434,16 @@ $(document).ready(function() {
             }
         }, 150);
     }
+    <?php endif; ?>
+    
+    // If copy-to error and wishlist was selected, load items via AJAX
+    <?php if ($copy_to_error && $other_wishlist_copy_to != ""): ?>
+    setTimeout(function() {
+        const copyToSelect = $('#other_wishlist_copy_to');
+        if (copyToSelect.length && copyToSelect.val()) {
+            copyToSelect.trigger('change');
+        }
+    }, 100);
     <?php endif; ?>
 });
 </script>

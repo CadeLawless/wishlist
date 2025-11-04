@@ -371,7 +371,8 @@ class WishlistController extends Controller
         $itemIds = $this->request->input('item_ids', []);
 
         if (empty($itemIds)) {
-            return $this->redirect("/wishlist/{$id}")->withError('Please select at least one item to copy.');
+            // Pass error and selected wishlist ID via URL parameter to preserve state
+            return $this->redirect("/wishlist/{$id}?copy_to_error=1&copy_to_wishlist_id={$toWishlistId}")->withError('Please select at least one item to copy.');
         }
 
         $copiedCount = $this->itemCopyService->copyItems($id, $toWishlistId, $itemIds);
