@@ -141,11 +141,12 @@ class WishlistService
      * @param \App\Services\FileUploadService $fileUploadService Service for file operations
      * @return bool True if all updates succeeded, false otherwise
      */
-    public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId, \App\Services\FileUploadService $fileUploadService): bool
+    public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId, int $sourceItemId, \App\Services\FileUploadService $fileUploadService): bool
     {
         try {
-            // Find all items with this copy_id (excluding the source item)
-            $items = Item::findByCopyIdExcludingWishlist($copyId, $sourceWishlistId);
+            // Find all items with this copy_id (excluding only the specific item being edited)
+            // This ensures edits to any copy update all other copies including the original
+            $items = Item::findByCopyIdExcludingItem($copyId, $sourceItemId);
 
             foreach ($items as $item) {
                 $itemId = $item['id'];

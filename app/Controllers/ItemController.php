@@ -250,10 +250,12 @@ class ItemController extends Controller
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         // Check for other copies of this item
+        // Determine the original copy_id - if item is already a copy, use its copy_id, otherwise use its id
+        $originalCopyId = $item['copy_id'] ?: $itemId;
         $otherCopies = false;
         $numberOfOtherCopies = 0;
-        if (!empty($item['copy_id'])) {
-            $numberOfOtherCopies = $this->wishlistService->getOtherCopiesCount($item['copy_id'], $itemId);
+        if ($originalCopyId) {
+            $numberOfOtherCopies = $this->wishlistService->getOtherCopiesCount($originalCopyId, $itemId);
             $otherCopies = $numberOfOtherCopies > 0;
         }
 
@@ -396,8 +398,10 @@ class ItemController extends Controller
         
         if ($this->wishlistService->updateItem($wishlistId, $itemId, $itemData)) {
             // Handle copied items updates (all fields, not just images)
-            if (!empty($item['copy_id'])) {
-                $this->wishlistService->updateCopiedItems($item['copy_id'], $itemData, $wishlistId, $this->fileUploadService);
+            // Determine the original copy_id - if item is already a copy, use its copy_id, otherwise use its id
+            $originalCopyId = $item['copy_id'] ?: $itemId;
+            if ($originalCopyId) {
+                $this->wishlistService->updateCopiedItems($originalCopyId, $itemData, $wishlistId, $itemId, $this->fileUploadService);
             }
             
             // Delete old image if it was changed

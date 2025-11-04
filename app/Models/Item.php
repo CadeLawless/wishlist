@@ -56,6 +56,15 @@ class Item extends Model
         return (int) $result['count'];
     }
 
+    public static function findByCopyIdExcludingItem(string $copyId, int $excludeItemId): array
+    {
+        $stmt = Database::query(
+            "SELECT id, wishlist_id, image FROM " . static::$table . " WHERE copy_id = ? AND id != ?",
+            [$copyId, $excludeItemId]
+        );
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
     public static function existsByCopyIdAndWishlist(string $copyId, int $wishlistId): bool
     {
         $stmt = Database::query(
