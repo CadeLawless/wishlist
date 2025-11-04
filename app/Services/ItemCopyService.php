@@ -42,6 +42,15 @@ class ItemCopyService
             // Determine the original copy_id - if source item is already a copy, use its copy_id
             // Otherwise, use the source item's id as the original
             $originalCopyId = $sourceItem['copy_id'] ?: $sourceItem['id'];
+            
+            // If the source item doesn't have a copy_id yet (it's an original), set it to its own id
+            // This ensures all copies including the original are linked together
+            if (empty($sourceItem['copy_id'])) {
+                Database::query(
+                    "UPDATE items SET copy_id = ? WHERE id = ?",
+                    [$sourceItem['id'], $sourceItem['id']]
+                );
+            }
 
             // Copy item image if it exists
             $newImageName = $this->duplicateItemImage(
