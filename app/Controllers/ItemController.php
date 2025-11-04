@@ -8,13 +8,16 @@ use App\Services\WishlistService;
 use App\Validation\ItemRequestValidator;
 use App\Services\FileUploadService;
 use App\Services\ThemeService;
+use App\Services\ItemCopyService;
+use App\Models\Item;
 
 class ItemController extends Controller
 {
     public function __construct(
         private WishlistService $wishlistService = new WishlistService(),
         private ItemRequestValidator $itemValidator = new ItemRequestValidator(),
-        private FileUploadService $fileUploadService = new FileUploadService()
+        private FileUploadService $fileUploadService = new FileUploadService(),
+        private ItemCopyService $itemCopyService = new ItemCopyService()
     ) {
         parent::__construct();
     }
@@ -456,16 +459,57 @@ class ItemController extends Controller
             return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
         }
 
-        // Delete image file from all wishlists if it's a copied item
-        if (!empty($item['copy_id'])) {
-            $this->fileUploadService->deleteImageFromAllWishlists($item['copy_id'], $item['image']);
-        } else {
-            $this->fileUploadService->deleteItemImage($wishlistId, $item['image']);
-        }
+        $deleteAll = $this->request->input('deleteAll', '') === 'yes';
+        $pageno = $this->request->input('pageno', 1);
+        $copyId = $item['copy_id'] ?? null;
+        $imageName = $item['image'] ?? '';
 
-        if ($this->wishlistService->deleteItem($wishlistId, $itemId)) {
-            $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
+        if ($deleteAll && !empty($copyId)) {
+            // Delete from all wishlists
+            // Get all items with this copy_id before deletion to handle images
+            $allItems = Item::findByCopyIdExcludingItem($copyId, $itemId);
+            $allItems[] = $item; // Include current item for image deletion check
+            
+            // Delete all items with this copy_id
+            if ($this->itemCopyService->deleteItemFromAllWishlists($itemId)) {
+                // Delete images only if they're not used by other items
+                // Since we're deleting all items with this copy_id, we need to check if the image
+                // is used by items with different copy_ids (after deletion)
+                foreach ($allItems as $itemToDelete) {
+                    if (!empty($itemToDelete['image'])) {
+                        // Check if this image is used by any other items (with different copy_id)
+                        // After deletion, check if image exists elsewhere
+                        $imageUsed = Item::isImageUsedByOtherItems(null, $itemToDelete['image'], 0);
+                        if (!$imageUsed) {
+                            $this->fileUploadService->deleteItemImage($itemToDelete['wishlist_id'], $itemToDelete['image']);
+                        }
+                    }
+                }
+                
+                return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted from all wishlists successfully!');
+            }
+        } else {
+            // Delete from this wishlist only
+            // Only delete image if it's not used by other items with the same copy_id
+            $imageUsed = false;
+            if (!empty($imageName)) {
+                if (!empty($copyId)) {
+                    // Check if image is used by other items with same copy_id
+                    $imageUsed = Item::isImageUsedByOtherItems($copyId, $imageName, $itemId);
+                } else {
+                    // Check if image is used by any other items
+                    $imageUsed = Item::isImageUsedByOtherItems(null, $imageName, $itemId);
+                }
+                
+                // Only delete image if not used elsewhere
+                if (!$imageUsed) {
+                    $this->fileUploadService->deleteItemImage($wishlistId, $imageName);
+                }
+            }
+
+            if ($this->itemCopyService->deleteItemFromWishlist($itemId)) {
+                return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
+            }
         }
 
         return $this->redirect("/wishlist/{$wishlistId}")->withError('Unable to delete item. Please try again.');

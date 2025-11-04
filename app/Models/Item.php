@@ -121,4 +121,33 @@ class Item extends Model
         
         return $stmt->affected_rows > 0;
     }
+
+    /**
+     * Check if an image is used by other items with the same copy_id
+     * Used to determine if image file should be deleted when removing an item
+     * 
+     * @param string $copyId The copy_id to check
+     * @param string $imageName The image filename to check
+     * @param int $excludeItemId Item ID to exclude from check
+     * @return bool True if image is used by other items, false otherwise
+     */
+    public static function isImageUsedByOtherItems(?string $copyId, string $imageName, int $excludeItemId): bool
+    {
+        if (empty($copyId)) {
+            // If no copy_id, check if this exact image is used by any other item
+            $stmt = Database::query(
+                "SELECT COUNT(*) as count FROM " . static::$table . " WHERE image = ? AND id != ?",
+                [$imageName, $excludeItemId]
+            );
+        } else {
+            // If copy_id exists, check if image is used by other items with same copy_id
+            $stmt = Database::query(
+                "SELECT COUNT(*) as count FROM " . static::$table . " WHERE copy_id = ? AND image = ? AND id != ?",
+                [$copyId, $imageName, $excludeItemId]
+            );
+        }
+        
+        $result = $stmt->get_result()->fetch_assoc();
+        return (int) $result['count'] > 0;
+    }
 }
