@@ -18,19 +18,25 @@ $background_image = \App\Services\ThemeService::getBackgroundImage($theme_backgr
 
 // All popup messages are now handled by PopupHelper
 
-// Check for copy-to error and preserve selected wishlist BEFORE handling flash messages
+// Check for copy errors and preserve selected wishlists BEFORE handling flash messages
+$copy_from_error = isset($_GET['copy_from_error']) && $_GET['copy_from_error'] == '1';
+$copy_from_wishlist_id = null;
+if ($copy_from_error && isset($_GET['copy_from_wishlist_id'])) {
+    $copy_from_wishlist_id = (int)$_GET['copy_from_wishlist_id'];
+}
+
 $copy_to_error = isset($_GET['copy_to_error']) && $_GET['copy_to_error'] == '1';
 $copy_to_wishlist_id = null;
 if ($copy_to_error && isset($_GET['copy_to_wishlist_id'])) {
     $copy_to_wishlist_id = (int)$_GET['copy_to_wishlist_id'];
 }
 
-// Handle all popup messages using the helper, but skip general error popup for copy-to errors
+// Handle all popup messages using the helper, but skip general error popup for copy errors
 \App\Helpers\PopupHelper::handleSessionPopups();
-if (!$copy_to_error) {
+if (!$copy_from_error && !$copy_to_error) {
     \App\Helpers\PopupHelper::handleFlashMessages($flash);
 } else {
-    // Only show success messages, not errors (copy-to errors are shown in the popup)
+    // Only show success messages, not errors (copy errors are shown in the popup)
     if (isset($flash['success'])) {
         \App\Helpers\PopupHelper::handleFlashMessages(['success' => $flash['success']]);
     }
@@ -43,7 +49,10 @@ $other_wishlist_copy_to = "";
 $copy_to_select_all = "Yes";
 $other_wishlist_options = $other_wishlists;
 
-// Preserve selected wishlist if there's a copy-to error
+// Preserve selected wishlist if there's a copy error
+if ($copy_from_error && $copy_from_wishlist_id !== null) {
+    $other_wishlist_copy_from = $copy_from_wishlist_id;
+}
 if ($copy_to_error && $copy_to_wishlist_id !== null) {
     $other_wishlist_copy_to = $copy_to_wishlist_id;
 }
@@ -81,7 +90,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/settings.php'); ?>
                         <span>Wish List Options</span>
                     </a>
-                    <div class='popup-container<?php echo ($copy_to_error ? '' : ' hidden'); ?>'>
+                    <div class='popup-container<?php echo ($copy_from_error || $copy_to_error ? '' : ' hidden'); ?>'>
                         <div class='popup'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
@@ -131,7 +140,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php if(count($other_wishlist_options) > 0){ ?>
                                         <!-- Copy From popup -->
                                         <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-from.php'); ?><div class="inline-label">Copy From...</div></a>
-                                        <div class='popup-container first center-items hidden'>
+                                        <div class='popup-container first center-items<?php echo ($copy_from_error ? '' : ' hidden'); ?>'>
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
@@ -140,6 +149,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </div>
                                                 <div class='popup-content'>
                                                     <h2>Copy Items From Another Wish List</h2>
+                                                    <?php if ($copy_from_error && isset($flash['error'])): ?>
+                                                        <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                            <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
+                                                        </div>
+                                                    <?php endif; ?>
                                                     <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-from">
                                                         <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
                                                         <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
@@ -436,15 +450,23 @@ $(document).ready(function() {
     }
     <?php endif; ?>
     
-    // If copy-to error and wishlist was selected, load items via AJAX
-    <?php if ($copy_to_error && $other_wishlist_copy_to != ""): ?>
-    setTimeout(function() {
-        const copyToSelect = $('#other_wishlist_copy_to');
-        if (copyToSelect.length && copyToSelect.val()) {
-            copyToSelect.trigger('change');
+    // Reusable function to load items when copy error occurs and wishlist is preselected
+    function loadItemsForCopyError(selectId, hasError) {
+        if (hasError) {
+            setTimeout(function() {
+                const select = $(selectId);
+                if (select.length && select.val()) {
+                    select.trigger('change');
+                }
+            }, 100);
         }
-    }, 100);
-    <?php endif; ?>
+    }
+    
+    // Load items for copy-from if error and wishlist was selected
+    loadItemsForCopyError('#other_wishlist_copy_from', <?php echo $copy_from_error && $other_wishlist_copy_from != "" ? 'true' : 'false'; ?>);
+    
+    // Load items for copy-to if error and wishlist was selected
+    loadItemsForCopyError('#other_wishlist_copy_to', <?php echo $copy_to_error && $other_wishlist_copy_to != "" ? 'true' : 'false'; ?>);
 });
 </script>
 
