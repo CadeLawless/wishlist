@@ -59,7 +59,7 @@ class Item extends Model
     public static function findByCopyIdExcludingItem(string $copyId, int $excludeItemId): array
     {
         $stmt = Database::query(
-            "SELECT id, wishlist_id, image FROM " . static::$table . " WHERE copy_id = ? AND id != ?",
+            "SELECT * FROM " . static::$table . " WHERE copy_id = ? AND id != ?",
             [$copyId, $excludeItemId]
         );
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -95,5 +95,30 @@ class Item extends Model
         );
         $row = $stmt->get_result()->fetch_assoc();
         return isset($row['cnt']) ? (int)$row['cnt'] : 1;
+    }
+
+    /**
+     * Update purchase status for an item and all its copies
+     * Updates all items with the same copy_id, or just the item itself if no copy_id
+     * 
+     * @param int $itemId The ID of the item being purchased
+     * @param mixed $copyId The copy_id of the item (null, empty string, or 0 if original)
+     * @param int $quantityPurchased The new quantity_purchased value
+     * @param string $purchased The purchased status ('Yes' or 'No')
+     * @return bool True if update succeeded, false otherwise
+     */
+    public static function updatePurchaseStatus(int $itemId, $copyId, int $quantityPurchased, string $purchased): bool
+    {
+        // If copy_id exists and is not empty, update all items with that copy_id, otherwise update just this item
+        // Match original logic: $copy_id != "" means use copy_id, otherwise use id
+        $whereColumn = ($copyId != "" && $copyId !== null) ? "copy_id" : "id";
+        $whereValue = ($copyId != "" && $copyId !== null) ? $copyId : $itemId;
+        
+        $stmt = Database::query(
+            "UPDATE " . static::$table . " SET quantity_purchased = ?, purchased = ? WHERE {$whereColumn} = ?",
+            [$quantityPurchased, $purchased, $whereValue]
+        );
+        
+        return $stmt->affected_rows > 0;
     }
 }

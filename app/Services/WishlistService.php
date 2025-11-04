@@ -114,19 +114,21 @@ class WishlistService
     public function purchaseItem(int $wishlistId, int $itemId, int $quantity = 1): bool
     {
         $item = $this->getItem($wishlistId, $itemId);
-        if ($item) {
-            // Update quantity_purchased
-            $newQuantityPurchased = $item['quantity_purchased'] + $quantity;
-            $data = ['quantity_purchased' => $newQuantityPurchased];
-            
-            // Mark as purchased if quantity purchased >= quantity needed
-            if ($newQuantityPurchased >= $item['quantity'] && $item['unlimited'] != 'Yes') {
-                $data['purchased'] = 'Yes';
-            }
-            
-            return Item::update($itemId, $data);
+        if (!$item) {
+            return false;
         }
-        return false;
+        
+        $currentQuantityPurchased = (int)($item['quantity_purchased'] ?? 0);
+        $newQuantityPurchased = $currentQuantityPurchased + $quantity;
+        $itemQuantity = (int)($item['quantity'] ?? 1);
+        $unlimited = $item['unlimited'] ?? 'No';
+        $copyId = $item['copy_id'] ?? null;
+        
+        // Set purchased status: "Yes" if quantity purchased >= quantity needed AND not unlimited
+        $purchased = ($newQuantityPurchased >= $itemQuantity && $unlimited == "No") ? "Yes" : "No";
+        
+        // Update all items with the same copy_id (or just this item if no copy_id)
+        return Item::updatePurchaseStatus($itemId, $copyId, $newQuantityPurchased, $purchased);
     }
 
     /**
