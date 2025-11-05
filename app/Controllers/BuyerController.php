@@ -25,11 +25,11 @@ class BuyerController extends Controller
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
         
         if (!$wishlist) {
-            return $this->view('errors/404', [], 'main');
+            return $this->view('errors/404', ['title' => '404 - Wish List Not Found'], 'error');
         }
 
         if ($wishlist['visibility'] !== 'Public' || $wishlist['complete'] === 'Yes') {
-            return $this->view('errors/access-denied', [], 'main');
+            return $this->view('errors/access-denied', ['title' => '403 - Access Denied'], 'error');
         }
 
         // Handle pagination
