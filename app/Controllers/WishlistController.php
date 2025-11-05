@@ -26,6 +26,21 @@ class WishlistController extends Controller
     }
 
     /**
+     * Validate and convert ID parameter to integer
+     * Returns 404 error page if ID is not numeric
+     * 
+     * @param string|int $id The ID to validate
+     * @return int|Response Returns integer ID or 404 Response
+     */
+    private function validateId(string|int $id): int|Response
+    {
+        if (!is_numeric($id)) {
+            return $this->view('errors/404', ['title' => '404 - Page Not Found'], 'error');
+        }
+        return (int) $id;
+    }
+
+    /**
      * Display user's wishlist dashboard
      * 
      * Shows all wishlists belonging to the authenticated user.
@@ -68,14 +83,21 @@ class WishlistController extends Controller
     }
 
 
-    public function show(int $id): Response
+    public function show(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        // Validate and convert ID
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('s')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wishlist not found.');
         }
 
         // Get pagination number
@@ -178,10 +200,16 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function edit(int $id): Response
+    public function edit(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -197,10 +225,16 @@ class WishlistController extends Controller
         return $this->view('wishlist/edit', $data);
     }
 
-    public function update(int $id): Response
+    public function update(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -231,10 +265,16 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function delete(int $id): Response
+    public function delete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -251,10 +291,16 @@ class WishlistController extends Controller
         return $this->redirect('')->withError('Unable to delete wishlist. Please try again.');
     }
 
-    public function toggleVisibility(int $id): Response
+    public function toggleVisibility(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -269,10 +315,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to update wishlist visibility.');
     }
 
-    public function toggleComplete(int $id): Response
+    public function toggleComplete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -287,10 +339,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to update wishlist status.');
     }
 
-    public function rename(int $id): Response
+    public function rename(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -311,10 +369,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
     }
 
-    public function updateTheme(int $id): Response
+    public function updateTheme(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -331,10 +395,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to update theme. Please try again.');
     }
 
-    public function copyFrom(int $id): Response
+    public function copyFrom(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -358,10 +428,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
-    public function copyTo(int $id): Response
+    public function copyTo(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -385,10 +461,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
-    public function hide(int $id): Response
+    public function hide(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -403,10 +485,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to hide wishlist. Please try again.');
     }
 
-    public function showPublic(int $id): Response
+    public function showPublic(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -421,10 +509,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to make wishlist public. Please try again.');
     }
 
-    public function complete(int $id): Response
+    public function complete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -439,10 +533,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
     }
 
-    public function reactivate(int $id): Response
+    public function reactivate(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -457,10 +557,16 @@ class WishlistController extends Controller
         return $this->redirect("/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
     }
 
-    public function paginateItems(int $id): Response
+    public function paginateItems(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -523,10 +629,16 @@ class WishlistController extends Controller
         exit;
     }
 
-    public function filterItems(int $id): Response
+    public function filterItems(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
@@ -585,10 +697,16 @@ class WishlistController extends Controller
         exit;
     }
 
-    public function getOtherWishlistItems(int $id): Response
+    public function getOtherWishlistItems(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $otherWishlistId = (int) $this->request->input('wishlist_id');
         $copyFrom = $this->request->input('copy_from') === 'Yes';
 
