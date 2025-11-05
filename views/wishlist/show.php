@@ -99,7 +99,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                             <div class='popup-content'>
                                 <div class="copy-link">
-                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/buyer/<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                    <?php
+                                    // Build the full buyer URL
+                                    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+                                    $host = $_SERVER['HTTP_HOST'];
+                                    $buyerUrl = $protocol . $host . '/buyer/' . $secret_key;
+                                    ?>
+                                    <a class="button secondary" href="#" data-copy-text="<?php echo $buyerUrl; ?>"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                                 </div>
                                 <div class="icon-options wishlist-options">
                                     <!-- Rename popup -->
@@ -408,14 +414,14 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 
 <!-- Wishlist-specific scripts -->
-<script src="public/js/copy-link.js"></script>
-<script src="public/js/copy-select.js"></script>
-<script src="public/js/checkbox-selection.js"></script>
-<script src="public/js/wishlist-filters.js"></script>
-<script src="public/js/pagination.js"></script>
-<script src="public/js/choose-theme.js"></script>
-<script src="public/js/popup.js"></script>
-<script src="public/js/form-validation.js"></script>
+<script src="/public/js/copy-link.js"></script>
+<script src="/public/js/copy-select.js"></script>
+<script src="/public/js/checkbox-selection.js"></script>
+<script src="/public/js/wishlist-filters.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script src="/public/js/choose-theme.js"></script>
+<script src="/public/js/popup.js"></script>
+<script src="/public/js/form-validation.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script>
 $(document).ready(function() {

@@ -54,7 +54,7 @@ class WishlistController extends Controller
             'all_wishlists' => $allWishlists,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
-            'base_url' => 's',
+            'base_url' => '/wishlists',
             'customStyles' => 
                 '.paginate-container {
                     margin: 0 0 2rem;
