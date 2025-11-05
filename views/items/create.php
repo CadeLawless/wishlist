@@ -19,7 +19,7 @@ $priority_options = ["1", "2", "3", "4"];
     <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
     <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/<?php echo $wishlistID; ?>">Back to List</a></p>
+<p style="padding-top: 15px;"><a class="button accent" href="/wishlists/<?php echo $wishlistID; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header center transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
