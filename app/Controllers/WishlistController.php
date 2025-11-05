@@ -478,8 +478,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            SessionManager::setWishlistFlash('Wishlist hidden successfully', 'hidden');
-            return $this->redirect("/{$id}");
+            return $this->redirect("/{$id}")->withSuccess('Wishlist hidden successfully.');
         }
 
         return $this->redirect("/{$id}")->withError('Unable to hide wishlist. Please try again.');
@@ -502,8 +501,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            SessionManager::setWishlistFlash('Wishlist made public successfully', 'public');
-            return $this->redirect("/{$id}");
+            return $this->redirect("/{$id}")->withSuccess('Wishlist made public successfully.');
         }
 
         return $this->redirect("/{$id}")->withError('Unable to make wishlist public. Please try again.');
@@ -526,8 +524,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            SessionManager::setWishlistFlash('Wishlist marked as complete', 'complete');
-            return $this->redirect("/{$id}");
+            return $this->redirect("/{$id}")->withSuccess('Wishlist marked as complete.');
         }
 
         return $this->redirect("/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
@@ -550,8 +547,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            SessionManager::setWishlistFlash('Wishlist reactivated successfully', 'reactivated');
-            return $this->redirect("/{$id}");
+            return $this->redirect("/{$id}")->withSuccess('Wishlist reactivated successfully.');
         }
 
         return $this->redirect("/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
