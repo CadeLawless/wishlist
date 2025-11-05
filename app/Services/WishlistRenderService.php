@@ -24,7 +24,7 @@ class WishlistRenderService
             $backgroundStyle = $background_image == "" ? "" : "background-image: url(public/images/site-images/themes/desktop-thumbnails/$background_image);";
             
             $html .= "
-            <a class='wishlist-grid-item' href='/wishlist/$id'>
+            <a class='wishlist-grid-item' href='/$id'>
                 <div class='items-list preview' style='$backgroundStyle'>
                     <div class='item-container'>
                         <img src='public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>

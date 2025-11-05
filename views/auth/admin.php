@@ -64,10 +64,10 @@ if (isset($flash['error'])) {
                         <td data-label="Role"><?php echo htmlspecialchars($userRow['role']); ?></td>
                         <td>
                             <div class="icon-group">
-                                <a class="icon-container" href="/wishlist/admin/wishlists?username=<?php echo urlencode($userRow['username']); ?>">
+                                <a class="icon-container" href="/admin/wishlists?username=<?php echo urlencode($userRow['username']); ?>">
                                     <?php require(__DIR__ . "/../../public/images/site-images/icons/wishlist.php"); ?>
                                 </a>
-                                <a class="icon-container" href="/wishlist/admin/users/edit?username=<?php echo urlencode($userRow['username']); ?>">
+                                <a class="icon-container" href="/admin/users/edit?username=<?php echo urlencode($userRow['username']); ?>">
                                     <?php require(__DIR__ . "/../../public/images/site-images/icons/edit.php"); ?>
                                 </a>
                             </div>

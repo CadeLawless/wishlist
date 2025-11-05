@@ -233,7 +233,7 @@ const FormValidator = {
         const self = this;
         
         $.ajax({
-            url: '/wishlist' + endpoint,
+            url: endpoint,
             method: 'POST',
             data: { [fieldName]: value },
             dataType: 'json',

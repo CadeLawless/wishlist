@@ -36,7 +36,7 @@ if (isset($flash['error'])) {
 <p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
 
 <form id="login-form" style="max-width: 500px;" method="POST" action="">
-    <p><a href="/wishlist/login">Back to Login</a></p>
+    <p><a href="/login">Back to Login</a></p>
     
     <h2 class="center">Forgot Password?</h2>
     <p class="large-input center">Enter your email or username below. If your account is found, you will receive an email with a password reset link.</p>
@@ -51,7 +51,7 @@ if (isset($flash['error'])) {
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Send Email"></p>
 </form>
 
-<script src="/wishlist/public/js/form-validation.js"></script>
+<script src="/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function() {
     FormValidator.init('#login-form', {

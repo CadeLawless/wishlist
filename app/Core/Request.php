@@ -22,14 +22,7 @@ class Request
         }
         
         $fullPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-        
-        // Remove the base path /wishlist/ from the path
-        $basePath = '/wishlist';
-        if (strpos($fullPath, $basePath) === 0) {
-            $this->path = substr($fullPath, strlen($basePath)) ?: '/';
-        } else {
-            $this->path = $fullPath;
-        }
+        $this->path = $fullPath;
         
         $this->query = $_GET ?? [];
         $this->post = $_POST ?? [];

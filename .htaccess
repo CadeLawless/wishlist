@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /wishlist/
+RewriteBase /
 
 # Handle static files from public directory - serve them directly
 RewriteCond %{REQUEST_FILENAME} -f
@@ -9,7 +9,7 @@ RewriteRule ^(css|js|images|scripts)/.*$ - [L]
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^public/(css|js|images|scripts)/.*$ - [L]
 
-# Redirect the root (localhost/wishlist) to public/index.php
+# Redirect the root to public/index.php
 RewriteRule ^$ public/index.php [QSA,L]
 
 # Redirect any other URLs to public/index.php

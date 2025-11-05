@@ -82,17 +82,17 @@ class BuyerController extends Controller
         // Load item and validate
         $item = $this->wishlistService->getItem($wishlist['id'], $itemId);
         if (!$item) {
-            return $this->redirect("/wishlist/buyer/{$secretKey}")->withError('Item not found.');
+            return $this->redirect("/buyer/{$secretKey}")->withError('Item not found.');
         }
         if ($item['unlimited'] === 'Yes') {
-            return $this->redirect("/wishlist/buyer/{$secretKey}")->withError('This item is unlimited and cannot be marked as purchased.');
+            return $this->redirect("/buyer/{$secretKey}")->withError('This item is unlimited and cannot be marked as purchased.');
         }
 
         $requestedQty = max(1, (int)$this->request->input('quantity', 1));
         $alreadyPurchased = (int)($item['quantity_purchased'] ?? 0);
         $needed = max(0, (int)$item['quantity'] - $alreadyPurchased);
         if ($needed <= 0) {
-            return $this->redirect("/wishlist/buyer/{$secretKey}")->withSuccess('This item is already fully purchased.');
+            return $this->redirect("/buyer/{$secretKey}")->withSuccess('This item is already fully purchased.');
         }
         $qtyToApply = min($requestedQty, $needed);
         
@@ -101,12 +101,12 @@ class BuyerController extends Controller
             $updated = $this->wishlistService->getItem($wishlist['id'], $itemId);
             $remaining = max(0, (int)$updated['quantity'] - (int)$updated['quantity_purchased']);
             if ($remaining > 0) {
-                return $this->redirect("/wishlist/buyer/{$secretKey}")->withSuccess("Thanks! {$remaining} still needed.");
+                return $this->redirect("/buyer/{$secretKey}")->withSuccess("Thanks! {$remaining} still needed.");
             }
-            return $this->redirect("/wishlist/buyer/{$secretKey}")->withSuccess('Item marked as fully purchased!');
+            return $this->redirect("/buyer/{$secretKey}")->withSuccess('Item marked as fully purchased!');
         }
 
-        return $this->redirect("/wishlist/buyer/{$secretKey}")->withError('Unable to mark item as purchased.');
+        return $this->redirect("/buyer/{$secretKey}")->withError('Unable to mark item as purchased.');
     }
 
     public function filterItems(string $secretKey): Response

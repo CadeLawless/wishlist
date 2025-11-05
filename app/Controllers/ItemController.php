@@ -31,7 +31,7 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         // Clear any existing fetched data when starting fresh
@@ -58,7 +58,7 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         // Get background image for theme
@@ -117,7 +117,7 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
         
         // Clear fetched data from session after form submission
@@ -209,7 +209,7 @@ class ItemController extends Controller
             // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
+            return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
         }
 
         // Clean up uploaded files if database operation failed
@@ -240,13 +240,13 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
         }
 
         // Get background image for theme
@@ -289,13 +289,13 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
         }
 
         $data = $this->request->input();
@@ -322,7 +322,7 @@ class ItemController extends Controller
             $pasteData = trim($data['paste_image']);
             
             // Check if it's a URL pointing to an external resource (not our local images)
-            if (filter_var($pasteData, FILTER_VALIDATE_URL) && strpos($pasteData, '/wishlist/public/images/') === false) {
+            if (filter_var($pasteData, FILTER_VALIDATE_URL) && strpos($pasteData, '/public/images/') === false) {
                 $uploadResult = $this->fileUploadService->uploadFromUrl($pasteData, $wishlistId, $data['name']);
                 
                 if (!$uploadResult['success']) {
@@ -416,7 +416,7 @@ class ItemController extends Controller
             // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
+            return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
         }
 
         // Clean up uploaded files if database operation failed
@@ -450,13 +450,13 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
         }
 
         $deleteAll = $this->request->input('deleteAll', '') === 'yes';
@@ -486,7 +486,7 @@ class ItemController extends Controller
                     }
                 }
                 
-                return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted from all wishlists successfully!');
+                return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted from all wishlists successfully!');
             }
         } else {
             // Delete from this wishlist only
@@ -508,11 +508,11 @@ class ItemController extends Controller
             }
 
             if ($this->itemCopyService->deleteItemFromWishlist($itemId)) {
-                return $this->redirect("/wishlist/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
+                return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
             }
         }
 
-        return $this->redirect("/wishlist/{$wishlistId}")->withError('Unable to delete item. Please try again.');
+        return $this->redirect("/{$wishlistId}")->withError('Unable to delete item. Please try again.');
     }
 
     public function purchase(int $wishlistId, int $itemId): Response
@@ -522,22 +522,22 @@ class ItemController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('')->withError('Wishlist not found.');
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
         }
 
         $quantity = (int)$this->request->input('quantity', 1);
         
         if ($this->wishlistService->purchaseItem($wishlistId, $itemId, $quantity)) {
-            return $this->redirect("/wishlist/{$wishlistId}")->withSuccess('Item marked as purchased!');
+            return $this->redirect("/{$wishlistId}")->withSuccess('Item marked as purchased!');
         }
 
-        return $this->redirect("/wishlist/{$wishlistId}")->withError('Unable to mark item as purchased.');
+        return $this->redirect("/{$wishlistId}")->withError('Unable to mark item as purchased.');
     }
 
     /**

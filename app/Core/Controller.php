@@ -83,7 +83,7 @@ abstract class Controller
     protected function requireAuth(): void
     {
         if (!$this->auth()) {
-            $this->redirect('/wishlist/login')->send();
+            $this->redirect('/login')->send();
             exit;
         }
     }
@@ -91,7 +91,7 @@ abstract class Controller
     protected function requireGuest(): void
     {
         if ($this->auth()) {
-            $this->redirect('/wishlist/')->send();
+            $this->redirect('/')->send();
             exit;
         }
     }
@@ -100,7 +100,7 @@ abstract class Controller
     {
         $user = $this->auth();
         if (!$user || !$user['admin']) {
-            $this->redirect('/wishlist/')->withError('Access denied. Admin privileges required.')->send();
+            $this->redirect('/')->withError('Access denied. Admin privileges required.')->send();
             exit;
         }
     }

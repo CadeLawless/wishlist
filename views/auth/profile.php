@@ -164,7 +164,7 @@ if (isset($flash['error'])) {
     <?php endif; ?>
 </div>
 
-<script src="/wishlist/public/js/form-validation.js"></script>
+<script src="/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
     // Initialize validation for name form

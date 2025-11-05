@@ -34,11 +34,11 @@
     <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
     <?php if($add ?? false){ ?>
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">
-            <img class="preview" src="<?php if(!empty($filename)) echo "/wishlist/public/images/item-images/{$wishlist['id']}/{$filename}"; ?>">
+            <img class="preview" src="<?php if(!empty($filename)) echo "/public/images/item-images/{$wishlist['id']}/{$filename}"; ?>">
         </div>
     <?php }else{ ?>
         <div id="preview_container">
-            <img class="preview" src="/wishlist/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
+            <img class="preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
         </div>
     <?php } ?>
 

@@ -30,7 +30,7 @@ class ItemRenderService
         $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
         
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
-        $imagePath = htmlspecialchars("/wishlist/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
+        $imagePath = htmlspecialchars("/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
         $dateModified = $item['date_modified'] ? date("n/j/Y g:i A", strtotime($item['date_modified'])) : '';
         
@@ -89,7 +89,7 @@ class ItemRenderService
                 // Assign wrap number based on purchase order, cycling through available wraps
                 $giftWrapNumber = (($position - 1) % $wrapCount) + 1;
                 ?>
-                <img src='/wishlist/public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
+                <img src='/public/images/site-images/themes/gift-wraps/<?php echo $giftWrapImage; ?>/<?php echo $giftWrapNumber; ?>.png' class='gift-wrap' alt='gift wrap'>
             <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
@@ -162,7 +162,7 @@ class ItemRenderService
                             </a>
                         <?php endif; ?>
                         <?php if($type === 'wisher'): ?>
-                            <a class='icon-container' href='/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
+                            <a class='icon-container' href='/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
                                 <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
                                 <div class='inline-label'>Edit</div>
                             </a>
@@ -205,7 +205,7 @@ class ItemRenderService
                                                                 <p><?php echo $itemName; ?></p>
                                                                 <div style="margin: 1rem 0;" class='center'>
                                                                     <a class='button secondary no-button double-no' href='#'>No</a>
-                                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
                                                                         <input type="hidden" name="_method" value="DELETE">
                                                                         <button type="submit" class='button primary'>Yes</button>
                                                                     </form>
@@ -214,7 +214,7 @@ class ItemRenderService
                                                         </div>
                                                     </div>
                                                 <?php else: ?>
-                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
@@ -254,7 +254,7 @@ class ItemRenderService
                                                                                 <p><?php echo $itemName; ?></p>
                                                                                 <div style="margin: 1rem 0;" class='center'>
                                                                                     <a class='button secondary no-button double-no' href='#'>No</a>
-                                                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
                                                                                         <input type="hidden" name="_method" value="DELETE">
                                                                                         <button type="submit" class='button primary'>Yes</button>
                                                                                     </form>
@@ -263,7 +263,7 @@ class ItemRenderService
                                                                         </div>
                                                                     </div>
                                                                 <?php else: ?>
-                                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
+                                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
                                                                         <input type="hidden" name="_method" value="DELETE">
                                                                         <button type="submit" class='button primary'>Yes</button>
                                                                     </form>
@@ -300,7 +300,7 @@ class ItemRenderService
                                                                                 <p><?php echo $itemName; ?></p>
                                                                                 <div style="margin: 1rem 0;" class='center'>
                                                                                     <a class='button secondary no-button double-no' href='#'>No</a>
-                                                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>&deleteAll=yes" style="display: inline;">
+                                                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>&deleteAll=yes" style="display: inline;">
                                                                                         <input type="hidden" name="_method" value="DELETE">
                                                                                         <button type="submit" class='button primary'>Yes</button>
                                                                                     </form>
@@ -309,7 +309,7 @@ class ItemRenderService
                                                                         </div>
                                                                     </div>
                                                                 <?php else: ?>
-                                                                    <form method="POST" action="/wishlist/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>&deleteAll=yes" style="display: inline;">
+                                                                    <form method="POST" action="/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>&deleteAll=yes" style="display: inline;">
                                                                         <input type="hidden" name="_method" value="DELETE">
                                                                         <button type="submit" class='button primary'>Yes</button>
                                                                     </form>
@@ -350,7 +350,7 @@ class ItemRenderService
                                         <?php endif; ?>
                                         <div style="margin: 1rem auto;" class='center'>
                                             <a class='button secondary no-button' href='#'>No</a>
-                                            <form method='POST' action='/wishlist/buyer/<?php echo $secretKey; ?>/purchase/<?php echo $item['id']; ?>' style='display: inline;' class='buyer-purchase-form'>
+                                            <form method='POST' action='/buyer/<?php echo $secretKey; ?>/purchase/<?php echo $item['id']; ?>' style='display: inline;' class='buyer-purchase-form'>
                                                 <?php if((int)($qtyRemaining ?? 1) > 1): ?>
                                                     <input type='hidden' name='quantity' value='1' data-bind-from='purchase-qty-<?php echo $item['id']; ?>'>
                                                 <?php else: ?>

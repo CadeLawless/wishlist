@@ -68,7 +68,7 @@ class AuthController extends Controller
             $remember = isset($data['remember_me']);
             
             if ($this->authService->login($data['username'], $data['password'], $remember)) {
-                return $this->redirect('/wishlist/');
+                return $this->redirect('/');
             }
 
             return $this->view('auth/login', [
@@ -91,7 +91,7 @@ class AuthController extends Controller
     public function logout(): Response
     {
         $this->authService->logout();
-        return $this->redirect('/wishlist/login')->withSuccess('You have been logged out successfully.');
+        return $this->redirect('/login')->withSuccess('You have been logged out successfully.');
     }
 
     public function showRegister(): Response
@@ -138,7 +138,7 @@ class AuthController extends Controller
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $data['username']);
                 
-                return $this->redirect('/wishlist/')->withSuccess('Registration successful! Please check your email to verify your account.');
+                return $this->redirect('/')->withSuccess('Registration successful! Please check your email to verify your account.');
             }
 
             return $this->view('auth/register', [
@@ -191,7 +191,7 @@ class AuthController extends Controller
                     $this->emailService->sendVerificationEmail($user['unverified_email'], $user['username']);
                     
                     // Return with special message about email verification
-                    return $this->redirect('/wishlist/login')->withSuccess('Your email address needs to be verified first. A verification email has been sent. Please check your inbox and verify your email before resetting your password.');
+                    return $this->redirect('/login')->withSuccess('Your email address needs to be verified first. A verification email has been sent. Please check your inbox and verify your email before resetting your password.');
                 }
                 
                 // Generate reset password key
@@ -209,7 +209,7 @@ class AuthController extends Controller
             }
             
             // Always show success message for security (don't reveal if account exists)
-            return $this->redirect('/wishlist/login')->withSuccess('If an account with that email or username exists, a password reset link has been sent.');
+            return $this->redirect('/login')->withSuccess('If an account with that email or username exists, a password reset link has been sent.');
         }
 
         // Show forgot password form for GET requests
@@ -240,11 +240,11 @@ class AuthController extends Controller
             $user = User::findByUsernameOrEmail($data['email']);
             
             if (!$user || $user['reset_password_key'] !== $data['key']) {
-                return $this->redirect('/wishlist/login')->withError('Invalid reset link.');
+                return $this->redirect('/login')->withError('Invalid reset link.');
             }
             
             if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
-                return $this->redirect('/wishlist/login')->withError('Reset link has expired. Please request a new one.');
+                return $this->redirect('/login')->withError('Reset link has expired. Please request a new one.');
             }
             
             // Update password and clear reset fields
@@ -255,7 +255,7 @@ class AuthController extends Controller
                 'reset_password_expiration' => null
             ]);
             
-            return $this->redirect('/wishlist/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+            return $this->redirect('/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
         }
 
         // Show reset password form for GET requests
@@ -263,7 +263,7 @@ class AuthController extends Controller
         $email = $this->request->get('email');
         
         if (!$key || !$email) {
-            return $this->redirect('/wishlist/login')->withError('Invalid reset link.');
+            return $this->redirect('/login')->withError('Invalid reset link.');
         }
 
         // Validate the reset key and expiration
@@ -273,7 +273,7 @@ class AuthController extends Controller
             return $this->view('auth/reset-password-error', [
                 'error' => 'Invalid reset link.',
                 'link_text' => 'Go to Login',
-                'link_url' => '/wishlist/login'
+                'link_url' => '/login'
             ], 'auth');
         }
         
@@ -281,7 +281,7 @@ class AuthController extends Controller
             return $this->view('auth/reset-password-error', [
                 'error' => 'This password reset link has expired. Try again!',
                 'link_text' => 'Go to Login',
-                'link_url' => '/wishlist/login'
+                'link_url' => '/login'
             ], 'auth');
         }
 
@@ -365,28 +365,28 @@ class AuthController extends Controller
         $username = $this->request->input('username');
         
         if (!$username) {
-            return $this->redirect('/wishlist/login')->withError('Invalid request.');
+            return $this->redirect('/login')->withError('Invalid request.');
         }
         
         $user = User::findByUsernameOrEmail($username);
         
         if (!$user) {
-            return $this->redirect('/wishlist/login')->withError('User not found.');
+            return $this->redirect('/login')->withError('User not found.');
         }
         
         // Get the email to send to
         $emailToUse = $user['email'] ?? $user['unverified_email'] ?? '';
         
         if (empty($emailToUse)) {
-            return $this->redirect('/wishlist/login')->withError('No email address found.');
+            return $this->redirect('/login')->withError('No email address found.');
         }
         
         // Send verification email
         try {
             $this->emailService->sendVerificationEmail($emailToUse, $username);
-            return $this->redirect('/wishlist/login')->withSuccess('Verification email resent! Please check your inbox.');
+            return $this->redirect('/login')->withSuccess('Verification email resent! Please check your inbox.');
         } catch (\Exception $e) {
-            return $this->redirect('/wishlist/login')->withError('Failed to resend verification email. Please try again.');
+            return $this->redirect('/login')->withError('Failed to resend verification email. Please try again.');
         }
     }
 
@@ -486,7 +486,7 @@ class AuthController extends Controller
             
             try {
                 User::update($user['id'], ['name' => $data['name']]);
-                return $this->redirect('/wishlist/profile')->withSuccess('Name updated successfully!');
+                return $this->redirect('/profile')->withSuccess('Name updated successfully!');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', $this->buildProfileViewData(
@@ -537,7 +537,7 @@ class AuthController extends Controller
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $user['username']);
                 
-                return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+                return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', $this->buildProfileViewData(
@@ -587,7 +587,7 @@ class AuthController extends Controller
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $user['username']);
                 
-                return $this->redirect('/wishlist/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+                return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', $this->buildProfileViewData(
@@ -623,7 +623,7 @@ class AuthController extends Controller
                 $hashedPassword = password_hash($data['new_password'], PASSWORD_DEFAULT);
                 User::update($user['id'], ['password' => $hashedPassword]);
                 
-                return $this->redirect('/wishlist/profile')->withSuccess('Password changed successfully!');
+                return $this->redirect('/profile')->withSuccess('Password changed successfully!');
             } catch (\Exception $e) {
                 $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
                 return $this->view('auth/profile', $this->buildProfileViewData(
@@ -642,16 +642,16 @@ class AuthController extends Controller
             $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
             
             if (empty($currentEmail)) {
-                return $this->redirect('/wishlist/profile')->withError('No email address found to send verification to.');
+                return $this->redirect('/profile')->withError('No email address found to send verification to.');
             }
             
             try {
                 // Send verification email
                 $this->emailService->sendVerificationEmail($currentEmail, $user['username']);
                 
-                return $this->redirect('/wishlist/profile')->withSuccess('Verification email resent! Please check your inbox.');
+                return $this->redirect('/profile')->withSuccess('Verification email resent! Please check your inbox.');
             } catch (\Exception $e) {
-                return $this->redirect('/wishlist/profile')->withError('Failed to resend verification email. Please try again.');
+                return $this->redirect('/profile')->withError('Failed to resend verification email. Please try again.');
             }
         }
         
@@ -680,7 +680,7 @@ class AuthController extends Controller
                 // Send reset email to the current email (verified or unverified)
                 $this->emailService->sendPasswordResetEmail($currentEmail, $resetKey);
                 
-                return $this->redirect('/wishlist/profile')->withSuccess('Password reset email sent! Please check your email.');
+                return $this->redirect('/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {
                 return $this->view('auth/profile', $this->buildProfileViewData(
                     $user,
@@ -690,7 +690,7 @@ class AuthController extends Controller
             }
         }
         
-        return $this->redirect('/wishlist/profile');
+        return $this->redirect('/profile');
     }
 
     public function admin(): Response

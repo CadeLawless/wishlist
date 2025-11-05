@@ -4,7 +4,7 @@ return [
     'name' => $_ENV['APP_NAME'] ?? 'Wish List',
     'env' => $_ENV['APP_ENV'] ?? 'local',
     'debug' => $_ENV['APP_DEBUG'] ?? true,
-    'url' => $_ENV['APP_URL'] ?? 'http://localhost/wishlist',
+    'url' => $_ENV['APP_URL'] ?? 'http://localhost',
     'timezone' => $_ENV['TIMEZONE'] ?? 'America/Chicago',
     'email' => [
         'from' => $_ENV['MAIL_FROM'] ?? 'support@cadelawless.com',

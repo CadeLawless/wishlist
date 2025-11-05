@@ -105,7 +105,7 @@ class ThemePopupHelper
                             // Get the current wishlist ID from the URL or session
                             $wishlistId = $_GET['id'] ?? \App\Services\SessionManager::get('wisher_wishlist_id', '');
                             echo "
-                            <form action='/wishlist/$wishlistId/theme' method='POST' style='display: inline;'>
+                            <form action='/$wishlistId/theme' method='POST' style='display: inline;'>
                                 <input type='hidden' id='theme_background_id' name='theme_background_id' value='' />
                                 <input type='hidden' id='theme_gift_wrap_id' name='theme_gift_wrap_id' value='' />
                                 <input type='submit' class='button primary continue-button' value='Confirm Change' name='theme_submit_button' />

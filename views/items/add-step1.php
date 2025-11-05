@@ -5,10 +5,10 @@ $wishlistTitle = htmlspecialchars($wishlist['wishlist_name']);
 $background_image = $wishlist['background_image'] ?? '';
 ?>
 <?php if($background_image != ""){ ?>
-    <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-    <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/wishlist/<?php echo $wishlistID; ?>">Back to List</a></p>
+<p style="padding-top: 15px;"><a class="button accent" href="/<?php echo $wishlistID; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header center transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
@@ -46,7 +46,7 @@ $background_image = $wishlist['background_image'] ?? '';
             </div>
         </div>
     </form>
-    <p id="manual-link">Rather enter all the details yourself? <a href="/wishlist/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
+    <p id="manual-link">Rather enter all the details yourself? <a href="/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
 </div>
 
 <script>
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         showLoadingState(true);
         
-        fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
+        fetch('/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSuccessAnimation();
                 
                 // Store data in session via AJAX
-                fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -129,21 +129,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(() => {
                     // Redirect to form after animation
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1200);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1200);
                 });
             } else {
                 showErrorAnimation();
                 
                 // Store error state and redirect
-                fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -154,14 +154,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(() => {
                     // Redirect to form after animation
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 });
             }
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showErrorAnimation();
             
             // Store error state and redirect
-            fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+            fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -182,14 +182,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(() => {
                 // Redirect to form after animation
                 setTimeout(() => {
-                    window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                    window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                 }, 1000);
             })
             .catch(error => {
                 console.error('Error storing data:', error);
                 // Still redirect even if storage fails
                 setTimeout(() => {
-                    window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                    window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
                 }, 1000);
             });
         });

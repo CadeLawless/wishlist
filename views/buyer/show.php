@@ -24,8 +24,8 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 ?>
 
 <?php if($background_image): ?>
-    <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo htmlspecialchars($background_image); ?>" />
-    <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo htmlspecialchars($background_image); ?>" />
+    <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo htmlspecialchars($background_image); ?>" />
+    <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo htmlspecialchars($background_image); ?>" />
 <?php endif; ?>
 
 <div class="center">
@@ -43,7 +43,7 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
             'form_class' => 'filter-form center',
             'sort_priority' => $sort_priority,
             'sort_price' => $sort_price,
-            'data_attributes' => 'data-base-url="/wishlist/buyer/' . $secret_key . '"'
+            'data_attributes' => 'data-base-url="/buyer/' . $secret_key . '"'
         ];
         include __DIR__ . '/../components/sort-filter-form.php';
         ?>
@@ -138,32 +138,32 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 				shapeOptions: {
 					image: [
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-1.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-1.png',
 							width: 100,
 							height: 100,
 						},
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-2.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-2.png',
 							width: 100,
 							height: 100,
 						},
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-3.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-3.png',
 							width: 100,
 							height: 100,
 						},
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-4.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-4.png',
 							width: 100,
 							height: 100,
 						},
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-5.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-5.png',
 							width: 100,
 							height: 100,
 						},
 						{
-							src: '/wishlist/public/images/site-images/confetti/christmas-confetti-6.png',
+							src: '/public/images/site-images/confetti/christmas-confetti-6.png',
 							width: 100,
 							height: 100,
 						}

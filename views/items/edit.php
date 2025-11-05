@@ -20,10 +20,10 @@ $priority_options = ["1", "2", "3", "4"];
 ?>
 
 <?php if($background_image != ""){ ?>
-    <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-    <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/wishlist/<?php echo $wishlistID; ?>">Back to List</a></p>
+<p style="padding-top: 15px;"><a class="button accent" href="/<?php echo $wishlistID; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
@@ -31,7 +31,7 @@ $priority_options = ["1", "2", "3", "4"];
 </div>
 <div class="form-container">
     <h2>Edit Item</h2>
-    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/item/<?php echo $item['id']; ?>" enctype="multipart/form-data">
+    <form method="POST" action="/<?php echo $wishlistID; ?>/item/<?php echo $item['id']; ?>" enctype="multipart/form-data">
         <div class="flex form-flex">
             <?php
             if(isset($error_msg)) echo $error_msg;
@@ -49,5 +49,5 @@ $priority_options = ["1", "2", "3", "4"];
     </form>
 </div>
 
-<script src="/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
-<script src="/wishlist/public/js/item-form.js"></script>
+<script src="/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/public/js/item-form.js"></script>

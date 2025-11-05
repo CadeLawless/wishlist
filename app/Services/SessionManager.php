@@ -28,7 +28,7 @@ class SessionManager
         
         // Set remember me cookie
         $cookieTime = 3600 * 24 * 365; // 1 year
-        setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '/wishlist');
+        setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '');
     }
 
     /**
@@ -100,7 +100,7 @@ class SessionManager
     {
         self::startSession();
         $_SESSION['wisher_wishlist_id'] = $wishlistId;
-        $_SESSION['home'] = "/wishlist/{$wishlistId}?pageno={$pageno}#paginate-top";
+        $_SESSION['home'] = "/{$wishlistId}?pageno={$pageno}#paginate-top";
         $_SESSION['type'] = 'wisher';
     }
 
@@ -230,7 +230,7 @@ class SessionManager
         // Handle remember me
         if ($remember) {
             $cookieTime = 3600 * 24 * 365; // 1 year
-            setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '/wishlist');
+            setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '');
         }
     }
 

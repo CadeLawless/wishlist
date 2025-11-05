@@ -34,7 +34,7 @@ if (isset($flash['error'])) {
 ?>
 
 <h1 class="center"><?php echo $user['name']; ?>'s Wish Lists</h1>
-<p class="center" style="margin: 0 0 36px;"><a class="button primary" href="/wishlist/create">Create a New Wish List</a></p>
+<p class="center" style="margin: 0 0 36px;"><a class="button primary" href="/create">Create a New Wish List</a></p>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
     <!-- Top Pagination controls -->
@@ -66,5 +66,5 @@ if (isset($flash['error'])) {
 <?php endif; ?>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
-<script src="/wishlist/public/js/pagination.js"></script>
+<script src="/public/js/pagination.js"></script>
 <?php endif; ?>

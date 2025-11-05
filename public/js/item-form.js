@@ -171,7 +171,7 @@ $(document).ready(function() {
         
         // Get wishlist ID from form data attribute
         const wishlistId = $('form[data-wishlist-id]').data('wishlist-id');
-        const apiUrl = wishlistId ? `/wishlist/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
+        const apiUrl = wishlistId ? `/${wishlistId}/api/fetch-url-metadata` : '/api/fetch-url-metadata';
         
         // Make AJAX request
         $.ajax({
