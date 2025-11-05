@@ -187,7 +187,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->createWishlist($user['username'], $data);
         
         if ($wishlist) {
-            return $this->redirect("/{$wishlist['id']}")->withSuccess('Wishlist created successfully!');
+            return $this->redirect("/wishlists/{$wishlist['id']}")->withSuccess('Wishlist created successfully!');
         }
 
         return $this->view('wishlist/create', [
@@ -254,7 +254,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->updateWishlistName($id, $data['wishlist_name'])) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist updated successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist updated successfully!');
         }
 
         return $this->view('wishlist/edit', [
@@ -309,10 +309,10 @@ class WishlistController extends Controller
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
             $message = $wishlist['public'] ? 'Wishlist is now hidden.' : 'Wishlist is now public.';
-            return $this->redirect("/{$id}")->withSuccess($message);
+            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to update wishlist visibility.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist visibility.');
     }
 
     public function toggleComplete(string|int $id): Response
@@ -333,10 +333,10 @@ class WishlistController extends Controller
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
             $message = $wishlist['complete'] ? 'Wishlist has been reactivated.' : 'Wishlist has been marked as complete.';
-            return $this->redirect("/{$id}")->withSuccess($message);
+            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to update wishlist status.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist status.');
     }
 
     public function rename(string|int $id): Response
@@ -359,14 +359,14 @@ class WishlistController extends Controller
         $errors = $this->wishlistValidator->validateWishlistName($name);
 
         if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->redirect("/{$id}")->withFlash('rename_error', $this->wishlistValidator->formatErrorsForDisplay($errors));
+            return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', $this->wishlistValidator->formatErrorsForDisplay($errors));
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist renamed successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist renamed successfully!');
         }
 
-        return $this->redirect("/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
     }
 
     public function updateTheme(string|int $id): Response
@@ -389,10 +389,10 @@ class WishlistController extends Controller
         $giftWrapId = (int) $this->request->input('theme_gift_wrap_id');
 
         if ($this->wishlistService->updateWishlistTheme($id, $backgroundId, $giftWrapId)) {
-            return $this->redirect("/{$id}")->withSuccess('Theme updated successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Theme updated successfully!');
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to update theme. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update theme. Please try again.');
     }
 
     public function copyFrom(string|int $id): Response
@@ -416,16 +416,16 @@ class WishlistController extends Controller
 
         if (empty($itemIds)) {
             // Pass error and selected wishlist ID via URL parameter to preserve state
-            return $this->redirect("/{$id}?copy_from_error=1&copy_from_wishlist_id={$fromWishlistId}")->withError('Please select at least one item to copy.');
+            return $this->redirect("/wishlists/{$id}?copy_from_error=1&copy_from_wishlist_id={$fromWishlistId}")->withError('Please select at least one item to copy.');
         }
 
         $copiedCount = $this->itemCopyService->copyItems($fromWishlistId, $id, $itemIds);
 
         if ($copiedCount > 0) {
-            return $this->redirect("/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to this wishlist!");
+            return $this->redirect("/wishlists/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to this wishlist!");
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to copy items. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
     public function copyTo(string|int $id): Response
@@ -449,16 +449,16 @@ class WishlistController extends Controller
 
         if (empty($itemIds)) {
             // Pass error and selected wishlist ID via URL parameter to preserve state
-            return $this->redirect("/{$id}?copy_to_error=1&copy_to_wishlist_id={$toWishlistId}")->withError('Please select at least one item to copy.');
+            return $this->redirect("/wishlists/{$id}?copy_to_error=1&copy_to_wishlist_id={$toWishlistId}")->withError('Please select at least one item to copy.');
         }
 
         $copiedCount = $this->itemCopyService->copyItems($id, $toWishlistId, $itemIds);
 
         if ($copiedCount > 0) {
-            return $this->redirect("/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to the other wishlist!");
+            return $this->redirect("/wishlists/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to the other wishlist!");
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to copy items. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
     public function hide(string|int $id): Response
@@ -478,10 +478,10 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist hidden successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist hidden successfully.');
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to hide wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to hide wishlist. Please try again.');
     }
 
     public function showPublic(string|int $id): Response
@@ -501,10 +501,10 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist made public successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist made public successfully.');
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to make wishlist public. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to make wishlist public. Please try again.');
     }
 
     public function complete(string|int $id): Response
@@ -524,10 +524,10 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist marked as complete.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist marked as complete.');
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
     }
 
     public function reactivate(string|int $id): Response
@@ -547,10 +547,10 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/{$id}")->withSuccess('Wishlist reactivated successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist reactivated successfully.');
         }
 
-        return $this->redirect("/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
     }
 
     public function paginateItems(string|int $id): Response

@@ -15,7 +15,7 @@ $currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_U
             ?>
             <div class="menu-links">
                 <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/wishlist") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/create") echo " active"; ?>" href="/create">Create Wishlist<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/wishlists/create") echo " active"; ?>" href="/wishlists/create">Create Wishlist<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlists") echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
                     <div class="outer-link">

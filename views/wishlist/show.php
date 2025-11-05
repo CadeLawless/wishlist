@@ -124,7 +124,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['rename_error']); ?></span>
                                                 </div>
                                             <?php endif; ?>
-                                            <form method="POST" action="/<?php echo $wishlistID; ?>/rename">
+                                            <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/rename">
                                                 <div class="flex form-flex">
                                                     <div class="large-input">
                                                         <label for="wishlist_name">Name:<br/></label>
@@ -160,9 +160,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                             <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
                                                         </div>
                                                     <?php endif; ?>
-                                                    <form method="POST" action="/<?php echo $wishlistID; ?>/copy-from">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-from">
                                                         <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="/<?php echo $wishlistID; ?>" required>
+                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="/wishlists/<?php echo $wishlistID; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -208,9 +208,9 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                             <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
                                                         </div>
                                                     <?php endif; ?>
-                                                    <form method="POST" action="/<?php echo $wishlistID; ?>/copy-to">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-to">
                                                         <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="/<?php echo $wishlistID; ?>" required>
+                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="/wishlists/<?php echo $wishlistID; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -266,7 +266,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <p><?php echo $wishlistTitle; ?></p>
                                                     <div style="margin: 1rem 0;" class='center'>
                                                         <a class='button secondary no-button'>No</a>
-                                                        <form method="POST" action="/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
+                                                        <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
                                                             <button type="submit" class='button primary'>Yes</button>
                                                         </form>
                                                     </div>
@@ -298,7 +298,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 <p><?php echo $wishlistTitle; ?></p>
                                                 <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
-                                                    <form method="POST" action="/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
                                                 </div>
@@ -320,7 +320,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 <p><?php echo $wishlistTitle; ?></p>
                                                 <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
-                                                    <form method="POST" action="/<?php echo $wishlistID; ?>" style="display: inline;">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
@@ -340,11 +340,11 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     <div class="sort-filters">
                         <?php 
                         $options = [
-                            'form_action' => "/{$wishlistID}/filter",
+                            'form_action' => "/wishlists/{$wishlistID}/filter",
                             'form_class' => 'filter-form center',
                             'sort_priority' => $filters['sort_priority'] ?? '',
                             'sort_price' => $filters['sort_price'] ?? '',
-                            'data_attributes' => 'data-base-url="/' . $wishlistID . '"'
+                            'data_attributes' => 'data-base-url="/wishlists/' . $wishlistID . '"'
                         ];
                         include __DIR__ . '/../components/sort-filter-form.php';
                         ?>
@@ -354,7 +354,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
                     All Items
-                    <a href='/<?php echo $wishlistID; ?>/item/add' class='icon-container add-item'>
+                    <a href='/wishlists/<?php echo $wishlistID; ?>/item/add' class='icon-container add-item'>
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
                         <div class='inline-label'>Add</div>
                     </a>
@@ -373,7 +373,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     endforeach; 
                                     ?>
                                 <?php else: ?>
-                                    <a class='item-container add-placeholder' href='/<?php echo $wishlist['id']; ?>/item/add'>
+                                    <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
                                         <div class='item-image-container'>
                                             <img class='item-image' src='public/images/site-images/default-photo.png' alt='wishlist item image'>
                                         </div>

@@ -242,7 +242,7 @@ class ItemController extends Controller
             // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
+            return $this->redirect("/wishlists/{$wishlistId}?pageno={$pageno}")->withSuccess('Item added successfully!');
         }
 
         // Clean up uploaded files if database operation failed
@@ -290,7 +290,7 @@ class ItemController extends Controller
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
         }
 
         // Get background image for theme
@@ -350,7 +350,7 @@ class ItemController extends Controller
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
         }
 
         $data = $this->request->input();
@@ -471,7 +471,7 @@ class ItemController extends Controller
             // $this->fileUploadService->cleanupUploadedFiles($uploadedFiles);
             
             $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
+            return $this->redirect("/wishlists/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
         }
 
         // Clean up uploaded files if database operation failed
@@ -522,7 +522,7 @@ class ItemController extends Controller
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
         }
 
         $deleteAll = $this->request->input('deleteAll', '') === 'yes';
@@ -552,7 +552,7 @@ class ItemController extends Controller
                     }
                 }
                 
-                return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted from all wishlists successfully!');
+                return $this->redirect("/wishlists/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted from all wishlists successfully!');
             }
         } else {
             // Delete from this wishlist only
@@ -574,11 +574,11 @@ class ItemController extends Controller
             }
 
             if ($this->itemCopyService->deleteItemFromWishlist($itemId)) {
-                return $this->redirect("/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
+                return $this->redirect("/wishlists/{$wishlistId}?pageno={$pageno}")->withSuccess('Item deleted successfully!');
             }
         }
 
-        return $this->redirect("/{$wishlistId}")->withError('Unable to delete item. Please try again.');
+        return $this->redirect("/wishlists/{$wishlistId}")->withError('Unable to delete item. Please try again.');
     }
 
     public function purchase(string|int $wishlistId, string|int $itemId): Response
@@ -605,16 +605,16 @@ class ItemController extends Controller
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/{$wishlistId}")->withError('Item not found.');
+            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
         }
 
         $quantity = (int)$this->request->input('quantity', 1);
         
         if ($this->wishlistService->purchaseItem($wishlistId, $itemId, $quantity)) {
-            return $this->redirect("/{$wishlistId}")->withSuccess('Item marked as purchased!');
+            return $this->redirect("/wishlists/{$wishlistId}")->withSuccess('Item marked as purchased!');
         }
 
-        return $this->redirect("/{$wishlistId}")->withError('Unable to mark item as purchased.');
+        return $this->redirect("/wishlists/{$wishlistId}")->withError('Unable to mark item as purchased.');
     }
 
     /**

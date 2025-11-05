@@ -56,45 +56,45 @@ Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists'])->midd
 
 
 // Wishlist routes (home page shows user's wishlists)
-Router::get('/create', [WishlistController::class, 'create'])->middleware('auth');
+Router::get('/wishlists/create', [WishlistController::class, 'create'])->middleware('auth');
 Router::get('/wishlists', [WishlistController::class, 'index'])->middleware('auth');
 Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishlists'])->middleware('auth');
-Router::post('/', [WishlistController::class, 'store'])->middleware('auth');
-Router::get('/{id}', [WishlistController::class, 'show'])->middleware('auth');
-Router::get('/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');
-Router::post('/{id}', [WishlistController::class, 'update'])->middleware('auth');
-Router::delete('/{id}', [WishlistController::class, 'delete'])->middleware('auth');
-Router::post('/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility'])->middleware('auth');
-Router::post('/{id}/toggle-complete', [WishlistController::class, 'toggleComplete'])->middleware('auth');
+Router::post('/wishlists', [WishlistController::class, 'store'])->middleware('auth');
+Router::get('/wishlists/{id}', [WishlistController::class, 'show'])->middleware('auth');
+Router::get('/wishlists/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');
+Router::post('/wishlists/{id}', [WishlistController::class, 'update'])->middleware('auth');
+Router::delete('/wishlists/{id}', [WishlistController::class, 'delete'])->middleware('auth');
+Router::post('/wishlists/{id}/toggle-visibility', [WishlistController::class, 'toggleVisibility'])->middleware('auth');
+Router::post('/wishlists/{id}/toggle-complete', [WishlistController::class, 'toggleComplete'])->middleware('auth');
 
 // Wishlist management routes
-Router::post('/{id}/rename', [WishlistController::class, 'rename'])->middleware('auth');
-Router::post('/{id}/theme', [WishlistController::class, 'updateTheme'])->middleware('auth');
-Router::post('/{id}/copy-from', [WishlistController::class, 'copyFrom'])->middleware('auth');
-Router::post('/{id}/copy-to', [WishlistController::class, 'copyTo'])->middleware('auth');
-Router::post('/{id}/hide', [WishlistController::class, 'hide'])->middleware('auth');
-Router::post('/{id}/show', [WishlistController::class, 'showPublic'])->middleware('auth');
-Router::post('/{id}/complete', [WishlistController::class, 'complete'])->middleware('auth');
-Router::post('/{id}/reactivate', [WishlistController::class, 'reactivate'])->middleware('auth');
+Router::post('/wishlists/{id}/rename', [WishlistController::class, 'rename'])->middleware('auth');
+Router::post('/wishlists/{id}/theme', [WishlistController::class, 'updateTheme'])->middleware('auth');
+Router::post('/wishlists/{id}/copy-from', [WishlistController::class, 'copyFrom'])->middleware('auth');
+Router::post('/wishlists/{id}/copy-to', [WishlistController::class, 'copyTo'])->middleware('auth');
+Router::post('/wishlists/{id}/hide', [WishlistController::class, 'hide'])->middleware('auth');
+Router::post('/wishlists/{id}/show', [WishlistController::class, 'showPublic'])->middleware('auth');
+Router::post('/wishlists/{id}/complete', [WishlistController::class, 'complete'])->middleware('auth');
+Router::post('/wishlists/{id}/reactivate', [WishlistController::class, 'reactivate'])->middleware('auth');
 
 // AJAX endpoints
-Router::post('/{id}/paginate', [WishlistController::class, 'paginateItems'])->middleware('auth');
-Router::post('/{id}/filter', [WishlistController::class, 'filterItems'])->middleware('auth');
-Router::post('/{id}/items', [WishlistController::class, 'getOtherWishlistItems'])->middleware('auth');
+Router::post('/wishlists/{id}/paginate', [WishlistController::class, 'paginateItems'])->middleware('auth');
+Router::post('/wishlists/{id}/filter', [WishlistController::class, 'filterItems'])->middleware('auth');
+Router::post('/wishlists/{id}/items', [WishlistController::class, 'getOtherWishlistItems'])->middleware('auth');
 
 // Item routes - Two-step flow
-Router::get('/{wishlistId}/item/add', [ItemController::class, 'addStep1'])->middleware('auth');
-Router::get('/{wishlistId}/item/create', [ItemController::class, 'create'])->middleware('auth');
-Router::post('/{wishlistId}/item', [ItemController::class, 'store'])->middleware('auth');
+Router::get('/wishlists/{wishlistId}/item/add', [ItemController::class, 'addStep1'])->middleware('auth');
+Router::get('/wishlists/{wishlistId}/item/create', [ItemController::class, 'create'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/item', [ItemController::class, 'store'])->middleware('auth');
 
 // API routes for URL metadata fetching
-Router::post('/{wishlistId}/api/fetch-url-metadata', [ItemController::class, 'fetchUrlMetadata'])->middleware('auth');
-Router::post('/{wishlistId}/api/store-fetched-data', [ItemController::class, 'storeFetchedData'])->middleware('auth');
-Router::get('/{wishlistId}/api/test-json', [ItemController::class, 'testJson'])->middleware('auth');
-Router::get('/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit'])->middleware('auth');
-Router::post('/{wishlistId}/item/{id}', [ItemController::class, 'update'])->middleware('auth');
-Router::delete('/{wishlistId}/item/{id}', [ItemController::class, 'delete'])->middleware('auth');
-Router::post('/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/api/fetch-url-metadata', [ItemController::class, 'fetchUrlMetadata'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/api/store-fetched-data', [ItemController::class, 'storeFetchedData'])->middleware('auth');
+Router::get('/wishlists/{wishlistId}/api/test-json', [ItemController::class, 'testJson'])->middleware('auth');
+Router::get('/wishlists/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/item/{id}', [ItemController::class, 'update'])->middleware('auth');
+Router::delete('/wishlists/{wishlistId}/item/{id}', [ItemController::class, 'delete'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased'])->middleware('auth');
 
 // Buyer routes
 Router::get('/buyer/{key}', [BuyerController::class, 'show']);

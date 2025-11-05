@@ -46,7 +46,7 @@ $background_image = $wishlist['background_image'] ?? '';
             </div>
         </div>
     </form>
-    <p id="manual-link">Rather enter all the details yourself? <a href="/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
+    <p id="manual-link">Rather enter all the details yourself? <a href="/wishlists/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
 </div>
 
 <script>
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         showLoadingState(true);
         
-        fetch('/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
+        fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSuccessAnimation();
                 
                 // Store data in session via AJAX
-                fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showErrorAnimation();
                 
                 // Store error state and redirect
-                fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

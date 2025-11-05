@@ -37,7 +37,7 @@ $priority_options = ["1", "2", "3", "4"];
         </div>
     <?php endif; ?>
     <?php if(isset($error_msg)) echo $error_msg?>
-    <form method="POST" action="/<?php echo $wishlistID; ?>/item" enctype="multipart/form-data" data-wishlist-id="<?php echo $wishlistID; ?>">
+    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/item" enctype="multipart/form-data" data-wishlist-id="<?php echo $wishlistID; ?>">
         <div class="flex form-flex">
             <?php
             $add = true;
