@@ -54,7 +54,7 @@ $(document).ready(function() {
                     });
                     
                     // Update URL without page refresh
-                    const newUrl = baseUrl + "?pageno=1#paginate-top";
+                    const newUrl = baseUrl + "?pageno=1";
                     history.pushState(null, null, newUrl);
                     
                     // Update the pagination variables for next pagination

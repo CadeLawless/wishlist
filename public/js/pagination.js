@@ -15,7 +15,6 @@ $(document).ready(function() {
     // Determine the content selector based on what exists on the page
     // This allows the same script to work for different page types
     const contentSelector = $('.wishlist-grid').length ? '.wishlist-grid' : '.items-list.main';
-    const urlHash = contentSelector === '.items-list.main' ? '#paginate-top' : '';
     
     // Function to build URL with preserved parameters
     function buildUrlWithParams(pageNumber) {
@@ -30,11 +29,6 @@ $(document).ready(function() {
         }
         if (searchParams.has('key')) {
             url += '&key=' + searchParams.get('key');
-        }
-        
-        // Add hash if needed
-        if (urlHash) {
-            url += urlHash;
         }
         
         return url;
