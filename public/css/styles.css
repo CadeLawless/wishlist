@@ -1126,13 +1126,14 @@ textarea {
     background-color: transparent;
     align-self: center;
     margin: auto;
+    box-shadow: none;
 }
 .popup-container.center-items > .popup {
     margin-top: 0;
 }
 .popup-image {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 68vh;
 }
 .slide-out-left {
     animation: slideoutleft 1s;
