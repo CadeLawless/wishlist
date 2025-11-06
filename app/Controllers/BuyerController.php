@@ -49,6 +49,12 @@ class BuyerController extends Controller
         // Apply pagination
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
         $totalPages = $this->paginationService->getTotalPages();
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno && count($allItems) > 0) {
+            return $this->redirect("/buyer/{$secretKey}?pageno={$correctedPage}");
+        }
         
         $stats = $this->wishlistService->getWishlistStats($wishlist['id']);
         

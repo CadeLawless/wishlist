@@ -27,7 +27,7 @@ class WishlistRenderService
             <a class='wishlist-grid-item' href='/wishlists/$id'>
                 <div class='items-list preview' style='$backgroundStyle'>
                     <div class='item-container'>
-                        <img src='public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
+                        <img src='/public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                         <div class='item-description'>
                             <div class='bar title'></div>
                             <div class='bar'></div>

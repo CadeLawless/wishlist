@@ -62,6 +62,12 @@ class WishlistController extends Controller
         // Apply pagination to get only 12 wishlists per page
         $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
         $totalPages = $this->paginationService->getTotalPages();
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno) {
+            return $this->redirect("/wishlists?pageno={$correctedPage}");
+        }
         
         $data = [
             'user' => $user,
@@ -133,6 +139,12 @@ class WishlistController extends Controller
         // Apply pagination to get only 12 items per page
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
         $totalPages = $this->paginationService->getTotalPages($allItems);
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno && count($allItems) > 0) {
+            return $this->redirect("/wishlists/{$id}?pageno={$correctedPage}");
+        }
         
         $data = [
             'user' => $user,
@@ -382,7 +394,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('s')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wishlist not found.');
         }
 
         $backgroundId = (int) $this->request->input('theme_background_id');

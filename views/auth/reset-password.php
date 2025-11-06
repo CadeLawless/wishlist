@@ -33,7 +33,7 @@ if (isset($flash['error'])) {
 }
 ?>
 
-<p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
+<p class="center"><img class="logo login" src="/public/images/site-images/logo.png" alt="Wish List" /></p>
 
 <form id="reset-password-form" method="POST" action="">
     <input type="hidden" name="key" value="<?php echo htmlspecialchars($key ?? ''); ?>" />

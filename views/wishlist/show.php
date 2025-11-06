@@ -375,7 +375,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                 <?php else: ?>
                                     <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
                                         <div class='item-image-container'>
-                                            <img class='item-image' src='public/images/site-images/default-photo.png' alt='wishlist item image'>
+                                            <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
                                         </div>
                                         <div class='item-description'></div>
                                         <div class='add-label'>
