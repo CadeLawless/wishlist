@@ -858,7 +858,7 @@ body.dark .dark-mode-link {
 /* form css */
 .form-container {
     display: block;
-    margin: 0 auto 120px;
+    margin: 0 auto 60px;
     max-width: 800px;
     padding: 0 20px;
     background-color: var(--transparent-background);
