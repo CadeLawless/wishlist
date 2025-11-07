@@ -143,14 +143,14 @@ $(document).ready(function() {
                         // Update pagination controls (bottom pagination)
                         updatePaginationControls(data, $paginationContainer);
                         
-                        // Update top pagination controls for items pages
+                        // Update top pagination controls for items pages (this also updates top page numbers)
                         if ($contentContainer.hasClass('items-list') || contentSelector === '.items-list.main') {
                             updateTopPaginationControls(data, $contentContainer);
                         }
                         
-                        // Update page number display
-                        $('.page-number').text(data.current);
-                        $('.last-page').text(data.total);
+                        // Update page number display for bottom pagination (top is handled in updateTopPaginationControls)
+                        $('.paginate-container.bottom .page-number').text(data.current);
+                        $('.paginate-container.bottom .last-page').text(data.total);
                         
                         // Update pagination state for pagination.js so arrow clicks work correctly
                         if (window.Pagination) {
@@ -220,25 +220,70 @@ $(document).ready(function() {
         function updatePaginationControls(data, $paginationContainer) {
             // Determine items per page based on page type (admin: 10, items: 12)
             const isAdminPage = $contentContainer.hasClass('admin-table-body');
-            const itemsPerPage = data.itemsPerPage || (isAdminPage ? 10 : 12);
-            const totalRows = data.totalRows || 0;
-            const totalPages = data.total || 1;
-            const currentPage = data.current || 1;
+            const itemsPerPage = parseInt(data.itemsPerPage) || (isAdminPage ? 10 : 12);
+            const totalRows = parseInt(data.totalRows) || 0;
+            const totalPages = parseInt(data.total) || 1;
+            const currentPage = parseInt(data.current) || 1;
+            
+            // Get the wrapper element (center div)
+            const $paginationWrapper = $paginationContainer.closest('.center');
             
             // Show pagination controls if there are more results than items per page
             if (totalRows > itemsPerPage) {
+                // Remove any inline display:none style and show the wrapper
+                $paginationWrapper.css('display', '');
+                $paginationWrapper.show();
                 // Show all pagination controls (arrows, title, and count)
                 $paginationContainer.find('.paginate-arrow, .paginate-title').show();
                 $paginationContainer.find('.count-showing').show();
-                $paginationContainer.show();
+                
+                // Update arrow states for bottom pagination
+                const $firstArrow = $paginationContainer.find('.paginate-first');
+                const $prevArrow = $paginationContainer.find('.paginate-previous');
+                const $nextArrow = $paginationContainer.find('.paginate-next');
+                const $lastArrow = $paginationContainer.find('.paginate-last');
+                
+                // First and Previous arrows - disabled on page 1
+                if ($firstArrow.length) {
+                    if (currentPage <= 1) {
+                        $firstArrow.addClass('disabled');
+                    } else {
+                        $firstArrow.removeClass('disabled');
+                    }
+                }
+                if ($prevArrow.length) {
+                    if (currentPage <= 1) {
+                        $prevArrow.addClass('disabled');
+                    } else {
+                        $prevArrow.removeClass('disabled');
+                    }
+                }
+                
+                // Next and Last arrows - disabled on last page
+                if ($nextArrow.length) {
+                    if (currentPage >= totalPages) {
+                        $nextArrow.addClass('disabled');
+                    } else {
+                        $nextArrow.removeClass('disabled');
+                    }
+                }
+                if ($lastArrow.length) {
+                    if (currentPage >= totalPages) {
+                        $lastArrow.addClass('disabled');
+                    } else {
+                        $lastArrow.removeClass('disabled');
+                    }
+                }
             } else if (totalRows > 0 && totalRows <= itemsPerPage) {
+                // Remove any inline display:none style and show the wrapper
+                $paginationWrapper.css('display', '');
+                $paginationWrapper.show();
                 // Show only count, hide pagination arrows (results fit on one page)
                 $paginationContainer.find('.paginate-arrow, .paginate-title').hide();
                 $paginationContainer.find('.count-showing').show();
-                $paginationContainer.show();
             } else {
                 // Hide everything if no results
-                $paginationContainer.hide();
+                $paginationWrapper.hide();
             }
         }
         
@@ -246,39 +291,71 @@ $(document).ready(function() {
         function updateTopPaginationControls(data, $contentContainer) {
             const itemsPerPage = data.itemsPerPage || 12;
             const totalRows = data.totalRows || 0;
-            const totalPages = data.total || 1;
-            const currentPage = data.current || 1;
+            const totalPages = parseInt(data.total) || 1;
+            const currentPage = parseInt(data.current) || 1;
             
             // Find top pagination container (not the bottom one)
             const $topPaginationContainer = $('.paginate-container').not('.bottom').first();
             
             if ($topPaginationContainer.length) {
+                const $topPaginationWrapper = $topPaginationContainer.closest('.center');
+                
                 // Hide top pagination if there are no results or 12 or fewer results
                 if (totalRows === 0 || totalRows <= itemsPerPage) {
-                    $topPaginationContainer.closest('.center').hide();
+                    $topPaginationWrapper.hide();
                 } else {
                     // Show top pagination if there are more than itemsPerPage results
-                    $topPaginationContainer.closest('.center').show();
-                    // Update page numbers in top pagination
-                    $topPaginationContainer.find('.page-number').text(currentPage);
-                    $topPaginationContainer.find('.last-page').text(totalPages);
+                    // Remove any inline display:none style and show the element
+                    $topPaginationWrapper.css('display', '');
+                    $topPaginationWrapper.show();
                     
-                    // Update arrow states for top pagination
-                    const $topArrows = $topPaginationContainer.find('.paginate-arrow');
-                    $topArrows.find('.paginate-first, .paginate-previous').each(function() {
+                    // Update page numbers in top pagination (only update top, not bottom)
+                    const $topPageNumber = $topPaginationContainer.find('.page-number');
+                    const $topLastPage = $topPaginationContainer.find('.last-page');
+                    if ($topPageNumber.length) {
+                        $topPageNumber.text(currentPage);
+                    }
+                    if ($topLastPage.length) {
+                        $topLastPage.text(totalPages);
+                    }
+                    
+                    // Update arrow states for top pagination - be explicit about each arrow type
+                    const $firstArrow = $topPaginationContainer.find('.paginate-first');
+                    const $prevArrow = $topPaginationContainer.find('.paginate-previous');
+                    const $nextArrow = $topPaginationContainer.find('.paginate-next');
+                    const $lastArrow = $topPaginationContainer.find('.paginate-last');
+                    
+                    // First and Previous arrows - disabled on page 1
+                    if ($firstArrow.length) {
                         if (currentPage <= 1) {
-                            $(this).addClass('disabled');
+                            $firstArrow.addClass('disabled');
                         } else {
-                            $(this).removeClass('disabled');
+                            $firstArrow.removeClass('disabled');
                         }
-                    });
-                    $topArrows.find('.paginate-next, .paginate-last').each(function() {
+                    }
+                    if ($prevArrow.length) {
+                        if (currentPage <= 1) {
+                            $prevArrow.addClass('disabled');
+                        } else {
+                            $prevArrow.removeClass('disabled');
+                        }
+                    }
+                    
+                    // Next and Last arrows - disabled on last page
+                    if ($nextArrow.length) {
                         if (currentPage >= totalPages) {
-                            $(this).addClass('disabled');
+                            $nextArrow.addClass('disabled');
                         } else {
-                            $(this).removeClass('disabled');
+                            $nextArrow.removeClass('disabled');
                         }
-                    });
+                    }
+                    if ($lastArrow.length) {
+                        if (currentPage >= totalPages) {
+                            $lastArrow.addClass('disabled');
+                        } else {
+                            $lastArrow.removeClass('disabled');
+                        }
+                    }
                 }
             }
         }

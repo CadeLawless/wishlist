@@ -699,6 +699,7 @@ class WishlistController extends Controller
         // Get filter parameters
         $sortPriority = $this->request->input('sort_priority', '');
         $sortPrice = $this->request->input('sort_price', '');
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Validate filter options using FilterService
         if (!FilterService::validateWisherFilters($sortPriority, $sortPrice)) {
@@ -713,11 +714,17 @@ class WishlistController extends Controller
 
         // Get filtered items (reset to page 1 after filtering)
         $items = $this->wishlistService->getWishlistItems($id, $filters);
+        
+        // Apply search filter if search term is provided
+        if (!empty($searchTerm)) {
+            $items = $this->filterItems($items, $searchTerm);
+        }
+        
         $paginatedItems = $this->paginationService->paginate($items, 1);
         $totalPages = $this->paginationService->getTotalPages($items);
         $totalRows = count($items);
         
-        $html = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, 1);
+        $html = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, 1, 'wisher', $searchTerm);
         
         // Calculate pagination info
         $itemsPerPage = 12;
@@ -740,6 +747,8 @@ class WishlistController extends Controller
             'html' => $html,
             'current' => 1,
             'total' => $totalPages,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => 12,
             'paginationInfo' => $paginationInfo
         ];
         
