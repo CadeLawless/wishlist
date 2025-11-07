@@ -1188,9 +1188,6 @@ textarea {
 .popup.fullscreen .popup-content {
     max-height: calc(90vh - 175px);
 }
-.popup.fullscreen .gift-wrap-content .popup-content {
-    max-height: calc(90vh - 144px);
-}
 .popup-content.choose-theme-popup {
     margin-top: 0;
 }
@@ -1906,6 +1903,7 @@ img.gift-wrap {
     gap: 10px;
     overflow: auto;
     max-height: 60vh;
+    padding: 0 0.5rem 0.5rem;
 }
 .options .option .value {
     display: block;

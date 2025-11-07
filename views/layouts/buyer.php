@@ -82,7 +82,6 @@
     </div>
     <?php include __DIR__ . '/../components/footer.php'; ?>
     
-    <script src="/public/js/popups.js"></script>
     <script src="/public/js/wishlist-filters.js"></script>
     <script src="/public/js/pagination.js"></script>
     <script>

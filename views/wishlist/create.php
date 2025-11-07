@@ -89,7 +89,6 @@ if (isset($flash['error'])) {
 </style>
 
 <script src="/public/js/form-validation.js"></script>
-<script src="/public/js/popups.js"></script>
 <script src="/public/js/choose-theme.js"></script>
 <script>
 $(document).ready(function() {
