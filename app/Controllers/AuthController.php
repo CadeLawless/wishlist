@@ -259,24 +259,45 @@ class AuthController extends Controller
         }
 
         // Show reset password form for GET requests
+        // Support both formats: ?token=... (legacy) and ?key=...&email=... (new)
+        $token = $this->request->get('token');
         $key = $this->request->get('key');
         $email = $this->request->get('email');
         
-        if (!$key || !$email) {
-            return $this->redirect('/login')->withError('Invalid reset link.');
-        }
-
-        // Validate the reset key and expiration
-        $user = User::findByUsernameOrEmail($email);
+        $user = null;
+        $resetKey = null;
+        $userEmail = null;
         
-        if (!$user || $user['reset_password_key'] !== $key) {
+        // Handle legacy token format
+        if ($token) {
+            // Find user by reset_password_key (token)
+            $user = User::whereEqual('reset_password_key', $token);
+            
+            if ($user) {
+                $resetKey = $token;
+                $userEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            }
+        } 
+        // Handle new format with key and email
+        elseif ($key && $email) {
+            $user = User::findByUsernameOrEmail($email);
+            
+            if ($user && $user['reset_password_key'] === $key) {
+                $resetKey = $key;
+                $userEmail = $email;
+            }
+        }
+        
+        // Validate we have the required information
+        if (!$user || !$resetKey || !$userEmail) {
             return $this->view('auth/reset-password-error', [
                 'error' => 'Invalid reset link.',
                 'link_text' => 'Go to Login',
                 'link_url' => '/login'
             ], 'auth');
         }
-        
+
+        // Check expiration
         if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
             return $this->view('auth/reset-password-error', [
                 'error' => 'This password reset link has expired. Try again!',
@@ -286,8 +307,8 @@ class AuthController extends Controller
         }
 
         return $this->view('auth/reset-password', [
-            'key' => $key,
-            'email' => $email,
+            'key' => $resetKey,
+            'email' => $userEmail,
             'password' => '',
             'password_confirmation' => '',
             'error_msg' => ''
