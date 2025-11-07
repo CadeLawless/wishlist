@@ -67,6 +67,9 @@ Router::get('/admin/gift-wraps', [AdminController::class, 'giftWraps'])->middlew
 Router::post('/admin/gift-wraps/paginate', [AdminController::class, 'paginateGiftWraps'])->middleware('admin');
 Router::get('/admin/gift-wraps/edit', [AdminController::class, 'editGiftWrap'])->middleware('admin');
 Router::post('/admin/gift-wraps/update', [AdminController::class, 'updateGiftWrap'])->middleware('admin');
+Router::post('/admin/gift-wraps/add-image', [AdminController::class, 'addGiftWrapImage'])->middleware('admin');
+Router::post('/admin/gift-wraps/remove-image', [AdminController::class, 'removeGiftWrapImage'])->middleware('admin');
+Router::post('/admin/gift-wraps/reorder-images', [AdminController::class, 'reorderGiftWrapImages'])->middleware('admin');
 Router::get('/admin/wishlists', [AdminController::class, 'wishlists'])->middleware('admin');
 Router::post('/admin/wishlists/paginate', [AdminController::class, 'paginateWishlists'])->middleware('admin');
 Router::get('/admin/wishlists/view', [AdminController::class, 'viewWishlist'])->middleware('admin');

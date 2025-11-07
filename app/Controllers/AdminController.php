@@ -642,6 +642,162 @@ class AdminController extends Controller
         return $this->redirect("/admin/gift-wraps/edit?id={$id}&pageno={$pageno}")->withError('Failed to update gift wrap. Please try again.');
     }
 
+    public function addGiftWrapImage(): void
+    {
+        $user = $this->auth();
+        
+        header('Content-Type: application/json');
+        
+        $themeId = (int) $this->request->input('theme_id');
+        $giftWrapFolder = trim($this->request->input('gift_wrap_folder', ''));
+        
+        if (!$themeId || empty($giftWrapFolder)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid gift wrap ID or folder name.'
+            ]);
+            exit;
+        }
+        
+        $giftWrap = Theme::find($themeId);
+        if (!$giftWrap || $giftWrap['theme_type'] !== 'Gift Wrap') {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Gift wrap not found.'
+            ]);
+            exit;
+        }
+        
+        if (!$this->request->hasFile('gift_wrap_image')) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'No image file provided.'
+            ]);
+            exit;
+        }
+        
+        $uploadResult = $this->fileUploadService->uploadGiftWrapImage(
+            $this->request->file('gift_wrap_image'),
+            $giftWrapFolder
+        );
+        
+        if ($uploadResult['success']) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Image uploaded successfully.',
+                'filename' => $uploadResult['filename']
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $uploadResult['error'] ?? 'Failed to upload image.'
+            ]);
+        }
+        exit;
+    }
+
+    public function removeGiftWrapImage(): void
+    {
+        $user = $this->auth();
+        
+        header('Content-Type: application/json');
+        
+        $themeId = (int) $this->request->input('theme_id');
+        $giftWrapFolder = trim($this->request->input('gift_wrap_folder', ''));
+        $filename = trim($this->request->input('filename', ''));
+        
+        if (!$themeId || empty($giftWrapFolder) || empty($filename)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid parameters.'
+            ]);
+            exit;
+        }
+        
+        $giftWrap = Theme::find($themeId);
+        if (!$giftWrap || $giftWrap['theme_type'] !== 'Gift Wrap') {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Gift wrap not found.'
+            ]);
+            exit;
+        }
+        
+        $deleteResult = $this->fileUploadService->deleteGiftWrapImage($giftWrapFolder, $filename);
+        
+        if ($deleteResult) {
+            // Reorder remaining images to ensure sequential numbering
+            $remainingImages = $this->fileUploadService->getGiftWrapImages($giftWrapFolder);
+            if (!empty($remainingImages)) {
+                $this->fileUploadService->reorderGiftWrapImages($giftWrapFolder, $remainingImages);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Image removed successfully.'
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to remove image.'
+            ]);
+        }
+        exit;
+    }
+
+    public function reorderGiftWrapImages(): void
+    {
+        $user = $this->auth();
+        
+        header('Content-Type: application/json');
+        
+        $themeId = (int) $this->request->input('theme_id');
+        $giftWrapFolder = trim($this->request->input('gift_wrap_folder', ''));
+        $newOrder = $this->request->input('new_order', []);
+        
+        if (!$themeId || empty($giftWrapFolder) || !is_array($newOrder) || empty($newOrder)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid parameters.'
+            ]);
+            exit;
+        }
+        
+        $giftWrap = Theme::find($themeId);
+        if (!$giftWrap || $giftWrap['theme_type'] !== 'Gift Wrap') {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Gift wrap not found.'
+            ]);
+            exit;
+        }
+        
+        $reorderResult = $this->fileUploadService->reorderGiftWrapImages($giftWrapFolder, $newOrder);
+        
+        if ($reorderResult) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Images reordered successfully.'
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to reorder images.'
+            ]);
+        }
+        exit;
+    }
+
     public function editUser(): Response
     {
         $user = $this->auth();
