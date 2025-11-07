@@ -396,6 +396,9 @@ class ItemController extends Controller
             $otherCopies = $numberOfOtherCopies > 0;
         }
 
+        // Get pageno from request (for back button) - check session data first (from validation errors), then request
+        $pageno = (int) ($sessionFormData['pageno'] ?? $this->request->get('pageno', 1));
+
         // Use session form data if available (from validation errors), otherwise use request input or item defaults
         $item_name = $sessionFormData['name'] ?? $this->request->input('name', $item['name']);
         $price = $sessionFormData['price'] ?? $this->request->input('price', $item['price']);
@@ -439,7 +442,8 @@ class ItemController extends Controller
             'otherCopies' => $otherCopies,
             'numberOfOtherCopies' => $numberOfOtherCopies,
             'error_msg' => $error_msg,
-            'priority_options' => ["1", "2", "3", "4"]
+            'priority_options' => ["1", "2", "3", "4"],
+            'pageno' => $pageno // Pass pageno for back button
         ];
 
         return $this->view('items/edit', $data);
@@ -546,6 +550,9 @@ class ItemController extends Controller
         if ($this->itemValidator->hasErrors($errors)) {
             // Keep temp files for form persistence - store temp filename in session
             
+            // Get pageno from request to preserve it across redirects
+            $pageno = (int) $this->request->input('pageno', 1);
+            
             // Store form data and errors in session for redirect
             \App\Services\SessionManager::set('item_edit_errors', $errors);
             \App\Services\SessionManager::set('item_edit_form_data', [
@@ -559,11 +566,16 @@ class ItemController extends Controller
                 'temp_filename' => $tempFilename, // Store temp filename if new image
                 'is_temp' => $isTempImage,
                 'has_new_image' => $hasNewImage,
-                'old_image' => $oldImage // Keep reference to old image
+                'old_image' => $oldImage, // Keep reference to old image
+                'pageno' => $pageno // Store pageno to preserve it
             ]);
             
-            // Redirect to GET edit route (POST-Redirect-GET pattern)
-            return $this->redirect("/wishlists/{$wishlistId}/item/{$itemId}/edit");
+            // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno parameter
+            $redirectUrl = "/wishlists/{$wishlistId}/item/{$itemId}/edit";
+            if ($pageno > 1) {
+                $redirectUrl .= "?pageno={$pageno}";
+            }
+            return $this->redirect($redirectUrl);
         }
 
         // Validation passed - handle image: move temp to final if new image, or keep existing
@@ -643,6 +655,9 @@ class ItemController extends Controller
             $this->fileUploadService->deleteItemImage($wishlistId, $filename);
         }
 
+        // Get pageno from request to preserve it
+        $pageno = (int) $this->request->input('pageno', 1);
+        
         // Store form data and error in session for redirect
         \App\Services\SessionManager::set('item_edit_errors', [
             'general' => ['Unable to update item. Please try again.']
@@ -655,11 +670,16 @@ class ItemController extends Controller
             'link' => $data['link'] ?? $item['link'],
             'notes' => $data['notes'] ?? $item['notes'],
             'priority' => $data['priority'] ?? $item['priority'],
-            'old_image' => $oldImage
+            'old_image' => $oldImage,
+            'pageno' => $pageno // Store pageno to preserve it
         ]);
 
-        // Redirect to GET edit route (POST-Redirect-GET pattern)
-        return $this->redirect("/wishlists/{$wishlistId}/item/{$itemId}/edit");
+        // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno parameter
+        $redirectUrl = "/wishlists/{$wishlistId}/item/{$itemId}/edit";
+        if ($pageno > 1) {
+            $redirectUrl .= "?pageno={$pageno}";
+        }
+        return $this->redirect($redirectUrl);
     }
 
     public function delete(string|int $wishlistId, string|int $itemId): Response

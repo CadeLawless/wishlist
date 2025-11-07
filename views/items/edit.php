@@ -23,7 +23,7 @@ $priority_options = ["1", "2", "3", "4"];
     <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
     <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/wishlists/<?php echo $wishlistID; ?>">Back to List</a></p>
+<p style="padding-top: 15px;"><a class="button accent" href="/wishlists/<?php echo $wishlistID; ?><?php echo isset($pageno) && $pageno > 1 ? '?pageno=' . $pageno : ''; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
@@ -32,6 +32,7 @@ $priority_options = ["1", "2", "3", "4"];
 <div class="form-container">
     <h2>Edit Item</h2>
     <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/item/<?php echo $item['id']; ?>" enctype="multipart/form-data">
+        <input type="hidden" name="pageno" value="<?php echo isset($pageno) ? (int)$pageno : 1; ?>">
         <div class="flex form-flex">
             <?php
             if(isset($error_msg)) echo $error_msg;
