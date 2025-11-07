@@ -6,7 +6,7 @@ use App\Core\Constants;
 
 class ItemRenderService
 {
-    public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher'): string
+    public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = ''): string
     {
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
         $itemNameShort = mb_substr($item['name'], 0, Constants::ITEM_NAME_SHORT_LENGTH, 'UTF-8');
@@ -162,7 +162,21 @@ class ItemRenderService
                             </a>
                         <?php endif; ?>
                         <?php if($type === 'wisher'): ?>
-                            <a class='icon-container' href='/wishlists/<?php echo $wishlistId; ?>/item/<?php echo $item['id']; ?>/edit?pageno=<?php echo $page; ?>'>
+                            <?php
+                            // Build edit URL with pageno and search term
+                            $editUrl = '/wishlists/' . $wishlistId . '/item/' . $item['id'] . '/edit';
+                            $editParams = [];
+                            if ($page > 1) {
+                                $editParams[] = 'pageno=' . urlencode($page);
+                            }
+                            if (!empty($searchTerm)) {
+                                $editParams[] = 'search=' . urlencode($searchTerm);
+                            }
+                            if (!empty($editParams)) {
+                                $editUrl .= '?' . implode('&', $editParams);
+                            }
+                            ?>
+                            <a class='icon-container' href='<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>'>
                                 <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
                                 <div class='inline-label'>Edit</div>
                             </a>

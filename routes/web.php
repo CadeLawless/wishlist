@@ -100,7 +100,7 @@ Router::post('/wishlists/{id}/reactivate', [WishlistController::class, 'reactiva
 
 // AJAX endpoints
 Router::post('/wishlists/{id}/paginate', [WishlistController::class, 'paginateItems'])->middleware('auth');
-Router::post('/wishlists/{id}/filter', [WishlistController::class, 'filterItems'])->middleware('auth');
+Router::post('/wishlists/{id}/filter', [WishlistController::class, 'applyFilter'])->middleware('auth');
 Router::post('/wishlists/{id}/items', [WishlistController::class, 'getOtherWishlistItems'])->middleware('auth');
 
 // Item routes - Two-step flow

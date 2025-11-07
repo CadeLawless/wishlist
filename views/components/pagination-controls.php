@@ -19,8 +19,16 @@ $item_label = $item_label ?? 'items';
 // For admin pages, use ADMIN_ITEMS_PER_PAGE (10), otherwise use 12
 $items_per_page = ($type === 'admin') ? 10 : 12;
 
-// Show pagination container if we have results to show count, or if there's more than one page
-$show_pagination = ($position === 'bottom' && $total_count !== null && $total_count > 0) || $total_pages > 1;
+// Show pagination container based on position
+// Top: only show if there are more than items_per_page (more than 1 page)
+// Bottom: show if we have results to show count, or if there's more than one page
+if ($position === 'top') {
+    // Top pagination: only show if more than items_per_page results
+    $show_pagination = ($total_count !== null && $total_count > $items_per_page) || ($total_count === null && $total_pages > 1);
+} else {
+    // Bottom pagination: show if we have results to show count, or if there's more than one page
+    $show_pagination = ($position === 'bottom' && $total_count !== null && $total_count > 0) || $total_pages > 1;
+}
 ?>
 
 <?php if($show_pagination): ?>

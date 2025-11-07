@@ -365,16 +365,36 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </a>
                 </h2>
                 
-                <!-- Top Pagination controls -->
-                <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
+                <!-- Search input for items -->
+                <?php if(count($items) > 0 || !empty($searchTerm ?? '')): ?>
+                <?php
+                $options = [
+                    'placeholder' => 'Search items by name, price, link, or notes...',
+                    'input_id' => 'items-search',
+                    'input_class' => 'items-search-input',
+                    'container_class' => 'center',
+                    'search_term' => $searchTerm ?? ''
+                ];
+                include __DIR__ . '/../components/admin-table-search.php';
+                ?>
+                <?php endif; ?>
                 
-                <div class='items-list-sub-container'>
+                <!-- Container for pagination and items (loading overlay covers this area) -->
+                <div class='items-content-container'>
+                    <!-- Top Pagination controls -->
+                    <?php 
+                    $position = 'top';
+                    $total_count = count($all_items);
+                    include __DIR__ . '/../components/pagination-controls.php'; 
+                    ?>
+                    
+                    <div class='items-list-sub-container'>
                     <div class="items-list main">
                                 <?php if(count($items) > 0): ?>
                                     <?php 
                                     // Use the same item generation service as AJAX pagination
                                     foreach($items as $item): 
-                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno);
+                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
                                     endforeach; 
                                     ?>
                                 <?php else: ?>
@@ -398,6 +418,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             $item_label = 'items';
                             include __DIR__ . '/../components/pagination-controls.php'; 
                             ?>
+                    </div>
                 </div>
             </div>
 
@@ -424,6 +445,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/public/js/checkbox-selection.js"></script>
 <script src="/public/js/wishlist-filters.js"></script>
 <script src="/public/js/pagination.js"></script>
+<script src="/public/js/admin-table-search.js"></script>
 <script src="/public/js/choose-theme.js"></script>
 <script src="/public/js/popup.js"></script>
 <script src="/public/js/form-validation.js"></script>

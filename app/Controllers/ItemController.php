@@ -398,6 +398,9 @@ class ItemController extends Controller
 
         // Get pageno from request (for back button) - check session data first (from validation errors), then request
         $pageno = (int) ($sessionFormData['pageno'] ?? $this->request->get('pageno', 1));
+        
+        // Get search term from request (for back button and form persistence)
+        $searchTerm = $sessionFormData['search'] ?? $this->request->get('search', '');
 
         // Use session form data if available (from validation errors), otherwise use request input or item defaults
         $item_name = $sessionFormData['name'] ?? $this->request->input('name', $item['name']);
@@ -443,7 +446,8 @@ class ItemController extends Controller
             'numberOfOtherCopies' => $numberOfOtherCopies,
             'error_msg' => $error_msg,
             'priority_options' => ["1", "2", "3", "4"],
-            'pageno' => $pageno // Pass pageno for back button
+            'pageno' => $pageno, // Pass pageno for back button
+            'searchTerm' => $searchTerm // Pass search term for back button
         ];
 
         return $this->view('items/edit', $data);
@@ -550,8 +554,9 @@ class ItemController extends Controller
         if ($this->itemValidator->hasErrors($errors)) {
             // Keep temp files for form persistence - store temp filename in session
             
-            // Get pageno from request to preserve it across redirects
+            // Get pageno and search term from request to preserve them across redirects
             $pageno = (int) $this->request->input('pageno', 1);
+            $searchTerm = trim($this->request->input('search', ''));
             
             // Store form data and errors in session for redirect
             \App\Services\SessionManager::set('item_edit_errors', $errors);
@@ -567,13 +572,21 @@ class ItemController extends Controller
                 'is_temp' => $isTempImage,
                 'has_new_image' => $hasNewImage,
                 'old_image' => $oldImage, // Keep reference to old image
-                'pageno' => $pageno // Store pageno to preserve it
+                'pageno' => $pageno, // Store pageno to preserve it
+                'search' => $searchTerm // Store search term to preserve it
             ]);
             
-            // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno parameter
+            // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno and search parameters
             $redirectUrl = "/wishlists/{$wishlistId}/item/{$itemId}/edit";
+            $queryParams = [];
             if ($pageno > 1) {
-                $redirectUrl .= "?pageno={$pageno}";
+                $queryParams[] = "pageno={$pageno}";
+            }
+            if (!empty($searchTerm)) {
+                $queryParams[] = "search=" . urlencode($searchTerm);
+            }
+            if (!empty($queryParams)) {
+                $redirectUrl .= "?" . implode("&", $queryParams);
             }
             return $this->redirect($redirectUrl);
         }
@@ -645,8 +658,24 @@ class ItemController extends Controller
             \App\Services\SessionManager::remove('item_edit_form_data');
             \App\Services\SessionManager::remove('item_edit_errors');
             
-            $pageno = $this->request->input('pageno', 1);
-            return $this->redirect("/wishlists/{$wishlistId}?pageno={$pageno}")->withSuccess('Item updated successfully!');
+            // Get pageno and search term from request to preserve them in redirect
+            $pageno = (int) $this->request->input('pageno', 1);
+            $searchTerm = trim($this->request->input('search', ''));
+            
+            // Build redirect URL with query parameters
+            $redirectUrl = "/wishlists/{$wishlistId}";
+            $queryParams = [];
+            if ($pageno > 1) {
+                $queryParams[] = "pageno={$pageno}";
+            }
+            if (!empty($searchTerm)) {
+                $queryParams[] = "search=" . urlencode($searchTerm);
+            }
+            if (!empty($queryParams)) {
+                $redirectUrl .= "?" . implode("&", $queryParams);
+            }
+            
+            return $this->redirect($redirectUrl)->withSuccess('Item updated successfully!');
         }
 
         // Database operation failed - clean up the new image file we created

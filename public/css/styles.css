@@ -308,6 +308,11 @@ tbody tr.active-row {
     margin-bottom: 20px;
 }
 
+/* Center the search container when center class is applied */
+.admin-table-search-container.center > div {
+    margin: 0 auto;
+}
+
 .admin-table-search-container input[type="text"] {
     width: 100%;
     max-width: 400px;
@@ -358,7 +363,9 @@ tbody tr.active-row {
     min-height: 200px;
 }
 
-.admin-table-loading-overlay {
+/* Generic loading overlay for table/search (works for both admin tables and items) */
+.admin-table-loading-overlay,
+.table-search-loading-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -376,19 +383,28 @@ tbody tr.active-row {
     pointer-events: none;
 }
 
-body.dark .admin-table-loading-overlay {
+body.dark .admin-table-loading-overlay,
+body.dark .table-search-loading-overlay {
     background-color: rgba(0, 0, 0, 0.85);
 }
 
-.admin-table-loading-overlay.active {
+.admin-table-loading-overlay.active,
+.table-search-loading-overlay.active {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
 }
 
-.admin-table-loading-overlay .loading-spinner {
+.admin-table-loading-overlay .loading-spinner,
+.table-search-loading-overlay .loading-spinner {
     margin: 0;
     scale: 1.3;
+}
+
+/* Container for items content (pagination and items list) - overlay covers this area */
+.items-content-container {
+    position: relative;
+    min-height: 200px;
 }
 
 .admin-center-table {

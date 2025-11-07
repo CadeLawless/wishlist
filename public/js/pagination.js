@@ -140,7 +140,29 @@ $(document).ready(function() {
                 ajaxData.search = searchTerm;
             } else {
                 // For regular wishlist/item pagination
-                paginateUrl = paginationState.baseUrl + "/paginate";
+                // The route is /wishlists/{id}/paginate (not /paginate-items)
+                // Strip query parameters from baseUrl before appending /paginate
+                let baseUrl = paginationState.baseUrl;
+                if (baseUrl.includes('?')) {
+                    baseUrl = baseUrl.split('?')[0];
+                }
+                paginateUrl = baseUrl + "/paginate";
+                
+                // Include search term if present in URL (for items pages)
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchTerm = urlParams.get('search') || '';
+                // Also check search input field in case URL doesn't have it yet
+                if (!searchTerm) {
+                    const $searchInput = $('.items-search-input');
+                    if ($searchInput.length) {
+                        const inputSearchTerm = $searchInput.val() || '';
+                        if (inputSearchTerm) {
+                            ajaxData.search = inputSearchTerm;
+                        }
+                    }
+                } else {
+                    ajaxData.search = searchTerm;
+                }
             }
             
             $.ajax({
@@ -163,14 +185,15 @@ $(document).ready(function() {
                             $('.paginate-container.bottom .count-showing, .count-showing').text(data.paginationInfo);
                         }
                         
-                        // Update pagination controls visibility based on results (admin pages)
-                        if (contentSelector === '.admin-table-body' && data.totalRows !== undefined) {
-                            const itemsPerPage = data.itemsPerPage || 10;
+                        // Update pagination controls visibility based on results (admin pages and items pages)
+                        if ((contentSelector === '.admin-table-body' || contentSelector === '.items-list.main') && data.totalRows !== undefined) {
+                            const isAdminPage = contentSelector === '.admin-table-body';
+                            const itemsPerPage = data.itemsPerPage || (isAdminPage ? 10 : 12);
                             const totalRows = data.totalRows || 0;
                             const totalPages = data.total || 1;
                             const $paginationContainer = $('.paginate-container.bottom');
                             
-                            // Show pagination controls if there are more than 10 results (more than 1 page)
+                            // Show pagination controls if there are more results than items per page
                             if (totalRows > itemsPerPage) {
                                 // Show all pagination controls (arrows, title, and count)
                                 $paginationContainer.find('.paginate-arrow, .paginate-title').show();
@@ -184,6 +207,23 @@ $(document).ready(function() {
                             } else {
                                 // Hide everything if no results
                                 $paginationContainer.hide();
+                            }
+                            
+                            // Update top pagination controls for items pages
+                            if (contentSelector === '.items-list.main' && !isAdminPage) {
+                                const $topPaginationContainer = $('.paginate-container').not('.bottom').first();
+                                if ($topPaginationContainer.length) {
+                                    // Hide top pagination if there are no results or 12 or fewer results
+                                    if (totalRows === 0 || totalRows <= itemsPerPage) {
+                                        $topPaginationContainer.closest('.center').hide();
+                                    } else {
+                                        // Show top pagination if there are more than itemsPerPage results
+                                        $topPaginationContainer.closest('.center').show();
+                                        // Update page numbers in top pagination
+                                        $topPaginationContainer.find('.page-number').text(data.current);
+                                        $topPaginationContainer.find('.last-page').text(data.total);
+                                    }
+                                }
                             }
                         }
                         
@@ -212,9 +252,9 @@ $(document).ready(function() {
                         const newUrl = buildUrlWithParams(data.current);
                         history.replaceState(null, null, newUrl);
                         
-                        // Also update base URL if search parameter exists
+                        // Also update base URL if search parameter exists (for both admin and items pages)
                         const urlParams = new URLSearchParams(window.location.search);
-                        if (urlParams.has('search') && contentSelector === '.admin-table-body') {
+                        if (urlParams.has('search') && (contentSelector === '.admin-table-body' || contentSelector === '.items-list.main')) {
                             const pathname = window.location.pathname;
                             const searchTerm = urlParams.get('search');
                             const newBaseUrl = pathname + '?search=' + encodeURIComponent(searchTerm);

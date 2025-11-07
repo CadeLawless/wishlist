@@ -106,8 +106,9 @@ class WishlistController extends Controller
             return $this->redirect('/wishlists')->withError('Wishlist not found.');
         }
 
-        // Get pagination number
+        // Get pagination number and search term
         $pageno = (int) $this->request->get('pageno', 1);
+        $searchTerm = trim($this->request->get('search', ''));
         
         // Get other wishlists for copy functionality
         $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
@@ -136,6 +137,11 @@ class WishlistController extends Controller
         // Get ALL items first (for total count and filtering)
         $allItems = $this->wishlistService->getWishlistItems($id, $serviceFilters);
         
+        // Apply search filter if search term is provided
+        if (!empty($searchTerm)) {
+            $allItems = $this->filterItems($allItems, $searchTerm);
+        }
+        
         // Apply pagination to get only 12 items per page
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
         $totalPages = $this->paginationService->getTotalPages($allItems);
@@ -143,7 +149,11 @@ class WishlistController extends Controller
         
         // Redirect if page number was out of range
         if ($correctedPage !== $pageno && count($allItems) > 0) {
-            return $this->redirect("/wishlists/{$id}?pageno={$correctedPage}");
+            $redirectUrl = "/wishlists/{$id}?pageno={$correctedPage}";
+            if (!empty($searchTerm)) {
+                $redirectUrl .= '&search=' . urlencode($searchTerm);
+            }
+            return $this->redirect($redirectUrl);
         }
         
         $data = [
@@ -155,7 +165,8 @@ class WishlistController extends Controller
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'filters' => $filters,
-            'wishlist_id' => $id
+            'wishlist_id' => $id,
+            'searchTerm' => $searchTerm
         ];
 
         return $this->view('wishlist/show', $data);
@@ -496,6 +507,29 @@ class WishlistController extends Controller
         return $this->redirect("/wishlists/{$id}")->withError('Unable to hide wishlist. Please try again.');
     }
 
+    /**
+     * Filter items by search term
+     */
+    private function filterItems(array $items, string $searchTerm): array
+    {
+        if (empty(trim($searchTerm))) {
+            return $items;
+        }
+        
+        $searchLower = strtolower(trim($searchTerm));
+        return array_values(array_filter($items, function($item) use ($searchLower) {
+            $name = strtolower($item['name'] ?? '');
+            $price = strtolower($item['price'] ?? '');
+            $link = strtolower($item['link'] ?? '');
+            $notes = strtolower($item['notes'] ?? '');
+            
+            return strpos($name, $searchLower) !== false ||
+                   strpos($price, $searchLower) !== false ||
+                   strpos($link, $searchLower) !== false ||
+                   strpos($notes, $searchLower) !== false;
+        }));
+    }
+
     public function showPublic(string|int $id): Response
     {
         
@@ -567,77 +601,86 @@ class WishlistController extends Controller
 
     public function paginateItems(string|int $id): Response
     {
-        
-        $user = $this->auth();
-        
-        $id = $this->validateId($id);
-        if ($id instanceof Response) {
-            return $id;
-        }
-        
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            header('Content-Type: application/json');
-            http_response_code(404);
-            echo json_encode([
+        try {
+            $user = $this->auth();
+            
+            $id = $this->validateId($id);
+            if ($id instanceof Response) {
+                return $id;
+            }
+            
+            $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+            
+            if (!$wishlist) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Wishlist not found',
+                    'html' => '',
+                    'current' => 1,
+                    'total' => 1,
+                    'totalRows' => 0,
+                    'itemsPerPage' => 12,
+                    'paginationInfo' => ''
+                ], 404);
+            }
+
+            $page = (int) $this->request->input('new_page', 1);
+            $searchTerm = trim($this->request->input('search', ''));
+            
+            // Apply session filters for pagination using FilterService
+            $sortPreferences = SessionManager::getWisherSortPreferences();
+            $sortPriority = $sortPreferences['sort_priority'];
+            $sortPrice = $sortPreferences['sort_price'];
+            
+            $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
+            
+            $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
+            
+            // Apply search filter if search term is provided
+            if (!empty($searchTerm)) {
+                $items = $this->filterItems($items, $searchTerm);
+            }
+            
+            $paginatedItems = $this->paginationService->paginate($items, $page);
+            $totalPages = $this->paginationService->getTotalPages($items);
+            $totalRows = count($items);
+
+            // Generate HTML for items only (no pagination controls)
+            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, $page, 'wisher', $searchTerm);
+            
+            // Calculate pagination info
+            $itemsPerPage = 12;
+            $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+            $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+            $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
+            
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Items loaded successfully',
+                'html' => $itemsHtml,
+                'current' => $page,
+                'total' => $totalPages,
+                'totalRows' => $totalRows,
+                'itemsPerPage' => $itemsPerPage,
+                'paginationInfo' => $paginationInfo
+            ]);
+        } catch (\Exception $e) {
+            // Log error and return JSON error response
+            error_log('Pagination error: ' . $e->getMessage());
+            return $this->json([
                 'status' => 'error',
-                'message' => 'Wishlist not found',
+                'message' => 'An error occurred while loading items',
                 'html' => '',
                 'current' => 1,
                 'total' => 1,
+                'totalRows' => 0,
+                'itemsPerPage' => 12,
                 'paginationInfo' => ''
-            ]);
-            exit;
+            ], 500);
         }
-
-        $page = (int) $this->request->input('new_page', 1);
-        
-        // Apply session filters for pagination using FilterService
-        $sortPreferences = SessionManager::getWisherSortPreferences();
-        $sortPriority = $sortPreferences['sort_priority'];
-        $sortPrice = $sortPreferences['sort_price'];
-        
-        $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
-        
-        $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
-        $paginatedItems = $this->paginationService->paginate($items, $page);
-        $totalPages = $this->paginationService->getTotalPages($items);
-        $totalRows = count($items);
-
-        // Generate HTML for items only (no pagination controls)
-        $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, $page);
-        
-        // Calculate pagination info
-        $itemsPerPage = 12;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
-        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
-
-        // Clear any output buffering first
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        
-        // Set headers and output JSON directly
-        header('Content-Type: application/json');
-        header('Cache-Control: no-cache, must-revalidate');
-        
-        $jsonData = [
-            'status' => 'success',
-            'message' => 'Items loaded successfully',
-            'html' => $itemsHtml,
-            'current' => $page,
-            'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
-        ];
-        
-        echo json_encode($jsonData);
-        flush();
-        exit;
     }
 
-    public function filterItems(string|int $id): Response
+    public function applyFilter(string|int $id): Response
     {
         
         $user = $this->auth();
