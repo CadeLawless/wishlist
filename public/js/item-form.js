@@ -213,38 +213,53 @@ $(document).ready(function() {
     
     // Handle URL input in paste image field
     $("#paste-image").on("input", function() {
-    const inputValue = $(this).val().trim();
-    const pasteImageHidden = $("#paste-image-hidden");
-    const previewContainer = $("#preview_container");
-    const previewImg = previewContainer.find("img");
-    
-    if (inputValue && isValidUrl(inputValue)) {
-        // It's a valid URL, store it and show preview
-        pasteImageHidden.val(inputValue);
+        const inputValue = $(this).val().trim();
+        const pasteImageHidden = $("#paste-image-hidden");
+        const previewContainer = $("#preview_container");
+        let previewImg = previewContainer.find("img.preview");
         
-        // Show preview
-        previewImg.attr("src", inputValue);
-        // Remove inline display:none style if present
-        previewImg.css("display", "");
-        previewContainer.removeClass("hidden");
+        // Create img element if it doesn't exist
+        if (!previewImg.length) {
+            previewImg = $("<img>").addClass("preview image-preview");
+            previewContainer.append(previewImg);
+        }
         
-        // Clear any temp filename hidden field since we're using a new image
-        $("input[name='temp_filename']").remove();
-        
-        // Update button text
-        $(".file-input").text("Change Image");
-    } else if (inputValue === '') {
-        // Clear the preview if input is empty
-        pasteImageHidden.val('');
-        previewContainer.addClass("hidden");
-        $(".file-input").text("Choose Item Image");
-    }
+        if (inputValue && isValidUrl(inputValue)) {
+            // It's a valid URL, store it and show preview
+            pasteImageHidden.val(inputValue);
+            
+            // Show preview
+            previewImg.attr("src", inputValue);
+            // Remove inline display:none style if present
+            previewImg.css("display", "");
+            previewContainer.removeClass("hidden");
+            
+            // Clear any temp filename hidden field since we're using a new image
+            $("input[name='temp_filename']").remove();
+            
+            // Update button text
+            $(".file-input").text("Change Image");
+            
+            // Validate the image field
+            validateImageField();
+        } else if (inputValue === '') {
+            // Clear the preview if input is empty
+            pasteImageHidden.val('');
+            previewContainer.addClass("hidden");
+            $(".file-input").text("Choose Item Image");
+        }
     });
     // show image preview on change
     $("#image, input[type='file']").on("change", function(){
         $input = $(this);
         const $previewContainer = $("#preview_container");
-        const $previewImg = $previewContainer.find("img");
+        let $previewImg = $previewContainer.find("img.preview");
+        
+        // Create img element if it doesn't exist
+        if (!$previewImg.length) {
+            $previewImg = $("<img>").addClass("preview image-preview");
+            $previewContainer.append($previewImg);
+        }
         
         if (this.files && this.files[0]) {
             var reader = new FileReader();
@@ -261,6 +276,9 @@ $(document).ready(function() {
                 $("#paste-image-hidden").val("");
                 // Clear any temp filename hidden field since we're using a new file
                 $("input[name='temp_filename']").remove();
+                
+                // Validate the image field
+                validateImageField();
             }
 
             reader.readAsDataURL(this.files[0]);
@@ -349,8 +367,32 @@ $(document).ready(function() {
                     }
                     
                     if (response.image && !$("#paste-image-hidden").val()) {
-                        // If we got an image URL, we could potentially fetch and display it
-                        // For now, just show success message
+                        // Set the image URL in hidden input field
+                        $("#paste-image-hidden").val(response.image);
+                        
+                        // Get preview container and image
+                        const $previewContainer = $("#preview_container");
+                        let $previewImg = $previewContainer.find("img.preview");
+                        
+                        // Create img element if it doesn't exist
+                        if (!$previewImg.length) {
+                            $previewImg = $("<img>").addClass("preview image-preview");
+                            $previewContainer.append($previewImg);
+                        }
+                        
+                        // Set image source and ensure it's visible
+                        $previewImg.attr("src", response.image);
+                        $previewImg.css("display", ""); // Remove inline display:none if present
+                        $previewContainer.removeClass("hidden");
+                        
+                        // Clear any temp filename hidden field since we're using a new image
+                        $("input[name='temp_filename']").remove();
+                        
+                        // Update button text
+                        $(".file-input").text("Change Image");
+                        
+                        // Validate the image field
+                        validateImageField();
                     }
                     
                     showStatusMessage("Product details fetched successfully!", "success");
@@ -437,8 +479,16 @@ $(document).ready(function() {
             // Clear the visible input field so user doesn't see the URL
             pasteImageInput.val("");
             
+            // Get or create preview image
+            let $previewImg = previewContainer.find("img.preview");
+            if (!$previewImg.length) {
+                $previewImg = $("<img>").addClass("preview image-preview");
+                previewContainer.append($previewImg);
+            }
+            
             // Show preview
-            previewContainer.find("img").attr("src", imageUrl);
+            $previewImg.attr("src", imageUrl);
+            $previewImg.css("display", ""); // Remove inline display:none if present
             previewContainer.removeClass("hidden");
             
             // Update button text
