@@ -116,8 +116,16 @@ $(document).ready(function() {
         const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
         const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
         
+        // Check if this is an edit form with an existing image (check dynamically)
+        const $existingImageInput = $("input[name='existing_image']");
+        const hasExistingImageInput = $existingImageInput.length > 0 && $existingImageInput.val() !== '';
+        const $previewImg = $("#preview_container img.preview");
+        const hasVisibleExistingImage = hasExistingImageInput && $previewImg.length > 0 && 
+                                       !$("#preview_container").hasClass("hidden") &&
+                                       ($previewImg.css("display") !== "none" && $previewImg.attr("src"));
+        
         // For edit forms: check if existing image is present
-        if (isEditForm && hasExistingImage) {
+        if (hasExistingImageInput && hasVisibleExistingImage) {
             // If no new image provided, existing image is sufficient
             if (!hasFile && !hasPasteImage && !hasTempFilename) {
                 FormValidator.clearErrors($imageField, validationRules.item_image);
@@ -142,10 +150,6 @@ $(document).ready(function() {
     $("#paste-image, #paste-image-hidden").on("input paste", function() {
         setTimeout(validateImageField, 100); // Small delay to allow paste to complete
     });
-
-    // Validate image field on form initialization to catch any initial state
-    // (FormValidator will handle validation on submit)
-    validateImageField();
 
     // Update quantity validation when unlimited checkbox changes
     $("#unlimited").on("change", function(){

@@ -35,15 +35,15 @@
             <?php if(!empty($filename)): ?>
                 <?php if(($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
                     <!-- Temp image preview -->
-                    <img class="preview" src="<?php echo htmlspecialchars($filename); ?>">
+                    <img class="preview image-preview" src="<?php echo htmlspecialchars($filename); ?>">
                     <input type="hidden" name="temp_filename" value="<?php echo htmlspecialchars($temp_filename); ?>">
                 <?php else: ?>
                     <!-- Regular image preview -->
-                    <img class="preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/{$filename}"; ?>">
+                    <img class="preview image-preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/{$filename}"; ?>">
                 <?php endif; ?>
             <?php else: ?>
                 <!-- Empty preview container - img will be created by JS if needed -->
-                <img class="preview" style="display: none;">
+                <img class="preview image-preview" style="display: none;">
             <?php endif; ?>
         </div>
     <?php }else{ ?>
@@ -54,7 +54,7 @@
                 <input type="hidden" name="temp_filename" value="<?php echo htmlspecialchars($temp_filename); ?>">
             <?php else: ?>
                 <!-- Regular existing image preview -->
-                <img class="preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
+                <img class="preview image-preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
             <?php endif; ?>
         </div>
     <?php } ?>
