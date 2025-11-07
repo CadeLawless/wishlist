@@ -49,5 +49,6 @@ $priority_options = ["1", "2", "3", "4"];
     </form>
 </div>
 
-<script src="/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/public/js/form-validation.js"></script>
 <script src="/public/js/item-form.js"></script>

@@ -7,18 +7,16 @@
     <div id="price-input-container">
         <span class="dollar-sign-input flex">
             <label for="price"><span class="dollar-sign">$</span></label>
-            <input type="text" inputmode="decimal" name="price" pattern="(?=.*?\d)^(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$" value="<?php echo htmlspecialchars($price ?? ''); ?>" id="price" class="price-input" required>
+            <input type="text" inputmode="decimal" name="price" value="<?php echo htmlspecialchars($price ?? ''); ?>" id="price" class="price-input" required>
         </span>
-        <span class="error-msg hidden">Item Price must match U.S. currency format: 9,999.00</span>
     </div>
 </div>
 <div class="small-input">
     <label for="quantity">Quantity Needed:<br></label>
     <div class="flex flex-center quantity-container">
-        <input <?php if(($unlimited ?? 'No') == "No") echo "required"; ?> type="text" class="<?php if(($unlimited ?? 'No') == "Yes") echo "hidden"; ?>" name="quantity" id="quantity" inputmode="numeric" value="<?php echo htmlspecialchars($quantity ?? '1'); ?>" pattern="^\d+$" />
+        <input <?php if(($unlimited ?? 'No') == "No") echo "required"; ?> type="text" class="<?php if(($unlimited ?? 'No') == "Yes") echo "hidden"; ?>" name="quantity" id="quantity" inputmode="numeric" value="<?php echo htmlspecialchars($quantity ?? '1'); ?>" />
         <input type="checkbox" name="unlimited" value="Yes" <?php if(($unlimited ?? 'No') == "Yes") echo "checked"; ?> id="unlimited" />
         <label for="unlimited">Unlimited</label>
-        <span class="error-msg hidden">Quantity must be a valid number</span>
     </div>
 </div>
 <div class="large-input">

@@ -40,9 +40,22 @@ const FormValidator = {
 
             const rules = validationRules[fieldName];
 
+            // Determine where to place error message
+            let errorInsertionPoint;
+            if (rules.errorContainer) {
+                // Custom error placement - find the specified container
+                errorInsertionPoint = field.closest('.small-input, .large-input').find(rules.errorContainer);
+                if (!errorInsertionPoint.length) {
+                    errorInsertionPoint = $(rules.errorContainer);
+                }
+            } else {
+                // Default: place after the field itself
+                errorInsertionPoint = field;
+            }
+
             // Add error message container if it doesn't exist
-            if (!field.next('.validation-error').length) {
-                field.after('<div class="validation-error"></div>');
+            if (!errorInsertionPoint.next('.validation-error').length) {
+                errorInsertionPoint.after('<div class="validation-error"></div>');
             }
 
             // Set up event listeners
@@ -53,7 +66,7 @@ const FormValidator = {
             
             field.on(inputEvent, () => {
                 // Clear error immediately when user starts typing
-                this.clearErrors(field);
+                this.clearErrors(field, rules);
                 this.debounceValidation(field, fieldName, rules);
             });
 
@@ -118,8 +131,9 @@ const FormValidator = {
         const value = field.val() ? field.val().trim() : '';
         const errors = [];
 
-        // Required validation
-        if (rules.required && !value) {
+        // Required validation (can be boolean or function)
+        const isRequired = typeof rules.required === 'function' ? rules.required() : rules.required;
+        if (isRequired && !value) {
             if(rules.requiredMsg === undefined){
                 errors.push(this.formatFieldName(fieldName) + ' is required.');
             }else{
@@ -156,15 +170,38 @@ const FormValidator = {
                 }
             }
 
+            // Currency validation (US format: 9,999.99)
+            if (rules.currency && !this.isValidCurrency(value)) {
+                errors.push('Please enter a valid price (e.g., 19.99 or 1,999.99).');
+            }
+
+            // Numeric validation (positive integers only)
+            if (rules.numeric && !this.isValidNumeric(value)) {
+                errors.push('Please enter a valid number.');
+            }
+
+            // URL validation
+            if (rules.url && !this.isValidUrl(value)) {
+                errors.push('Please enter a valid URL (e.g., https://example.com).');
+            }
+
+            // Custom validation function
+            if (rules.custom && typeof rules.custom === 'function') {
+                const customError = rules.custom(value, field);
+                if (customError) {
+                    errors.push(customError);
+                }
+            }
+
             // AJAX validation for username/email uniqueness
             if (rules.checkUnique && errors.length === 0) {
-                this.checkUniqueness(field, fieldName, value, rules.checkUnique);
+                this.checkUniqueness(field, fieldName, value, rules.checkUnique, rules);
                 return; // Exit early, AJAX will handle displaying results
             }
         }
 
         // Display errors or clear them
-        this.displayErrors(field, errors);
+        this.displayErrors(field, errors, rules);
     },
 
     /**
@@ -201,35 +238,102 @@ const FormValidator = {
     },
 
     /**
+     * Validate currency format (US format: 9,999.99)
+     */
+    isValidCurrency: function(value) {
+        // Allow commas for thousands and up to 2 decimal places
+        // Matches: 19.99, 1999.99, 1,999.99, $19.99, etc.
+        const currencyRegex = /^(?=.*?\d)(([1-9]\d{0,2}(,\d{3})*)|\d+)?(\.\d{1,2})?$/;
+        return currencyRegex.test(value);
+    },
+
+    /**
+     * Validate numeric format (positive integers)
+     */
+    isValidNumeric: function(value) {
+        const numericRegex = /^\d+$/;
+        return numericRegex.test(value);
+    },
+
+    /**
+     * Validate URL format
+     */
+    isValidUrl: function(value) {
+        try {
+            new URL(value);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    },
+
+    /**
      * Display validation errors
      */
-    displayErrors: function(field, errors) {
-        const errorContainer = field.next('.validation-error');
+    displayErrors: function(field, errors, rules) {
+        // Determine where the error container is based on rules
+        let errorContainer;
+        let invalidTarget = field; // Default: apply invalid class to field itself
+        
+        if (rules && rules.errorContainer) {
+            // Custom error placement
+            const customContainer = field.closest('.small-input, .large-input').find(rules.errorContainer);
+            errorContainer = customContainer.length ? customContainer.next('.validation-error') : $(rules.errorContainer).next('.validation-error');
+            
+            // Custom invalid target
+            if (rules.invalidTarget) {
+                invalidTarget = field.closest('.small-input, .large-input').find(rules.invalidTarget);
+                if (!invalidTarget.length) {
+                    invalidTarget = $(rules.invalidTarget);
+                }
+            }
+        } else {
+            // Default: error container right after field
+            errorContainer = field.next('.validation-error');
+        }
 
         if (errors.length > 0) {
             // Show errors
-            field.addClass('invalid');
+            invalidTarget.addClass('invalid');
             errorContainer.html(errors.map(err => `<span class="error-item">${err}</span>`).join(''));
             errorContainer.show();
         } else {
             // Clear errors
-            this.clearErrors(field);
+            this.clearErrors(field, rules);
         }
     },
 
     /**
      * Clear validation errors from a field
      */
-    clearErrors: function(field) {
-        field.removeClass('invalid');
-        const errorContainer = field.next('.validation-error');
+    clearErrors: function(field, rules) {
+        // Determine targets based on rules
+        let errorContainer;
+        let invalidTarget = field; // Default
+        
+        if (rules && rules.errorContainer) {
+            const customContainer = field.closest('.small-input, .large-input').find(rules.errorContainer);
+            errorContainer = customContainer.length ? customContainer.next('.validation-error') : $(rules.errorContainer).next('.validation-error');
+            
+            if (rules.invalidTarget) {
+                invalidTarget = field.closest('.small-input, .large-input').find(rules.invalidTarget);
+                if (!invalidTarget.length) {
+                    invalidTarget = $(rules.invalidTarget);
+                }
+            }
+        } else {
+            errorContainer = field.next('.validation-error');
+        }
+        
+        invalidTarget.removeClass('invalid');
+        field.removeClass('invalid'); // Always clear from field itself too
         errorContainer.html('').hide();
     },
 
     /**
      * Check uniqueness via AJAX (username or email)
      */
-    checkUniqueness: function(field, fieldName, value, endpoint) {
+    checkUniqueness: function(field, fieldName, value, endpoint, rules) {
         const self = this;
         
         $.ajax({
@@ -240,14 +344,14 @@ const FormValidator = {
             success: function(response) {
                 if (!response.available) {
                     const errors = [self.formatFieldName(fieldName) + ' already exists.'];
-                    self.displayErrors(field, errors);
+                    self.displayErrors(field, errors, rules);
                 } else {
-                    self.displayErrors(field, []);
+                    self.displayErrors(field, [], rules);
                 }
             },
             error: function() {
                 // Silently fail - don't show error to user for AJAX issues
-                self.displayErrors(field, []);
+                self.displayErrors(field, [], rules);
             }
         });
     },
@@ -302,8 +406,9 @@ const FormValidator = {
             const value = field.val() ? field.val().trim() : '';
             const errors = [];
     
-            // Required validation (now supports custom messages)
-            if (rules.required && !value) {
+            // Required validation (can be boolean or function, now supports custom messages)
+            const isRequired = typeof rules.required === 'function' ? rules.required() : rules.required;
+            if (isRequired && !value) {
                 if (rules.requiredMsg === undefined) {
                     errors.push(this.formatFieldName(fieldName) + ' is required.');
                 } else {
@@ -339,10 +444,33 @@ const FormValidator = {
                         errors.push('Passwords do not match.');
                     }
                 }
+
+                // Currency validation (US format: 9,999.99)
+                if (rules.currency && !this.isValidCurrency(value)) {
+                    errors.push('Please enter a valid price (e.g., 19.99 or 1,999.99).');
+                }
+
+                // Numeric validation (positive integers only)
+                if (rules.numeric && !this.isValidNumeric(value)) {
+                    errors.push('Please enter a valid number.');
+                }
+
+                // URL validation
+                if (rules.url && !this.isValidUrl(value)) {
+                    errors.push('Please enter a valid URL (e.g., https://example.com).');
+                }
+
+                // Custom validation function
+                if (rules.custom && typeof rules.custom === 'function') {
+                    const customError = rules.custom(value, field);
+                    if (customError) {
+                        errors.push(customError);
+                    }
+                }
             }
     
             // Display or clear errors
-            this.displayErrors(field, errors);
+            this.displayErrors(field, errors, rules);
     
             // Update overall validity flag
             if (errors.length > 0 || field.hasClass('invalid')) {

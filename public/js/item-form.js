@@ -13,6 +13,70 @@ $(document).ready(function() {
     }
     initializeAutosize();
 
+    // Initialize form validation with custom error placement for special fields
+    const validationRules = {
+        name: {
+            required: true,
+            maxLength: 255
+        },
+        price: {
+            required: true,
+            currency: true,
+            // Custom error placement: after the price-input-container
+            errorContainer: '#price-input-container',
+            // Custom invalid target: the dollar-sign-input span
+            invalidTarget: '.dollar-sign-input'
+        },
+        quantity: {
+            required: function() {
+                // Only required if unlimited is NOT checked
+                return !$("#unlimited").is(":checked");
+            },
+            numeric: true,
+            // Custom error placement: after the quantity-container
+            errorContainer: '.quantity-container',
+            custom: function(value, field) {
+                // Skip validation if unlimited is checked
+                if ($("#unlimited").is(":checked")) {
+                    return null;
+                }
+                // Ensure quantity is at least 1
+                const numValue = parseInt(value, 10);
+                if (numValue < 1) {
+                    return 'Quantity must be at least 1.';
+                }
+                return null;
+            }
+        },
+        link: {
+            required: true,
+            url: true
+        },
+        notes: {
+            required: false,
+            maxLength: 1000
+        },
+        priority: {
+            required: true
+        }
+    };
+
+    FormValidator.init('form[method="POST"]', validationRules);
+
+    // Update quantity validation when unlimited checkbox changes
+    $("#unlimited").on("change", function(){
+        const $quantity = $("#quantity");
+        if(this.checked){
+            // Clear any validation errors when unlimited is checked
+            FormValidator.clearErrors($quantity, validationRules.quantity);
+            // Make sure to clear invalid class from dollar-sign-input if present
+            $(".quantity-container").removeClass("invalid");
+        } else {
+            // Re-validate quantity when unlimited is unchecked
+            FormValidator.validateField($quantity, 'quantity', validationRules.quantity);
+        }
+    });
+
     // on click of file input button, open file picker
     $(".file-input").on("click", function(e){
         e.preventDefault();
@@ -102,33 +166,15 @@ $(document).ready(function() {
         }
     });
     
-    $("input").on("input", function(){
-        if(this.validity.patternMismatch){
-            setTimeout(() => {
-                if(this.validity.patternMismatch){
-                    if($(this).hasClass("price-input")){
-                        $(this).parent().addClass("invalid");
-                    }else{
-                        $(this).addClass("invalid");
-                    }
-                }
-            }, 1000);
-        }else{
-            if($(this).hasClass("price-input")){
-                $(this).parent().removeClass("invalid");
-            }else{
-                $(this).removeClass("invalid");
-            }
-        }
-    });
-
+    // Handle unlimited checkbox to show/hide quantity field
     $("#unlimited").on("change", function(){
+        const $quantity = $("#quantity");
         if(this.checked){
-            $("#quantity").addClass("hidden");
-            $("#quantity").removeAttr("required");
+            $quantity.addClass("hidden");
+            $quantity.removeAttr("required");
         }else{
-            $("#quantity").removeClass("hidden");
-            $("#quantity").attr("required", "");
+            $quantity.removeClass("hidden");
+            $quantity.attr("required", "");
         }
     });
 
