@@ -28,12 +28,90 @@ class AdminController extends Controller
         $this->fileUploadService = new FileUploadService();
     }
 
+    /**
+     * Filter users by search term
+     */
+    private function filterUsers(array $users, string $searchTerm): array
+    {
+        if (empty(trim($searchTerm))) {
+            return $users;
+        }
+        
+        $searchLower = strtolower(trim($searchTerm));
+        return array_filter($users, function($user) use ($searchLower) {
+            $name = strtolower($user['name'] ?? '');
+            $username = strtolower($user['username'] ?? '');
+            $email = strtolower($user['email'] ?? '');
+            $role = strtolower($user['role'] ?? '');
+            
+            return strpos($name, $searchLower) !== false ||
+                   strpos($username, $searchLower) !== false ||
+                   strpos($email, $searchLower) !== false ||
+                   strpos($role, $searchLower) !== false;
+        });
+    }
+
+    /**
+     * Filter themes by search term
+     */
+    private function filterThemes(array $themes, string $searchTerm): array
+    {
+        if (empty(trim($searchTerm))) {
+            return $themes;
+        }
+        
+        $searchLower = strtolower(trim($searchTerm));
+        return array_filter($themes, function($theme) use ($searchLower) {
+            $name = strtolower($theme['theme_name'] ?? '');
+            $tag = strtolower($theme['theme_tag'] ?? '');
+            $image = strtolower($theme['theme_image'] ?? '');
+            
+            return strpos($name, $searchLower) !== false ||
+                   strpos($tag, $searchLower) !== false ||
+                   strpos($image, $searchLower) !== false;
+        });
+    }
+
+    /**
+     * Filter wishlists by search term
+     */
+    private function filterWishlists(array $wishlists, string $searchTerm): array
+    {
+        if (empty(trim($searchTerm))) {
+            return $wishlists;
+        }
+        
+        $searchLower = strtolower(trim($searchTerm));
+        return array_filter($wishlists, function($wishlist) use ($searchLower) {
+            $name = strtolower($wishlist['wishlist_name'] ?? '');
+            $userName = strtolower($wishlist['user_name'] ?? '');
+            $username = strtolower($wishlist['username'] ?? '');
+            $type = strtolower($wishlist['type'] ?? '');
+            $secretKey = strtolower($wishlist['secret_key'] ?? '');
+            
+            return strpos($name, $searchLower) !== false ||
+                   strpos($userName, $searchLower) !== false ||
+                   strpos($username, $searchLower) !== false ||
+                   strpos($type, $searchLower) !== false ||
+                   strpos($secretKey, $searchLower) !== false;
+        });
+    }
+
     public function users(): Response
     {
         $user = $this->auth();
         
+        // Get search term
+        $searchTerm = trim($this->request->get('search', ''));
+        
         // Get all users first (for pagination)
         $allUsers = User::all();
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allUsers = array_values($this->filterUsers($allUsers, $searchTerm));
+        }
+        
         $page = (int)($this->request->get('pageno', 1));
         
         // Apply pagination
@@ -49,7 +127,8 @@ class AdminController extends Controller
             'currentPage' => $correctedPage,
             'totalPages' => $totalPages,
             'totalUsers' => $totalUsers,
-            'currentPageUrl' => '/admin/users'
+            'currentPageUrl' => '/admin/users',
+            'searchTerm' => $searchTerm
         ];
         
         return $this->view('admin/users', $data);
@@ -59,8 +138,17 @@ class AdminController extends Controller
     {
         $user = $this->auth();
         
+        // Get search term
+        $searchTerm = trim($this->request->get('search', ''));
+        
         // Get all backgrounds first (for pagination)
         $allBackgrounds = Theme::getThemesByType('Background');
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allBackgrounds = array_values($this->filterThemes($allBackgrounds, $searchTerm));
+        }
+        
         $page = (int)($this->request->get('pageno', 1));
         
         // Apply pagination
@@ -76,7 +164,8 @@ class AdminController extends Controller
             'currentPage' => $correctedPage,
             'totalPages' => $totalPages,
             'totalBackgrounds' => $totalBackgrounds,
-            'currentPageUrl' => '/admin/backgrounds'
+            'currentPageUrl' => '/admin/backgrounds',
+            'searchTerm' => $searchTerm
         ];
         
         return $this->view('admin/backgrounds', $data);
@@ -86,8 +175,17 @@ class AdminController extends Controller
     {
         $user = $this->auth();
         
+        // Get search term
+        $searchTerm = trim($this->request->get('search', ''));
+        
         // Get all gift wraps first (for pagination)
         $allGiftWraps = Theme::getThemesByType('Gift Wrap');
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allGiftWraps = array_values($this->filterThemes($allGiftWraps, $searchTerm));
+        }
+        
         $page = (int)($this->request->get('pageno', 1));
         
         // Apply pagination
@@ -103,7 +201,8 @@ class AdminController extends Controller
             'currentPage' => $correctedPage,
             'totalPages' => $totalPages,
             'totalGiftWraps' => $totalGiftWraps,
-            'currentPageUrl' => '/admin/gift-wraps'
+            'currentPageUrl' => '/admin/gift-wraps',
+            'searchTerm' => $searchTerm
         ];
         
         return $this->view('admin/gift-wraps', $data);
@@ -113,6 +212,9 @@ class AdminController extends Controller
     {
         $user = $this->auth();
         
+        // Get search term
+        $searchTerm = trim($this->request->get('search', ''));
+        
         // Get all wishlists with user info first (for pagination)
         $stmt = Database::query(
             "SELECT w.*, u.name as user_name, u.username 
@@ -121,6 +223,12 @@ class AdminController extends Controller
              ORDER BY w.id DESC"
         );
         $allWishlists = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allWishlists = array_values($this->filterWishlists($allWishlists, $searchTerm));
+        }
+        
         $page = (int)($this->request->get('pageno', 1));
         
         // Apply pagination
@@ -136,7 +244,8 @@ class AdminController extends Controller
             'currentPage' => $correctedPage,
             'totalPages' => $totalPages,
             'totalWishlists' => $totalWishlists,
-            'currentPageUrl' => '/admin/wishlists'
+            'currentPageUrl' => '/admin/wishlists',
+            'searchTerm' => $searchTerm
         ];
         
         return $this->view('admin/wishlists', $data);
@@ -147,9 +256,16 @@ class AdminController extends Controller
         $user = $this->auth();
         
         $page = (int) $this->request->input('new_page', 1);
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Get all users
         $allUsers = User::all();
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allUsers = array_values($this->filterUsers($allUsers, $searchTerm));
+        }
+        
         $paginatedUsers = $this->paginationService->paginate($allUsers, $page);
         $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($allUsers);
@@ -159,9 +275,11 @@ class AdminController extends Controller
         
         // Calculate pagination info
         $itemsPerPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoStart = $totalRows > 0 ? (($page - 1) * $itemsPerPage) + 1 : 0;
         $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} users";
+        $paginationInfo = $totalRows > 0 
+            ? "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} users"
+            : "Showing 0 users";
         
         // Clear any output buffering first
         if (ob_get_level()) {
@@ -178,7 +296,9 @@ class AdminController extends Controller
             'html' => $tableHtml,
             'current' => $page,
             'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
+            'paginationInfo' => $paginationInfo,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => $itemsPerPage
         ];
         
         echo json_encode($jsonData);
@@ -191,9 +311,16 @@ class AdminController extends Controller
         $user = $this->auth();
         
         $page = (int) $this->request->input('new_page', 1);
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Get all backgrounds
         $allBackgrounds = Theme::getThemesByType('Background');
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allBackgrounds = array_values($this->filterThemes($allBackgrounds, $searchTerm));
+        }
+        
         $paginatedBackgrounds = $this->paginationService->paginate($allBackgrounds, $page);
         $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($allBackgrounds);
@@ -203,9 +330,11 @@ class AdminController extends Controller
         
         // Calculate pagination info
         $itemsPerPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoStart = $totalRows > 0 ? (($page - 1) * $itemsPerPage) + 1 : 0;
         $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} backgrounds";
+        $paginationInfo = $totalRows > 0 
+            ? "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} backgrounds"
+            : "Showing 0 backgrounds";
         
         // Clear any output buffering first
         if (ob_get_level()) {
@@ -222,7 +351,9 @@ class AdminController extends Controller
             'html' => $tableHtml,
             'current' => $page,
             'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
+            'paginationInfo' => $paginationInfo,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => $itemsPerPage
         ];
         
         echo json_encode($jsonData);
@@ -235,9 +366,16 @@ class AdminController extends Controller
         $user = $this->auth();
         
         $page = (int) $this->request->input('new_page', 1);
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Get all gift wraps
         $allGiftWraps = Theme::getThemesByType('Gift Wrap');
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allGiftWraps = array_values($this->filterThemes($allGiftWraps, $searchTerm));
+        }
+        
         $paginatedGiftWraps = $this->paginationService->paginate($allGiftWraps, $page);
         $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($allGiftWraps);
@@ -247,9 +385,11 @@ class AdminController extends Controller
         
         // Calculate pagination info
         $itemsPerPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoStart = $totalRows > 0 ? (($page - 1) * $itemsPerPage) + 1 : 0;
         $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} gift wraps";
+        $paginationInfo = $totalRows > 0 
+            ? "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} gift wraps"
+            : "Showing 0 gift wraps";
         
         // Clear any output buffering first
         if (ob_get_level()) {
@@ -266,7 +406,9 @@ class AdminController extends Controller
             'html' => $tableHtml,
             'current' => $page,
             'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
+            'paginationInfo' => $paginationInfo,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => $itemsPerPage
         ];
         
         echo json_encode($jsonData);
@@ -279,6 +421,7 @@ class AdminController extends Controller
         $user = $this->auth();
         
         $page = (int) $this->request->input('new_page', 1);
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Get all wishlists with user info
         $stmt = Database::query(
@@ -288,6 +431,12 @@ class AdminController extends Controller
              ORDER BY w.id DESC"
         );
         $allWishlists = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Apply search filter if provided
+        if (!empty($searchTerm)) {
+            $allWishlists = array_values($this->filterWishlists($allWishlists, $searchTerm));
+        }
+        
         $paginatedWishlists = $this->paginationService->paginate($allWishlists, $page);
         $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($allWishlists);
@@ -297,9 +446,11 @@ class AdminController extends Controller
         
         // Calculate pagination info
         $itemsPerPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoStart = $totalRows > 0 ? (($page - 1) * $itemsPerPage) + 1 : 0;
         $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} wishlists";
+        $paginationInfo = $totalRows > 0 
+            ? "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} wishlists"
+            : "Showing 0 wishlists";
         
         // Clear any output buffering first
         if (ob_get_level()) {
@@ -316,7 +467,9 @@ class AdminController extends Controller
             'html' => $tableHtml,
             'current' => $page,
             'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
+            'paginationInfo' => $paginationInfo,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => $itemsPerPage
         ];
         
         echo json_encode($jsonData);

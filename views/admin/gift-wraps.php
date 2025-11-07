@@ -41,6 +41,16 @@ if (isset($flash['error'])) {
             <?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>
             <div class='inline-label'>Add</div></a></h2>
         
+        <?php 
+        $searchOptions = [
+            'placeholder' => 'Search gift wraps by name, tag, or folder...',
+            'input_id' => 'gift-wraps-search',
+            'container_class' => 'center',
+            'search_term' => $searchTerm ?? ''
+        ];
+        include __DIR__ . '/../components/admin-table-search.php'; 
+        ?>
+        
         <div class="admin-center-table-container">
             <table class="admin-center-table">
                 <thead>
@@ -59,7 +69,7 @@ if (isset($flash['error'])) {
             </table>
         </div>
         
-        <?php if(isset($all_gift_wraps) && count($all_gift_wraps) > 0 && isset($totalPages) && $totalPages > 1): ?>
+        <?php if(isset($all_gift_wraps) && count($all_gift_wraps) > 0): ?>
             <!-- Bottom Pagination controls -->
             <?php 
             $pageno = $currentPage;
@@ -74,6 +84,7 @@ if (isset($flash['error'])) {
     </div>
 </div>
 
+<script src="/public/js/admin-table-search.js"></script>
 <?php if(isset($all_gift_wraps) && count($all_gift_wraps) > 0 && isset($totalPages) && $totalPages > 1): ?>
 <script src="/public/js/pagination.js"></script>
 <?php endif; ?>

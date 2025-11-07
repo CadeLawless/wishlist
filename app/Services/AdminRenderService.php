@@ -10,6 +10,12 @@ class AdminRenderService
     public static function generateUsersTableHtml(array $users): string
     {
         ob_start();
+        
+        // Return empty state if no users
+        if (empty($users)) {
+            return '';
+        }
+        
         foreach ($users as $userRow) {
             $name = htmlspecialchars($userRow['name']);
             $username = htmlspecialchars($userRow['username']);
@@ -49,6 +55,12 @@ class AdminRenderService
     public static function generateBackgroundsTableHtml(array $backgrounds, int $currentPage): string
     {
         ob_start();
+        
+        // Return empty state if no backgrounds
+        if (empty($backgrounds)) {
+            return '';
+        }
+        
         foreach ($backgrounds as $background) {
             $id = htmlspecialchars($background['theme_id']);
             $tag = htmlspecialchars($background['theme_tag'] ?? '');
@@ -112,6 +124,12 @@ class AdminRenderService
     public static function generateGiftWrapsTableHtml(array $giftWraps, int $currentPage): string
     {
         ob_start();
+        
+        // Return empty state if no gift wraps
+        if (empty($giftWraps)) {
+            return '';
+        }
+        
         foreach ($giftWraps as $giftWrap) {
             $id = htmlspecialchars($giftWrap['theme_id']);
             $tag = htmlspecialchars($giftWrap['theme_tag'] ?? '');
@@ -173,6 +191,12 @@ class AdminRenderService
     public static function generateWishlistsTableHtml(array $wishlists, int $currentPage): string
     {
         ob_start();
+        
+        // Return empty state if no wishlists
+        if (empty($wishlists)) {
+            return '';
+        }
+        
         foreach ($wishlists as $wishlist) {
             $id = htmlspecialchars($wishlist['id']);
             $wishlistName = htmlspecialchars($wishlist['wishlist_name']);

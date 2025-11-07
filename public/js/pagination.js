@@ -27,15 +27,31 @@ $(document).ready(function() {
     function buildUrlWithParams(pageNumber) {
         const searchParams = new URLSearchParams(window.location.search);
         
-        // Build URL with base URL and pagination
-        let url = paginationState.baseUrl + '?pageno=' + pageNumber;
+        // Get base URL without query parameters for cleaner URL building
+        let baseUrl = paginationState.baseUrl;
+        // Remove query parameters from baseUrl if present
+        if (baseUrl.includes('?')) {
+            baseUrl = baseUrl.split('?')[0];
+        }
         
-        // Preserve existing URL parameters (id, key, etc.)
+        // Build URL with base URL and pagination
+        let url = baseUrl + '?pageno=' + pageNumber;
+        
+        // Preserve existing URL parameters (id, key, search, etc.)
         if (searchParams.has('id')) {
             url += '&id=' + searchParams.get('id');
         }
         if (searchParams.has('key')) {
             url += '&key=' + searchParams.get('key');
+        }
+        if (searchParams.has('search')) {
+            url += '&search=' + encodeURIComponent(searchParams.get('search'));
+        } else {
+            // Also check search input field if URL doesn't have search param
+            const $searchInput = $('.admin-table-search-input');
+            if ($searchInput.length && $searchInput.val().trim()) {
+                url += '&search=' + encodeURIComponent($searchInput.val().trim());
+            }
         }
         
         return url;
@@ -54,6 +70,9 @@ $(document).ready(function() {
         updateState: function(current, total) {
             paginationState.currentPage = current;
             paginationState.totalPages = total;
+        },
+        updateBaseUrl: function(baseUrl) {
+            paginationState.baseUrl = baseUrl;
         },
         getState: function() {
             return { ...paginationState };
@@ -83,11 +102,42 @@ $(document).ready(function() {
         if (newPage !== paginationState.currentPage) {
             // Handle admin URLs with query parameters differently
             let paginateUrl;
+            let ajaxData = { new_page: newPage };
+            
             if (paginationState.baseUrl.includes('/admin/wishlists/view')) {
                 // For admin wishlist view, use admin-specific pagination endpoint
                 const urlParams = new URLSearchParams(paginationState.baseUrl.split('?')[1] || '');
                 const id = urlParams.get('id') || '';
                 paginateUrl = '/admin/wishlists/paginate-items?id=' + id;
+            } else if (paginationState.baseUrl.includes('/admin/') || window.location.pathname.includes('/admin/')) {
+                // For admin pages, use admin pagination endpoints and include search term
+                // Use current pathname to determine endpoint (more reliable than baseUrl which may have query params)
+                const pathname = window.location.pathname;
+                if (pathname.includes('/admin/users')) {
+                    paginateUrl = '/admin/users/paginate';
+                } else if (pathname.includes('/admin/backgrounds')) {
+                    paginateUrl = '/admin/backgrounds/paginate';
+                } else if (pathname.includes('/admin/gift-wraps')) {
+                    paginateUrl = '/admin/gift-wraps/paginate';
+                } else if (pathname.includes('/admin/wishlists')) {
+                    paginateUrl = '/admin/wishlists/paginate';
+                } else {
+                    // Fallback to using baseUrl if pathname check doesn't match
+                    const basePath = paginationState.baseUrl.split('?')[0]; // Remove query params
+                    paginateUrl = basePath + "/paginate";
+                }
+                // Include search term - check both URL and search input field
+                const urlParams = new URLSearchParams(window.location.search);
+                let searchTerm = urlParams.get('search') || '';
+                // Also check search input field in case URL doesn't have it yet
+                if (!searchTerm) {
+                    const $searchInput = $('.admin-table-search-input');
+                    if ($searchInput.length) {
+                        searchTerm = $searchInput.val() || '';
+                    }
+                }
+                // Always include search parameter (even if empty) to maintain consistency
+                ajaxData.search = searchTerm;
             } else {
                 // For regular wishlist/item pagination
                 paginateUrl = paginationState.baseUrl + "/paginate";
@@ -96,7 +146,7 @@ $(document).ready(function() {
             $.ajax({
                 type: "POST",
                 url: paginateUrl,
-                data: { new_page: newPage },
+                data: ajaxData,
                 dataType: "json",
                 success: function(data) {
                     // jQuery automatically parses JSON when dataType is "json"
@@ -109,7 +159,33 @@ $(document).ready(function() {
                         $('.page-number').text(data.current);
                         $('.last-page').text(data.total);
                         // Update count-showing if it exists (inside bottom paginate-container)
-                        $('.paginate-container.bottom .count-showing, .count-showing').text(data.paginationInfo);
+                        if (data.paginationInfo) {
+                            $('.paginate-container.bottom .count-showing, .count-showing').text(data.paginationInfo);
+                        }
+                        
+                        // Update pagination controls visibility based on results (admin pages)
+                        if (contentSelector === '.admin-table-body' && data.totalRows !== undefined) {
+                            const itemsPerPage = data.itemsPerPage || 10;
+                            const totalRows = data.totalRows || 0;
+                            const totalPages = data.total || 1;
+                            const $paginationContainer = $('.paginate-container.bottom');
+                            
+                            // Show pagination controls if there are more than 10 results (more than 1 page)
+                            if (totalRows > itemsPerPage) {
+                                // Show all pagination controls (arrows, title, and count)
+                                $paginationContainer.find('.paginate-arrow, .paginate-title').show();
+                                $paginationContainer.find('.count-showing').show();
+                                $paginationContainer.show();
+                            } else if (totalRows > 0 && totalRows <= itemsPerPage) {
+                                // Show only count, hide pagination arrows (results fit on one page)
+                                $paginationContainer.find('.paginate-arrow, .paginate-title').hide();
+                                $paginationContainer.find('.count-showing').show();
+                                $paginationContainer.show();
+                            } else {
+                                // Hide everything if no results
+                                $paginationContainer.hide();
+                            }
+                        }
                         
                         // Update arrow states based on new page
                         const totalPages = parseInt(data.total);
@@ -132,9 +208,20 @@ $(document).ready(function() {
                             }
                         });
                         
-                        // Update URL without page refresh, preserving existing parameters
+                        // Update URL without page refresh, preserving existing parameters (including search)
                         const newUrl = buildUrlWithParams(data.current);
                         history.replaceState(null, null, newUrl);
+                        
+                        // Also update base URL if search parameter exists
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('search') && contentSelector === '.admin-table-body') {
+                            const pathname = window.location.pathname;
+                            const searchTerm = urlParams.get('search');
+                            const newBaseUrl = pathname + '?search=' + encodeURIComponent(searchTerm);
+                            if (window.Pagination && window.Pagination.updateBaseUrl) {
+                                window.Pagination.updateBaseUrl(newBaseUrl);
+                            }
+                        }
                         
                         // Scroll behavior based on page type
                         const isAdminPage = contentSelector === '.admin-table-body';

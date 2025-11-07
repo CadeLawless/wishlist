@@ -15,11 +15,18 @@ $type = $type ?? 'wisher';
 $position = $position ?? '';
 $total_count = $total_count ?? null;
 $item_label = $item_label ?? 'items';
+
+// For admin pages, use ADMIN_ITEMS_PER_PAGE (10), otherwise use 12
+$items_per_page = ($type === 'admin') ? 10 : 12;
+
+// Show pagination container if we have results to show count, or if there's more than one page
+$show_pagination = ($position === 'bottom' && $total_count !== null && $total_count > 0) || $total_pages > 1;
 ?>
 
-<?php if($total_pages > 1): ?>
+<?php if($show_pagination): ?>
 <div class="center">
     <div class="paginate-container<?php echo $position ? ' ' . $position : ''; ?>">
+        <?php if($total_pages > 1): ?>
         <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
         </a>
@@ -35,8 +42,9 @@ $item_label = $item_label ?? 'items';
         <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
         </a>
+        <?php endif; ?>
         <?php if($position === 'bottom' && $total_count !== null && $total_count > 0): ?>
-            <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, $total_count); ?> of <?php echo $total_count; ?> <?php echo $item_label; ?></div>
+            <div class="count-showing">Showing <?php echo (($pageno - 1) * $items_per_page) + 1; ?>-<?php echo min($pageno * $items_per_page, $total_count); ?> of <?php echo $total_count; ?> <?php echo $item_label; ?></div>
         <?php endif; ?>
     </div>
 </div>
