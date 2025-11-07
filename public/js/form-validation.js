@@ -403,27 +403,47 @@ const FormValidator = {
             if (!field.length) return;
     
             const rules = validationRules[fieldName];
-            const value = field.val() ? field.val().trim() : '';
+            
+            // Handle file inputs specially (they don't have a .val() that works for validation)
+            const isFileInput = field.prop('type') === 'file';
+            let value = '';
+            
+            if (isFileInput) {
+                // For file inputs, check if files are selected
+                const hasFiles = field[0].files && field[0].files.length > 0;
+                value = hasFiles ? 'file-selected' : ''; // Use placeholder value
+            } else {
+                value = field.val() ? field.val().trim() : '';
+            }
+            
             const errors = [];
-    
+
             // Required validation (can be boolean or function, now supports custom messages)
             const isRequired = typeof rules.required === 'function' ? rules.required() : rules.required;
-            if (isRequired && !value) {
-                if (rules.requiredMsg === undefined) {
-                    errors.push(this.formatFieldName(fieldName) + ' is required.');
-                } else {
-                    errors.push(rules.requiredMsg);
+            
+            // For file inputs with custom validation, skip standard required check if custom exists
+            // (custom validation will handle it)
+            if (!isFileInput || !rules.custom) {
+                if (isRequired && !value) {
+                    if (rules.requiredMsg === undefined) {
+                        errors.push(this.formatFieldName(fieldName) + ' is required.');
+                    } else {
+                        errors.push(rules.requiredMsg);
+                    }
                 }
             }
     
-            // Only check other validations if field has a value
-            if (value) {
-                // Length validation
-                if (rules.minLength && value.length < rules.minLength) {
-                    errors.push(this.formatFieldName(fieldName) + ` must be at least ${rules.minLength} characters.`);
-                }
-                if (rules.maxLength && value.length > rules.maxLength) {
-                    errors.push(this.formatFieldName(fieldName) + ` must not exceed ${rules.maxLength} characters.`);
+            // For file inputs, always run custom validation if it exists
+            // For other fields, only check other validations if field has a value
+            if (value || (isFileInput && rules.custom)) {
+                // Length validation (skip for file inputs)
+                if (!isFileInput) {
+                    if (rules.minLength && value.length < rules.minLength) {
+                        errors.push(this.formatFieldName(fieldName) + ` must be at least ${rules.minLength} characters.`);
+                    }
+                    if (rules.maxLength && value.length > rules.maxLength) {
+                        errors.push(this.formatFieldName(fieldName) + ` must not exceed ${rules.maxLength} characters.`);
+                    }
                 }
     
                 // Email validation
@@ -460,7 +480,7 @@ const FormValidator = {
                     errors.push('Please enter a valid URL (e.g., https://example.com).');
                 }
 
-                // Custom validation function
+                // Custom validation function (runs for all fields, especially important for file inputs)
                 if (rules.custom && typeof rules.custom === 'function') {
                     const customError = rules.custom(value, field);
                     if (customError) {

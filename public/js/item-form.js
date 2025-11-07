@@ -14,6 +14,10 @@ $(document).ready(function() {
     initializeAutosize();
 
     // Initialize form validation with custom error placement for special fields
+    // Check if this is an edit form (has existing image)
+    const isEditForm = $("input[name='existing_image']").length > 0 && $("input[name='existing_image']").val() !== '';
+    const hasExistingImage = isEditForm && $("#preview_container img").length > 0 && !$("#preview_container").hasClass("hidden");
+    
     const validationRules = {
         name: {
             required: true,
@@ -58,10 +62,90 @@ $(document).ready(function() {
         },
         priority: {
             required: true
+        },
+        item_image: {
+            required: function() {
+                // For edit forms: only required if there's no existing image and no new image selected
+                if (isEditForm && hasExistingImage) {
+                    // Check if user has selected a new image or pasted one
+                    const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
+                    const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+                    const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+                    
+                    // If existing image and no new image, not required
+                    if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                        return false;
+                    }
+                }
+                // For create forms or edit forms without existing image: always required
+                return true;
+            },
+            custom: function(value, field) {
+                // Check if image is provided via file, paste, or temp
+                const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
+                const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+                const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+                
+                // For edit forms: check if existing image is present
+                if (isEditForm && hasExistingImage) {
+                    // If no new image provided, existing image is sufficient
+                    if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                        return null; // Valid - using existing image
+                    }
+                }
+                
+                // Must have at least one image source
+                if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                    return 'Item image is required.';
+                }
+                
+                return null;
+            },
+            // Custom error placement: after the image input container
+            errorContainer: '#preview_container',
+            invalidTarget: '#preview_container'
         }
     };
 
     FormValidator.init('form[method="POST"]', validationRules);
+
+    // Custom validation for image field (file inputs need special handling)
+    function validateImageField() {
+        const $imageField = $("#image");
+        const hasFile = $imageField[0].files && $imageField[0].files.length > 0;
+        const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+        const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+        
+        // For edit forms: check if existing image is present
+        if (isEditForm && hasExistingImage) {
+            // If no new image provided, existing image is sufficient
+            if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                FormValidator.clearErrors($imageField, validationRules.item_image);
+                return;
+            }
+        }
+        
+        // Must have at least one image source
+        if (!hasFile && !hasPasteImage && !hasTempFilename) {
+            FormValidator.displayErrors($imageField, ['Item image is required.'], validationRules.item_image);
+        } else {
+            FormValidator.clearErrors($imageField, validationRules.item_image);
+        }
+    }
+
+    // Validate image when file is selected
+    $("#image").on("change", function() {
+        validateImageField();
+    });
+
+    // Validate image when paste image changes
+    $("#paste-image, #paste-image-hidden").on("input paste", function() {
+        setTimeout(validateImageField, 100); // Small delay to allow paste to complete
+    });
+
+    // Validate image field on form initialization to catch any initial state
+    // (FormValidator will handle validation on submit)
+    validateImageField();
 
     // Update quantity validation when unlimited checkbox changes
     $("#unlimited").on("change", function(){

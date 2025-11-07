@@ -189,7 +189,14 @@ class ItemController extends Controller
         \App\Services\SessionManager::clearFetchedItemData();
 
         $data = $this->request->input();
-        $errors = $this->itemValidator->validateItem($data);
+        
+        // Prepare data for validation (include file upload and temp filename info)
+        $validationData = $data;
+        if ($this->request->hasFile('item_image')) {
+            $validationData['item_image'] = 'uploaded'; // Mark that file was uploaded
+        }
+        
+        $errors = $this->itemValidator->validateItem($validationData, false); // false = create operation
 
         // Handle file upload - upload to TEMP folder first (for validation)
         $tempFilename = '';
@@ -234,10 +241,6 @@ class ItemController extends Controller
                 $isTempImage = true;
                 $hasImage = true;
             }
-        }
-        
-        if (!$hasImage) {
-            $errors['item_image'][] = 'Item image is required.';
         }
 
         if ($this->itemValidator->hasErrors($errors)) {
@@ -470,13 +473,20 @@ class ItemController extends Controller
         }
 
         $data = $this->request->input();
-        $errors = $this->itemValidator->validateItem($data);
+        $oldImage = $item['image']; // Store old image for potential cleanup
+        
+        // Prepare data for validation (include file upload info)
+        $validationData = $data;
+        if ($this->request->hasFile('item_image')) {
+            $validationData['item_image'] = 'uploaded'; // Mark that file was uploaded
+        }
+        
+        $errors = $this->itemValidator->validateItem($validationData, true, $oldImage); // true = edit operation, pass existing image
 
         // Handle file upload - upload to TEMP folder first (for validation)
         $tempFilename = '';
         $hasNewImage = false;
         $isTempImage = false;
-        $oldImage = $item['image']; // Store old image for potential cleanup
         
         // Check if we're resubmitting with an existing temp file from form or session
         $sessionFormData = \App\Services\SessionManager::get('item_edit_form_data');

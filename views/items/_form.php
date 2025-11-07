@@ -50,7 +50,7 @@
         <div id="preview_container">
             <?php if(($has_new_image ?? false) && ($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
                 <!-- Temp image preview for edit form -->
-                <img class="preview" src="<?php echo htmlspecialchars($filename); ?>">
+                <img class="preview image-preview" src="<?php echo htmlspecialchars($filename); ?>">
                 <input type="hidden" name="temp_filename" value="<?php echo htmlspecialchars($temp_filename); ?>">
             <?php else: ?>
                 <!-- Regular existing image preview -->

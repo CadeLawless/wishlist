@@ -2008,6 +2008,9 @@ img.gift-wrap {
     max-width: 100%;
     max-height: 400px;
 }
+.image-preview {
+    margin-bottom: 20px;
+}
 .coal {
     display: inline-block;
     margin-top: 20px;
