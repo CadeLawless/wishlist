@@ -2575,6 +2575,11 @@ img.gift-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
+
+    & .button-text {
+        color: white;
+        font-weight: normal;
+    }
 }
 
 .fetch-button:hover:not(:disabled) {
@@ -2604,8 +2609,8 @@ img.gift-wrap {
     border: 4px solid var(--background-darker);
     border-radius: 50%;
     position: relative;
-    animation: spinPulse 3s ease-in-out infinite;
-    scale: 2;
+    animation: spinPulse 2.5s ease-in-out infinite;
+    scale: 1.7;
     margin: 1rem 0 3rem;
 }
 
@@ -2619,7 +2624,7 @@ img.gift-wrap {
     border: 4px solid transparent;
     border-top: 4px solid var(--primary-link);
     border-radius: 50%;
-    animation: spinArc 3s ease-in-out infinite;
+    animation: spinArc 2.5s ease-in-out infinite;
 }
 
 
@@ -2632,7 +2637,7 @@ img.gift-wrap {
     align-items: center;
     position: relative;
     overflow: visible;
-    scale: 2.2;
+    scale: 1.8;
     margin: 1rem 0 3rem;
 }
 

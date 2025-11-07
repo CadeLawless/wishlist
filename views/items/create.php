@@ -29,11 +29,11 @@ $priority_options = ["1", "2", "3", "4"];
     <h2>Add Item</h2>
     <?php if(isset($fetch_error) && $fetch_error): ?>
         <div class="fetch-error-notice">
-            <p>⚠️ <?php echo htmlspecialchars($fetch_error_message); ?></p>
+            <p><?php echo htmlspecialchars($fetch_error_message); ?></p>
         </div>
     <?php elseif(isset($has_partial_data) && $has_partial_data): ?>
         <div class="partial-data-notice">
-            <p>ℹ️ Some product details were found and filled in automatically. Please complete the remaining fields manually.</p>
+            <p>Some product details were found and filled in automatically. Please complete the remaining fields manually.</p>
         </div>
     <?php endif; ?>
     <?php if(isset($error_msg)) echo $error_msg?>

@@ -16,7 +16,7 @@ $background_image = $wishlist['background_image'] ?? '';
 </div>
 <div class="form-container">
     <h2>🔗 Paste Product URL</h2>
-    <p class="url-description">Paste any product URL from Amazon, eBay, or other e-commerce sites to automatically fill in the details.</p>
+    <p class="url-description">Paste any product URL from Amazon, Target, or other e-commerce sites to automatically fill in the details.</p>
     
     <form id="url-fetch-form" class="url-fetch-form">
         <div class="url-input-group">
@@ -27,6 +27,7 @@ $background_image = $wishlist['background_image'] ?? '';
                 placeholder="https://www.amazon.com/dp/B0F1XS8ZK4" 
                 required
                 class="large-url-input"
+                style="margin: 0;"
             >
             <button type="submit" id="fetch-details-btn" class="fetch-button">
                 <span class="button-text">Fetch Details</span>
@@ -129,14 +130,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(() => {
                     // Redirect to form after animation
                     setTimeout(() => {
-                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1200);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
-                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1200);
                 });
             } else {
@@ -154,14 +155,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(() => {
                     // Redirect to form after animation
                     setTimeout(() => {
-                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
-                        window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 });
             }
@@ -182,14 +183,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(() => {
                 // Redirect to form after animation
                 setTimeout(() => {
-                    window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                    window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                 }, 1000);
             })
             .catch(error => {
                 console.error('Error storing data:', error);
                 // Still redirect even if storage fails
                 setTimeout(() => {
-                    window.location.href = '/<?php echo $wishlist['id']; ?>/item/create';
+                    window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                 }, 1000);
             });
         });
