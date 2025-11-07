@@ -48,6 +48,7 @@ if (isset($flash['error'])) {
                         <th class="th_border">ID</th>
                         <th class="th_border">Tag</th>
                         <th class="th_border">Name</th>
+                        <th class="th_border">Thumbnail</th>
                         <th class="th_border">Image</th>
                         <th class="th_border">Default Gift Wrap</th>
                         <th></th>

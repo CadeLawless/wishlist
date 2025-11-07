@@ -55,11 +55,22 @@ class AdminRenderService
             $name = htmlspecialchars($background['theme_name']);
             $image = htmlspecialchars($background['theme_image']);
             $defaultGiftWrap = htmlspecialchars($background['default_gift_wrap'] ?? '');
+            
+            // Build thumbnail path
+            $thumbnailPath = '/public/images/site-images/themes/desktop-thumbnails/' . $image;
+            $thumbnailExists = file_exists(__DIR__ . '/../../public/images/site-images/themes/desktop-thumbnails/' . $image);
             ?>
             <tr>
                 <td data-label="ID"><?php echo $id; ?></td>
                 <td data-label="Tag"><?php echo $tag; ?></td>
                 <td data-label="Name"><?php echo $name; ?></td>
+                <td data-label="Thumbnail">
+                    <?php if ($thumbnailExists): ?>
+                        <img src="<?php echo $thumbnailPath; ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
+                    <?php else: ?>
+                        <span style="color: var(--text-secondary);">No thumbnail</span>
+                    <?php endif; ?>
+                </td>
                 <td data-label="Image"><?php echo $image; ?></td>
                 <td data-label="Default Gift Wrap"><?php echo $defaultGiftWrap; ?></td>
                 <td>
@@ -106,12 +117,23 @@ class AdminRenderService
             $tag = htmlspecialchars($giftWrap['theme_tag'] ?? '');
             $name = htmlspecialchars($giftWrap['theme_name']);
             $image = htmlspecialchars($giftWrap['theme_image']);
+            
+            // Build first gift wrap image path (1.png)
+            $firstWrapPath = '/public/images/site-images/themes/gift-wraps/' . $image . '/1.png';
+            $firstWrapExists = file_exists(__DIR__ . '/../../public/images/site-images/themes/gift-wraps/' . $image . '/1.png');
             ?>
             <tr>
                 <td data-label="ID"><?php echo $id; ?></td>
                 <td data-label="Tag"><?php echo $tag; ?></td>
                 <td data-label="Name"><?php echo $name; ?></td>
-                <td data-label="Image"><?php echo $image; ?></td>
+                <td data-label="Preview">
+                    <?php if ($firstWrapExists): ?>
+                        <img src="<?php echo $firstWrapPath; ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
+                    <?php else: ?>
+                        <span style="color: var(--text-secondary);">No preview</span>
+                    <?php endif; ?>
+                </td>
+                <td data-label="Folder"><?php echo $image; ?></td>
                 <td>
                     <div class="icon-group">
                         <a class="icon-container" href="/admin/gift-wraps/edit?id=<?php echo $id; ?>&pageno=<?php echo $currentPage; ?>">

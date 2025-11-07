@@ -959,4 +959,506 @@ class FileUploadService
     {
         return '/public/images/item-images/temp/' . $tempFilename;
     }
+
+    /**
+     * Get the theme images base directory path
+     * 
+     * @return string Absolute path to themes directory
+     */
+    public static function getThemesBasePath(): string
+    {
+        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Upload background image (desktop or mobile)
+     * 
+     * @param array $file The uploaded file array
+     * @param string $imageName The base image name (without extension)
+     * @param string $type 'desktop' or 'mobile'
+     * @return array Result with success, filename, error
+     */
+    public function uploadBackgroundImage(array $file, string $imageName, string $type = 'desktop'): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'error' => null
+        ];
+
+        // Validate file
+        if (!$this->validateFile($file)) {
+            $result['error'] = Constants::ERROR_INVALID_FILE;
+            return $result;
+        }
+
+        // Determine target directory
+        $uploadDir = self::getThemesBasePath() . ($type === 'desktop' ? 'desktop-backgrounds' : 'mobile-backgrounds') . DIRECTORY_SEPARATOR;
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create background upload directory: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory.';
+                return $result;
+            }
+        }
+
+        // Generate filename
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $filename = $this->sanitizeFilename($imageName) . '.' . $extension;
+
+        // Move uploaded file
+        $targetPath = $uploadDir . $filename;
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            // Optimize image
+            $this->optimizeImage($targetPath);
+            
+            $result['success'] = true;
+            $result['filename'] = $filename;
+        } else {
+            $result['error'] = 'Failed to upload file.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Upload and resize thumbnail directly
+     * 
+     * @param array $file The uploaded file array
+     * @param string $imageName The base image name (without extension)
+     * @param string $type 'desktop' or 'mobile'
+     * @param int $maxWidth Maximum thumbnail width (default: 200)
+     * @param int $maxHeight Maximum thumbnail height (default: 200)
+     * @return array Result with success, filename, error
+     */
+    public function uploadBackgroundThumbnail(array $file, string $imageName, string $type = 'desktop', int $maxWidth = 200, int $maxHeight = 200): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'error' => null
+        ];
+
+        // Validate file
+        if (!$this->validateFile($file)) {
+            $result['error'] = Constants::ERROR_INVALID_FILE;
+            return $result;
+        }
+
+        // Determine target directory
+        $uploadDir = self::getThemesBasePath() . ($type === 'desktop' ? 'desktop-thumbnails' : 'mobile-thumbnails') . DIRECTORY_SEPARATOR;
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create thumbnail upload directory: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory.';
+                return $result;
+            }
+        }
+
+        // Get image info from uploaded file
+        $sourcePath = $file['tmp_name'];
+        $imageInfo = getimagesize($sourcePath);
+        if (!$imageInfo) {
+            $result['error'] = 'Invalid image file.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $width = $imageInfo[0];
+        $height = $imageInfo[1];
+
+        // Calculate thumbnail dimensions
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+        $newWidth = (int)($width * $ratio);
+        $newHeight = (int)($height * $ratio);
+
+        // Create image resource
+        $source = match ($mimeType) {
+            'image/jpeg' => imagecreatefromjpeg($sourcePath),
+            'image/png' => imagecreatefrompng($sourcePath),
+            'image/webp' => imagecreatefromwebp($sourcePath),
+            default => false
+        };
+
+        if (!$source) {
+            $result['error'] = 'Failed to create image resource.';
+            return $result;
+        }
+
+        // Create thumbnail
+        $thumbnail = imagecreatetruecolor($newWidth, $newHeight);
+        
+        // Preserve transparency for PNG
+        if ($mimeType === 'image/png') {
+            imagealphablending($thumbnail, false);
+            imagesavealpha($thumbnail, true);
+            $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+            imagefill($thumbnail, 0, 0, $transparent);
+        }
+
+        imagecopyresampled($thumbnail, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // Generate filename - use same extension as source image for consistency
+        // First try to match existing background extension, otherwise use uploaded file extension
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        
+        // Check if a background with same base name exists to match extension
+        $backgroundDir = self::getThemesBasePath() . ($type === 'desktop' ? 'desktop-backgrounds' : 'mobile-backgrounds') . DIRECTORY_SEPARATOR;
+        $existingFiles = glob($backgroundDir . $imageName . '.*');
+        if (!empty($existingFiles)) {
+            $existingExtension = strtolower(pathinfo($existingFiles[0], PATHINFO_EXTENSION));
+            if (in_array($existingExtension, ['png', 'jpg', 'jpeg', 'webp'])) {
+                $extension = $existingExtension;
+            }
+        }
+        
+        $filename = $this->sanitizeFilename($imageName) . '.' . $extension;
+        $targetPath = $uploadDir . $filename;
+
+        // Save thumbnail
+        $success = match ($mimeType) {
+            'image/jpeg' => imagejpeg($thumbnail, $targetPath, 85),
+            'image/png' => imagepng($thumbnail, $targetPath, 8),
+            'image/webp' => imagewebp($thumbnail, $targetPath, 85),
+            default => false
+        };
+
+        // Clean up
+        imagedestroy($source);
+        imagedestroy($thumbnail);
+
+        if ($success) {
+            $result['success'] = true;
+            $result['filename'] = $filename;
+        } else {
+            $result['error'] = 'Failed to save thumbnail.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Create thumbnail from background image
+     * 
+     * @param string $sourceFilename The source image filename
+     * @param string $imageName The base image name (without extension)
+     * @param string $type 'desktop' or 'mobile'
+     * @param int $maxWidth Maximum thumbnail width (default: 200)
+     * @param int $maxHeight Maximum thumbnail height (default: 200)
+     * @return array Result with success, filename, error
+     */
+    public function createBackgroundThumbnail(string $sourceFilename, string $imageName, string $type = 'desktop', int $maxWidth = 200, int $maxHeight = 200): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'error' => null
+        ];
+
+        // Determine source and target directories
+        $sourceDir = self::getThemesBasePath() . ($type === 'desktop' ? 'desktop-backgrounds' : 'mobile-backgrounds') . DIRECTORY_SEPARATOR;
+        $targetDir = self::getThemesBasePath() . ($type === 'desktop' ? 'desktop-thumbnails' : 'mobile-thumbnails') . DIRECTORY_SEPARATOR;
+        
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0755, true)) {
+                error_log("Failed to create thumbnail directory: {$targetDir}");
+                $result['error'] = 'Failed to create thumbnail directory.';
+                return $result;
+            }
+        }
+
+        $sourcePath = $sourceDir . $sourceFilename;
+        if (!file_exists($sourcePath)) {
+            $result['error'] = 'Source image not found.';
+            return $result;
+        }
+
+        // Get image info
+        $imageInfo = getimagesize($sourcePath);
+        if (!$imageInfo) {
+            $result['error'] = 'Invalid image file.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $width = $imageInfo[0];
+        $height = $imageInfo[1];
+
+        // Calculate thumbnail dimensions
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+        $newWidth = (int)($width * $ratio);
+        $newHeight = (int)($height * $ratio);
+
+        // Create image resource
+        $source = match ($mimeType) {
+            'image/jpeg' => imagecreatefromjpeg($sourcePath),
+            'image/png' => imagecreatefrompng($sourcePath),
+            'image/webp' => imagecreatefromwebp($sourcePath),
+            default => false
+        };
+
+        if (!$source) {
+            $result['error'] = 'Failed to create image resource.';
+            return $result;
+        }
+
+        // Create thumbnail
+        $thumbnail = imagecreatetruecolor($newWidth, $newHeight);
+        
+        // Preserve transparency for PNG
+        if ($mimeType === 'image/png') {
+            imagealphablending($thumbnail, false);
+            imagesavealpha($thumbnail, true);
+            $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+            imagefill($thumbnail, 0, 0, $transparent);
+        }
+
+        imagecopyresampled($thumbnail, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // Save thumbnail
+        $extension = pathinfo($sourceFilename, PATHINFO_EXTENSION);
+        $thumbnailFilename = $this->sanitizeFilename($imageName) . '.' . $extension;
+        $targetPath = $targetDir . $thumbnailFilename;
+
+        $success = match ($mimeType) {
+            'image/jpeg' => imagejpeg($thumbnail, $targetPath, 85),
+            'image/png' => imagepng($thumbnail, $targetPath, 8),
+            'image/webp' => imagewebp($thumbnail, $targetPath, 85),
+            default => false
+        };
+
+        // Clean up
+        imagedestroy($source);
+        imagedestroy($thumbnail);
+
+        if ($success) {
+            $result['success'] = true;
+            $result['filename'] = $thumbnailFilename;
+        } else {
+            $result['error'] = 'Failed to save thumbnail.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Upload gift wrap image to a gift wrap set
+     * 
+     * @param array $file The uploaded file array
+     * @param string $giftWrapFolder The gift wrap folder name
+     * @return array Result with success, filename, error
+     */
+    public function uploadGiftWrapImage(array $file, string $giftWrapFolder): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'error' => null
+        ];
+
+        // Validate file
+        if (!$this->validateFile($file)) {
+            $result['error'] = Constants::ERROR_INVALID_FILE;
+            return $result;
+        }
+
+        // Determine target directory
+        $uploadDir = self::getThemesBasePath() . 'gift-wraps' . DIRECTORY_SEPARATOR . $giftWrapFolder . DIRECTORY_SEPARATOR;
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create gift wrap upload directory: {$uploadDir}");
+                $result['error'] = 'Failed to create upload directory.';
+                return $result;
+            }
+        }
+
+        // Find next available number
+        $nextNumber = $this->getNextGiftWrapNumber($uploadDir);
+
+        // Generate filename (always PNG for gift wraps)
+        $filename = $nextNumber . '.png';
+
+        // Convert to PNG if needed
+        $sourcePath = $file['tmp_name'];
+        $targetPath = $uploadDir . $filename;
+
+        // Convert image to PNG
+        $imageInfo = getimagesize($sourcePath);
+        if (!$imageInfo) {
+            $result['error'] = 'Invalid image file.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $source = match ($mimeType) {
+            'image/jpeg' => imagecreatefromjpeg($sourcePath),
+            'image/png' => imagecreatefrompng($sourcePath),
+            'image/webp' => imagecreatefromwebp($sourcePath),
+            default => false
+        };
+
+        if (!$source) {
+            $result['error'] = 'Failed to process image.';
+            return $result;
+        }
+
+        // Save as PNG
+        imagealphablending($source, false);
+        imagesavealpha($source, true);
+        
+        if (imagepng($source, $targetPath, 8)) {
+            $this->optimizeImage($targetPath);
+            $result['success'] = true;
+            $result['filename'] = $filename;
+        } else {
+            $result['error'] = 'Failed to save image.';
+        }
+
+        imagedestroy($source);
+
+        return $result;
+    }
+
+    /**
+     * Get next available gift wrap number in a folder
+     * 
+     * @param string $folderPath The gift wrap folder path
+     * @return int Next available number
+     */
+    private function getNextGiftWrapNumber(string $folderPath): int
+    {
+        if (!is_dir($folderPath)) {
+            return 1;
+        }
+
+        $files = glob($folderPath . '*.png');
+        $numbers = [];
+        
+        foreach ($files as $file) {
+            $basename = basename($file);
+            $number = (int)pathinfo($basename, PATHINFO_FILENAME);
+            if ($number > 0) {
+                $numbers[] = $number;
+            }
+        }
+
+        if (empty($numbers)) {
+            return 1;
+        }
+
+        return max($numbers) + 1;
+    }
+
+    /**
+     * Delete gift wrap image
+     * 
+     * @param string $giftWrapFolder The gift wrap folder name
+     * @param string $filename The filename to delete
+     * @return bool Success status
+     */
+    public function deleteGiftWrapImage(string $giftWrapFolder, string $filename): bool
+    {
+        $filePath = self::getThemesBasePath() . 'gift-wraps' . DIRECTORY_SEPARATOR . $giftWrapFolder . DIRECTORY_SEPARATOR . $filename;
+        if (file_exists($filePath)) {
+            return unlink($filePath);
+        }
+        return true;
+    }
+
+    /**
+     * Reorder gift wrap images by renaming files
+     * 
+     * @param string $giftWrapFolder The gift wrap folder name
+     * @param array $newOrder Array of filenames in new order (e.g., ['3.png', '1.png', '2.png'])
+     * @return bool Success status
+     */
+    public function reorderGiftWrapImages(string $giftWrapFolder, array $newOrder): bool
+    {
+        $folderPath = self::getThemesBasePath() . 'gift-wraps' . DIRECTORY_SEPARATOR . $giftWrapFolder . DIRECTORY_SEPARATOR;
+        
+        if (!is_dir($folderPath)) {
+            return false;
+        }
+
+        // Create temporary names to avoid conflicts
+        $tempPrefix = 'temp_' . time() . '_';
+        foreach ($newOrder as $index => $filename) {
+            $oldPath = $folderPath . $filename;
+            $newTempPath = $folderPath . $tempPrefix . $filename;
+            if (file_exists($oldPath)) {
+                rename($oldPath, $newTempPath);
+            }
+        }
+
+        // Rename to final numbers
+        foreach ($newOrder as $index => $filename) {
+            $newNumber = $index + 1;
+            $tempPath = $folderPath . $tempPrefix . $filename;
+            $finalPath = $folderPath . $newNumber . '.png';
+            
+            if (file_exists($tempPath)) {
+                rename($tempPath, $finalPath);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get all gift wrap images for a folder
+     * 
+     * @param string $giftWrapFolder The gift wrap folder name
+     * @return array Array of image filenames sorted by number
+     */
+    public function getGiftWrapImages(string $giftWrapFolder): array
+    {
+        $folderPath = self::getThemesBasePath() . 'gift-wraps' . DIRECTORY_SEPARATOR . $giftWrapFolder . DIRECTORY_SEPARATOR;
+        
+        if (!is_dir($folderPath)) {
+            return [];
+        }
+
+        $files = glob($folderPath . '*.png');
+        $images = [];
+        
+        foreach ($files as $file) {
+            $basename = basename($file);
+            $number = (int)pathinfo($basename, PATHINFO_FILENAME);
+            if ($number > 0) {
+                $images[$number] = $basename;
+            }
+        }
+
+        ksort($images);
+        return array_values($images);
+    }
+
+    /**
+     * Delete background image and its thumbnails
+     * 
+     * @param string $imageName The image name (without extension)
+     * @return bool Success status
+     */
+    public function deleteBackgroundImages(string $imageName): bool
+    {
+        $basePath = self::getThemesBasePath();
+        $deleted = true;
+
+        // Try to delete all variants (with different extensions)
+        $extensions = ['png', 'jpg', 'jpeg', 'webp'];
+        $directories = ['desktop-backgrounds', 'desktop-thumbnails', 'mobile-backgrounds', 'mobile-thumbnails'];
+
+        foreach ($directories as $dir) {
+            foreach ($extensions as $ext) {
+                $filePath = $basePath . $dir . DIRECTORY_SEPARATOR . $imageName . '.' . $ext;
+                if (file_exists($filePath)) {
+                    if (!unlink($filePath)) {
+                        $deleted = false;
+                    }
+                }
+            }
+        }
+
+        return $deleted;
+    }
 }

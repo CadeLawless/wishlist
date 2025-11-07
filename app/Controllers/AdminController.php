@@ -14,15 +14,18 @@ use App\Services\AdminRenderService;
 use App\Services\WishlistService;
 use App\Services\SessionManager;
 use App\Services\FilterService;
+use App\Services\FileUploadService;
 
 class AdminController extends Controller
 {
     private PaginationService $paginationService;
+    private FileUploadService $fileUploadService;
 
     public function __construct()
     {
         parent::__construct();
         $this->paginationService = new PaginationService(Constants::ADMIN_ITEMS_PER_PAGE);
+        $this->fileUploadService = new FileUploadService();
     }
 
     public function users(): Response
@@ -403,11 +406,118 @@ class AdminController extends Controller
             return $this->redirect("/admin/backgrounds/edit?id={$id}&pageno={$pageno}")->withError(implode(' ', $errors));
         }
         
-        // Update the background
+        // Handle image uploads
+        // Determine image name and extension - use uploaded desktop background extension if provided, otherwise keep existing
+        $imageNameBase = pathinfo($theme_image, PATHINFO_FILENAME);
+        $imageExtension = pathinfo($theme_image, PATHINFO_EXTENSION);
+        $finalImageName = $theme_image; // Default to what user entered
+        
+        // Upload desktop background
+        if ($this->request->hasFile('desktop_background')) {
+            $file = $this->request->file('desktop_background');
+            $uploadedExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            
+            // Update extension if we have a new upload
+            if (!empty($uploadedExtension)) {
+                $imageExtension = $uploadedExtension;
+                $finalImageName = $imageNameBase . '.' . $uploadedExtension;
+            }
+            
+            $uploadResult = $this->fileUploadService->uploadBackgroundImage(
+                $file,
+                $imageNameBase,
+                'desktop'
+            );
+            
+            if (!$uploadResult['success']) {
+                \App\Services\SessionManager::set('admin_background_edit_form_data', [
+                    'theme_name' => $theme_name,
+                    'theme_tag' => $theme_tag,
+                    'theme_image' => $theme_image,
+                    'default_gift_wrap' => $default_gift_wrap
+                ]);
+                return $this->redirect("/admin/backgrounds/edit?id={$id}&pageno={$pageno}")->withError('Desktop background upload failed: ' . $uploadResult['error']);
+            }
+            
+            // Update final image name to match uploaded filename
+            $finalImageName = $uploadResult['filename'];
+            
+            // Auto-generate desktop thumbnail if not provided
+            if (!$this->request->hasFile('desktop_thumbnail')) {
+                $thumbnailResult = $this->fileUploadService->createBackgroundThumbnail(
+                    $uploadResult['filename'],
+                    $imageNameBase,
+                    'desktop'
+                );
+                if (!$thumbnailResult['success']) {
+                    error_log('Failed to auto-generate desktop thumbnail: ' . $thumbnailResult['error']);
+                }
+            }
+        }
+        
+        // Upload desktop thumbnail (if provided)
+        if ($this->request->hasFile('desktop_thumbnail')) {
+            $thumbnailResult = $this->fileUploadService->uploadBackgroundThumbnail(
+                $this->request->file('desktop_thumbnail'),
+                $imageNameBase,
+                'desktop'
+            );
+            
+            if (!$thumbnailResult['success']) {
+                error_log('Failed to upload desktop thumbnail: ' . $thumbnailResult['error']);
+            }
+        }
+        
+        // Upload mobile background
+        if ($this->request->hasFile('mobile_background')) {
+            $file = $this->request->file('mobile_background');
+            $uploadResult = $this->fileUploadService->uploadBackgroundImage(
+                $file,
+                $imageNameBase,
+                'mobile'
+            );
+            
+            if (!$uploadResult['success']) {
+                \App\Services\SessionManager::set('admin_background_edit_form_data', [
+                    'theme_name' => $theme_name,
+                    'theme_tag' => $theme_tag,
+                    'theme_image' => $theme_image,
+                    'default_gift_wrap' => $default_gift_wrap
+                ]);
+                return $this->redirect("/admin/backgrounds/edit?id={$id}&pageno={$pageno}")->withError('Mobile background upload failed: ' . $uploadResult['error']);
+            }
+            
+            // Auto-generate mobile thumbnail if not provided
+            if (!$this->request->hasFile('mobile_thumbnail')) {
+                $thumbnailResult = $this->fileUploadService->createBackgroundThumbnail(
+                    $uploadResult['filename'],
+                    $imageNameBase,
+                    'mobile'
+                );
+                if (!$thumbnailResult['success']) {
+                    error_log('Failed to auto-generate mobile thumbnail: ' . $thumbnailResult['error']);
+                }
+            }
+        }
+        
+        // Upload mobile thumbnail (if provided)
+        if ($this->request->hasFile('mobile_thumbnail')) {
+            $thumbnailResult = $this->fileUploadService->uploadBackgroundThumbnail(
+                $this->request->file('mobile_thumbnail'),
+                $imageNameBase,
+                'mobile'
+            );
+            
+            if (!$thumbnailResult['success']) {
+                error_log('Failed to upload mobile thumbnail: ' . $thumbnailResult['error']);
+            }
+        }
+        
+        // Update the background - use finalImageName if it was updated by uploads
         $updateData = [
             'theme_name' => $theme_name,
             'theme_tag' => $theme_tag,
-            'theme_image' => $theme_image,
+            'theme_image' => $finalImageName,
             'default_gift_wrap' => $default_gift_wrap
         ];
         
@@ -449,6 +559,9 @@ class AdminController extends Controller
             \App\Services\SessionManager::remove('admin_giftwrap_edit_form_data');
         }
         
+        // Get all gift wrap images
+        $giftWrapImages = $this->fileUploadService->getGiftWrapImages($giftWrap['theme_image']);
+        
         $data = [
             'user' => $user,
             'giftWrap' => $giftWrap,
@@ -456,7 +569,8 @@ class AdminController extends Controller
             'currentPageUrl' => '/admin/gift-wraps',
             'theme_name' => $sessionFormData['theme_name'] ?? null,
             'theme_tag' => $sessionFormData['theme_tag'] ?? null,
-            'theme_image' => $sessionFormData['theme_image'] ?? null
+            'theme_image' => $sessionFormData['theme_image'] ?? null,
+            'giftWrapImages' => $giftWrapImages
         ];
         
         return $this->view('admin/gift-wraps/edit', $data);
