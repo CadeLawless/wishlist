@@ -1064,7 +1064,7 @@ textarea {
 .validation-error .error-item:last-child {
     margin-bottom: 20px;
 }
-:is(input, select, textarea).invalid {
+:is(input, select, textarea, .dollar-sign-input).invalid, .quantity-container:has(input.invalid) {
     margin-bottom: 4px;
 }
 
