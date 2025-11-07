@@ -142,7 +142,7 @@ footer {
     bottom: 0;
     left: 50%;
     transform: translate(-50%, 0);
-    width: 100%;
+    width: 90%;
     background-color: var(--transparent-background);
 }
 .float-left {
@@ -473,7 +473,7 @@ body.dark .table-search-loading-overlay {
 }
 .logo {
     width: 100%;
-    max-width: 120px;
+    max-width: 140px;
     height: auto;
     padding-left: 35px;
 }
@@ -482,10 +482,10 @@ body.dark .table-search-loading-overlay {
 }
 .logo.login {
     padding-left: 0;
-    max-width: 200px;
+    max-width: 250px;
 }
 .reset-password-logo .logo {
-    max-width: 200px;
+    max-width: 250px;
 }
 .header h1 {
     margin: 0;
@@ -847,6 +847,7 @@ body.dark .dark-mode-link {
     margin: auto;
     justify-content: center;
     margin-bottom: 15px;
+    padding: 0 0.6rem;
 }
 .wishlist-grid-item {
     overflow: hidden;
@@ -879,9 +880,6 @@ body.dark .dark-mode-link {
 }
 .wishlist-grid-item:hover {
     outline: 3px solid var(--text);
-}
-.wishlist-grid-item:hover .wishlist-name {
-    font-weight: bold;
 }
 
 /* pagination css */
@@ -2246,7 +2244,7 @@ img.gift-wrap {
         display: none;
         flex-basis: 100%;
         position: fixed;
-        top: 77px;
+        top: 83px;
         left: 50%;
         width: calc(100% - 20px);
         transform: translate(-50%, 0);
@@ -2318,7 +2316,7 @@ img.gift-wrap {
     }
     .logo {
         width: 100%;
-        max-width: 75px;
+        max-width: 90px;
         padding-left: 20px;
     }
     #body {

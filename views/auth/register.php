@@ -33,7 +33,7 @@ if (isset($flash['error'])) {
 }
 ?>
 
-<p class="center"><img class="logo login" src="/public/images/site-images/logo.png" alt="Wish List" /></p>
+<div class="center reset-password-logo"><?php require(__DIR__ . "/../../public/images/site-images/logo.php"); ?></div>
 <form id="login-form" method="POST" action="">
     <p><a href="/login">Back to Login</a></p>
     <?php if(isset($error_msg)) echo $error_msg?>
