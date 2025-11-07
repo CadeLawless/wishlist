@@ -42,9 +42,9 @@
     <?php endif; ?>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
-      <?php if(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
-      <?php if(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
-      <?php if(isset($wishlist_id)): ?>data-base-url="/wishlists/<?php echo $wishlist_id; ?>"<?php elseif(isset($base_url)): ?>data-base-url="<?php echo $base_url; ?>"<?php endif; ?>>
+      <?php if(isset($currentPage)): ?>data-current-page="<?php echo $currentPage; ?>"<?php elseif(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
+      <?php if(isset($totalPages)): ?>data-total-pages="<?php echo $totalPages; ?>"<?php elseif(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
+      <?php if(isset($currentPageUrl)): ?>data-base-url="<?php echo $currentPageUrl; ?>"<?php elseif(isset($wishlist_id)): ?>data-base-url="/wishlists/<?php echo $wishlist_id; ?>"<?php elseif(isset($base_url)): ?>data-base-url="<?php echo $base_url; ?>"<?php endif; ?>>
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">

@@ -14,7 +14,14 @@ $(document).ready(function() {
     
     // Determine the content selector based on what exists on the page
     // This allows the same script to work for different page types
-    const contentSelector = $('.wishlist-grid').length ? '.wishlist-grid' : '.items-list.main';
+    let contentSelector;
+    if ($('.wishlist-grid').length) {
+        contentSelector = '.wishlist-grid';
+    } else if ($('.admin-table-body').length) {
+        contentSelector = '.admin-table-body';
+    } else {
+        contentSelector = '.items-list.main';
+    }
     
     // Function to build URL with preserved parameters
     function buildUrlWithParams(pageNumber) {
@@ -74,9 +81,21 @@ $(document).ready(function() {
         }
         
         if (newPage !== paginationState.currentPage) {
+            // Handle admin URLs with query parameters differently
+            let paginateUrl;
+            if (paginationState.baseUrl.includes('/admin/wishlists/view')) {
+                // For admin wishlist view, use admin-specific pagination endpoint
+                const urlParams = new URLSearchParams(paginationState.baseUrl.split('?')[1] || '');
+                const id = urlParams.get('id') || '';
+                paginateUrl = '/admin/wishlists/paginate-items?id=' + id;
+            } else {
+                // For regular wishlist/item pagination
+                paginateUrl = paginationState.baseUrl + "/paginate";
+            }
+            
             $.ajax({
                 type: "POST",
-                url: paginationState.baseUrl + "/paginate",
+                url: paginateUrl,
                 data: { new_page: newPage },
                 dataType: "json",
                 success: function(data) {
@@ -117,24 +136,49 @@ $(document).ready(function() {
                         const newUrl = buildUrlWithParams(data.current);
                         history.replaceState(null, null, newUrl);
                         
-                        // Scroll to top pagination controls on page change, accounting for fixed header
-                        const $topPagination = $('.paginate-container').first();
-                        if ($topPagination.length) {
-                            // Get header height dynamically (header height varies by screen size)
-                            const $header = $('.header-container, .header').first();
-                            const headerHeight = $header.length ? $header.outerHeight(true) : 0;
-                            
-                            // Calculate position: pagination top position minus header height, with small padding
-                            const paginationOffset = $topPagination.offset().top;
-                            const scrollPosition = paginationOffset - headerHeight - 10; // 10px padding
-                            
-                            window.scrollTo({ 
-                                top: Math.max(0, scrollPosition), 
-                                behavior: 'smooth' 
-                            });
+                        // Scroll behavior based on page type
+                        const isAdminPage = contentSelector === '.admin-table-body';
+                        
+                        if (isAdminPage) {
+                            // For admin pages, scroll to the header text (h2.items-list-title)
+                            const $headerText = $('.items-list-title').first();
+                            if ($headerText.length) {
+                                // Get header height dynamically (header height varies by screen size)
+                                const $header = $('.header-container, .header').first();
+                                const headerHeight = $header.length ? $header.outerHeight(true) : 0;
+                                
+                                // Calculate position: header text top position minus header height, with small padding
+                                const headerTextOffset = $headerText.offset().top;
+                                const scrollPosition = headerTextOffset - headerHeight - 10; // 10px padding
+                                
+                                window.scrollTo({ 
+                                    top: Math.max(0, scrollPosition), 
+                                    behavior: 'smooth' 
+                                });
+                            } else {
+                                // Fallback to scrolling to top of page
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
                         } else {
-                            // Fallback to scrolling to top of page
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            // For other pages, scroll to top pagination controls
+                            const $topPagination = $('.paginate-container').first();
+                            if ($topPagination.length) {
+                                // Get header height dynamically (header height varies by screen size)
+                                const $header = $('.header-container, .header').first();
+                                const headerHeight = $header.length ? $header.outerHeight(true) : 0;
+                                
+                                // Calculate position: pagination top position minus header height, with small padding
+                                const paginationOffset = $topPagination.offset().top;
+                                const scrollPosition = paginationOffset - headerHeight - 10; // 10px padding
+                                
+                                window.scrollTo({ 
+                                    top: Math.max(0, scrollPosition), 
+                                    behavior: 'smooth' 
+                                });
+                            } else {
+                                // Fallback to scrolling to top of page
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
                         }
                         
                         // Update the pagination variables for next pagination

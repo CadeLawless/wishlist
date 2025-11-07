@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\AdminController;
 use App\Controllers\HomeController;
 use App\Controllers\WishlistController;
 use App\Controllers\ItemController;
@@ -52,9 +53,24 @@ Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
 
 // Admin routes (must come before generic /{id} routes)
-Router::get('/admin', [AuthController::class, 'admin'])->middleware('admin');
-Router::get('/admin/users', [AuthController::class, 'admin'])->middleware('admin');
-Router::get('/admin/wishlists', [AuthController::class, 'adminWishlists'])->middleware('admin');
+Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');
+Router::get('/admin/users', [AdminController::class, 'users'])->middleware('admin');
+Router::post('/admin/users/paginate', [AdminController::class, 'paginateUsers'])->middleware('admin');
+Router::get('/admin/users/edit', [AdminController::class, 'editUser'])->middleware('admin');
+Router::post('/admin/users/update', [AdminController::class, 'updateUser'])->middleware('admin');
+Router::post('/admin/users/send-password-reset', [AdminController::class, 'sendPasswordReset'])->middleware('admin');
+Router::get('/admin/backgrounds', [AdminController::class, 'backgrounds'])->middleware('admin');
+Router::post('/admin/backgrounds/paginate', [AdminController::class, 'paginateBackgrounds'])->middleware('admin');
+Router::get('/admin/backgrounds/edit', [AdminController::class, 'editBackground'])->middleware('admin');
+Router::post('/admin/backgrounds/update', [AdminController::class, 'updateBackground'])->middleware('admin');
+Router::get('/admin/gift-wraps', [AdminController::class, 'giftWraps'])->middleware('admin');
+Router::post('/admin/gift-wraps/paginate', [AdminController::class, 'paginateGiftWraps'])->middleware('admin');
+Router::get('/admin/gift-wraps/edit', [AdminController::class, 'editGiftWrap'])->middleware('admin');
+Router::post('/admin/gift-wraps/update', [AdminController::class, 'updateGiftWrap'])->middleware('admin');
+Router::get('/admin/wishlists', [AdminController::class, 'wishlists'])->middleware('admin');
+Router::post('/admin/wishlists/paginate', [AdminController::class, 'paginateWishlists'])->middleware('admin');
+Router::get('/admin/wishlists/view', [AdminController::class, 'viewWishlist'])->middleware('admin');
+Router::post('/admin/wishlists/paginate-items', [AdminController::class, 'paginateWishlistItems'])->middleware('admin');
 
 
 // Wishlist routes (home page shows user's wishlists)

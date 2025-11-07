@@ -724,54 +724,6 @@ class AuthController extends Controller
         return $this->redirect('/profile');
     }
 
-    public function admin(): Response
-    {
-        $user = $this->auth();
-        
-        // Get paginated users for the admin view
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $offset = ($page - 1) * $perPage;
-        
-        $users = User::paginate($perPage, $offset);
-        $totalUsers = User::count();
-        $totalPages = ceil($totalUsers / $perPage);
-        
-        $data = [
-            'user' => $user,
-            'users' => $users,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalUsers' => $totalUsers
-        ];
-        
-        return $this->view('auth/admin', $data);
-    }
-
-
-    public function adminWishlists(): Response
-    {
-        $user = $this->auth();
-        
-        // Get paginated wishlists
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = Constants::ADMIN_ITEMS_PER_PAGE;
-        $offset = ($page - 1) * $perPage;
-        
-        $wishlists = \App\Models\Wishlist::paginate($perPage, $offset);
-        $totalWishlists = \App\Models\Wishlist::count();
-        $totalPages = ceil($totalWishlists / $perPage);
-        
-        $data = [
-            'user' => $user,
-            'wishlists' => $wishlists,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalWishlists' => $totalWishlists
-        ];
-        
-        return $this->view('auth/admin', $data);
-    }
 
     /**
      * AJAX endpoint to check if username exists

@@ -278,6 +278,9 @@ thead tr th:last-of-type {
 td, th {
     padding: 12px 15px;
     color: inherit;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 tbody tr {
     border-bottom: 1px solid var(--bar-text-placeholder);
@@ -2262,6 +2265,7 @@ img.gift-wrap {
         display: block;
         text-align: right;
         width: auto;
+        max-width: none;
         padding: 10px;
     }
     table tr td:last-of-type {
