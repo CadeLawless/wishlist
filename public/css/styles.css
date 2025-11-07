@@ -377,6 +377,9 @@ tbody tr.active-row {
     padding-left: 0;
     max-width: 200px;
 }
+.reset-password-logo .logo {
+    max-width: 200px;
+}
 .header h1 {
     margin: 0;
     padding-left: 35px;

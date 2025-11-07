@@ -145,7 +145,6 @@ if (isset($flash['error'])) {
             <div class="large-input">
                 <label for="confirm_password">Confirm New Password: </label><br>
                 <input required type="password" name="confirm_password" value="<?php echo htmlspecialchars($confirm_password ?? ''); ?>" id="confirm_password">
-                <span class="error-msg hidden">Passwords must match</span>
             </div>
 
             <p class="large-input"><input type="submit" class="button text" id="password_submit_button" value="Change Password"></p>
