@@ -193,20 +193,27 @@ $(document).ready(function() {
                             const totalPages = data.total || 1;
                             const $paginationContainer = $('.paginate-container.bottom');
                             
+                            // Get the wrapper element (center div)
+                            const $paginationWrapper = $paginationContainer.closest('.center');
+                            
                             // Show pagination controls if there are more results than items per page
                             if (totalRows > itemsPerPage) {
+                                // Remove any inline display:none style and show the wrapper
+                                $paginationWrapper.css('display', '');
+                                $paginationWrapper.show();
                                 // Show all pagination controls (arrows, title, and count)
                                 $paginationContainer.find('.paginate-arrow, .paginate-title').show();
                                 $paginationContainer.find('.count-showing').show();
-                                $paginationContainer.show();
                             } else if (totalRows > 0 && totalRows <= itemsPerPage) {
+                                // Remove any inline display:none style and show the wrapper
+                                $paginationWrapper.css('display', '');
+                                $paginationWrapper.show();
                                 // Show only count, hide pagination arrows (results fit on one page)
                                 $paginationContainer.find('.paginate-arrow, .paginate-title').hide();
                                 $paginationContainer.find('.count-showing').show();
-                                $paginationContainer.show();
                             } else {
                                 // Hide everything if no results
-                                $paginationContainer.hide();
+                                $paginationWrapper.hide();
                             }
                             
                             // Update top pagination controls for items pages

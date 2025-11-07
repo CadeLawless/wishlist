@@ -42,22 +42,29 @@ if ($position === 'top') {
         <?php 
         // Always render controls (even if total_pages is 1) so JavaScript can update them dynamically
         // This ensures pagination controls are available when search results change
+        // For bottom pagination, always render arrows so JS can show/hide them based on result count
         $render_controls = $always_render || $total_pages > 1;
         ?>
         <?php if($render_controls): ?>
-        <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
+        <?php 
+        // For bottom pagination, hide arrows initially if there are 12 or fewer results
+        // JavaScript will show/hide them dynamically based on actual result count
+        $hide_arrows = ($position === 'bottom' && $total_count !== null && $total_count > 0 && $total_count <= $items_per_page);
+        $arrow_style = $hide_arrows ? ' style="display: none;"' : '';
+        ?>
+        <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
         </a>
-        <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#">
+        <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
         </a>
-        <div class="paginate-title">
+        <div class="paginate-title"<?php echo $arrow_style; ?>>
             <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
         </div>
-        <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
+        <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
         </a>
-        <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#">
+        <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
             <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
         </a>
         <?php endif; ?>

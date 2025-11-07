@@ -274,13 +274,13 @@ $(document).ready(function() {
                         $lastArrow.removeClass('disabled');
                     }
                 }
-            } else if (totalRows > 0 && totalRows <= itemsPerPage) {
-                // Remove any inline display:none style and show the wrapper
-                $paginationWrapper.css('display', '');
-                $paginationWrapper.show();
-                // Show only count, hide pagination arrows (results fit on one page)
-                $paginationContainer.find('.paginate-arrow, .paginate-title').hide();
-                $paginationContainer.find('.count-showing').show();
+        } else if (totalRows > 0 && totalRows <= itemsPerPage) {
+            // Remove any inline display:none style and show the wrapper
+            $paginationWrapper.css('display', '');
+            $paginationWrapper.show();
+            // Show only count, hide pagination arrows (results fit on one page)
+            $paginationContainer.find('.paginate-arrow, .paginate-title').hide();
+            $paginationContainer.find('.count-showing').show();
             } else {
                 // Hide everything if no results
                 $paginationWrapper.hide();
