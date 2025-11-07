@@ -255,6 +255,16 @@ class AuthController extends Controller
                 'reset_password_expiration' => null
             ]);
             
+            // Check if user is currently logged in
+            $isLoggedIn = $this->authService->isLoggedIn();
+            $currentUser = $this->authService->getCurrentUser();
+            
+            // If logged in and resetting their own password, redirect to home
+            // Otherwise redirect to login
+            if ($isLoggedIn && $currentUser && $currentUser['id'] == $user['id']) {
+                return $this->redirect('/')->withSuccess('Password has been reset successfully.');
+            }
+            
             return $this->redirect('/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
         }
 
