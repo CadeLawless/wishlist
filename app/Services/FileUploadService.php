@@ -26,6 +26,19 @@ class FileUploadService
         return $path;
     }
 
+    /**
+     * Get the temp upload directory path (absolute path)
+     */
+    public static function getTempUploadPath(): string
+    {
+        $path = self::getBaseUploadPath() . 'temp' . DIRECTORY_SEPARATOR;
+        // Ensure temp directory exists
+        if (!is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+        return $path;
+    }
+
     public function uploadItemImage(array $file, string $wishlistId, string $itemName): array
     {
         $result = [
@@ -582,5 +595,368 @@ class FileUploadService
         }
 
         return $result;
+    }
+
+    /**
+     * Upload item image to temporary folder (for validation)
+     * 
+     * @param array $file The uploaded file array
+     * @param string $itemName The item name for filename generation
+     * @return array Result with success, filename, filepath, error
+     */
+    public function uploadItemImageToTemp(array $file, string $itemName): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'filepath' => null,
+            'error' => null,
+            'is_temp' => true
+        ];
+
+        // Validate file
+        if (!$this->validateFile($file)) {
+            $result['error'] = Constants::ERROR_INVALID_FILE;
+            return $result;
+        }
+
+        // Create temp directory if it doesn't exist
+        $uploadDir = self::getTempUploadPath();
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create temp upload directory: {$uploadDir}");
+                $result['error'] = Constants::ERROR_DIRECTORY_CREATION;
+                return $result;
+            }
+        }
+
+        // Generate unique filename with session ID and timestamp
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $sessionId = session_id();
+        $timestamp = time();
+        $filename = $this->sanitizeFilename($itemName) . '_' . substr($sessionId, 0, 8) . '_' . $timestamp . '.' . $extension;
+
+        // Handle filename conflicts
+        $filename = $this->getUniqueFilename($uploadDir, $filename);
+
+        // Move uploaded file to temp
+        $targetPath = $uploadDir . $filename;
+        $moveResult = move_uploaded_file($file['tmp_name'], $targetPath);
+        
+        if ($moveResult && file_exists($targetPath)) {
+            // Optimize image if needed
+            $this->optimizeImage($targetPath);
+            
+            $result['success'] = true;
+            $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
+        } else {
+            $result['error'] = 'Failed to upload file to temporary folder. Please try again.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Upload base64 image to temporary folder (for validation)
+     * 
+     * @param string $base64Data The base64 image data
+     * @param string $itemName The item name for filename generation
+     * @return array Result with success, filename, filepath, error
+     */
+    public function uploadFromBase64ToTemp(string $base64Data, string $itemName): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'filepath' => null,
+            'error' => null,
+            'is_temp' => true
+        ];
+
+        // Validate base64 data
+        if (!$this->validateBase64Image($base64Data)) {
+            $result['error'] = 'Invalid image data. Please paste a valid image.';
+            return $result;
+        }
+
+        // Create temp directory if it doesn't exist
+        $uploadDir = self::getTempUploadPath();
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create temp upload directory for base64: {$uploadDir}");
+                $result['error'] = 'Failed to create temp upload directory. Please check permissions.';
+                return $result;
+            }
+        }
+
+        // Handle both full data URL format and raw base64
+        $base64ToDecode = $base64Data;
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Data)) {
+            $base64ToDecode = substr($base64Data, strpos($base64Data, ',') + 1);
+        }
+        
+        // Decode base64 data
+        $imageData = base64_decode($base64ToDecode, true);
+        if ($imageData === false) {
+            $result['error'] = 'Failed to decode image data.';
+            return $result;
+        }
+
+        // Detect image type and extension
+        $imageInfo = getimagesizefromstring($imageData);
+        if ($imageInfo === false) {
+            $result['error'] = 'Invalid image format.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $extension = $this->getExtensionFromMimeType($mimeType);
+        
+        if (!$extension) {
+            $result['error'] = 'Unsupported image format. Please use JPG, PNG, or WEBP.';
+            return $result;
+        }
+
+        // Generate unique filename with session ID and timestamp
+        $sessionId = session_id();
+        $timestamp = time();
+        $filename = $this->sanitizeFilename($itemName) . '_' . substr($sessionId, 0, 8) . '_' . $timestamp . '.' . $extension;
+        $filename = $this->getUniqueFilename($uploadDir, $filename);
+
+        // Save image to temp
+        $targetPath = $uploadDir . $filename;
+        if (file_put_contents($targetPath, $imageData)) {
+            // Optimize image if needed
+            $this->optimizeImage($targetPath);
+            
+            $result['success'] = true;
+            $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
+        } else {
+            $result['error'] = 'Failed to save image to temporary folder. Please try again.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Upload image from URL to temporary folder (for validation)
+     * 
+     * @param string $imageUrl The URL of the image to download
+     * @param string $itemName The item name for filename generation
+     * @return array Result with success, filename, filepath, error
+     */
+    public function uploadFromUrlToTemp(string $imageUrl, string $itemName): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'filepath' => null,
+            'error' => null,
+            'is_temp' => true
+        ];
+
+        // Validate URL
+        if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            $result['error'] = 'Invalid image URL.';
+            return $result;
+        }
+
+        // Create temp directory if it doesn't exist
+        $uploadDir = self::getTempUploadPath();
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log("Failed to create temp upload directory for URL: {$uploadDir}");
+                $result['error'] = 'Failed to create temp upload directory. Please check permissions.';
+                return $result;
+            }
+        }
+
+        // Download image using cURL
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $imageUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => Constants::CURL_MAX_REDIRECTS,
+            CURLOPT_TIMEOUT => Constants::CURL_TIMEOUT,
+            CURLOPT_USERAGENT => Constants::DEFAULT_USER_AGENT,
+            CURLOPT_HTTPHEADER => [
+                'Accept: image/webp,image/apng,image/*,*/*;q=0.8',
+                'Accept-Language: en-US,en;q=0.5',
+                'Accept-Encoding: gzip, deflate',
+                'Connection: keep-alive',
+                'Cache-Control: no-cache'
+            ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_ENCODING => '',
+        ]);
+
+        $imageData = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($imageData === false || $httpCode !== 200 || !empty($error)) {
+            $result['error'] = 'Failed to download image from URL. The image may be inaccessible or blocked.';
+            return $result;
+        }
+
+        // Check file size
+        if (strlen($imageData) > $this->maxFileSize) {
+            $result['error'] = 'Image file is too large. Maximum size is 5MB.';
+            return $result;
+        }
+
+        // Validate image format
+        $imageInfo = getimagesizefromstring($imageData);
+        if ($imageInfo === false) {
+            $result['error'] = 'Invalid image format. Please use JPG, PNG, or WEBP.';
+            return $result;
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $extension = $this->getExtensionFromMimeType($mimeType);
+        
+        if (!$extension) {
+            $result['error'] = 'Unsupported image format. Please use JPG, PNG, or WEBP.';
+            return $result;
+        }
+
+        // Generate unique filename with session ID and timestamp
+        $sessionId = session_id();
+        $timestamp = time();
+        $filename = $this->sanitizeFilename($itemName) . '_' . substr($sessionId, 0, 8) . '_' . $timestamp . '.' . $extension;
+        $filename = $this->getUniqueFilename($uploadDir, $filename);
+
+        // Save image to temp
+        $targetPath = $uploadDir . $filename;
+        if (file_put_contents($targetPath, $imageData)) {
+            // Optimize image if needed
+            $this->optimizeImage($targetPath);
+            
+            $result['success'] = true;
+            $result['filename'] = $filename;
+            $result['filepath'] = $targetPath;
+        } else {
+            $result['error'] = 'Failed to save downloaded image to temporary folder. Please try again.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Move temporary image to final destination
+     * 
+     * @param string $tempFilename The temporary filename
+     * @param string $wishlistId The wishlist ID for the final destination
+     * @param string $itemName The item name for filename generation
+     * @return array Result with success, filename, error
+     */
+    public function moveTempToFinal(string $tempFilename, string $wishlistId, string $itemName): array
+    {
+        $result = [
+            'success' => false,
+            'filename' => null,
+            'error' => null
+        ];
+
+        $tempPath = self::getTempUploadPath() . $tempFilename;
+        
+        if (!file_exists($tempPath)) {
+            $result['error'] = 'Temporary file not found.';
+            return $result;
+        }
+
+        // Create final directory if it doesn't exist
+        $finalDir = self::getBaseUploadPath() . "{$wishlistId}" . DIRECTORY_SEPARATOR;
+        if (!is_dir($finalDir)) {
+            if (!mkdir($finalDir, 0755, true)) {
+                error_log("Failed to create final upload directory: {$finalDir}");
+                $result['error'] = Constants::ERROR_DIRECTORY_CREATION;
+                return $result;
+            }
+        }
+
+        // Generate final filename (without session ID/timestamp from temp)
+        $extension = pathinfo($tempFilename, PATHINFO_EXTENSION);
+        $timestamp = date('Y-m-d_H-i-s');
+        $finalFilename = $this->sanitizeFilename($itemName) . '_' . $timestamp . '.' . $extension;
+        $finalFilename = $this->getUniqueFilename($finalDir, $finalFilename);
+
+        // Move file from temp to final location
+        $finalPath = $finalDir . $finalFilename;
+        if (rename($tempPath, $finalPath)) {
+            $result['success'] = true;
+            $result['filename'] = $finalFilename;
+        } else {
+            $result['error'] = 'Failed to move temporary file to final location.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Delete temporary image file
+     * 
+     * @param string $tempFilename The temporary filename
+     * @return bool Success status
+     */
+    public function deleteTempImage(string $tempFilename): bool
+    {
+        $tempPath = self::getTempUploadPath() . $tempFilename;
+        if (file_exists($tempPath)) {
+            return unlink($tempPath);
+        }
+        return true; // File doesn't exist, consider it "deleted"
+    }
+
+    /**
+     * Clean up old temporary files (older than specified hours)
+     * 
+     * @param int $hoursOld Files older than this many hours will be deleted (default: 24)
+     * @return int Number of files deleted
+     */
+    public function cleanupOldTempFiles(int $hoursOld = 24): int
+    {
+        $tempDir = self::getTempUploadPath();
+        $deletedCount = 0;
+        $cutoffTime = time() - ($hoursOld * 3600);
+
+        if (!is_dir($tempDir)) {
+            return 0;
+        }
+
+        $files = scandir($tempDir);
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $filePath = $tempDir . $file;
+            if (is_file($filePath)) {
+                // Check file modification time
+                if (filemtime($filePath) < $cutoffTime) {
+                    if (unlink($filePath)) {
+                        $deletedCount++;
+                    }
+                }
+            }
+        }
+
+        return $deletedCount;
+    }
+
+    /**
+     * Get the public URL path for a temporary image (for preview)
+     * 
+     * @param string $tempFilename The temporary filename
+     * @return string Public URL path
+     */
+    public static function getTempImageUrl(string $tempFilename): string
+    {
+        return '/public/images/item-images/temp/' . $tempFilename;
     }
 }

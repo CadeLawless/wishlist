@@ -85,6 +85,8 @@ $(document).ready(function() {
     $("#paste-image").on("paste", function(e){
     e.preventDefault();
     const clipboardData = e.originalEvent.clipboardData;
+    const $previewContainer = $("#preview_container");
+    const $previewImg = $previewContainer.find("img");
     
     if (clipboardData && clipboardData.items) {
         for (let i = 0; i < clipboardData.items.length; i++) {
@@ -102,8 +104,13 @@ $(document).ready(function() {
                     $("#paste-image").val("");
                     
                     // Show preview
-                    $("#preview_container").find("img").attr("src", event.target.result);
-                    $("#preview_container").removeClass("hidden");
+                    $previewImg.attr("src", event.target.result);
+                    // Remove inline display:none style if present
+                    $previewImg.css("display", "");
+                    $previewContainer.removeClass("hidden");
+                    
+                    // Clear any temp filename hidden field since we're using a new image
+                    $("input[name='temp_filename']").remove();
                     
                     // Update button text
                     $(".file-input").text("Change Image");
@@ -121,14 +128,20 @@ $(document).ready(function() {
     const inputValue = $(this).val().trim();
     const pasteImageHidden = $("#paste-image-hidden");
     const previewContainer = $("#preview_container");
+    const previewImg = previewContainer.find("img");
     
     if (inputValue && isValidUrl(inputValue)) {
         // It's a valid URL, store it and show preview
         pasteImageHidden.val(inputValue);
         
         // Show preview
-        previewContainer.find("img").attr("src", inputValue);
+        previewImg.attr("src", inputValue);
+        // Remove inline display:none style if present
+        previewImg.css("display", "");
         previewContainer.removeClass("hidden");
+        
+        // Clear any temp filename hidden field since we're using a new image
+        $("input[name='temp_filename']").remove();
         
         // Update button text
         $(".file-input").text("Change Image");
@@ -142,24 +155,31 @@ $(document).ready(function() {
     // show image preview on change
     $("#image, input[type='file']").on("change", function(){
         $input = $(this);
+        const $previewContainer = $("#preview_container");
+        const $previewImg = $previewContainer.find("img");
+        
         if (this.files && this.files[0]) {
             var reader = new FileReader();
 
             reader.onload = function (e) {
                 // Update the image source
-                $("#preview_container").find("img").attr("src", e.target.result);
+                $previewImg.attr("src", e.target.result);
+                // Remove inline display:none style if present
+                $previewImg.css("display", "");
                 // Show the preview container
-                $("#preview_container").removeClass("hidden");
+                $previewContainer.removeClass("hidden");
                 // Clear any paste image data since we're using a file now
                 $("#paste-image").val("");
                 $("#paste-image-hidden").val("");
+                // Clear any temp filename hidden field since we're using a new file
+                $("input[name='temp_filename']").remove();
             }
 
             reader.readAsDataURL(this.files[0]);
             this.previousElementSibling.textContent = "Change Image";
         } else {
             // No file selected
-            $("#preview_container").addClass("hidden");
+            $previewContainer.addClass("hidden");
             $("#paste-image").val("");
             $("#paste-image-hidden").val("");
             this.previousElementSibling.textContent = "Choose Image";
