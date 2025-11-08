@@ -70,7 +70,7 @@
         <option value="1" <?php if(($priority ?? '1') == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
         <option value="2" <?php if(($priority ?? '1') == "2") echo "selected"; ?>>(2) I really want this item</option>
         <option value="3" <?php if(($priority ?? '1') == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
-        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>(4) Eh, I could do without this item</option>
+        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>I could always use this item</option>
     </select>
 </div>
 

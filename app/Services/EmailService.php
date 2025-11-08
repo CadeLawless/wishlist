@@ -119,16 +119,16 @@ class EmailService
     private function getVerificationEmailTemplate(string $username, string $link): string
     {
         return "
-            <h2>Welcome to Wish List!</h2>
-            <p>Thank you for signing up for Wish List!</p>
+            <h2>Welcome to Any Wish List!</h2>
+            <p>Thank you for signing up for Any Wish List!</p>
             <p>To complete your account registration, please verify your email address by clicking the button below:</p>
             <a href='{$link}' 
             style='display: inline-block; padding: 12px 24px; color: #ffffff; background-color: #3e5646; border-radius: 5px; text-decoration: none; font-weight: bold;'>
                 Verify My Email Address
             </a>
             <p style='margin-top: 20px;'>This link will expire in 24 hours, so please complete your verification as soon as possible.</p>
-            <p style='font-size: 12px;'>If you did not create a Wish List account, please ignore this email.</p>
-            <p style='font-size: 12px; margin-top: 20px;'>Thank you,<br>The Wish List Team</p>";
+            <p style='font-size: 12px;'>If you did not create an Any Wish List account, please ignore this email.</p>
+            <p style='font-size: 12px; margin-top: 20px;'>Thank you,<br>The Any Wish List Team</p>";
     }
 
     private function getPasswordResetEmailTemplate(string $username, string $link): string
@@ -144,7 +144,7 @@ class EmailService
             <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
                 <h2 style='color: #2c3e50;'>Password Reset Request</h2>
                 <p>Hello {$username},</p>
-                <p>We received a request to reset your password for your Wish List account. If you made this request, click the link below to reset your password:</p>
+                <p>We received a request to reset your password for your Any Wish List account. If you made this request, click the link below to reset your password:</p>
                 <p style='text-align: center; margin: 30px 0;'>
                     <a href='{$link}' style='background-color: #e74c3c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Reset Password</a>
                 </p>
@@ -153,7 +153,7 @@ class EmailService
                 <p>This link will expire in 1 hour for security reasons.</p>
                 <p>If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
                 <hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'>
-                <p style='font-size: 12px; color: #666;'>This email was sent from Wish List. Please do not reply to this email.</p>
+                <p style='font-size: 12px; color: #666;'>This email was sent from Any Wish List. Please do not reply to this email.</p>
             </div>
         </body>
         </html>";
@@ -166,13 +166,13 @@ class EmailService
         <html>
         <head>
             <meta charset='UTF-8'>
-            <title>Welcome to Wish List!</title>
+            <title>Welcome to Any Wish List!</title>
         </head>
         <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
             <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
-                <h2 style='color: #2c3e50;'>Welcome to Wish List!</h2>
+                <h2 style='color: #2c3e50;'>Welcome to Any Wish List!</h2>
                 <p>Hello {$username},</p>
-                <p>Thank you for joining Wish List! We're excited to help you create and manage your wish lists.</p>
+                <p>Thank you for joining Any Wish List! We're excited to help you create and manage your wish lists.</p>
                 <p>Here's what you can do with your new account:</p>
                 <ul>
                     <li>Create multiple wish lists for different occasions</li>
@@ -186,7 +186,7 @@ class EmailService
                 </p>
                 <p>If you have any questions, feel free to reach out to us.</p>
                 <hr style='margin: 30px 0; border: none; border-top: 1px solid #eee;'>
-                <p style='font-size: 12px; color: #666;'>This email was sent from Wish List. Please do not reply to this email.</p>
+                <p style='font-size: 12px; color: #666;'>This email was sent from Any Wish List. Please do not reply to this email.</p>
             </div>
         </body>
         </html>";

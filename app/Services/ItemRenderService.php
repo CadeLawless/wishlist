@@ -50,8 +50,10 @@ class ItemRenderService
             1 => "{$wisherName} absolutely needs this item",
             2 => "{$wisherName} really wants this item", 
             3 => "It would be cool if {$wisherName} had this item",
-            4 => "Eh, {$wisherName} could do without this item"
+            4 => "{$wisherName} could always use this item"
         ];
+
+        
         
         $priorityText = $priorities[$item['priority']] ?? '';
 
@@ -100,7 +102,7 @@ class ItemRenderService
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
                     <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
-                    <div class='line'><h4 class='notes-label'>Priority: </h4><span>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></span></div>
+                    <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
                     <div class='icon-options item-options <?php echo $type; ?>-item-options'>
                         <a class='icon-container popup-button' href='#'>
                             <?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?>
@@ -118,7 +120,7 @@ class ItemRenderService
                                     <p><label>Item Name:<br /></label><?php echo $itemName; ?></p>
                                     <p><label>Item Price:<br /></label>$<?php echo $price; ?></p>
                                     <p><label>Notes: </label><br /><?php echo nl2br($notes); ?></p>
-                                    <p><label>Priority:<br /></label>(<?php echo $item['priority']; ?>) <?php echo $priorityText; ?></p>
+                                    <p><label>Priority:<br /></label><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></p>
                                     <p><label>Date Added:<br /></label><?php echo $dateAdded; ?></p>
                                     <?php if($dateModified): ?>
                                     <p><label>Last Date Modified:</label><br /><?php echo $dateModified; ?></p>
@@ -380,7 +382,12 @@ class ItemRenderService
                     <?php elseif($item['purchased'] === 'Yes'): ?>
                         <div class='center' style="margin: 0.5rem 0;">
                             <h4 class='center'>This item has been purchased!</h4>
-                            <span class='unmark-msg'>If you need to unmark an item as purchased, email <a style="font-size: 14px;" href='mailto:support@cadelawless.com'>support@cadelawless.com</a> for help.</span>
+                            <span class='unmark-msg'>If you need to unmark an item as purchased, email <a style="font-size: 14px;" href='mailto:support@anywishlist.com'>support@anywishlist.com</a> for help.</span>
+                        </div>
+                    <?php elseif($item['unlimited'] === 'Yes'): ?>
+                        <div class='center' style="margin: 0.5rem 0;">
+                            <h4 class='center'>This item has has an unlimited quantity needed.</h4>
+                            <span class='unmark-msg'>No need to mark it as purchased!</span>
                         </div>
                     <?php endif; ?>
             <?php endif; ?>
