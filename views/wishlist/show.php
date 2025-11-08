@@ -87,7 +87,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <div class="wishlist-header center transparent-background">
                     <h1><?php echo $wishlistTitle; ?></h1>
                     <div class="flex-row">
-                        <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Complete" : "Not Complete"; ?></div>
+                        <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Inactive" : "Active"; ?></div>
                         <div><strong>Visibility:</strong> <?php echo htmlspecialchars($visibility); ?></div>
                     </div>
                     <a class="button primary flex-button popup-button" href="#">
@@ -280,7 +280,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php } ?>
                                     
                                     <!-- Complete/Reactivate popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Mark as Complete" : "Reactivate"; ?></div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/' . ($complete == "No" ? "delete-x" : "checkmark") . '.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Deactivate" : "Reactivate"; ?></div></a>
                                     <div class='popup-container first hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
@@ -292,13 +292,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 <p>
                                                     <?php
                                                     if($complete == "No"){
-                                                        echo "Marking this wish list as complete means the event has passed and the list will no longer be open for others to look at or mark items as purchased.<br />";
+                                                        echo "Deactivating this wish list as complete means you are done with this list and it will no longer be open for others to look at or mark items as purchased.<br />";
                                                     }else{
                                                         echo "Reactivating this wish list means the list will now be open for others to look at and mark items as purchased again.<br />";
                                                     }
                                                     ?>
                                                 </p>
-                                                <label>Are you sure you want to <?php echo $complete == "No" ? "mark this wish list as complete" : "reactivate this wish list"; ?>?</label>
+                                                <label>Are you sure you want to <?php echo $complete == "No" ? "deactivate" : "reactivate"; ?> this wish list?</label>
                                                 <p><?php echo $wishlistTitle; ?></p>
                                                 <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>

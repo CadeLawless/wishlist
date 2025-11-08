@@ -103,7 +103,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         // Get pagination number and search term
@@ -210,7 +210,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->createWishlist($user['username'], $data);
         
         if ($wishlist) {
-            return $this->redirect("/wishlists/{$wishlist['id']}")->withSuccess('Wishlist created successfully!');
+            return $this->redirect("/wishlists/{$wishlist['id']}")->withSuccess('Wish list created successfully!');
         }
 
         return $this->view('wishlist/create', [
@@ -219,7 +219,7 @@ class WishlistController extends Controller
             'wishlist_name' => $data['wishlist_name'] ?? '',
             'theme_background_id' => $data['theme_background_id'] ?? '',
             'theme_gift_wrap_id' => $data['theme_gift_wrap_id'] ?? '',
-            'error_msg' => '<div class="submit-error"><strong>Wishlist creation failed:</strong><ul><li>Unable to create wishlist. Please try again.</li></ul></div>'
+            'error_msg' => '<div class="submit-error"><strong>Wish list creation failed:</strong><ul><li>Unable to create wishlist. Please try again.</li></ul></div>'
         ]);
     }
 
@@ -236,7 +236,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $data = [
@@ -261,7 +261,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $data = $this->request->input();
@@ -277,7 +277,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->updateWishlistName($id, $data['wishlist_name'])) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist updated successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list updated successfully!');
         }
 
         return $this->view('wishlist/edit', [
@@ -301,14 +301,14 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->deleteWishlistAndItems($id)) {
             // Update duplicate flags for other wishlists with the same name
             $this->wishlistService->updateDuplicateFlags($user['username'], $wishlist['wishlist_name']);
             
-            return $this->redirect('/wishlists')->withSuccess('Wishlist deleted successfully!');
+            return $this->redirect('/wishlists')->withSuccess('Wish list deleted successfully!');
         }
 
         return $this->redirect('/wishlists')->withError('Unable to delete wishlist. Please try again.');
@@ -327,11 +327,11 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            $message = $wishlist['public'] ? 'Wishlist is now hidden.' : 'Wishlist is now public.';
+            $message = $wishlist['public'] ? 'Wish list is now hidden.' : 'Wish list is now public.';
             return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
@@ -351,11 +351,11 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            $message = $wishlist['complete'] ? 'Wishlist has been reactivated.' : 'Wishlist has been marked as complete.';
+            $message = $wishlist['complete'] ? 'Wish list has been reactivated.' : 'Wish list has been deactivated.';
             return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
@@ -375,7 +375,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $name = $this->request->input('wishlist_name');
@@ -386,7 +386,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist renamed successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list renamed successfully!');
         }
 
         return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
@@ -405,7 +405,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $backgroundId = (int) $this->request->input('theme_background_id');
@@ -431,7 +431,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $fromWishlistId = (int) $this->request->input('other_wishlist_copy_from');
@@ -464,7 +464,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $toWishlistId = (int) $this->request->input('other_wishlist_copy_to');
@@ -497,11 +497,11 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist hidden successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list hidden successfully.');
         }
 
         return $this->redirect("/wishlists/{$id}")->withError('Unable to hide wishlist. Please try again.');
@@ -543,11 +543,11 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist made public successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list made public successfully.');
         }
 
         return $this->redirect("/wishlists/{$id}")->withError('Unable to make wishlist public. Please try again.');
@@ -566,14 +566,14 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist marked as complete.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list deactivated successfully.');
         }
 
-        return $this->redirect("/wishlists/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to deactivate wish list. Please try again.');
     }
 
     public function reactivate(string|int $id): Response
@@ -589,11 +589,11 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wishlist reactivated successfully.');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list reactivated successfully.');
         }
 
         return $this->redirect("/wishlists/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
@@ -614,7 +614,7 @@ class WishlistController extends Controller
             if (!$wishlist) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Wishlist not found',
+                    'message' => 'Wish list not found',
                     'html' => '',
                     'current' => 1,
                     'total' => 1,
@@ -693,7 +693,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return new Response(content: 'Wishlist not found', status: 404);
+            return new Response(content: 'Wish list not found', status: 404);
         }
 
         // Get filter parameters
