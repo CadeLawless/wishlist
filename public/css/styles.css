@@ -2438,6 +2438,7 @@ img.gift-wrap {
     .theme-list {
         grid-template-columns: 1fr;
         grid-auto-rows: auto;
+        padding-bottom: 4rem;
     }
     .default-background-option {
         height: 290px;
