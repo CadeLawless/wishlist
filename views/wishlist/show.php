@@ -280,7 +280,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php } ?>
                                     
                                     <!-- Complete/Reactivate popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/' . ($complete == "No" ? "delete-x" : "checkmark") . '.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Deactivate" : "Reactivate"; ?></div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/' . ($complete == "No" ? "cancel" : "checkmark") . '.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Deactivate" : "Reactivate"; ?></div></a>
                                     <div class='popup-container first hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
