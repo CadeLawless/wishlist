@@ -24,6 +24,10 @@ class ItemRenderService
             // For buyer view show remaining needed; for wisher show total
             $quantityDisplay = $type === 'buyer' ? (string)$qtyRemaining : (string)$qtyTotal;
         }
+
+        if($item['notes'] === null || trim($item['notes']) === '') {
+            $item['notes'] = 'None';
+        }
         $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
         $notesShort = mb_substr($item['notes'] ?? '', 0, Constants::ITEM_NOTES_SHORT_LENGTH, 'UTF-8');
         if (mb_strlen($item['notes'] ?? '', 'UTF-8') > Constants::ITEM_NOTES_SHORT_LENGTH) $notesShort .= '...';
