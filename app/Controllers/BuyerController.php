@@ -40,7 +40,7 @@ class BuyerController extends Controller
         $filters = FilterService::processBuyerFilters($requestData);
         
         // Get sort values for view
-        $sort_priority = $requestData['sort_priority'] ?? '';
+        $sort_priority = $requestData['sort_priority'] ?? '1';
         $sort_price = $requestData['sort_price'] ?? '';
 
         // Get all items first (for pagination)
