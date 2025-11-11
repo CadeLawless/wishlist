@@ -78,11 +78,8 @@ if (isset($flash['error'])) {
 </div>
 
 <style>
-    #body {
-        padding-top: 84px;
-    }
     .form-container {
-        margin: clamp(20px, 4vw, 60px) auto 30px;
+        margin: 0 auto 30px;
         background-color: var(--background-darker);
         max-width: 500px;
     }

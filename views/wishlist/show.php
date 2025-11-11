@@ -77,7 +77,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
                 <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
-            <p style="padding-top: 15px;">
+            <p>
                 <a class="button accent" href="<?php echo isset($isAdminView) && $isAdminView ? '/admin/wishlists' : '/wishlists'; ?>">
                     Back to All Wish Lists
                 </a>
