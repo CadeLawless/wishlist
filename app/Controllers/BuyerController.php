@@ -67,7 +67,11 @@ class BuyerController extends Controller
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'sort_priority' => $sort_priority,
-            'sort_price' => $sort_price
+            'sort_price' => $sort_price,
+            'customStyles' => '
+                .wishlist-header {
+                    margin: 0 0 20px;
+                }'
         ];
 
         return $this->view('buyer/show', $data, 'buyer');
