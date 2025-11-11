@@ -10,16 +10,11 @@ namespace App\Core;
  */
 abstract class Controller
 {
-    protected View $view;
-    protected Request $request;
-    protected Response $response;
-
-    public function __construct()
-    {
-        $this->view = new View();
-        $this->request = new Request();
-        $this->response = new Response();
-    }
+    public function __construct(
+        protected View $view = new View(),
+        protected Request $request = new Request(),
+        protected Response $response = new Response()
+    ) {}
 
     protected function view(string $view, array $data = [], string $layout = 'main'): Response
     {
@@ -27,29 +22,6 @@ abstract class Controller
         return Response::make($content);
     }
 
-    /**
-     * Add page-specific CSS to the layout's head section
-     * 
-     * Pass custom CSS through the data array using the 'customStyles' key.
-     * The CSS will be automatically injected into the layout's <head> section
-     * in a <style> block, maintaining clean MVC separation.
-     * 
-     * Example usage:
-     * return $this->view('wishlist/show', [
-     *     'wishlist' => $wishlist,
-     *     'customStyles' => '
-     *         .special-element { color: red; }
-     *         .wishlist-specific { margin: 20px; }
-     *     '
-     * ]);
-     * 
-     * @param string $css The CSS rules to inject into the page
-     * @return string The CSS wrapped in a style block
-     */
-    protected function addCustomStyles(string $css): string
-    {
-        return $css;
-    }
 
     protected function json(array $data, int $status = 200): Response
     {
@@ -61,33 +33,9 @@ abstract class Controller
         return Response::redirect($url, $status);
     }
 
-    protected function redirectBack(): Response
-    {
-        $referer = $this->request->server('HTTP_REFERER', '/');
-        return $this->redirect($referer);
-    }
 
-    protected function redirectWithSuccess(string $url, string $message): Response
-    {
-        return $this->redirect($url)->withSuccess($message);
-    }
 
-    protected function redirectWithError(string $url, string $message): Response
-    {
-        return $this->redirect($url)->withError($message);
-    }
-
-    protected function redirectBackWithError(string $message): Response
-    {
-        return $this->redirectBack()->withError($message);
-    }
-
-    protected function redirectBackWithSuccess(string $message): Response
-    {
-        return $this->redirectBack()->withSuccess($message);
-    }
-
-    protected function validate(array $rules, array $data = null): array
+    protected function validate(array $rules, ?array $data = null): array
     {
         $data = $data ?? $this->request->input();
         $errors = [];
@@ -116,81 +64,26 @@ abstract class Controller
             $ruleValue = null;
         }
 
-        switch ($ruleName) {
-            case 'required':
-                if (empty($value)) {
-                    return ucfirst($field) . ' is required.';
-                }
-                break;
-
-            case 'email':
-                if (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                    return ucfirst($field) . ' must be a valid email address.';
-                }
-                break;
-
-            case 'min':
-                if (!empty($value) && strlen($value) < (int)$ruleValue) {
-                    return ucfirst($field) . ' must be at least ' . $ruleValue . ' characters.';
-                }
-                break;
-
-            case 'max':
-                if (!empty($value) && strlen($value) > (int)$ruleValue) {
-                    return ucfirst($field) . ' must not exceed ' . $ruleValue . ' characters.';
-                }
-                break;
-
-            case 'numeric':
-                if (!empty($value) && !is_numeric($value)) {
-                    return ucfirst($field) . ' must be numeric.';
-                }
-                break;
-
-            case 'url':
-                if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-                    return ucfirst($field) . ' must be a valid URL.';
-                }
-                break;
-        }
-
-        return null;
+        return match ($ruleName) {
+            'required' => empty($value) ? ucfirst($field) . ' is required.' : null,
+            'email' => (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) ? ucfirst($field) . ' must be a valid email address.' : null,
+            'min' => (!empty($value) && strlen($value) < (int)$ruleValue) ? ucfirst($field) . ' must be at least ' . $ruleValue . ' characters.' : null,
+            'max' => (!empty($value) && strlen($value) > (int)$ruleValue) ? ucfirst($field) . ' must not exceed ' . $ruleValue . ' characters.' : null,
+            'numeric' => (!empty($value) && !is_numeric($value)) ? ucfirst($field) . ' must be numeric.' : null,
+            'url' => (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) ? ucfirst($field) . ' must be a valid URL.' : null,
+            default => null
+        };
     }
 
     protected function auth(): ?array
     {
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        
-        if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
-            // Get full user data from database
-            $username = $_SESSION['username'] ?? null;
-            if ($username) {
-                $user = \App\Models\User::findByUsernameOrEmail($username);
-                if ($user) {
-                    return $user;
-                }
-            }
-            
-            // Fallback to session data if database lookup fails
-            return [
-                'id' => $_SESSION['user_id'] ?? null,
-                'username' => $_SESSION['username'] ?? null,
-                'name' => $_SESSION['name'] ?? null,
-                'email' => $_SESSION['user_email'] ?? null,
-                'admin' => $_SESSION['admin'] ?? false,
-                'dark' => $_SESSION['dark'] ?? false
-            ];
-        }
-        
-        return null;
+        return \App\Services\SessionManager::getAuthUser();
     }
 
     protected function requireAuth(): void
     {
         if (!$this->auth()) {
-            $this->redirect('/wishlist/login')->send();
+            $this->redirect('/login')->send();
             exit;
         }
     }
@@ -198,7 +91,7 @@ abstract class Controller
     protected function requireGuest(): void
     {
         if ($this->auth()) {
-            $this->redirect('/wishlist/')->send();
+            $this->redirect('/')->send();
             exit;
         }
     }
@@ -207,7 +100,7 @@ abstract class Controller
     {
         $user = $this->auth();
         if (!$user || !$user['admin']) {
-            $this->redirect('/wishlist/')->withError('Access denied. Admin privileges required.')->send();
+            $this->redirect('/')->withError('Access denied. Admin privileges required.')->send();
             exit;
         }
     }

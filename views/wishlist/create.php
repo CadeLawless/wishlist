@@ -1,10 +1,44 @@
 <?php
 use App\Helpers\ThemePopupHelper;
 ?>
+<?php
+// Display flash messages
+if (isset($flash['success'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
+if (isset($flash['error'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+?>
 <div>
     <div class="form-container">
         <h1>New Wish List</h1>
-        <form method="POST" action="/wishlist/">
+        <form method="POST" action="/wishlists">
             <?php echo $error_msg ?? ""; ?>
             <div class="flex form-flex">
                 <div class="large-input">
@@ -23,13 +57,13 @@ use App\Helpers\ThemePopupHelper;
                     echo ThemePopupHelper::renderThemePopup("birthday");
                     echo ThemePopupHelper::renderThemePopup("christmas");
                     ?>
+                    <input type="hidden" id="theme_background_id" name="theme_background_id" value="<?php echo $theme_background_id ?? ''; ?>" />
+                    <input type="hidden" id="theme_gift_wrap_id" name="theme_gift_wrap_id" value="<?php echo $theme_gift_wrap_id ?? ''; ?>" />
                     <div class="theme-results">
                         <div class="theme-background-display desktop-background-display"></div>
                         <div class="theme-background-display mobile-background-display"></div>
                         <div class="theme-gift-wrap-display"></div>
                     </div>
-                    <input type="hidden" id="theme_background_id" name="theme_background_id" value="<?php echo $theme_background_id ?? ''; ?>" />
-                    <input type="hidden" id="theme_gift_wrap_id" name="theme_gift_wrap_id" value="<?php echo $theme_gift_wrap_id ?? ''; ?>" />
                 </div>
                 <div class="large-input">
                     <label for="wishlist_name">Name:<br/></label>
@@ -54,9 +88,26 @@ use App\Helpers\ThemePopupHelper;
     }
 </style>
 
-<script src="/wishlist/public/js/popups.js"></script>
-<script src="/wishlist/public/js/choose-theme.js"></script>
+<script src="/public/js/form-validation.js"></script>
+<script src="/public/js/choose-theme.js"></script>
 <script>
+$(document).ready(function() {
+    FormValidator.init('form', {
+        wishlist_type: {
+            required: true
+        },
+        theme_background_id: {
+            required: true,
+            requiredMsg: 'Please choose a theme'
+        },
+        wishlist_name: {
+            required: true,
+            minLength: 1,
+            maxLength: 100
+        }
+    });
+});
+
     let name_input = document.querySelector("#wishlist_name");
     name_input.addEventListener("focus", function(){
         this.select();
@@ -77,15 +128,5 @@ use App\Helpers\ThemePopupHelper;
         }else{
             document.querySelector(".choose-theme-button").classList.add("disabled");
         }
-    });
-
-    let submit_button = document.querySelector("#submitButton");
-    // on submit, disable submit so user cannot press submit twice
-    document.querySelector("form").addEventListener("submit", function(e){
-        setTimeout( () => {
-            submit_button.setAttribute("disabled", "");
-            submit_button.value = "Creating...";
-            submit_button.style.cursor = "default";
-        });
     });
 </script>

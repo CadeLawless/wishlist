@@ -2,7 +2,7 @@
   <p class="center">&copy; <?php echo date("Y"); ?> Wishlist.<br>
   Designed by Cade and Meleah Lawless. All rights reserved.</p>
 </footer>
-<script src="/wishlist/public/js/popups.js"></script>
+<script src="/public/js/popups.js"></script>
 <script>
   $(document).ready(function(){
     let isToggling = false; // Prevent multiple simultaneous requests
@@ -41,7 +41,7 @@
       
       $.ajax({
             type: "POST",
-            url: "/wishlist/toggle-dark-mode",
+            url: "/toggle-dark-mode",
             data: {
                 dark: $dark,
             },

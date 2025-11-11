@@ -20,10 +20,24 @@ $priority_options = ["1", "2", "3", "4"];
 ?>
 
 <?php if($background_image != ""){ ?>
-    <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-    <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/wishlist/<?php echo $wishlistID; ?>">Back to List</a></p>
+<?php
+// Build back URL with pageno and search parameters
+$backUrl = "/wishlists/{$wishlistID}";
+$queryParams = [];
+if (isset($pageno) && $pageno > 1) {
+    $queryParams[] = "pageno=" . urlencode($pageno);
+}
+if (!empty($searchTerm ?? '')) {
+    $queryParams[] = "search=" . urlencode($searchTerm);
+}
+if (!empty($queryParams)) {
+    $backUrl .= "?" . implode("&", $queryParams);
+}
+?>
+<p style="padding-top: 15px;"><a class="button accent" href="<?php echo $backUrl; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
@@ -31,7 +45,11 @@ $priority_options = ["1", "2", "3", "4"];
 </div>
 <div class="form-container">
     <h2>Edit Item</h2>
-    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/item/<?php echo $item['id']; ?>" enctype="multipart/form-data">
+    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/item/<?php echo $item['id']; ?>" enctype="multipart/form-data">
+        <input type="hidden" name="pageno" value="<?php echo isset($pageno) ? (int)$pageno : 1; ?>">
+        <?php if (!empty($searchTerm ?? '')): ?>
+        <input type="hidden" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>">
+        <?php endif; ?>
         <div class="flex form-flex">
             <?php
             if(isset($error_msg)) echo $error_msg;
@@ -49,18 +67,6 @@ $priority_options = ["1", "2", "3", "4"];
     </form>
 </div>
 
-<script>
-// Load autosize and item-form scripts
-document.addEventListener('DOMContentLoaded', function() {
-    // Load autosize script
-    const autosizeScript = document.createElement('script');
-    autosizeScript.src = '/wishlist/scripts/autosize-master/autosize-master/dist/autosize.js';
-    autosizeScript.onload = function() {
-        // Load item-form script after autosize is loaded
-        const itemFormScript = document.createElement('script');
-        itemFormScript.src = '/wishlist/public/js/item-form.js';
-        document.head.appendChild(itemFormScript);
-    };
-    document.head.appendChild(autosizeScript);
-});
-</script>
+<script src="/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
+<script src="/public/js/form-validation.js"></script>
+<script src="/public/js/item-form.js"></script>

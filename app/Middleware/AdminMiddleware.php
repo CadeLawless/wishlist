@@ -8,22 +8,19 @@ use App\Services\AuthService;
 
 class AdminMiddleware
 {
-    private AuthService $authService;
-
-    public function __construct()
-    {
-        $this->authService = new AuthService();
-    }
+    public function __construct(
+        private AuthService $authService = new AuthService()
+    ) {}
 
     public function __invoke(Request $request): ?Response
     {
         if (!$this->authService->isLoggedIn()) {
-            return Response::redirect('/wishlist/login')
+            return Response::redirect('/login')
                 ->withError('Please log in to access this page.');
         }
 
         if (!$this->authService->isAdmin()) {
-            return Response::redirect('/wishlist/')
+            return Response::redirect('/')
                 ->withError('Access denied. Admin privileges required.');
         }
 

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Constants;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Validation\UserRequestValidator;
@@ -15,16 +16,12 @@ use App\Helpers\StringHelper;
 
 class AuthController extends Controller
 {
-    private AuthService $authService;
-    private UserRequestValidator $userValidator;
-    private EmailService $emailService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private AuthService $authService = new AuthService(),
+        private UserRequestValidator $userValidator = new UserRequestValidator(),
+        private EmailService $emailService = new EmailService()
+    ) {
         parent::__construct();
-        $this->authService = new AuthService();
-        $this->userValidator = new UserRequestValidator();
-        $this->emailService = new EmailService();
     }
 
     public function showLogin(): Response
@@ -71,7 +68,7 @@ class AuthController extends Controller
             $remember = isset($data['remember_me']);
             
             if ($this->authService->login($data['username'], $data['password'], $remember)) {
-                return $this->redirect('/wishlist/');
+                return $this->redirect('/');
             }
 
             return $this->view('auth/login', [
@@ -94,7 +91,7 @@ class AuthController extends Controller
     public function logout(): Response
     {
         $this->authService->logout();
-        return $this->redirect('/wishlist/login')->withSuccess('You have been logged out successfully.');
+        return $this->redirect('/login')->withSuccess('You have been logged out successfully.');
     }
 
     public function showRegister(): Response
@@ -134,19 +131,6 @@ class AuthController extends Controller
                 ], 'auth');
             }
 
-            // Check if username or email already exists
-            $existingUser = $this->authService->getCurrentUser();
-            if ($existingUser) {
-                return $this->view('auth/register', [
-                    'username' => $data['username'] ?? '',
-                    'name' => $data['name'] ?? '',
-                    'email' => $data['email'] ?? '',
-                    'password' => '',
-                    'password_confirmation' => '',
-                    'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Username or email already exists</li></ul></div>'
-                ], 'auth');
-            }
-
             if ($this->authService->register($data)) {
                 // Set up session and cookies
                 SessionManager::setupRegistrationSession($data);
@@ -154,7 +138,7 @@ class AuthController extends Controller
                 // Send verification email
                 $this->emailService->sendVerificationEmail($data['email'], $data['username']);
                 
-                return $this->redirect('/wishlist/')->withSuccess('Registration successful! Please check your email to verify your account.');
+                return $this->redirect('/')->withSuccess('Registration successful! Please check your email to verify your account.');
             }
 
             return $this->view('auth/register', [
@@ -178,83 +162,263 @@ class AuthController extends Controller
         ], 'auth');
     }
 
-    public function showForgotPassword(): Response
+    public function forgotPassword(): Response
     {
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            
+            // Validate that identifier field is not empty
+            $errors = [];
+            if (empty($data['identifier'])) {
+                $errors['identifier'][] = 'Email or username is required.';
+            }
+            
+            if ($this->userValidator->hasErrors($errors)) {
+                return $this->view('auth/forgot-password', [
+                    'identifier' => $data['identifier'] ?? '',
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
 
-        $data = [
-            'email' => $this->request->input('email', '')
-        ];
-
-        return $this->view('auth/forgot-password', $data, 'auth');
-    }
-
-    public function sendResetLink(): Response
-    {
-
-        $data = $this->request->input();
-        $errors = $this->userValidator->validatePasswordReset($data);
-
-        if ($this->userValidator->hasErrors($errors)) {
-            return $this->view('auth/forgot-password', [
-                'email' => $data['email'] ?? '',
-                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-            ], 'auth');
+            // Check if email or username exists
+            $user = User::findByUsernameOrEmail($data['identifier']);
+            
+            if ($user) {
+                // Check if user has unverified email (no verified email yet)
+                if (empty($user['email']) && !empty($user['unverified_email'])) {
+                    // Send verification email instead of reset link
+                    $this->emailService->sendVerificationEmail($user['unverified_email'], $user['username']);
+                    
+                    // Return with special message about email verification
+                    return $this->redirect('/login')->withSuccess('Your email address needs to be verified first. A verification email has been sent. Please check your inbox and verify your email before resetting your password.');
+                }
+                
+                // Generate reset password key
+                $resetPasswordKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $resetPasswordExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                
+                // Update user with reset key
+                User::update($user['id'], [
+                    'reset_password_key' => $resetPasswordKey,
+                    'reset_password_expiration' => $resetPasswordExpiration
+                ]);
+                
+                // Send password reset email
+                $this->emailService->sendPasswordResetEmailWithUsername($user['email'], $user['username'], $resetPasswordKey);
+            }
+            
+            // Always show success message for security (don't reveal if account exists)
+            return $this->redirect('/login')->withSuccess('If an account with that email or username exists, a password reset link has been sent.');
         }
 
-        // In a real implementation, you would generate a reset token and send email
-        // For now, just show success message
-        return $this->redirect('/login')->withSuccess('If an account with that email exists, a password reset link has been sent.');
-    }
-
-    public function showResetPassword(): Response
-    {
-
-        $token = $this->request->get('token');
-        if (!$token) {
-            return $this->redirect('/login')->withError('Invalid reset token.');
-        }
-
-        return $this->view('auth/reset-password', [
-            'token' => $token,
-            'password' => '',
-            'password_confirmation' => ''
+        // Show forgot password form for GET requests
+        return $this->view('auth/forgot-password', [
+            'identifier' => '',
+            'error_msg' => ''
         ], 'auth');
     }
 
     public function resetPassword(): Response
     {
+        // Only process form submission on POST requests
+        if ($this->request->isPost()) {
+            $data = $this->request->input();
+            $errors = $this->userValidator->validateNewPassword($data);
 
-        $data = $this->request->input();
-        $errors = $this->userValidator->validateNewPassword($data);
+            if ($this->userValidator->hasErrors($errors)) {
+                return $this->view('auth/reset-password', [
+                    'key' => $data['key'] ?? '',
+                    'email' => $data['email'] ?? '',
+                    'password' => $data['password'] ?? '',
+                    'password_confirmation' => $data['password_confirmation'] ?? '',
+                    'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+                ], 'auth');
+            }
 
-        if ($this->userValidator->hasErrors($errors)) {
-            return $this->view('auth/reset-password', [
-                'token' => $data['token'] ?? '',
-                'password' => '',
-                'password_confirmation' => '',
-                'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
+            // Validate the reset key and expiration
+            $user = User::findByUsernameOrEmail($data['email']);
+            
+            if (!$user || $user['reset_password_key'] !== $data['key']) {
+                return $this->redirect('/login')->withError('Invalid reset link.');
+            }
+            
+            if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
+                return $this->redirect('/login')->withError('Reset link has expired. Please request a new one.');
+            }
+            
+            // Update password and clear reset fields
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            User::update($user['id'], [
+                'password' => $hashedPassword,
+                'reset_password_key' => null,
+                'reset_password_expiration' => null
+            ]);
+            
+            // Check if user is currently logged in
+            $isLoggedIn = $this->authService->isLoggedIn();
+            $currentUser = $this->authService->getCurrentUser();
+            
+            // If logged in and resetting their own password, redirect to home
+            // Otherwise redirect to login
+            if ($isLoggedIn && $currentUser && $currentUser['id'] == $user['id']) {
+                return $this->redirect('/')->withSuccess('Password has been reset successfully.');
+            }
+            
+            return $this->redirect('/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+        }
+
+        // Show reset password form for GET requests
+        // Support both formats: ?token=... (legacy) and ?key=...&email=... (new)
+        $token = $this->request->get('token');
+        $key = $this->request->get('key');
+        $email = $this->request->get('email');
+        
+        $user = null;
+        $resetKey = null;
+        $userEmail = null;
+        
+        // Handle legacy token format
+        if ($token) {
+            // Find user by reset_password_key (token)
+            $user = User::whereEqual('reset_password_key', $token);
+            
+            if ($user) {
+                $resetKey = $token;
+                $userEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            }
+        } 
+        // Handle new format with key and email
+        elseif ($key && $email) {
+            $user = User::findByUsernameOrEmail($email);
+            
+            if ($user && $user['reset_password_key'] === $key) {
+                $resetKey = $key;
+                $userEmail = $email;
+            }
+        }
+        
+        // Validate we have the required information
+        if (!$user || !$resetKey || !$userEmail) {
+            return $this->view('auth/reset-password-error', [
+                'error' => 'Invalid reset link.',
+                'link_text' => 'Go to Login',
+                'link_url' => '/login'
             ], 'auth');
         }
 
-        // In a real implementation, you would validate the token and update password
-        // For now, just show success message
-        return $this->redirect('/login')->withSuccess('Password has been reset successfully. You can now log in with your new password.');
+        // Check expiration
+        if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
+            return $this->view('auth/reset-password-error', [
+                'error' => 'This password reset link has expired. Try again!',
+                'link_text' => 'Go to Login',
+                'link_url' => '/login'
+            ], 'auth');
+        }
+
+        return $this->view('auth/reset-password', [
+            'key' => $resetKey,
+            'email' => $userEmail,
+            'password' => '',
+            'password_confirmation' => '',
+            'error_msg' => ''
+        ], 'auth');
     }
 
     public function verifyEmail(): Response
     {
-        $username = $this->request->get('user');
-        $token = $this->request->get('token');
+        $username = $this->request->get('username');
+        $key = $this->request->get('key');
 
-        if (!$username || !$token) {
-            return $this->redirect('/login')->withError('Invalid verification link.');
+        if (!$username || !$key) {
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
         }
 
-        if ($this->authService->verifyEmail($username)) {
-            return $this->redirect('/login')->withSuccess('Email verified successfully! You can now log in.');
+        // Get user by username
+        $user = User::findByUsernameOrEmail($username);
+        
+        if (!$user) {
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
         }
 
-        return $this->redirect('/login')->withError('Email verification failed. Please try again.');
+        // Verify the key matches
+        if ($user['email_key'] !== $key) {
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => true
+            ], 'auth');
+        }
+
+        // Check if key has expired
+        if (isset($user['email_key_expiration']) && strtotime($user['email_key_expiration']) < time()) {
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => true,
+                'notFound' => false,
+                'username' => $username
+            ], 'auth');
+        }
+
+        // Move unverified_email to email field and clear the verification fields
+        try {
+            User::update($user['id'], [
+                'email' => $user['unverified_email'],
+                'unverified_email' => null,
+                'email_key' => null,
+                'email_key_expiration' => null
+            ]);
+            
+            return $this->view('auth/verify-email', [
+                'success' => true,
+                'expired' => false,
+                'notFound' => false
+            ], 'auth');
+        } catch (\Exception $e) {
+            return $this->view('auth/verify-email', [
+                'success' => false,
+                'expired' => false,
+                'notFound' => false
+            ], 'auth');
+        }
+    }
+
+    public function resendVerification(): Response
+    {
+        $username = $this->request->input('username');
+        
+        if (!$username) {
+            return $this->redirect('/login')->withError('Invalid request.');
+        }
+        
+        $user = User::findByUsernameOrEmail($username);
+        
+        if (!$user) {
+            return $this->redirect('/login')->withError('User not found.');
+        }
+        
+        // Get the email to send to
+        $emailToUse = $user['email'] ?? $user['unverified_email'] ?? '';
+        
+        if (empty($emailToUse)) {
+            return $this->redirect('/login')->withError('No email address found.');
+        }
+        
+        // Send verification email
+        try {
+            $this->emailService->sendVerificationEmail($emailToUse, $username);
+            return $this->redirect('/login')->withSuccess('Verification email resent! Please check your inbox.');
+        } catch (\Exception $e) {
+            return $this->redirect('/login')->withError('Failed to resend verification email. Please try again.');
+        }
     }
 
     public function toggleDarkMode(): Response
@@ -262,7 +426,7 @@ class AuthController extends Controller
         // Check authentication without redirecting for AJAX requests
         $user = $this->auth();
         if (!$user) {
-            return new Response('unauthorized', 401);
+            return new Response(content: 'unauthorized', status: 401);
         }
         
         $dark = $this->request->input('dark');
@@ -274,19 +438,61 @@ class AuthController extends Controller
         
         $user = $this->auth();
         
-        $data = [
-            'user' => $user,
-            'name' => $this->request->input('name', $user['name']),
-            'email' => $this->request->input('email', $user['email']),
-            'current_password' => $this->request->input('current_password', ''),
-            'new_password' => $this->request->input('new_password', ''),
-            'confirm_password' => $this->request->input('confirm_password', ''),
-            'name_error_msg' => '',
-            'email_error_msg' => '',
-            'password_error_msg' => ''
-        ];
+        // Use unverified_email if email is not set (newly registered users)
+        $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+        
+        $data = $this->buildProfileViewData(
+            $user,
+            name: $this->request->input('name', $user['name']),
+            email: $this->request->input('email', $currentEmail),
+            currentPassword: $this->request->input('current_password', ''),
+            newPassword: $this->request->input('new_password', ''),
+            confirmPassword: $this->request->input('confirm_password', '')
+        );
 
         return $this->view('auth/profile', $data);
+    }
+
+    /**
+     * Build profile view data with consistent structure
+     * 
+     * @param array $user Current user data
+     * @param string $name Name value
+     * @param string $email Email value
+     * @param string $currentPassword Current password value
+     * @param string $newPassword New password value
+     * @param string $confirmPassword Confirm password value
+     * @param string $nameErrorMsg Name error message
+     * @param string $emailErrorMsg Email error message
+     * @param string $passwordErrorMsg Password error message
+     * @return array Complete profile view data
+     */
+    private function buildProfileViewData(
+        array $user,
+        string $name = '',
+        string $email = '',
+        string $currentPassword = '',
+        string $newPassword = '',
+        string $confirmPassword = '',
+        string $nameErrorMsg = '',
+        string $emailErrorMsg = '',
+        string $passwordErrorMsg = ''
+    ): array {
+        return [
+            'user' => $user,
+            'name' => $name ?: ($user['name'] ?? ''),
+            'email' => $email,
+            'current_password' => $currentPassword,
+            'new_password' => $newPassword,
+            'confirm_password' => $confirmPassword,
+            'name_error_msg' => $nameErrorMsg,
+            'email_error_msg' => $emailErrorMsg,
+            'password_error_msg' => $passwordErrorMsg,
+            'customStyles' =>
+                '.form-flex {
+                    max-width: unset;
+                }'
+        ];
     }
 
     public function updateProfile(): Response
@@ -300,34 +506,26 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateNameUpdate($data);
             
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $data['name'] ?? $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
-                    'email_error_msg' => '',
-                    'password_error_msg' => ''
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    name: $data['name'] ?? $user['name'],
+                    email: $currentEmail,
+                    nameErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             try {
                 User::update($user['id'], ['name' => $data['name']]);
                 return $this->redirect('/profile')->withSuccess('Name updated successfully!');
             } catch (\Exception $e) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $data['name'] ?? $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '<div class="submit-error"><strong>Name could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your name</li></ul></div>',
-                    'email_error_msg' => '',
-                    'password_error_msg' => ''
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    name: $data['name'] ?? $user['name'],
+                    email: $currentEmail,
+                    nameErrorMsg: '<div class="submit-error"><strong>Name could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your name</li></ul></div>'
+                ));
             }
         }
         
@@ -336,40 +534,30 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateEmailUpdate($data);
             
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => $this->userValidator->formatErrorsForDisplay($errors),
-                    'password_error_msg' => ''
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             // Check if email already exists
             $existingUsers = User::where('email', '=', $data['email']);
             $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
             if ($existingUser && $existingUser['id'] != $user['id']) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>',
-                    'password_error_msg' => ''
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>'
+                ));
             }
             
             try {
                 // Generate email verification key
-                $emailKey = StringHelper::generateRandomString(50);
-                $emailKeyExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                $emailKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::EMAIL_VERIFICATION_HOURS . ' hours'));
                 
                 User::update($user['id'], [
                     'unverified_email' => $data['email'],
@@ -382,17 +570,62 @@ class AuthController extends Controller
                 
                 return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
             } catch (\Exception $e) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $data['email'] ?? $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>',
-                    'password_error_msg' => ''
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>'
+                ));
+            }
+        }
+        
+        // Handle new email submission (when user already has unverified email)
+        if (isset($data['new_email_submit_button'])) {
+            $errors = $this->userValidator->validateEmailUpdate($data);
+            
+            if ($this->userValidator->hasErrors($errors)) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
+            }
+            
+            // Check if email already exists
+            $existingUsers = User::where('email', '=', $data['email']);
+            $existingUser = !empty($existingUsers) ? $existingUsers[0] : null;
+            if ($existingUser && $existingUser['id'] != $user['id']) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>That email already has an account associated with it. Try a different one.</li></ul></div>'
+                ));
+            }
+            
+            try {
+                // Generate email verification key
+                $emailKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_EMAIL);
+                $emailKeyExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::EMAIL_VERIFICATION_HOURS . ' hours'));
+                
+                User::update($user['id'], [
+                    'unverified_email' => $data['email'],
+                    'email_key' => $emailKey,
+                    'email_key_expiration' => $emailKeyExpiration
                 ]);
+                
+                // Send verification email
+                $this->emailService->sendVerificationEmail($data['email'], $user['username']);
+                
+                return $this->redirect('/profile')->withSuccess('Email update initiated! Please check your email to verify your new address.');
+            } catch (\Exception $e) {
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $data['email'] ?? $currentEmail,
+                    emailErrorMsg: '<div class="submit-error"><strong>Email could not be updated due to the following errors:</strong><ul><li>Something went wrong while trying to update your email</li></ul></div>'
+                ));
             }
         }
         
@@ -406,17 +639,15 @@ class AuthController extends Controller
             }
             
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => $data['current_password'] ?? '',
-                    'new_password' => $data['new_password'] ?? '',
-                    'confirm_password' => $data['confirm_password'] ?? '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    currentPassword: $data['current_password'] ?? '',
+                    newPassword: $data['new_password'] ?? '',
+                    confirmPassword: $data['confirm_password'] ?? '',
+                    passwordErrorMsg: $this->userValidator->formatErrorsForDisplay($errors)
+                ));
             }
             
             try {
@@ -425,138 +656,121 @@ class AuthController extends Controller
                 
                 return $this->redirect('/profile')->withSuccess('Password changed successfully!');
             } catch (\Exception $e) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => $data['current_password'] ?? '',
-                    'new_password' => $data['new_password'] ?? '',
-                    'confirm_password' => $data['confirm_password'] ?? '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => '<div class="submit-error"><strong>Password could not be changed due to the following errors:</strong><ul><li>Something went wrong while trying to change your password</li></ul></div>'
-                ]);
+                $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    currentPassword: $data['current_password'] ?? '',
+                    newPassword: $data['new_password'] ?? '',
+                    confirmPassword: $data['confirm_password'] ?? '',
+                    passwordErrorMsg: '<div class="submit-error"><strong>Password could not be changed due to the following errors:</strong><ul><li>Something went wrong while trying to change your password</li></ul></div>'
+                ));
+            }
+        }
+        
+        // Handle resend verification email
+        if (isset($data['resend_verification_button'])) {
+            $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            
+            if (empty($currentEmail)) {
+                return $this->redirect('/profile')->withError('No email address found to send verification to.');
+            }
+            
+            try {
+                // Send verification email
+                $this->emailService->sendVerificationEmail($currentEmail, $user['username']);
+                
+                return $this->redirect('/profile')->withSuccess('Verification email resent! Please check your inbox.');
+            } catch (\Exception $e) {
+                return $this->redirect('/profile')->withError('Failed to resend verification email. Please try again.');
             }
         }
         
         // Handle forgot password
         if (isset($data['forgot_password_submit_button'])) {
-            if (empty($user['email'])) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '<p>In order for you to reset a password that you don\'t know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>',
-                    'password_error_msg' => ''
-                ]);
+            $currentEmail = $user['email'] ?? $user['unverified_email'] ?? '';
+            
+            if (empty($currentEmail)) {
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    emailErrorMsg: '<p>In order for you to reset a password that you don\'t know, an email with a password reset link needs to be sent to you. Please set up your email above before trying to reset your password</p>'
+                ));
             }
             
             try {
                 // Generate reset key
-                $resetKey = StringHelper::generateRandomString(50);
-                $resetExpiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                $resetKey = StringHelper::generateRandomString(Constants::RANDOM_STRING_LENGTH_RESET);
+                $resetExpiration = date(format: 'Y-m-d H:i:s', timestamp: strtotime('+' . Constants::PASSWORD_RESET_HOURS . ' hours'));
                 
                 User::update($user['id'], [
                     'reset_password_key' => $resetKey,
                     'reset_password_expiration' => $resetExpiration
                 ]);
                 
-                // Send reset email
-                $this->emailService->sendPasswordResetEmail($user['email'], $resetKey);
+                // Send reset email to the current email (verified or unverified)
+                $this->emailService->sendPasswordResetEmail($currentEmail, $resetKey);
                 
                 return $this->redirect('/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {
-                return $this->view('auth/profile', [
-                    'user' => $user,
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'current_password' => '',
-                    'new_password' => '',
-                    'confirm_password' => '',
-                    'name_error_msg' => '',
-                    'email_error_msg' => '',
-                    'password_error_msg' => '<div class="submit-error"><strong>Something went wrong while trying to send the reset email</strong></div>'
-                ]);
+                return $this->view('auth/profile', $this->buildProfileViewData(
+                    $user,
+                    email: $currentEmail,
+                    passwordErrorMsg: '<div class="submit-error"><strong>Something went wrong while trying to send the reset email</strong></div>'
+                ));
             }
         }
         
         return $this->redirect('/profile');
     }
 
-    public function admin(): Response
+
+    /**
+     * AJAX endpoint to check if username exists
+     */
+    public function checkUsername(): Response
     {
-        $user = $this->auth();
+        $username = $this->request->input('username');
         
-        // Get paginated users for the admin view
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
+        if (empty($username)) {
+            return new Response(
+                content: json_encode(['available' => true]),
+                status: 200,
+                headers: ['Content-Type' => 'application/json']
+            );
+        }
         
-        $users = User::paginate($perPage, $offset);
-        $totalUsers = User::count();
-        $totalPages = ceil($totalUsers / $perPage);
+        $existingUser = User::findByUsernameOrEmail($username);
         
-        $data = [
-            'user' => $user,
-            'users' => $users,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalUsers' => $totalUsers
-        ];
-        
-        return $this->view('auth/admin', $data);
+        return new Response(
+            content: json_encode(['available' => !$existingUser]),
+            status: 200,
+            headers: ['Content-Type' => 'application/json']
+        );
     }
 
-    public function adminUsers(): Response
+    /**
+     * AJAX endpoint to check if email exists
+     */
+    public function checkEmail(): Response
     {
-        $user = $this->auth();
+        $email = $this->request->input('email');
         
-        // Get paginated users
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
+        if (empty($email)) {
+            return new Response(
+                content: json_encode(['available' => true]),
+                status: 200,
+                headers: ['Content-Type' => 'application/json']
+            );
+        }
         
-        $users = User::paginate($perPage, $offset);
-        $totalUsers = User::count();
-        $totalPages = ceil($totalUsers / $perPage);
+        $existingUser = User::findByUsernameOrEmail($email);
         
-        $data = [
-            'user' => $user,
-            'users' => $users,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalUsers' => $totalUsers
-        ];
-        
-        return $this->view('auth/admin', $data);
-    }
-
-    public function adminWishlists(): Response
-    {
-        $user = $this->auth();
-        
-        // Get paginated wishlists
-        $page = (int)($this->request->get('pageno', 1));
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-        
-        $wishlists = \App\Models\Wishlist::paginate($perPage, $offset);
-        $totalWishlists = \App\Models\Wishlist::count();
-        $totalPages = ceil($totalWishlists / $perPage);
-        
-        $data = [
-            'user' => $user,
-            'wishlists' => $wishlists,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalWishlists' => $totalWishlists
-        ];
-        
-        return $this->view('auth/admin', $data);
+        return new Response(
+            content: json_encode(['available' => !$existingUser]),
+            status: 200,
+            headers: ['Content-Type' => 'application/json']
+        );
     }
 
 }

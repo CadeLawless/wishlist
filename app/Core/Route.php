@@ -4,18 +4,14 @@ namespace App\Core;
 
 class Route
 {
-    private string $method;
-    private string $path;
-    private $handler;
     private array $middleware = [];
     private array $params = [];
 
-    public function __construct(string $method, string $path, $handler)
-    {
-        $this->method = $method;
-        $this->path = $path;
-        $this->handler = $handler;
-    }
+    public function __construct(
+        private string $method,
+        private string $path,
+        private $handler
+    ) {}
 
     public function middleware(string $name): self
     {

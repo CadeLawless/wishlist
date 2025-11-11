@@ -16,8 +16,8 @@ if($account_created){
 }
 ?>
 <div class="big-buttons-container">
-    <a class="big-button create-wish-list" href="/wishlist/create"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>Create Wish List</a>
-    <a class="big-button view-wish-list" href="/wishlist/wishlists"><?php require(__DIR__ . "/../../public/images/site-images/icons/search.php"); ?>View Wish Lists</a>
+    <a class="big-button create-wish-list" href="/wishlists/create"><?php require(__DIR__ . "/../../public/images/site-images/icons/plus.php"); ?>Create Wish List</a>
+    <a class="big-button view-wish-list" href="/wishlists"><?php require(__DIR__ . "/../../public/images/site-images/icons/search.php"); ?>View Wish Lists</a>
 </div>
 
 <script src="js/popup.js"></script>

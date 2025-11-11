@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/wishlist/public/images/site-images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
-    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/snow.css" />
+    <link rel="icon" type="image/x-icon" href="/public/images/site-images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/public/css/snow.css" />
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo $title ?? 'Wish List'; ?></title>
@@ -23,6 +23,20 @@
             flex-basis: 100%;
         }
         .menu-links, .hamburger-menu, .close-menu {
+            display: none !important;
+        }
+        
+        /* Ensure navigation stays hidden even if JavaScript removes hidden class */
+        body .menu-links,
+        body .hamburger-menu, 
+        body .close-menu {
+            display: none !important;
+        }
+        
+        /* Prevent any JavaScript from showing navigation in buyer view */
+        .buyer-view .menu-links,
+        .buyer-view .hamburger-menu,
+        .buyer-view .close-menu {
             display: none !important;
         }
         .popup.fullscreen .gift-wrap-content .popup-content {
@@ -56,10 +70,10 @@
     </style>
     <?php endif; ?>
 </head>
-<body class="" 
+<body class="buyer-view" 
       data-current-page="<?php echo $pageno ?? 1; ?>" 
       data-total-pages="<?php echo $total_pages ?? 1; ?>" 
-      data-base-url="/wishlist/buyer/<?php echo $wishlist['secret_key'] ?? ''; ?>">
+      data-base-url="/buyer/<?php echo $wishlist['secret_key'] ?? ''; ?>">
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">
@@ -68,7 +82,8 @@
     </div>
     <?php include __DIR__ . '/../components/footer.php'; ?>
     
-    <script src="/wishlist/public/js/popups.js"></script>
+    <script src="/public/js/wishlist-filters.js"></script>
+    <script src="/public/js/pagination.js"></script>
     <script>
     // Client-side dark mode toggle for buyer view (runs after footer)
     $(document).ready(function(){

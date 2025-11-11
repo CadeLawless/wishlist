@@ -79,15 +79,15 @@ class UrlMetadataService
         if ($html === false) {
             // Provide specific error messages for known problematic sites
             if (strpos($url, 'walmart.com') !== false) {
-                $response['error'] = 'Walmart has very aggressive anti-bot protection. Please enter the product details manually.';
+                $response['error'] = 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!';
             } elseif (strpos($url, 'target.com') !== false) {
-                $response['error'] = 'Target.com blocks automated requests. Please enter the product details manually.';
+                $response['error'] = 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!';
             } elseif (strpos($url, 'bestbuy.com') !== false) {
-                $response['error'] = 'Best Buy blocks automated requests. Please enter the product details manually.';
+                $response['error'] = 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!';
             } elseif (strpos($url, 'etsy.com') !== false) {
-                $response['error'] = 'Etsy is difficult to access automatically. Please enter the product details manually.';
+                $response['error'] = 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!';
             } else {
-                $response['error'] = 'Unable to fetch URL content. The site may be blocking automated requests or the URL is inaccessible.';
+                $response['error'] = 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!';
             }
             return $response;
         }

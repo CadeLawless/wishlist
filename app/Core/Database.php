@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use mysqli;
+use App\Core\Exceptions\DatabaseException;
 
 /**
  * Database connection and query management
@@ -35,12 +36,12 @@ class Database
                 );
                 
                 if (self::$connection->connect_error) {
-                    die("Database connection failed: " . self::$connection->connect_error);
+                    throw new DatabaseException("Database connection failed: " . self::$connection->connect_error);
                 }
                 
                 self::$connection->set_charset($config['charset']);
             } catch (\Exception $e) {
-                die("Database connection failed: " . $e->getMessage());
+                throw new DatabaseException("Database connection failed: " . $e->getMessage(), 0, $e);
             }
         }
         return self::$connection;
@@ -60,7 +61,7 @@ class Database
     {
         $stmt = self::connect()->prepare($sql);
         if (!$stmt) {
-            die("Prepare failed: " . self::connect()->error);
+            throw new DatabaseException("Prepare failed: " . self::connect()->error);
         }
         
         $stmt->execute($params);

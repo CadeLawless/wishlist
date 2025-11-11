@@ -13,7 +13,7 @@ class UserPreferencesService
     public static function toggleDarkMode(int $userId, string $darkMode): Response
     {
         if ($darkMode !== 'Yes' && $darkMode !== 'No') {
-            return new Response('invalid_data', 400);
+            return new Response(content: 'invalid_data', status: 400);
         }
 
         try {
@@ -22,13 +22,13 @@ class UserPreferencesService
             if ($result) {
                 // Update session
                 SessionManager::updateDarkMode($darkMode === 'Yes');
-                return new Response('success');
+                return new Response(content: 'success');
             } else {
-                return new Response('error', 500);
+                return new Response(content: 'error', status: 500);
             }
         } catch (\Exception $e) {
             error_log('Dark mode toggle failed: ' . $e->getMessage());
-            return new Response('error', 500);
+            return new Response(content: 'error', status: 500);
         }
     }
 

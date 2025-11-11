@@ -5,10 +5,10 @@ $wishlistTitle = htmlspecialchars($wishlist['wishlist_name']);
 $background_image = $wishlist['background_image'] ?? '';
 ?>
 <?php if($background_image != ""){ ?>
-    <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-    <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+    <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
 <?php } ?>
-<p style="padding-top: 15px;"><a class="button accent" href="/wishlist/<?php echo $wishlistID; ?>">Back to List</a></p>
+<p style="padding-top: 15px;"><a class="button accent" href="/wishlists/<?php echo $wishlistID; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header center transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
@@ -16,7 +16,7 @@ $background_image = $wishlist['background_image'] ?? '';
 </div>
 <div class="form-container">
     <h2>🔗 Paste Product URL</h2>
-    <p class="url-description">Paste any product URL from Amazon, eBay, or other e-commerce sites to automatically fill in the details.</p>
+    <p class="url-description">Paste any product URL from Amazon, Target, or other e-commerce sites to automatically fill in the details.</p>
     
     <form id="url-fetch-form" class="url-fetch-form">
         <div class="url-input-group">
@@ -27,15 +27,27 @@ $background_image = $wishlist['background_image'] ?? '';
                 placeholder="https://www.amazon.com/dp/B0F1XS8ZK4" 
                 required
                 class="large-url-input"
+                style="margin: 0;"
             >
             <button type="submit" id="fetch-details-btn" class="fetch-button">
                 <span class="button-text">Fetch Details</span>
-                <span id="fetch-spinner" class="hidden">⏳</span>
             </button>
         </div>
-        <div id="fetch-status" class="hidden"></div>
+        <div id="loading-animation" class="loading-container hidden">
+            <div class="loading-spinner"></div>
+            <div class="loading-success hidden">
+                <svg class="checkmark" viewBox="0 0 24 24">
+                    <path class="checkmark-path" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div class="loading-error hidden">
+                <svg class="error-x" viewBox="0 0 24 24">
+                    <path class="error-x-path" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </div>
+        </div>
     </form>
-    <p>Rather enter all the details yourself? <a href="/wishlist/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
+    <p id="manual-link">Rather enter all the details yourself? <a href="/wishlists/<?php echo $wishlist['id']; ?>/item/create">Add Item Manually</a></p>
 </div>
 
 <script>
@@ -43,43 +55,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('url-fetch-form');
     const urlInput = document.getElementById('product-url');
     const fetchBtn = document.getElementById('fetch-details-btn');
-    const spinner = document.getElementById('fetch-spinner');
-    const status = document.getElementById('fetch-status');
+    const loadingContainer = document.getElementById('loading-animation');
+    const loadingSpinner = loadingContainer.querySelector('.loading-spinner');
+    const loadingSuccess = loadingContainer.querySelector('.loading-success');
+    const loadingError = loadingContainer.querySelector('.loading-error');
+    const manualLink = document.getElementById('manual-link');
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         fetchUrlDetails();
     });
     
-    // Auto-fetch on paste
-    urlInput.addEventListener('paste', function() {
-        setTimeout(() => {
-            const url = urlInput.value.trim();
-            if (url && isValidUrl(url)) {
-                setTimeout(() => {
-                    fetchUrlDetails();
-                }, 500);
-            }
-        }, 100);
-    });
+    // Note: Auto-fetch on paste has been removed - users must click "Fetch Details" button
     
     function fetchUrlDetails() {
         const url = urlInput.value.trim();
         
         if (!url) {
-            showStatusMessage("Please enter a URL first", "error");
             return;
         }
         
         if (!isValidUrl(url)) {
-            showStatusMessage("Please enter a valid URL", "error");
             return;
         }
         
         showLoadingState(true);
-        showStatusMessage("Fetching product details...", "info");
         
-        fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
+        fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/fetch-url-metadata', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -109,13 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(data => {
-            showLoadingState(false);
-            
             if (data.success) {
-                showStatusMessage("Product details fetched successfully! Redirecting to form...", "success");
+                showSuccessAnimation();
                 
                 // Store data in session via AJAX
-                fetch('/wishlist/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -124,29 +124,75 @@ document.addEventListener('DOMContentLoaded', function() {
                           '&price=' + encodeURIComponent(data.price || '') + 
                           '&link=' + encodeURIComponent(url) + 
                           '&image=' + encodeURIComponent(data.image || '') +
-                          '&product_details=' + encodeURIComponent(data.product_details || '')
+                          '&product_details=' + encodeURIComponent(data.product_details || '') +
+                          '&fetch_error=false'
                 })
                 .then(() => {
-                    // Redirect to form (data will be loaded from session)
+                    // Redirect to form after animation
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
+                    }, 1200);
+                })
+                .catch(error => {
+                    console.error('Error storing data:', error);
+                    // Still redirect even if storage fails
+                    setTimeout(() => {
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
+                    }, 1200);
+                });
+            } else {
+                showErrorAnimation();
+                
+                // Store error state and redirect
+                fetch('/wishlists/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                body: 'link=' + encodeURIComponent(url) + 
+                      '&fetch_error=true&error_message=' + encodeURIComponent(data.error || 'Couldn\'t find product details for this URL - you\'ll need to fill them in manually!')
+                })
+                .then(() => {
+                    // Redirect to form after animation
+                    setTimeout(() => {
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 })
                 .catch(error => {
                     console.error('Error storing data:', error);
                     // Still redirect even if storage fails
                     setTimeout(() => {
-                        window.location.href = '/wishlist/<?php echo $wishlist['id']; ?>/item/create';
+                        window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
                     }, 1000);
                 });
-            } else {
-                showStatusMessage(data.error || "Could not fetch product details", "error");
             }
         })
         .catch(error => {
-            showLoadingState(false);
             console.error('Error:', error);
-            showStatusMessage("An error occurred while fetching product details. Please try again.", "error");
+            showErrorAnimation();
+            
+            // Store error state and redirect
+            fetch('/<?php echo $wishlist['id']; ?>/api/store-fetched-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'link=' + encodeURIComponent(url) + 
+                      '&fetch_error=true&error_message=' + encodeURIComponent('Couldn\'t find product details for this URL - you\'ll need to fill them in manually!')
+            })
+            .then(() => {
+                // Redirect to form after animation
+                setTimeout(() => {
+                    window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error storing data:', error);
+                // Still redirect even if storage fails
+                setTimeout(() => {
+                    window.location.href = '/wishlists/<?php echo $wishlist['id']; ?>/item/create';
+                }, 1000);
+            });
         });
     }
     
@@ -154,24 +200,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (loading) {
             fetchBtn.disabled = true;
             fetchBtn.querySelector('.button-text').textContent = 'Fetching...';
-            spinner.classList.remove('hidden');
+            loadingContainer.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            loadingSuccess.classList.add('hidden');
+            loadingError.classList.add('hidden');
+            manualLink.style.display = 'none';
         } else {
             fetchBtn.disabled = false;
             fetchBtn.querySelector('.button-text').textContent = 'Fetch Details';
-            spinner.classList.add('hidden');
+            loadingContainer.classList.add('hidden');
+            manualLink.style.display = 'block';
         }
     }
     
-    function showStatusMessage(message, type) {
-        status.textContent = message;
-        status.className = type;
-        status.classList.remove('hidden');
-        
-        if (type === 'success') {
-            setTimeout(() => {
-                status.classList.add('hidden');
-            }, 3000);
-        }
+    function showSuccessAnimation() {
+        loadingSpinner.classList.add('hidden');
+        loadingSuccess.classList.remove('hidden');
+        // Animation will be handled by CSS
+    }
+    
+    function showErrorAnimation() {
+        loadingSpinner.classList.add('hidden');
+        loadingError.classList.remove('hidden');
+        // Animation will be handled by CSS
     }
     
     function isValidUrl(string) {

@@ -11,21 +11,33 @@ use App\Services\ItemCopyService;
 use App\Services\FilterService;
 use App\Services\SessionManager;
 use App\Services\PopupManager;
+use App\Services\HtmlGenerationService;
+use App\Services\WishlistRenderService;
 
 class WishlistController extends Controller
 {
-    private WishlistService $wishlistService;
-    private WishlistRequestValidator $wishlistValidator;
-    private PaginationService $paginationService;
-    private ItemCopyService $itemCopyService;
-
-    public function __construct()
-    {
+    public function __construct(
+        private WishlistService $wishlistService = new WishlistService(),
+        private WishlistRequestValidator $wishlistValidator = new WishlistRequestValidator(),
+        private PaginationService $paginationService = new PaginationService(),
+        private ItemCopyService $itemCopyService = new ItemCopyService()
+    ) {
         parent::__construct();
-        $this->wishlistService = new WishlistService();
-        $this->wishlistValidator = new WishlistRequestValidator();
-        $this->paginationService = new PaginationService();
-        $this->itemCopyService = new ItemCopyService();
+    }
+
+    /**
+     * Validate and convert ID parameter to integer
+     * Returns 404 error page if ID is not numeric
+     * 
+     * @param string|int $id The ID to validate
+     * @return int|Response Returns integer ID or 404 Response
+     */
+    private function validateId(string|int $id): int|Response
+    {
+        if (!is_numeric($id)) {
+            return $this->view('errors/404', ['title' => '404 - Page Not Found'], 'error');
+        }
+        return (int) $id;
     }
 
     /**
@@ -40,45 +52,74 @@ class WishlistController extends Controller
     {
         
         $user = $this->auth();
-        $wishlists = $this->wishlistService->getUserWishlists($user['username']);
         
-        $data = [
-            'user' => $user,
-            'wishlists' => $wishlists
-        ];
-
-        return $this->view('wishlist/index', $data);
-    }
-
-    public function wishlists(): Response
-    {
-        
-        $user = $this->auth();
-        $wishlists = $this->wishlistService->getUserWishlists($user['username']);
-        
-        $data = [
-            'user' => $user,
-            'wishlists' => $wishlists
-        ];
-
-        return $this->view('wishlist/index', $data);
-    }
-
-    public function show(int $id): Response
-    {
-        
-        $user = $this->auth();
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
-        }
-
         // Get pagination number
         $pageno = (int) $this->request->get('pageno', 1);
         
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        
+        // Apply pagination to get only 12 wishlists per page
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
+        $totalPages = $this->paginationService->getTotalPages();
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno) {
+            return $this->redirect("/wishlists?pageno={$correctedPage}");
+        }
+        
+        $data = [
+            'user' => $user,
+            'wishlists' => $paginatedWishlists,
+            'all_wishlists' => $allWishlists,
+            'pageno' => $pageno,
+            'total_pages' => $totalPages,
+            'base_url' => '/wishlists',
+            'customStyles' => 
+                '.paginate-container {
+                    margin: 0 0 2rem;
+                }
+                .paginate-container.bottom {
+                    margin: 0.5rem 0;
+                }'
+        ];
+
+        return $this->view('wishlist/index', $data);
+    }
+
+
+    public function show(string|int $id): Response
+    {
+        
+        $user = $this->auth();
+        
+        // Validate and convert ID
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+
+        $wishlistTotalPrice = \App\Models\Item::getItemsTotalPrice($id, $user['username']);
+        
+        if (!$wishlist) {
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
+        }
+
+        // Get pagination number and search term
+        $pageno = (int) $this->request->get('pageno', 1);
+        $searchTerm = trim($this->request->get('search', ''));
+        
         // Get other wishlists for copy functionality
         $otherWishlists = $this->wishlistService->getOtherWishlists($user['username'], $id);
+        
+        // Add item counts to each wishlist for copy from dropdown
+        foreach ($otherWishlists as &$otherWishlist) {
+            $otherWishlist['item_count'] = \App\Models\Item::countItems($otherWishlist['id'], $user['username']);
+        }
+        unset($otherWishlist); // Break reference
         
         // Get sorting/filter preferences from session
         SessionManager::setWishlistContext($id, $pageno);
@@ -98,20 +139,37 @@ class WishlistController extends Controller
         // Get ALL items first (for total count and filtering)
         $allItems = $this->wishlistService->getWishlistItems($id, $serviceFilters);
         
+        // Apply search filter if search term is provided
+        if (!empty($searchTerm)) {
+            $allItems = $this->filterItems($allItems, $searchTerm);
+        }
+        
         // Apply pagination to get only 12 items per page
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
         $totalPages = $this->paginationService->getTotalPages($allItems);
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno && count($allItems) > 0) {
+            $redirectUrl = "/wishlists/{$id}?pageno={$correctedPage}";
+            if (!empty($searchTerm)) {
+                $redirectUrl .= '&search=' . urlencode($searchTerm);
+            }
+            return $this->redirect($redirectUrl);
+        }
         
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
+            'wishlist_total_price' => $wishlistTotalPrice,
             'items' => $paginatedItems,
             'all_items' => $allItems, // For total count display
             'other_wishlists' => $otherWishlists,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'filters' => $filters,
-            'wishlist_id' => $id
+            'wishlist_id' => $id,
+            'searchTerm' => $searchTerm
         ];
 
         return $this->view('wishlist/show', $data);
@@ -155,7 +213,7 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->createWishlist($user['username'], $data);
         
         if ($wishlist) {
-            return $this->redirect("/wishlist/{$wishlist['id']}")->withSuccess('Wishlist created successfully!');
+            return $this->redirect("/wishlists/{$wishlist['id']}")->withSuccess('Wish list created successfully!');
         }
 
         return $this->view('wishlist/create', [
@@ -164,18 +222,24 @@ class WishlistController extends Controller
             'wishlist_name' => $data['wishlist_name'] ?? '',
             'theme_background_id' => $data['theme_background_id'] ?? '',
             'theme_gift_wrap_id' => $data['theme_gift_wrap_id'] ?? '',
-            'error_msg' => '<div class="submit-error"><strong>Wishlist creation failed:</strong><ul><li>Unable to create wishlist. Please try again.</li></ul></div>'
+            'error_msg' => '<div class="submit-error"><strong>Wish list creation failed:</strong><ul><li>Unable to create wishlist. Please try again.</li></ul></div>'
         ]);
     }
 
-    public function edit(int $id): Response
+    public function edit(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $data = [
@@ -187,14 +251,20 @@ class WishlistController extends Controller
         return $this->view('wishlist/edit', $data);
     }
 
-    public function update(int $id): Response
+    public function update(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $data = $this->request->input();
@@ -210,7 +280,7 @@ class WishlistController extends Controller
         }
 
         if ($this->wishlistService->updateWishlistName($id, $data['wishlist_name'])) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist updated successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list updated successfully!');
         }
 
         return $this->view('wishlist/edit', [
@@ -221,313 +291,422 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function delete(int $id): Response
+    public function delete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->deleteWishlistAndItems($id)) {
             // Update duplicate flags for other wishlists with the same name
             $this->wishlistService->updateDuplicateFlags($user['username'], $wishlist['wishlist_name']);
             
-            return $this->redirect('/wishlist/wishlists')->withSuccess('Wishlist deleted successfully!');
+            return $this->redirect('/wishlists')->withSuccess('Wish list deleted successfully!');
         }
 
-        return $this->redirect('/wishlist')->withError('Unable to delete wishlist. Please try again.');
+        return $this->redirect('/wishlists')->withError('Unable to delete wishlist. Please try again.');
     }
 
-    public function toggleVisibility(int $id): Response
+    public function toggleVisibility(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            $message = $wishlist['public'] ? 'Wishlist is now hidden.' : 'Wishlist is now public.';
-            return $this->redirect("/wishlist/{$id}")->withSuccess($message);
+            $message = $wishlist['public'] ? 'Wish list is now hidden.' : 'Wish list is now public.';
+            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to update wishlist visibility.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist visibility.');
     }
 
-    public function toggleComplete(int $id): Response
+    public function toggleComplete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            $message = $wishlist['complete'] ? 'Wishlist has been reactivated.' : 'Wishlist has been marked as complete.';
-            return $this->redirect("/wishlist/{$id}")->withSuccess($message);
+            $message = $wishlist['complete'] ? 'Wish list has been reactivated.' : 'Wish list has been deactivated.';
+            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to update wishlist status.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist status.');
     }
 
-    public function rename(int $id): Response
+    public function rename(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $name = $this->request->input('wishlist_name');
         $errors = $this->wishlistValidator->validateWishlistName($name);
 
         if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->redirect("/wishlist/{$id}")->withError($this->wishlistValidator->formatErrorsForDisplay($errors));
+            return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', $this->wishlistValidator->formatErrorsForDisplay($errors));
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Wishlist renamed successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list renamed successfully!');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to rename wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
     }
 
-    public function updateTheme(int $id): Response
+    public function updateTheme(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $backgroundId = (int) $this->request->input('theme_background_id');
         $giftWrapId = (int) $this->request->input('theme_gift_wrap_id');
 
         if ($this->wishlistService->updateWishlistTheme($id, $backgroundId, $giftWrapId)) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess('Theme updated successfully!');
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Theme updated successfully!');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to update theme. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to update theme. Please try again.');
     }
 
-    public function copyFrom(int $id): Response
+    public function copyFrom(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $fromWishlistId = (int) $this->request->input('other_wishlist_copy_from');
         $itemIds = $this->request->input('item_ids', []);
 
         if (empty($itemIds)) {
-            return $this->redirect("/wishlist/{$id}")->withError('Please select at least one item to copy.');
+            // Pass error and selected wishlist ID via URL parameter to preserve state
+            return $this->redirect("/wishlists/{$id}?copy_from_error=1&copy_from_wishlist_id={$fromWishlistId}")->withError('Please select at least one item to copy.');
         }
 
         $copiedCount = $this->itemCopyService->copyItems($fromWishlistId, $id, $itemIds);
 
         if ($copiedCount > 0) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to this wishlist!");
+            return $this->redirect("/wishlists/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to this wishlist!");
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to copy items. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
-    public function copyTo(int $id): Response
+    public function copyTo(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         $toWishlistId = (int) $this->request->input('other_wishlist_copy_to');
         $itemIds = $this->request->input('item_ids', []);
 
         if (empty($itemIds)) {
-            return $this->redirect("/wishlist/{$id}")->withError('Please select at least one item to copy.');
+            // Pass error and selected wishlist ID via URL parameter to preserve state
+            return $this->redirect("/wishlists/{$id}?copy_to_error=1&copy_to_wishlist_id={$toWishlistId}")->withError('Please select at least one item to copy.');
         }
 
         $copiedCount = $this->itemCopyService->copyItems($id, $toWishlistId, $itemIds);
 
         if ($copiedCount > 0) {
-            return $this->redirect("/wishlist/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to the other wishlist!");
+            return $this->redirect("/wishlists/{$id}")->withSuccess("Successfully copied {$copiedCount} item(s) to the other wishlist!");
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to copy items. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to copy items. Please try again.');
     }
 
-    public function hide(int $id): Response
+    public function hide(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            SessionManager::setWishlistFlash('Wishlist hidden successfully', 'hidden');
-            return $this->redirect("/wishlist/{$id}");
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list hidden successfully.');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to hide wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to hide wishlist. Please try again.');
     }
 
-    public function showPublic(int $id): Response
+    /**
+     * Filter items by search term
+     */
+    private function filterItems(array $items, string $searchTerm): array
+    {
+        if (empty(trim($searchTerm))) {
+            return $items;
+        }
+        
+        $searchLower = strtolower(trim($searchTerm));
+        return array_values(array_filter($items, function($item) use ($searchLower) {
+            $name = strtolower($item['name'] ?? '');
+            $price = strtolower($item['price'] ?? '');
+            $link = strtolower($item['link'] ?? '');
+            $notes = strtolower($item['notes'] ?? '');
+            
+            return strpos($name, $searchLower) !== false ||
+                   strpos($price, $searchLower) !== false ||
+                   strpos($link, $searchLower) !== false ||
+                   strpos($notes, $searchLower) !== false;
+        }));
+    }
+
+    public function showPublic(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            SessionManager::setWishlistFlash('Wishlist made public successfully', 'public');
-            return $this->redirect("/wishlist/{$id}");
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list made public successfully.');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to make wishlist public. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to make wishlist public. Please try again.');
     }
 
-    public function complete(int $id): Response
+    public function complete(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            SessionManager::setWishlistFlash('Wishlist marked as complete', 'complete');
-            return $this->redirect("/wishlist/{$id}");
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list deactivated successfully.');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to mark wishlist as complete. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to deactivate wish list. Please try again.');
     }
 
-    public function reactivate(int $id): Response
+    public function reactivate(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlist/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/wishlists')->withError('Wish list not found.');
         }
 
         if ($this->wishlistService->toggleWishlistComplete($id)) {
-            SessionManager::setWishlistFlash('Wishlist reactivated successfully', 'reactivated');
-            return $this->redirect("/wishlist/{$id}");
+            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list reactivated successfully.');
         }
 
-        return $this->redirect("/wishlist/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
+        return $this->redirect("/wishlists/{$id}")->withError('Unable to reactivate wishlist. Please try again.');
     }
 
-    public function paginateItems(int $id): Response
+    public function paginateItems(string|int $id): Response
     {
-        
-        $user = $this->auth();
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            header('Content-Type: application/json');
-            http_response_code(404);
-            echo json_encode([
+        try {
+            $user = $this->auth();
+            
+            $id = $this->validateId($id);
+            if ($id instanceof Response) {
+                return $id;
+            }
+            
+            $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+            
+            if (!$wishlist) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Wish list not found',
+                    'html' => '',
+                    'current' => 1,
+                    'total' => 1,
+                    'totalRows' => 0,
+                    'itemsPerPage' => 12,
+                    'paginationInfo' => ''
+                ], 404);
+            }
+
+            $page = (int) $this->request->input('new_page', 1);
+            $searchTerm = trim($this->request->input('search', ''));
+            
+            // Apply session filters for pagination using FilterService
+            $sortPreferences = SessionManager::getWisherSortPreferences();
+            $sortPriority = $sortPreferences['sort_priority'];
+            $sortPrice = $sortPreferences['sort_price'];
+            
+            $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
+            
+            $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
+            
+            // Apply search filter if search term is provided
+            if (!empty($searchTerm)) {
+                $items = $this->filterItems($items, $searchTerm);
+            }
+            
+            $paginatedItems = $this->paginationService->paginate($items, $page);
+            $totalPages = $this->paginationService->getTotalPages($items);
+            $totalRows = count($items);
+
+            // Generate HTML for items only (no pagination controls)
+            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, $page, 'wisher', $searchTerm);
+            
+            // Calculate pagination info
+            $itemsPerPage = 12;
+            $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+            $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+            $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
+            
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Items loaded successfully',
+                'html' => $itemsHtml,
+                'current' => $page,
+                'total' => $totalPages,
+                'totalRows' => $totalRows,
+                'itemsPerPage' => $itemsPerPage,
+                'paginationInfo' => $paginationInfo
+            ]);
+        } catch (\Exception $e) {
+            // Log error and return JSON error response
+            error_log('Pagination error: ' . $e->getMessage());
+            return $this->json([
                 'status' => 'error',
-                'message' => 'Wishlist not found',
+                'message' => 'An error occurred while loading items',
                 'html' => '',
                 'current' => 1,
                 'total' => 1,
+                'totalRows' => 0,
+                'itemsPerPage' => 12,
                 'paginationInfo' => ''
-            ]);
-            exit;
+            ], 500);
         }
-
-        $page = (int) $this->request->input('new_page', 1);
-        
-        // Apply session filters for pagination using FilterService
-        $sortPreferences = SessionManager::getWisherSortPreferences();
-        $sortPriority = $sortPreferences['sort_priority'];
-        $sortPrice = $sortPreferences['sort_price'];
-        
-        $serviceFilters = FilterService::convertWisherSessionFilters($sortPriority, $sortPrice);
-        
-        $items = $this->wishlistService->getWishlistItems($id, $serviceFilters);
-        $paginatedItems = $this->paginationService->paginate($items, $page);
-        $totalPages = $this->paginationService->getTotalPages($items);
-        $totalRows = count($items);
-
-        // Generate HTML for items only (no pagination controls)
-        $itemsHtml = $this->generateItemsHtml($paginatedItems, $id, $page);
-        
-        // Calculate pagination info
-        $itemsPerPage = 12;
-        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
-        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
-        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} items";
-
-        // Clear any output buffering first
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        
-        // Set headers and output JSON directly
-        header('Content-Type: application/json');
-        header('Cache-Control: no-cache, must-revalidate');
-        
-        $jsonData = [
-            'status' => 'success',
-            'message' => 'Items loaded successfully',
-            'html' => $itemsHtml,
-            'current' => $page,
-            'total' => $totalPages,
-            'paginationInfo' => $paginationInfo
-        ];
-        
-        echo json_encode($jsonData);
-        flush();
-        exit;
     }
 
-    public function filterItems(int $id): Response
+    public function applyFilter(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return new Response('Wishlist not found', 404);
+            return new Response(content: 'Wish list not found', status: 404);
         }
 
         // Get filter parameters
         $sortPriority = $this->request->input('sort_priority', '');
         $sortPrice = $this->request->input('sort_price', '');
+        $searchTerm = trim($this->request->input('search', ''));
         
         // Validate filter options using FilterService
         if (!FilterService::validateWisherFilters($sortPriority, $sortPrice)) {
-            return new Response('<strong>Invalid filter. Please try again.</strong>', 400);
+            return new Response(content: HtmlGenerationService::generateFilterErrorHtml(), status: 400);
         }
         
         // Update session with filter preferences using SessionManager
@@ -538,11 +717,17 @@ class WishlistController extends Controller
 
         // Get filtered items (reset to page 1 after filtering)
         $items = $this->wishlistService->getWishlistItems($id, $filters);
+        
+        // Apply search filter if search term is provided
+        if (!empty($searchTerm)) {
+            $items = $this->filterItems($items, $searchTerm);
+        }
+        
         $paginatedItems = $this->paginationService->paginate($items, 1);
         $totalPages = $this->paginationService->getTotalPages($items);
         $totalRows = count($items);
         
-        $html = $this->generateItemsHtml($paginatedItems, $id, 1, $totalPages);
+        $html = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, 1, 'wisher', $searchTerm);
         
         // Calculate pagination info
         $itemsPerPage = 12;
@@ -565,6 +750,8 @@ class WishlistController extends Controller
             'html' => $html,
             'current' => 1,
             'total' => $totalPages,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => 12,
             'paginationInfo' => $paginationInfo
         ];
         
@@ -573,10 +760,16 @@ class WishlistController extends Controller
         exit;
     }
 
-    public function getOtherWishlistItems(int $id): Response
+    public function getOtherWishlistItems(string|int $id): Response
     {
         
         $user = $this->auth();
+        
+        $id = $this->validateId($id);
+        if ($id instanceof Response) {
+            return $id;
+        }
+        
         $otherWishlistId = (int) $this->request->input('wishlist_id');
         $copyFrom = $this->request->input('copy_from') === 'Yes';
 
@@ -593,92 +786,54 @@ class WishlistController extends Controller
             $targetWishlistId = $otherWishlistId;
         }
         
-        $html = $this->generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom);
+        $html = HtmlGenerationService::generateItemCheckboxes($items, $sourceWishlistId, $targetWishlistId, $copyFrom, $this->wishlistService);
 
-        return new Response($html);
+        return new Response(content: $html);
     }
 
-    private function generateItemsHtml(array $items, int $wishlistId, int $page): string
+    public function paginateWishlists(): Response
     {
-        $html = '';
         
-        foreach ($items as $item) {
-            $html .= $this->generateItemHtml($item, $wishlistId, $page);
+        $user = $this->auth();
+        
+        $page = (int) $this->request->input('new_page', 1);
+        
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $page);
+        $totalPages = $this->paginationService->getTotalPages();
+        $totalRows = count($allWishlists);
+        
+        // Generate HTML for wishlist grid items only (no pagination controls)
+        $wishlistsHtml = WishlistRenderService::generateWishlistsHtml($paginatedWishlists);
+        
+        // Calculate pagination info
+        $itemsPerPage = 12;
+        $paginationInfoStart = (($page - 1) * $itemsPerPage) + 1;
+        $paginationInfoEnd = min($page * $itemsPerPage, $totalRows);
+        $paginationInfo = "Showing {$paginationInfoStart}-{$paginationInfoEnd} of {$totalRows} wishlists";
+        
+        // Clear any output buffering first
+        if (ob_get_level()) {
+            ob_end_clean();
         }
         
-        return $html;
-    }
-
-    public function generateItemHtml(array $item, int $wishlistId, int $page): string
-    {
-        return \App\Services\ItemRenderService::renderItem($item, $wishlistId, $page);
-    }
-
-    private function generateItemCheckboxes(array $items, int $sourceWishlistId, int $targetWishlistId, bool $copyFrom): string
-    {
-        $html = '';
+        // Set headers and output JSON directly
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, must-revalidate');
         
-        // Add "All Items" checkbox
-        $html .= "
-        <div class='checkboxes-container'>
-            <div class='select-item-container select-all'>
-                <div class='option-title'>All Items</div>
-                <div class='option-checkbox'>
-                    <input type='checkbox' name='copy_" . ($copyFrom ? "from" : "to") . "_select_all' class='check-all' />
-                </div>
-            </div>";
+        $jsonData = [
+            'status' => 'success',
+            'message' => 'Wishlists loaded successfully',
+            'html' => $wishlistsHtml,
+            'current' => $page,
+            'total' => $totalPages,
+            'paginationInfo' => $paginationInfo
+        ];
         
-        $copyCounter = 0;
-        
-        foreach ($items as $item) {
-            $itemName = htmlspecialchars($item['name']);
-            $itemId = $item['id'];
-            $itemCopyId = $item['copy_id'];
-            $itemImage = $item['image'];
-            
-            // Check if item already exists in the target wishlist (by copy_id)
-            $alreadyInList = false;
-            if ($itemCopyId) {
-                $alreadyInList = $this->wishlistService->itemExistsInWishlist($itemCopyId, $targetWishlistId);
-            }
-            
-            if ($alreadyInList) {
-                $copyCounter++;
-            }
-            
-            // Determine image path - use source wishlist ID for image location
-            $absoluteImagePath = __DIR__ . "/../../public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
-            
-            if (!file_exists($absoluteImagePath)) {
-                $imagePath = "/wishlist/public/images/site-images/default-photo.png";
-            } else {
-                $imagePath = "/wishlist/public/images/item-images/{$sourceWishlistId}/" . htmlspecialchars($itemImage);
-            }
-            
-            $containerClass = $alreadyInList ? 'select-item-container already-in-list' : 'select-item-container';
-            $checkboxClass = $alreadyInList ? 'already-in-list' : '';
-            $disabled = $alreadyInList ? 'disabled' : '';
-            $alreadyInListText = $alreadyInList ? ' (Already in list)' : '';
-            
-            $html .= "
-            <div class='{$containerClass}'>
-                <div class='option-image'>
-                    <img src='{$imagePath}?t=" . time() . "' alt='wishlist item image'>
-                </div>
-                <div class='option-title'>{$itemName}{$alreadyInListText}</div>
-                <div class='option-checkbox'>
-                    <input type='checkbox' class='{$checkboxClass}' name='item_ids[]' value='{$itemId}' {$disabled} />
-                </div>
-            </div>";
-        }
-        
-        $html .= "
-        </div>
-        <p class='center" . ($copyCounter == count($items) ? ' hidden' : '') . "'>
-            <input type='submit' class='button text' name='copy_" . ($copyFrom ? "from" : "to") . "_submit' value='Copy Items' />
-        </p>";
-        
-        return $html;
+        echo json_encode($jsonData);
+        flush();
+        exit;
     }
 
     private function generatePaginationHtml(int $currentPage, int $totalPages, int $totalItems): string

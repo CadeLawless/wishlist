@@ -4,16 +4,11 @@ namespace App\Core;
 
 class Response
 {
-    private string $content;
-    private int $status;
-    private array $headers = [];
-
-    public function __construct(string $content = '', int $status = 200, array $headers = [])
-    {
-        $this->content = $content;
-        $this->status = $status;
-        $this->headers = $headers;
-    }
+    public function __construct(
+        private string $content = '',
+        private int $status = 200,
+        private array $headers = []
+    ) {}
 
     public static function make(string $content = '', int $status = 200, array $headers = []): self
     {
@@ -52,10 +47,10 @@ class Response
 
     public function withFlash(string $type, string $message): self
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $_SESSION['flash'][$type] = $message;
+        // Get existing flash messages
+        $flash = \App\Services\SessionManager::get('flash', []);
+        $flash[$type] = $message;
+        \App\Services\SessionManager::set('flash', $flash);
         return $this;
     }
 

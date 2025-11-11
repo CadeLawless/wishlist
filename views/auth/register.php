@@ -1,10 +1,45 @@
-<p class="center"><img class="logo login" src="public/images/site-images/logo.png" alt="Wish List" /></p>
+<?php
+// Display flash messages
+if (isset($flash['success'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+
+if (isset($flash['error'])) {
+    echo "
+    <div class='popup-container'>
+        <div class='popup active'>
+            <div class='close-container'>
+                <a href='#' class='close-button'>";
+                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
+                echo "</a>
+            </div>
+            <div class='popup-content'>
+                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
+            </div>
+        </div>
+    </div>";
+}
+?>
+
+<div class="center reset-password-logo"><?php require(__DIR__ . "/../../public/images/site-images/logo.php"); ?></div>
 <form id="login-form" method="POST" action="">
     <p><a href="/login">Back to Login</a></p>
     <?php if(isset($error_msg)) echo $error_msg?>
     <div class="large-input center">
         <label for="name">First Name: </label><br>
-        <input required type="text" name="name" placeholder="Dwight" value="<?php echo $name?>" id="name">
+        <input required type="text" name="name" placeholder="Dwight" value="<?php echo $name?>" id="name" maxlength="50">
     </div>
     <div class="large-input center">
         <label for="username">Username: </label><br>
@@ -18,67 +53,68 @@
         <div style="margin: 0 0 22px;">
             Password Requirements:
             <ul>
-                <li>Must include at least one letter and one number</li>
-                <li>Must be at least 6 characters long</li>
+                <li>Must be at least 8 characters long</li>
+                <li>Must contain at least one uppercase letter</li>
+                <li>Must contain at least one lowercase letter</li>
+                <li>Must contain at least one number</li>
             </ul>
         </div>
     </div>
     <div class="large-input center">
         <label for="password">Password: </label><br>
         <div class="password-input">
-            <input required type="password" name="password" id="password" value="<?php echo $password?>" pattern="^(?=.*[0-9])(?=.*[a-zA-Z])(.+){6,}$">
+            <input required type="password" name="password" id="password" value="<?php echo $password?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
             <span class="password-view hide-password hidden"><?php require(__DIR__ . "/../../public/images/site-images/icons/hide-view.php"); ?></span>
             <span class="password-view view-password"><?php require(__DIR__ . "/../../public/images/site-images/icons/view.php"); ?></span>
-            <span class="error-msg hidden">Please match the requirements</span>
         </div>
     </div>
     <div class="large-input center">
         <label for="password_confirmation">Confirm Password: </label><br>
         <input required type="password" name="password_confirmation" value="<?php echo $password_confirmation?>" id="password_confirmation">
-        <span class="error-msg hidden">Passwords must match</span>
     </div>
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Start Wishing"></p>
 </form>
 
+<script src="/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
-    $("input").on("input", function(){
-        if(this.validity.patternMismatch){
-            setTimeout(() => {
-                if(this.validity.patternMismatch){
-                    if($(this).hasClass("price-input")){
-                        $(this).parent().addClass("invalid");
-                    }else{
-                        $(this).addClass("invalid");
-                    }
-                }
-            }, 2500);
-        }else{
-            if($(this).hasClass("price-input")){
-                $(this).parent().removeClass("invalid");
-            }else{
-                $(this).removeClass("invalid");
-            }
+    // Initialize form validation
+    FormValidator.init('#login-form', {
+        name: {
+            required: true,
+            minLength: 2,
+            maxLength: 50
+        },
+        username: {
+            required: true,
+            minLength: 3,
+            maxLength: 50,
+            checkUnique: '/api/check-username'
+        },
+        email: {
+            required: true,
+            email: true,
+            checkUnique: '/api/check-email'
+        },
+        password: {
+            required: true,
+            password: true
+        },
+        password_confirmation: {
+            required: true,
+            confirmPassword: '#password'
         }
     });
 
     $(".view-password").on("click", function(){
-        $("#password").attr("type", "text");
+        $("#password, #password_confirmation").attr("type", "text");
         $(this).addClass("hidden");
         $(".hide-password").removeClass("hidden");
     });
     $(".hide-password").on("click", function(){
-        $("#password").attr("type", "password");
+        $("#password, #password_confirmation").attr("type", "password");
         $(this).addClass("hidden");
         $(".view-password").removeClass("hidden");
-    });
-
-    $("#confirm_password").on("input", function(){
-        if($(this).val() != $("#password").val()){
-            $(this).addClass("invalid");
-        }else{
-            $(this).removeClass("invalid");
-        }
     });
 });
 </script>

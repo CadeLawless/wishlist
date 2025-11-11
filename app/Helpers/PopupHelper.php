@@ -19,9 +19,9 @@ class PopupHelper
         ];
 
         foreach ($popups as $sessionKey => $message) {
-            if (isset($_SESSION[$sessionKey])) {
+            if (\App\Services\SessionManager::has($sessionKey)) {
                 self::displayPopup($message);
-                unset($_SESSION[$sessionKey]);
+                \App\Services\SessionManager::remove($sessionKey);
             }
         }
     }
@@ -50,17 +50,25 @@ class PopupHelper
 
     /**
      * Handle modern flash messages from Response class
+     * @param array|null $flash Optional flash data array (if null, will try to get from session)
      */
-    public static function handleFlashMessages(): void
+    public static function handleFlashMessages(?array $flash = null): void
     {
-        if (isset($_SESSION['flash']['success'])) {
-            self::displayPopup($_SESSION['flash']['success'], 'success');
-            unset($_SESSION['flash']['success']);
+        // If flash data not provided, try to get from session
+        // (though it may have already been cleared by getFlashMessages() in View constructor)
+        if ($flash === null) {
+            $flash = \App\Services\SessionManager::get('flash', []);
+        }
+        
+        if (isset($flash['success'])) {
+            self::displayPopup($flash['success'], 'success');
         }
 
-        if (isset($_SESSION['flash']['error'])) {
-            self::displayPopup($_SESSION['flash']['error'], 'error');
-            unset($_SESSION['flash']['error']);
+        if (isset($flash['error'])) {
+            self::displayPopup($flash['error'], 'error');
         }
+        
+        // Don't clear rename_error - it's handled separately in the rename form popup
+        // The flash data was already cleared by getFlashMessages() in View constructor
     }
 }

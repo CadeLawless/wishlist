@@ -36,46 +36,87 @@ if (isset($flash['error'])) {
 <div class="form-container">
     <h2>Your Profile</h2>
     
+    <!-- Username Display (Read-only) -->
+    <div class="flex form-flex">
+        <div class="large-input">
+            <label for="username_display">Username:<br></label>
+            <input type="text" id="username_display" value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>" disabled style="background-color: var(--background-darker); cursor: not-allowed;" />
+        </div>
+    </div>
+    <br />
+    
     <!-- Name Update Form -->
     <form method="POST" action="">
+        <input type="hidden" name="name_submit_button" value="1" />
         <h3>Change Your Name</h3>
         <?php echo $name_error_msg ?? ""; ?>
         <div class="flex form-flex">
             <div class="large-input">
                 <label for="name">Name:<br></label>
-                <input required type="text" name="name" id="name" autocapitalize="words" value="<?php echo htmlspecialchars($name); ?>" />
+                <input required type="text" name="name" id="name" autocapitalize="words" value="<?php echo htmlspecialchars($name ?? ''); ?>" maxlength="50" />
             </div>
-            <p class="large-input"><input type="submit" class="button text" id="name_submit_button" name="name_submit_button" value="Change Name"></p>
+            <p class="large-input"><input type="submit" class="button text" id="name_submit_button" value="Change Name"></p>
         </div>
     </form>
     <br />
 
     <!-- Email Update Form -->
-    <form method="POST" action="">
-        <h3>Change Your Email</h3>
+    <?php if (empty($user['email']) && !empty($user['unverified_email'])): ?>
+        <!-- Unverified Email - Show Verification Message -->
+        <h3>Verify Your Email</h3>
         <?php echo $email_error_msg ?? ""; ?>
         <div class="flex form-flex">
-            <?php if (empty($user['email'])): ?>
-                <p class='large-input no-margin-top'>Set up your email in case you ever forget your password!</p>
-            <?php endif; ?>
-            <div class="large-input">
-                <label for="email">Email:<br></label>
-                <input required name="email" type="email" id="email" inputmode="email" value="<?php echo htmlspecialchars($email); ?>" />
-            </div>
-            <p class="large-input"><input type="submit" class="button text" id="email_submit_button" name="email_submit_button" value="<?php echo empty($user['email']) ? "Set Up" : "Change"; ?> Email"></p>
+            <p class='large-input no-margin-top'>
+                A verification email has been sent to <strong><?php echo htmlspecialchars($user['unverified_email']); ?></strong>. 
+                Please check your inbox and click the verification link to activate your email.
+            </p>
+            <form method="POST" action="">
+                <p class='large-input'><input type='submit' class='button text' id='resend_verification_button' name='resend_verification_button' value='Resend Verification Email' /></p>
+            </form>
+            <p class='large-input' style='margin-top: 20px;'>
+                <strong>Need to use a different email?</strong>
+            </p>
         </div>
-    </form>
+        <form method="POST" action="">
+            <input type="hidden" name="new_email_submit_button" value="1" />
+            <div class="flex form-flex"></div>
+                <div class="large-input">
+                    <label for="new_email">Enter New Email:<br></label>
+                    <input required name="email" type="email" id="new_email" inputmode="email" value="" />
+                </div>
+                <p class="large-input"><input type="submit" class="button text" id="new_email_submit_button" value="Update Email"></p>
+            </div>
+        </form>
+    <?php else: ?>
+        <!-- Normal Email Form -->
+        <form method="POST" action="">
+            <input type="hidden" name="email_submit_button" value="1" />
+            <h3>Change Your Email</h3>
+            <?php echo $email_error_msg ?? ""; ?>
+            <div class="flex form-flex">
+                <?php if (empty($user['email']) && empty($user['unverified_email'])): ?>
+                    <p class='large-input no-margin-top'>Set up your email in case you ever forget your password!</p>
+                <?php endif; ?>
+                <div class="large-input">
+                    <label for="email">Email:<br></label>
+                    <input required name="email" type="email" id="email" inputmode="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" />
+                </div>
+                <p class="large-input"><input type="submit" class="button text" id="email_submit_button" value="<?php echo empty($user['email']) ? 'Set Up' : 'Change'; ?> Email"></p>
+            </div>
+        </form>
+    <?php endif; ?>
     <br />
 
     <!-- Password Change Form -->
     <form method="POST" action="">
+        <input type="hidden" name="password_submit_button" value="1" />
         <h3>Change Your Password</h3>
         <?php echo $password_error_msg ?? ""; ?>
         <div class="flex form-flex">
             <div class="large-input">
                 <label for="current_password">Current Password:<br></label>
                 <div class="password-input">
-                    <input required type="password" name="current_password" id="current_password" value="<?php echo htmlspecialchars($current_password); ?>" />
+                    <input required type="password" name="current_password" id="current_password" value="<?php echo htmlspecialchars($current_password ?? ''); ?>" />
                     <span class="password-view hide-password hidden"><?php include __DIR__ . '/../../public/images/site-images/icons/hide-view.php'; ?></span>
                     <span class="password-view view-password"><?php include __DIR__ . '/../../public/images/site-images/icons/view.php'; ?></span>
                     <span class="error-msg hidden">Please match the requirements</span>
@@ -85,15 +126,17 @@ if (isset($flash['error'])) {
                 <div style="margin: 0 0 22px;">
                     Password Requirements:
                     <ul>
-                        <li>Must include at least one letter and one number</li>
-                        <li>Must be at least 6 characters long</li>
+                        <li>Must be at least 8 characters long</li>
+                        <li>Must contain at least one uppercase letter</li>
+                        <li>Must contain at least one lowercase letter</li>
+                        <li>Must contain at least one number</li>
                     </ul>
                 </div>
             </div>
             <div class="large-input">
                 <label for="new_password">New Password: </label><br>
                 <div class="password-input">
-                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password); ?>" pattern="^(?=.*[0-9])(?=.*[a-zA-Z])(.+){6,}$">
+                    <input required type="password" name="new_password" id="new_password" value="<?php echo htmlspecialchars($new_password ?? ''); ?>" pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(.+){8,}$">
                     <span class="password-view hide-password-new hidden"><?php include __DIR__ . '/../../public/images/site-images/icons/hide-view.php'; ?></span>
                     <span class="password-view view-password-new"><?php include __DIR__ . '/../../public/images/site-images/icons/view.php'; ?></span>
                     <span class="error-msg hidden">Please match the requirements</span>
@@ -101,11 +144,10 @@ if (isset($flash['error'])) {
             </div>
             <div class="large-input">
                 <label for="confirm_password">Confirm New Password: </label><br>
-                <input required type="password" name="confirm_password" value="<?php echo htmlspecialchars($confirm_password); ?>" id="confirm_password">
-                <span class="error-msg hidden">Passwords must match</span>
+                <input required type="password" name="confirm_password" value="<?php echo htmlspecialchars($confirm_password ?? ''); ?>" id="confirm_password">
             </div>
 
-            <p class="large-input"><input type="submit" class="button text" id="password_submit_button" name="password_submit_button" value="Change Password"></p>
+            <p class="large-input"><input type="submit" class="button text" id="password_submit_button" value="Change Password"></p>
         </div>
     </form>
     <br />
@@ -121,8 +163,62 @@ if (isset($flash['error'])) {
     <?php endif; ?>
 </div>
 
+<script src="/public/js/form-validation.js"></script>
 <script>
 $(document).ready(function(){
+    // Initialize validation for name form
+    const nameForm = $('form').has('#name_submit_button');
+    if (nameForm.length) {
+        FormValidator.init(nameForm, {
+            name: {
+                required: true,
+                minLength: 2,
+                maxLength: 50
+            }
+        });
+    }
+
+    // Initialize validation for email form (normal email change)
+    const emailForm = $('form').has('#email_submit_button');
+    if (emailForm.length) {
+        FormValidator.init(emailForm, {
+            email: {
+                required: true,
+                email: true
+            }
+        });
+    }
+
+    // Initialize validation for new email form (when changing unverified email)
+    const newEmailForm = $('form').has('#new_email_submit_button');
+    if (newEmailForm.length) {
+        FormValidator.init(newEmailForm, {
+            email: {
+                required: true,
+                email: true
+            }
+        });
+    }
+
+    // Initialize validation for password form
+    const passwordForm = $('form').has('#password_submit_button');
+    if (passwordForm.length) {
+        FormValidator.init(passwordForm, {
+            current_password: {
+                required: true
+            },
+            new_password: {
+                required: true,
+                password: true
+            },
+            confirm_password: {
+                required: true,
+                confirmPassword: '#new_password'
+            }
+        });
+    }
+
+    // Keep existing pattern mismatch handling
     $("input").on("input", function(){
         if(this.validity.patternMismatch){
             setTimeout(() => {

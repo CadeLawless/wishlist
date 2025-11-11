@@ -37,11 +37,31 @@ class FilterService
     }
 
     /**
+     * Build order clause for wisher view (purchased status doesn't affect sorting)
+     */
+    public static function buildWisherOrderClause(string $sortPriority, string $sortPrice): string
+    {
+        $priority_order = "";
+        if ($sortPriority) {
+            $direction = self::getSortDirection($sortPriority);
+            $priority_order = "priority {$direction}, ";
+        }
+        
+        $price_order = "";
+        if ($sortPrice) {
+            $direction = self::getSortDirection($sortPrice);
+            $price_order = "price * 1 {$direction}, ";
+        }
+        
+        return "{$priority_order}{$price_order}date_added DESC";
+    }
+
+    /**
      * Process buyer view filters and sorting
      */
     public static function processBuyerFilters(array $requestData): array
     {
-        $sortPriority = $requestData['sort_priority'] ?? '';
+        $sortPriority = $requestData['sort_priority'] ?? '1';
         $sortPrice = $requestData['sort_price'] ?? '';
         
         // Store preferences in session
@@ -63,7 +83,7 @@ class FilterService
     public static function processWisherFilters(array $requestData): array
     {
         $filters = self::buildBaseFilters($requestData);
-        $filters['order_clause'] = $requestData['order_clause'] ?? 'purchased ASC, date_added DESC';
+        $filters['order_clause'] = $requestData['order_clause'] ?? 'date_added DESC';
         
         return $filters;
     }
@@ -71,16 +91,16 @@ class FilterService
     /**
      * Convert wisher session filters to service format
      * 
-     * Uses buildOrderClause() to handle both priority and price sorting
-     * when both are selected, ensuring consistent behavior with buyer view.
+     * Uses buildWisherOrderClause() to handle both priority and price sorting
+     * without purchased status affecting the sort order.
      */
     public static function convertWisherSessionFilters(string $sortPriority, string $sortPrice): array
     {
         $serviceFilters = [];
         
-        // Use buildOrderClause for consistent multi-sort behavior
+        // Use buildWisherOrderClause for wisher-specific sorting (no purchased factor)
         if ($sortPriority || $sortPrice) {
-            $serviceFilters['order_clause'] = self::buildOrderClause($sortPriority, $sortPrice);
+            $serviceFilters['order_clause'] = self::buildWisherOrderClause($sortPriority, $sortPrice);
         } else {
             $serviceFilters['sort_by'] = 'date_added';
             $serviceFilters['sort_order'] = 'DESC';

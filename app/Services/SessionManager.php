@@ -28,7 +28,7 @@ class SessionManager
         
         // Set remember me cookie
         $cookieTime = 3600 * 24 * 365; // 1 year
-        setcookie('wishlist_session_id', session_id(), time() + $cookieTime);
+        setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '');
     }
 
     /**
@@ -100,7 +100,7 @@ class SessionManager
     {
         self::startSession();
         $_SESSION['wisher_wishlist_id'] = $wishlistId;
-        $_SESSION['home'] = "/wishlist/{$wishlistId}?pageno={$pageno}#paginate-top";
+        $_SESSION['home'] = "/{$wishlistId}?pageno={$pageno}#paginate-top";
         $_SESSION['type'] = 'wisher';
     }
 
@@ -121,6 +121,16 @@ class SessionManager
         self::startSession();
         $messages = [];
         
+        // Check for new format (flash.success, flash.error)
+        if (isset($_SESSION['flash'])) {
+            $flash = $_SESSION['flash'];
+            if (is_array($flash)) {
+                $messages = array_merge($messages, $flash);
+            }
+            unset($_SESSION['flash']);
+        }
+        
+        // Check for old format (success, error) for backward compatibility
         $flashKeys = ['success', 'error', 'wishlist_hidden', 'wishlist_public', 'wishlist_complete', 'wishlist_reactivated'];
         
         foreach ($flashKeys as $key) {
@@ -169,5 +179,132 @@ class SessionManager
         self::startSession();
         $_SESSION = [];
         session_destroy();
+    }
+
+    /**
+     * Get current authenticated user data from session
+     */
+    public static function getAuthUser(): ?array
+    {
+        self::startSession();
+        
+        if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
+            // Get full user data from database
+            $username = $_SESSION['username'] ?? null;
+            if ($username) {
+                $user = \App\Models\User::findByUsernameOrEmail($username);
+                if ($user) {
+                    return $user;
+                }
+            }
+            
+            // Fallback to session data if database lookup fails
+            return [
+                'id' => $_SESSION['user_id'] ?? null,
+                'username' => $_SESSION['username'] ?? null,
+                'name' => $_SESSION['name'] ?? null,
+                'email' => $_SESSION['user_email'] ?? null,
+                'admin' => $_SESSION['admin'] ?? false,
+                'dark' => $_SESSION['dark'] ?? false
+            ];
+        }
+        
+        return null;
+    }
+
+    /**
+     * Set authenticated user session data
+     */
+    public static function setAuthUser(array $user, bool $remember = false): void
+    {
+        self::startSession();
+        
+        $_SESSION['wishlist_logged_in'] = true;
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['admin'] = $user['role'] === 'Admin';
+        $_SESSION['dark'] = $user['dark'] === 'Yes';
+
+        // Handle remember me
+        if ($remember) {
+            $cookieTime = 3600 * 24 * 365; // 1 year
+            setcookie('wishlist_session_id', session_id(), time() + $cookieTime, '');
+        }
+    }
+
+    /**
+     * Get a session value
+     */
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        self::startSession();
+        return $_SESSION[$key] ?? $default;
+    }
+
+    /**
+     * Set a session value
+     */
+    public static function set(string $key, $value): void
+    {
+        self::startSession();
+        $_SESSION[$key] = $value;
+    }
+
+    /**
+     * Check if a session key exists
+     */
+    public static function has(string $key): bool
+    {
+        self::startSession();
+        return isset($_SESSION[$key]);
+    }
+
+    /**
+     * Remove a session value
+     */
+    public static function remove(string $key): void
+    {
+        self::startSession();
+        unset($_SESSION[$key]);
+    }
+
+    /**
+     * Store fetched item data in session
+     */
+    public static function setFetchedItemData(array $data): void
+    {
+        self::startSession();
+        $data['timestamp'] = time();
+        $_SESSION['fetched_item_data'] = $data;
+    }
+
+    /**
+     * Get fetched item data from session (with expiry check)
+     */
+    public static function getFetchedItemData(): ?array
+    {
+        self::startSession();
+        
+        $fetchedData = $_SESSION['fetched_item_data'] ?? null;
+        if ($fetchedData && isset($fetchedData['timestamp'])) {
+            $age = time() - $fetchedData['timestamp'];
+            if ($age > 600) { // 10 minutes
+                unset($_SESSION['fetched_item_data']);
+                return null;
+            }
+        }
+        
+        return $fetchedData;
+    }
+
+    /**
+     * Clear fetched item data from session
+     */
+    public static function clearFetchedItemData(): void
+    {
+        self::startSession();
+        unset($_SESSION['fetched_item_data']);
     }
 }

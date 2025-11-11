@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="public/images/site-images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/wishlist/public/css/styles.css" />
+    <link rel="icon" type="image/x-icon" href="/public/images/site-images/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css?v=2.2" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <title><?php echo $title ?? 'Wish List'; ?></title>
+    <title><?php echo $title ?? 'Any Wish List'; ?></title>
     <style>
         h1 {
             margin-top: 0;
@@ -19,9 +19,6 @@
         }
         #container {
             padding: 0 10px 110px;
-        }
-        h1 {
-            display: inline-block;
         }
         h2.items-list-title {
             position: relative;
@@ -45,9 +42,9 @@
     <?php endif; ?>
 </head>
 <body class="<?php echo $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
-      <?php if(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
-      <?php if(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
-      <?php if(isset($wishlist_id)): ?>data-base-url="/wishlist/<?php echo $wishlist_id; ?>"<?php endif; ?>>
+      <?php if(isset($currentPage)): ?>data-current-page="<?php echo $currentPage; ?>"<?php elseif(isset($pageno)): ?>data-current-page="<?php echo $pageno; ?>"<?php endif; ?>
+      <?php if(isset($totalPages)): ?>data-total-pages="<?php echo $totalPages; ?>"<?php elseif(isset($total_pages)): ?>data-total-pages="<?php echo $total_pages; ?>"<?php endif; ?>
+      <?php if(isset($currentPageUrl)): ?>data-base-url="<?php echo $currentPageUrl; ?>"<?php elseif(isset($wishlist_id)): ?>data-base-url="/wishlists/<?php echo $wishlist_id; ?>"<?php elseif(isset($base_url)): ?>data-base-url="<?php echo $base_url; ?>"<?php endif; ?>>
     <div id="body">
         <?php include __DIR__ . '/../components/header.php'; ?>
         <div id="container">

@@ -8,14 +8,10 @@ use App\Models\User;
 
 class WishlistService
 {
-    private Wishlist $wishlist;
-    private Item $item;
-
-    public function __construct()
-    {
-        $this->wishlist = new Wishlist();
-        $this->item = new Item();
-    }
+    public function __construct(
+        private Wishlist $wishlist = new Wishlist(),
+        private Item $item = new Item()
+    ) {}
 
     public function createWishlist(string $username, array $data): ?array
     {
@@ -25,7 +21,12 @@ class WishlistService
 
     public function getUserWishlists(string $username): array
     {
-        return Wishlist::where('username', '=', $username);
+        // Query wishlists and order by most recently created first
+        $stmt = \App\Core\Database::query(
+            "SELECT * FROM wishlists WHERE username = ? ORDER BY date_created DESC",
+            [$username]
+        );
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getWishlistById(string $username, int $id): ?array
@@ -113,19 +114,21 @@ class WishlistService
     public function purchaseItem(int $wishlistId, int $itemId, int $quantity = 1): bool
     {
         $item = $this->getItem($wishlistId, $itemId);
-        if ($item) {
-            // Update quantity_purchased
-            $newQuantityPurchased = $item['quantity_purchased'] + $quantity;
-            $data = ['quantity_purchased' => $newQuantityPurchased];
-            
-            // Mark as purchased if quantity purchased >= quantity needed
-            if ($newQuantityPurchased >= $item['quantity'] && $item['unlimited'] != 'Yes') {
-                $data['purchased'] = 'Yes';
-            }
-            
-            return Item::update($itemId, $data);
+        if (!$item) {
+            return false;
         }
-        return false;
+        
+        $currentQuantityPurchased = (int)($item['quantity_purchased'] ?? 0);
+        $newQuantityPurchased = $currentQuantityPurchased + $quantity;
+        $itemQuantity = (int)($item['quantity'] ?? 1);
+        $unlimited = $item['unlimited'] ?? 'No';
+        $copyId = $item['copy_id'] ?? null;
+        
+        // Set purchased status: "Yes" if quantity purchased >= quantity needed AND not unlimited
+        $purchased = ($newQuantityPurchased >= $itemQuantity && $unlimited == "No") ? "Yes" : "No";
+        
+        // Update all items with the same copy_id (or just this item if no copy_id)
+        return Item::updatePurchaseStatus($itemId, $copyId, $newQuantityPurchased, $purchased);
     }
 
     /**
@@ -140,11 +143,12 @@ class WishlistService
      * @param \App\Services\FileUploadService $fileUploadService Service for file operations
      * @return bool True if all updates succeeded, false otherwise
      */
-    public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId, \App\Services\FileUploadService $fileUploadService): bool
+    public function updateCopiedItems(string $copyId, array $updateData, string $sourceWishlistId, int $sourceItemId, \App\Services\FileUploadService $fileUploadService): bool
     {
         try {
-            // Find all items with this copy_id (excluding the source item)
-            $items = Item::findByCopyIdExcludingWishlist($copyId, $sourceWishlistId);
+            // Find all items with this copy_id (excluding only the specific item being edited)
+            // This ensures edits to any copy update all other copies including the original
+            $items = Item::findByCopyIdExcludingItem($copyId, $sourceItemId);
 
             foreach ($items as $item) {
                 $itemId = $item['id'];
@@ -284,7 +288,7 @@ class WishlistService
         ];
     }
 
-    public function searchWishlists(string $query, string $username = null): array
+    public function searchWishlists(string $query, ?string $username = null): array
     {
         return Wishlist::searchByName($query, $username);
     }

@@ -59,33 +59,12 @@ class View
 
     private function getCurrentUser(): ?array
     {
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        
-        if (isset($_SESSION['wishlist_logged_in']) && $_SESSION['wishlist_logged_in']) {
-            return [
-                'id' => $_SESSION['user_id'] ?? null,
-                'username' => $_SESSION['username'] ?? null,
-                'name' => $_SESSION['name'] ?? null,
-                'email' => $_SESSION['user_email'] ?? null,
-                'admin' => $_SESSION['admin'] ?? false,
-                'dark' => $_SESSION['dark'] ?? false
-            ];
-        }
-        
-        return null;
+        return \App\Services\SessionManager::getAuthUser();
     }
 
     private function getFlashMessages(): array
     {
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        
-        $flash = $_SESSION['flash'] ?? [];
-        unset($_SESSION['flash']);
-        return $flash;
+        return \App\Services\SessionManager::getFlashMessages();
     }
 
     public function component(string $component, array $data = []): string

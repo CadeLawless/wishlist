@@ -60,18 +60,18 @@ $(document).ready(function() {
             $($popup_container+".image-dropdown.gift-wrap .options .option").removeClass("selected");
             $(this).addClass("selected");
             $wrap_id = $(this).find(".value").data("wrap-id");
-            $("#theme_gift_wrap_id").val($wrap_id);
+            $("#theme_gift_wrap_id").val($wrap_id).trigger("change");
             $wrap_image = $(this).find(".value").data("wrap-image");
             $number_of_files = parseInt($(this).find(".value").data("number-of-files"));
             $selected_option = $($popup_container+".image-dropdown.gift-wrap .selected-option");
             $selected_option.find(".value").text($(this).find(".value").text());
             $selected_option.find(".value").data("wrap-id", $wrap_id);
             $selected_option.find(".value").data("wrap-image", $wrap_image);
-            $selected_option.find(".preview-image").html("<img src='/wishlist/public/images/site-images/themes/gift-wraps/"+$wrap_image+"/1.png' />");
+            $selected_option.find(".preview-image").html("<img src='/public/images/site-images/themes/gift-wraps/"+$wrap_image+"/1.png' />");
             $file_count = 1;
             $($popup_container+"img.gift-wrap").each(function(){
                 if($file_count > $number_of_files) $file_count = 1;
-                var newSrc = "/wishlist/public/images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png";
+                var newSrc = "/public/images/site-images/themes/gift-wraps/"+$wrap_image+"/"+$file_count+".png";
                 $(this).attr("src", newSrc);
                 $file_count++;
             });
@@ -81,7 +81,7 @@ $(document).ready(function() {
             $($popup_container+".image-dropdown.background .options .option").removeClass("selected");
             $(this).addClass("selected");
             $background_id = $(this).find(".value").data("background-id");
-            $("#theme_background_id").val($background_id);
+            $("#theme_background_id").val($background_id).trigger("change");
             $background_image = $(this).find(".value").data("background-image");
             $default_gift_wrap = $(this).find(".value").data("default-gift-wrap");
             $selected_option = $($popup_container+".image-dropdown.background .selected-option");
@@ -89,10 +89,10 @@ $(document).ready(function() {
             $selected_option.find(".value").data("background-id", $background_id);
             $selected_option.find(".value").data("background-image", $background_image);
             if($background_id != "0"){
-                $selected_option.find(".preview-image.desktop-image").html("<img src='/wishlist/public/images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
-                $selected_option.find(".preview-image.mobile-image").html("<img src='/wishlist/public/images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
-                $(this).closest(".popup").find(".background-theme.desktop-background").attr("src", "/wishlist/public/images/site-images/themes/desktop-backgrounds/"+$background_image);
-                $(this).closest(".popup").find(".background-theme.mobile-background").attr("src", "/wishlist/public/images/site-images/themes/mobile-backgrounds/"+$background_image);
+                $selected_option.find(".preview-image.desktop-image").html("<img src='/public/images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
+                $selected_option.find(".preview-image.mobile-image").html("<img src='/public/images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
+                $(this).closest(".popup").find(".background-theme.desktop-background").attr("src", "/public/images/site-images/themes/desktop-backgrounds/"+$background_image);
+                $(this).closest(".popup").find(".background-theme.mobile-background").attr("src", "/public/images/site-images/themes/mobile-backgrounds/"+$background_image);
             }else{
                 $selected_option.find(".preview-image.desktop-image").html("<span class='default-background'></span>");
                 $selected_option.find(".preview-image.mobile-image").html("<span class='default-background'></span>");
@@ -128,8 +128,8 @@ $(document).ready(function() {
         $background_id = $selected_background.find(".value").data("background-id");
         $background_image = $selected_background.find(".value").data("background-image");
         if($background_id != "0"){
-            $(".theme-background-display.desktop-background-display").html("<label>Background:</label><img src='/wishlist/public/images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
-            $(".theme-background-display.mobile-background-display").html("<label>Background:</label><img src='/wishlist/public/images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
+            $(".theme-background-display.desktop-background-display").html("<label>Background:</label><img src='/public/images/site-images/themes/desktop-thumbnails/"+$background_image+"' />");
+            $(".theme-background-display.mobile-background-display").html("<label>Background:</label><img src='/public/images/site-images/themes/mobile-thumbnails/"+$background_image+"' />");
         }else{
             $(".theme-background-display.desktop-background-display").html("<label>Background:</label><div class='default-background'></div>");
             $(".theme-background-display.mobile-background-display").html("<label>Background:</label><div class='default-background'></div>");

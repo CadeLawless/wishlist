@@ -22,14 +22,7 @@ class Request
         }
         
         $fullPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-        
-        // Remove the base path /wishlist/ from the path
-        $basePath = '/wishlist';
-        if (strpos($fullPath, $basePath) === 0) {
-            $this->path = substr($fullPath, strlen($basePath)) ?: '/';
-        } else {
-            $this->path = $fullPath;
-        }
+        $this->path = $fullPath;
         
         $this->query = $_GET ?? [];
         $this->post = $_POST ?? [];
@@ -72,7 +65,7 @@ class Request
         return $this->isMethod('DELETE');
     }
 
-    public function get(?string $key = null, $default = null): mixed
+    public function get(?string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return $this->query;
@@ -80,7 +73,7 @@ class Request
         return $this->query[$key] ?? $default;
     }
 
-    public function post(?string $key = null, $default = null): mixed
+    public function post(?string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return $this->post;
@@ -88,7 +81,7 @@ class Request
         return $this->post[$key] ?? $default;
     }
 
-    public function input(?string $key = null, $default = null): mixed
+    public function input(?string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return array_merge($this->query, $this->post);
@@ -109,7 +102,7 @@ class Request
         return isset($this->files[$key]) && $this->files[$key]['error'] === UPLOAD_ERR_OK;
     }
 
-    public function param(string $key, $default = null): mixed
+    public function param(string $key, mixed $default = null): mixed
     {
         return $this->params[$key] ?? $default;
     }
@@ -119,7 +112,7 @@ class Request
         $this->params = $params;
     }
 
-    public function server(?string $key = null, $default = null): mixed
+    public function server(?string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return $this->server;
@@ -127,7 +120,7 @@ class Request
         return $this->server[$key] ?? $default;
     }
 
-    public function header(string $name, $default = null): mixed
+    public function header(string $name, mixed $default = null): mixed
     {
         $name = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
         return $this->server($name, $default);

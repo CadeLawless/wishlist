@@ -88,8 +88,10 @@ class Router
             }
         }
 
-        // 404 Not Found
-        return new Response('404 Not Found', 404);
+        // 404 Not Found - Use custom error page
+        $view = new View();
+        $content = $view->renderWithLayout('errors/404', ['title' => '404 - Page Not Found'], 'error');
+        return new Response(content: $content, status: 404);
     }
 
     public static function getMiddleware(string $name): ?callable

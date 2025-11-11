@@ -2,6 +2,8 @@
 
 namespace App\Validation;
 
+use App\Core\Constants;
+
 use App\Models\User;
 
 class UserRequestValidator extends BaseValidator
@@ -18,11 +20,11 @@ class UserRequestValidator extends BaseValidator
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Username validation
-        $usernameErrors = $this->validateLength($data, 'username', 3, 50);
+        $usernameErrors = $this->validateLength($data, 'username', Constants::MIN_USERNAME_LENGTH, Constants::MAX_USERNAME_LENGTH);
         $errors = $this->mergeErrors($errors, $usernameErrors);
         
         // Name validation
-        $nameErrors = $this->validateLength($data, 'name', 2, 100);
+        $nameErrors = $this->validateLength($data, 'name', Constants::MIN_NAME_LENGTH, Constants::MAX_NAME_LENGTH);
         $errors = $this->mergeErrors($errors, $nameErrors);
         
         // Email validation
@@ -78,7 +80,7 @@ class UserRequestValidator extends BaseValidator
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Name validation
-        $nameErrors = $this->validateLength($data, 'name', 2, 100);
+        $nameErrors = $this->validateLength($data, 'name', Constants::MIN_NAME_LENGTH, Constants::MAX_NAME_LENGTH);
         $errors = $this->mergeErrors($errors, $nameErrors);
         
         return $errors;
@@ -160,18 +162,23 @@ class UserRequestValidator extends BaseValidator
     {
         $errors = [];
         
-        // Required fields
-        $requiredErrors = $this->validateRequired($data, ['password', 'confirm_password']);
+        // Required fields - check for both naming conventions
+        $confirmField = isset($data['password_confirmation']) ? 'password_confirmation' : 'confirm_password';
+        $requiredFields = ['password', $confirmField];
+        $requiredErrors = $this->validateRequired($data, $requiredFields);
         $errors = $this->mergeErrors($errors, $requiredErrors);
         
         // Password validation
         $passwordErrors = $this->validatePassword($data);
         $errors = $this->mergeErrors($errors, $passwordErrors);
         
-        // Confirm password match
-        if (!empty($data['password']) && !empty($data['confirm_password'])) {
-            if ($data['password'] !== $data['confirm_password']) {
-                $errors['confirm_password'][] = 'Passwords do not match.';
+        // Confirm password match - check for both naming conventions
+        $passwordValue = $data['password'] ?? '';
+        $confirmValue = $data['password_confirmation'] ?? $data['confirm_password'] ?? '';
+        
+        if (!empty($passwordValue) && !empty($confirmValue)) {
+            if ($passwordValue !== $confirmValue) {
+                $errors[$confirmField][] = 'Passwords do not match.';
             }
         }
         

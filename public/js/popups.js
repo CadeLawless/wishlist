@@ -79,10 +79,11 @@ $(document).ready(function() {
         // Hide the popup
         hidePopup($popupContainer);
         
-        // Clean up popup animations
+        // Clean up popup animations - only target popups within this specific container
         $popupContainer.find(".popup:not(.first, .second)").each(function() {
             const popup = this;
-            popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right", "hidden");
+            // Only remove animation classes, not the hidden class
+            popup.classList.remove("slide-in-left", "slide-out-left", "slide-in-right", "slide-out-right");
             if (popup.className.includes("yes")) {
                 popup.classList.add("hidden");
             }
@@ -120,15 +121,49 @@ $(document).ready(function() {
     });
     
     // Handle window clicks (click outside to close)
-    $(window).on("click", function(e) {
+    // Remove any existing handler first to prevent duplicates
+    $(window).off("click.popups");
+    $(window).on("click.popups", function(e) {
         const openPopups = $(".popup-container:not(.hidden)");
         const openDropdowns = $(".image-dropdown .options:not(.hidden)");
         
         if (openPopups.length > 0) {
             const isPopupButton = e.target.classList.contains("popup-button") || 
-                                 e.target.classList.contains("image-popup-button");
+                                 e.target.classList.contains("image-popup-button") ||
+                                 $(e.target).closest(".popup-button").length > 0;
             const isInsidePopup = e.target.closest(".popup-container") !== null && 
                                  !e.target.classList.contains("popup-container");
+            
+            // Special handling: if second popup (mobile/desktop) is open, check if click is outside it
+            const popupSecond = $(".popup-container.second:not(.hidden)");
+            if (popupSecond.length > 0 && !isPopupButton) {
+                // Check if click is inside the second popup's actual content area
+                let clickedInsideSecondPopup = false;
+                popupSecond.each(function() {
+                    const $secondPopup = $(this);
+                    const $popup = $secondPopup.find(".popup");
+                    if ($popup.length && $popup[0].contains(e.target)) {
+                        clickedInsideSecondPopup = true;
+                        return false; // Break loop
+                    }
+                });
+                
+                // If clicking outside second popup (even if inside first popup), close only second popup
+                if (!clickedInsideSecondPopup) {
+                    const isCloseButton = $(e.target).closest(".close-container").length > 0;
+                    if (!isCloseButton) {
+                        if (openDropdowns.length > 0) {
+                            // Close dropdowns first
+                            openDropdowns.addClass("hidden");
+                            openDropdowns.first().closest(".popup-content").removeClass("fixed static");
+                        } else {
+                            // Close only the second popup, keep first popup open
+                            hidePopup(popupSecond[0]);
+                        }
+                        return; // Stop here, don't process further
+                    }
+                }
+            }
             
             // If clicking outside popup and not on a popup button
             if (!isPopupButton && !isInsidePopup) {
@@ -138,13 +173,14 @@ $(document).ready(function() {
                     openDropdowns.first().closest(".popup-content").removeClass("fixed static");
                 } else {
                     // Close popups in order: second, first, then any others
-                    const popupSecond = $(".popup-container.second:not(.hidden)");
                     const popupFirst = $(".popup-container.first:not(.hidden)");
                     
-                    if (popupSecond.length > 0) {
-                        hidePopup(popupSecond[0]);
-                    } else if (popupFirst.length > 0) {
+                    if (popupFirst.length > 0) {
                         hidePopup(popupFirst[0]);
+                        // Remove fixed class only if this was the last popup
+                        if ($(".popup-container:not(.hidden)").length === 0) {
+                            $("body").removeClass("fixed");
+                        }
                     } else {
                         // Close all remaining popups
                         openPopups.each(function() {

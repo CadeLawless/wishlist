@@ -65,8 +65,8 @@ class ThemePopupHelper
                                 $defaultGiftWrap = $row["default_gift_wrap"];
                                 echo "
                                 <a class='theme popup-button' href='#'>
-                                    <img src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
-                                    <img src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
+                                    <img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
+                                    <img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
                                     <div class='hover-title'>$backgroundName</div>
                                 </a>
                                 <div class='popup-container second center-items individual-theme-popup hidden'>
@@ -83,8 +83,8 @@ class ThemePopupHelper
                                                 <a href='#' class='mobile'>Mobile</a>
                                             </div>
                                             <div class='theme-picture'>
-                                                <img class='desktop' src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
-                                                <img class='mobile hidden' src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
+                                                <img class='desktop' src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
+                                                <img class='mobile hidden' src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
                                             </div>
                                             <p class='center'><a class='select-theme button primary' data-default-gift-wrap='$defaultGiftWrap' data-background-id='$backgroundId' data-background-image='$backgroundImage' href='#'>Select Background</a></p>
                                         </div>
@@ -103,9 +103,9 @@ class ThemePopupHelper
                             echo "<a class='button primary continue-button' href='#'>Continue</a>";
                         }else{
                             // Get the current wishlist ID from the URL or session
-                            $wishlistId = $_GET['id'] ?? $_SESSION['wisher_wishlist_id'] ?? '';
+                            $wishlistId = $_GET['id'] ?? \App\Services\SessionManager::get('wisher_wishlist_id', '');
                             echo "
-                            <form action='/wishlist/$wishlistId/theme' method='POST' style='display: inline;'>
+                            <form action='/wishlists/$wishlistId/theme' method='POST' style='display: inline;'>
                                 <input type='hidden' id='theme_background_id' name='theme_background_id' value='' />
                                 <input type='hidden' id='theme_gift_wrap_id' name='theme_gift_wrap_id' value='' />
                                 <input type='submit' class='button primary continue-button' value='Confirm Change' name='theme_submit_button' />
@@ -151,8 +151,8 @@ class ThemePopupHelper
                                         echo "
                                         <div class='option'>
                                             <span class='value' data-background-image='$backgroundImage' data-background-id='$backgroundId' data-default-gift-wrap='$defaultGiftWrap'>$backgroundName</span>
-                                            <span class='preview-image desktop-background-image'><img src='public/images/site-images/themes/desktop-thumbnails/$backgroundImage' /></span>
-                                            <span class='preview-image mobile-background-image'><img src='public/images/site-images/themes/mobile-thumbnails/$backgroundImage' /></span>
+                                            <span class='preview-image desktop-background-image'><img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' /></span>
+                                            <span class='preview-image mobile-background-image'><img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' /></span>
                                         </div>";
                                     }
                                     ?>
@@ -186,7 +186,7 @@ class ThemePopupHelper
                                             <span class='value' data-wrap-image='$wrapImage' data-wrap-id='$wrapId' data-number-of-files='$numberOfWraps'>$wrapName</span>";
                                         for($i=1; $i<=$numberOfWraps; $i++) {
                                             if($i <= 6){
-                                                echo "<span class='preview-image'><img src='public/images/site-images/themes/gift-wraps/$wrapImage/$i.png' /></span>";
+                                                echo "<span class='preview-image'><img src='/public/images/site-images/themes/gift-wraps/$wrapImage/$i.png' /></span>";
                                             }
                                         }
                                         echo "
@@ -225,7 +225,7 @@ class ThemePopupHelper
                             $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
                             
                             echo "<div class='item-container'>
-                                <img src='public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
+                                <img src='/public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
                                 <div class='item-description'>
                                     <div class='line'><h3>" . htmlspecialchars($item["name"]) . "</h3></div>
                                     <div class='line'><p>" . htmlspecialchars($item["description"]) . "</p></div>

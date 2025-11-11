@@ -1,37 +1,4 @@
 <?php
-// Display flash messages
-if (isset($flash['success'])) {
-    echo "
-    <div class='popup-container'>
-        <div class='popup active'>
-            <div class='close-container'>
-                <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
-                echo "</a>
-            </div>
-            <div class='popup-content'>
-                <p><label>" . htmlspecialchars($flash['success']) . "</label></p>
-            </div>
-        </div>
-    </div>";
-}
-
-if (isset($flash['error'])) {
-    echo "
-    <div class='popup-container'>
-        <div class='popup active'>
-            <div class='close-container'>
-                <a href='#' class='close-button'>";
-                require(__DIR__ . '/../../public/images/site-images/menu-close.php');
-                echo "</a>
-            </div>
-            <div class='popup-content'>
-                <p><label>" . htmlspecialchars($flash['error']) . "</label></p>
-            </div>
-        </div>
-    </div>";
-}
-
 // Wishlist data
 $wishlistID = $wishlist['id'];
 $wishlist_name_input = $wishlist['wishlist_name'];
@@ -51,9 +18,29 @@ $background_image = \App\Services\ThemeService::getBackgroundImage($theme_backgr
 
 // All popup messages are now handled by PopupHelper
 
-// Handle all popup messages using the helper
+// Check for copy errors and preserve selected wishlists BEFORE handling flash messages
+$copy_from_error = isset($_GET['copy_from_error']) && $_GET['copy_from_error'] == '1';
+$copy_from_wishlist_id = null;
+if ($copy_from_error && isset($_GET['copy_from_wishlist_id'])) {
+    $copy_from_wishlist_id = (int)$_GET['copy_from_wishlist_id'];
+}
+
+$copy_to_error = isset($_GET['copy_to_error']) && $_GET['copy_to_error'] == '1';
+$copy_to_wishlist_id = null;
+if ($copy_to_error && isset($_GET['copy_to_wishlist_id'])) {
+    $copy_to_wishlist_id = (int)$_GET['copy_to_wishlist_id'];
+}
+
+// Handle all popup messages using the helper, but skip general error popup for copy errors
 \App\Helpers\PopupHelper::handleSessionPopups();
-\App\Helpers\PopupHelper::handleFlashMessages();
+if (!$copy_from_error && !$copy_to_error) {
+    \App\Helpers\PopupHelper::handleFlashMessages($flash);
+} else {
+    // Only show success messages, not errors (copy errors are shown in the popup)
+    if (isset($flash['success'])) {
+        \App\Helpers\PopupHelper::handleFlashMessages(['success' => $flash['success']]);
+    }
+}
 
 // Initialize copy form variables
 $other_wishlist_copy_from = "";
@@ -61,6 +48,14 @@ $copy_from_select_all = "Yes";
 $other_wishlist_copy_to = "";
 $copy_to_select_all = "Yes";
 $other_wishlist_options = $other_wishlists;
+
+// Preserve selected wishlist if there's a copy error
+if ($copy_from_error && $copy_from_wishlist_id !== null) {
+    $other_wishlist_copy_from = $copy_from_wishlist_id;
+}
+if ($copy_to_error && $copy_to_wishlist_id !== null) {
+    $other_wishlist_copy_to = $copy_to_wishlist_id;
+}
 
 // Initialize filter variables
 $sort_priority = $_SESSION['wisher_sort_priority'] ?? "";
@@ -79,23 +74,27 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             ?>
 
             <?php if($theme_background_id != 0 && $background_image){ ?>
-                <img class='background-theme desktop-background' src="/wishlist/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
-                <img class='background-theme mobile-background' src="/wishlist/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
+                <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
-            <p style="padding-top: 15px;"><a class="button accent" href="/wishlist/wishlists">Back to All Wish Lists</a></p>
+            <p style="padding-top: 15px;">
+                <a class="button accent" href="<?php echo isset($isAdminView) && $isAdminView ? '/admin/wishlists' : '/wishlists'; ?>">
+                    Back to All Wish Lists
+                </a>
+            </p>
 
             <div class="center">
                 <div class="wishlist-header center transparent-background">
                     <h1><?php echo $wishlistTitle; ?></h1>
                     <div class="flex-row">
-                        <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Complete" : "Not Complete"; ?></div>
+                        <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Inactive" : "Active"; ?></div>
                         <div><strong>Visibility:</strong> <?php echo htmlspecialchars($visibility); ?></div>
                     </div>
                     <a class="button primary flex-button popup-button" href="#">
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/settings.php'); ?>
                         <span>Wish List Options</span>
                     </a>
-                    <div class='popup-container hidden'>
+                    <div class='popup-container<?php echo ($copy_from_error || $copy_to_error ? '' : ' hidden'); ?>'>
                         <div class='popup'>
                             <div class='close-container'>
                                 <a href='#' class='close-button'>
@@ -104,7 +103,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                             </div>
                             <div class='popup-content'>
                                 <div class="copy-link">
-                                    <a class="button secondary" href="#" data-copy-text="https://cadelawless.com/wishlist/buyer/<?php echo $secret_key; ?>"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
+                                    <?php
+                                    // Build the full buyer URL
+                                    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+                                    $host = $_SERVER['HTTP_HOST'];
+                                    $buyerUrl = $protocol . $host . '/buyer/' . $secret_key;
+                                    ?>
+                                    <a class="button secondary" href="#" data-copy-text="<?php echo $buyerUrl; ?>"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-link.php'); ?><span style="color: inherit;" class="copy-link-text">Copy Link to Wish List</span></a>
                                 </div>
                                 <div class="icon-options wishlist-options">
                                     <!-- Rename popup -->
@@ -118,11 +123,16 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                             </div>
                                             <div class='popup-content'>
                                             <h2 style="margin-top: 0;">Rename Wish List</h2>
-                                            <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/rename">
+                                            <?php if (isset($flash['rename_error'])): ?>
+                                                <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                    <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['rename_error']); ?></span>
+                                                </div>
+                                            <?php endif; ?>
+                                            <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/rename">
                                                 <div class="flex form-flex">
                                                     <div class="large-input">
                                                         <label for="wishlist_name">Name:<br/></label>
-                                                        <input required type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
+                                                        <input required maxlength="100" type="text" id="wishlist_name" name="wishlist_name" value="<?php echo htmlspecialchars($wishlist_name_input); ?>" />
                                                     </div>
                                                     <div class="large-input">
                                                         <p class="center"><input type="submit" class="button text" name="rename_submit_button" id="submitButton" value="Rename" /></p>
@@ -140,7 +150,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php if(count($other_wishlist_options) > 0){ ?>
                                         <!-- Copy From popup -->
                                         <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-from.php'); ?><div class="inline-label">Copy From...</div></a>
-                                        <div class='popup-container first center-items hidden'>
+                                        <div class='popup-container first center-items<?php echo ($copy_from_error ? '' : ' hidden'); ?>'>
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
@@ -149,17 +159,28 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </div>
                                                 <div class='popup-content'>
                                                     <h2>Copy Items From Another Wish List</h2>
-                                                    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-from">
+                                                    <?php if ($copy_from_error && isset($flash['error'])): ?>
+                                                        <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                            <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-from">
                                                         <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
+                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
                                                                 $other_id = $opt['id'];
                                                                 $other_name = htmlspecialchars($opt['wishlist_name']);
+                                                                $item_count = isset($opt['item_count']) ? (int)$opt['item_count'] : 0;
+                                                                $item_count_text = $item_count === 1 ? "1 item" : "$item_count items";
                                                                 echo "<option value='$other_id'";
-                                                                if($other_id == $other_wishlist_copy_from) echo " selected";
-                                                                echo ">$other_name</option>";
+                                                                if($item_count === 0) {
+                                                                    echo " disabled";
+                                                                } else if($other_id == $other_wishlist_copy_from) {
+                                                                    echo " selected";
+                                                                }
+                                                                echo ">$other_name ($item_count_text)</option>";
                                                             }
                                                             ?>
                                                         </select>
@@ -177,7 +198,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     if(count($items) > 0){ ?>
                                         <!-- Copy To popup -->
                                         <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/copy-to.php'); ?><div class="inline-label">Copy To...</div></a>
-                                        <div class='popup-container first center-items hidden'>
+                                        <div class='popup-container first center-items<?php echo ($copy_to_error ? '' : ' hidden'); ?>'>
                                             <div class='popup'>
                                                 <div class='close-container'>
                                                     <a href='#' class='close-button'>
@@ -186,9 +207,14 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 </div>
                                                 <div class='popup-content'>
                                                     <h2>Copy Items to Another Wish List</h2>
-                                                    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/copy-to">
+                                                    <?php if ($copy_to_error && isset($flash['error'])): ?>
+                                                        <div class="validation-error" style="display: block; margin-bottom: 15px;">
+                                                            <span class="error-item" style="color: #e74c3c;"><?php echo htmlspecialchars($flash['error']); ?></span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-to">
                                                         <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="/wishlist/<?php echo $wishlistID; ?>" required>
+                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -244,7 +270,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <p><?php echo $wishlistTitle; ?></p>
                                                     <div style="margin: 1rem 0;" class='center'>
                                                         <a class='button secondary no-button'>No</a>
-                                                        <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
+                                                        <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/<?php echo $visibility == "Public" ? "hide" : "show"; ?>" style="display: inline;">
                                                             <button type="submit" class='button primary'>Yes</button>
                                                         </form>
                                                     </div>
@@ -254,7 +280,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                     <?php } ?>
                                     
                                     <!-- Complete/Reactivate popup -->
-                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Mark as Complete" : "Reactivate"; ?></div></a>
+                                    <a class="icon-container popup-button" href="#"><?php require(__DIR__ . '/../../public/images/site-images/icons/' . ($complete == "No" ? "cancel" : "checkmark") . '.php'); ?><div class="inline-label"><?php echo $complete == "No" ? "Deactivate" : "Reactivate"; ?></div></a>
                                     <div class='popup-container first hidden'>
                                         <div class='popup'>
                                             <div class='close-container'>
@@ -266,17 +292,17 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 <p>
                                                     <?php
                                                     if($complete == "No"){
-                                                        echo "Marking this wish list as complete means the event has passed and the list will no longer be open for others to look at or mark items as purchased.<br />";
+                                                        echo "Deactivating this wish list as complete means you are done with this list and it will no longer be open for others to look at or mark items as purchased.<br />";
                                                     }else{
                                                         echo "Reactivating this wish list means the list will now be open for others to look at and mark items as purchased again.<br />";
                                                     }
                                                     ?>
                                                 </p>
-                                                <label>Are you sure you want to <?php echo $complete == "No" ? "mark this wish list as complete" : "reactivate this wish list"; ?>?</label>
+                                                <label>Are you sure you want to <?php echo $complete == "No" ? "deactivate" : "reactivate"; ?> this wish list?</label>
                                                 <p><?php echo $wishlistTitle; ?></p>
                                                 <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
-                                                    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/<?php echo $complete == "No" ? "complete" : "reactivate"; ?>" style="display: inline;">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
                                                 </div>
@@ -298,7 +324,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                 <p><?php echo $wishlistTitle; ?></p>
                                                 <div style="margin: 1rem 0;" class='center'>
                                                     <a class='button secondary no-button'>No</a>
-                                                    <form method="POST" action="/wishlist/<?php echo $wishlistID; ?>" style="display: inline;">
+                                                    <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>" style="display: inline;">
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class='button primary'>Yes</button>
                                                     </form>
@@ -312,58 +338,75 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                 </div>
             </div>
+            
+            <div class="center">
+                <div class="wishlist-total">
+                    <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                </div>
+            </div>
 
                     <!-- Sort/Filter section -->
                     <?php if(count($items) > 0): ?>
                     <div class="sort-filters">
-                        <form class="filter-form center" method="POST" action="/wishlist/<?php echo $wishlistID; ?>/filter" id="filter-form">
-                            <div class="filter-inputs">
-                                <div class="filter-input">
-                                    <label for="sort-priority">Sort by Priority</label><br>
-                                    <select class="select-filter" id="sort-priority" name="sort_priority" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
-                                        <option value="">None</option>
-                                        <option value="1" <?php echo $filters['sort_priority'] == "1" ? 'selected' : ''; ?>>Highest to Lowest</option>
-                                        <option value="2" <?php echo $filters['sort_priority'] == "2" ? 'selected' : ''; ?>>Lowest to Highest</option>
-                                    </select>
-                                </div>
-                                <div class="filter-input">
-                                    <label for="sort-price">Sort by Price</label><br>
-                                    <select class="select-filter" id="sort-price" name="sort_price" data-base-url="/wishlist/<?php echo $wishlistID; ?>">
-                                        <option value="">None</option>
-                                        <option value="1" <?php echo $filters['sort_price'] == "1" ? 'selected' : ''; ?>>Lowest to Highest</option>
-                                        <option value="2" <?php echo $filters['sort_price'] == "2" ? 'selected' : ''; ?>>Highest to Lowest</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </form>
+                        <?php 
+                        $baseUrl = isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}";
+                        $options = [
+                            'form_action' => "/wishlists/{$wishlistID}/filter",
+                            'form_class' => 'filter-form center',
+                            'sort_priority' => $filters['sort_priority'] ?? '',
+                            'sort_price' => $filters['sort_price'] ?? '',
+                            'data_attributes' => 'data-base-url="' . $baseUrl . '"'
+                        ];
+                        include __DIR__ . '/../components/sort-filter-form.php';
+                        ?>
                     </div>
                     <?php endif; ?>
 
             <div class='items-list-container'>
                 <h2 class='transparent-background items-list-title' id='paginate-top'>
                     All Items
-                    <a href='/wishlist/<?php echo $wishlistID; ?>/item/add' class='icon-container add-item'>
+                    <a href='/wishlists/<?php echo $wishlistID; ?>/item/add' class='icon-container add-item'>
                         <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
                         <div class='inline-label'>Add</div>
                     </a>
                 </h2>
                 
-                <!-- Top Pagination controls -->
-                <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
+                <!-- Search input for items -->
+                <?php if(count($items) > 0 || !empty($searchTerm ?? '')): ?>
+                <?php
+                $options = [
+                    'placeholder' => 'Search items by name, price, link, or notes...',
+                    'input_id' => 'items-search',
+                    'input_class' => 'items-search-input',
+                    'container_class' => 'center',
+                    'search_term' => $searchTerm ?? ''
+                ];
+                include __DIR__ . '/../components/admin-table-search.php';
+                ?>
+                <?php endif; ?>
                 
-                <div class='items-list-sub-container'>
+                <!-- Container for pagination and items (loading overlay covers this area) -->
+                <div class='items-content-container'>
+                    <!-- Top Pagination controls -->
+                    <?php 
+                    $position = 'top';
+                    $total_count = count($all_items);
+                    include __DIR__ . '/../components/pagination-controls.php'; 
+                    ?>
+                    
+                    <div class='items-list-sub-container'>
                     <div class="items-list main">
                                 <?php if(count($items) > 0): ?>
                                     <?php 
                                     // Use the same item generation service as AJAX pagination
                                     foreach($items as $item): 
-                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno);
+                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
                                     endforeach; 
                                     ?>
                                 <?php else: ?>
-                                    <a class='item-container add-placeholder' href='/wishlist/<?php echo $wishlist['id']; ?>/item/add'>
+                                    <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
                                         <div class='item-image-container'>
-                                            <img class='item-image' src='public/images/site-images/default-photo.png' alt='wishlist item image'>
+                                            <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
                                         </div>
                                         <div class='item-description'></div>
                                         <div class='add-label'>
@@ -375,11 +418,13 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                     
                             <!-- Pagination controls -->
-                            <?php include __DIR__ . '/../components/pagination-controls.php'; ?>
-                            
-                            <?php if(count($all_items) > 0): ?>
-                            <div class="count-showing">Showing <?php echo (($pageno - 1) * 12) + 1; ?>-<?php echo min($pageno * 12, count($all_items)); ?> of <?php echo count($all_items); ?> items</div>
-                            <?php endif; ?>
+                            <?php 
+                            $position = 'bottom';
+                            $total_count = count($all_items);
+                            $item_label = 'items';
+                            include __DIR__ . '/../components/pagination-controls.php'; 
+                            ?>
+                    </div>
                 </div>
             </div>
 
@@ -401,12 +446,66 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 
 <!-- Wishlist-specific scripts -->
-<script src="public/js/copy-link.js"></script>
-<script src="public/js/copy-select.js"></script>
-<script src="public/js/checkbox-selection.js"></script>
-<script src="public/js/wishlist-filters.js"></script>
-<script src="public/js/wishlist-pagination.js"></script>
-<script src="public/js/choose-theme.js"></script>
-<script src="public/js/popup.js"></script>
+<script src="/public/js/copy-link.js"></script>
+<script src="/public/js/copy-select.js"></script>
+<script src="/public/js/checkbox-selection.js"></script>
+<script src="/public/js/wishlist-filters.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script src="/public/js/admin-table-search.js"></script>
+<script src="/public/js/choose-theme.js"></script>
+<script src="/public/js/popup.js"></script>
+<script src="/public/js/form-validation.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
+<script>
+$(document).ready(function() {
+    // Initialize form validation for rename form
+    const renameForm = $('form[action*="/rename"]');
+    if (renameForm.length) {
+        FormValidator.init('form[action*="/rename"]', {
+            wishlist_name: {
+                required: true,
+                minLength: 1,
+                maxLength: 100
+            }
+        });
+    }
+    
+    // Auto-open popups if there's a rename error
+    <?php if (isset($flash['rename_error'])): ?>
+    // Open settings popup first, then rename popup
+    const settingsButton = $('.button.primary.flex-button.popup-button');
+    if (settingsButton.length) {
+        // Click settings button to open settings popup
+        settingsButton.trigger('click');
+        
+        // Wait for settings popup to open, then open rename popup
+        setTimeout(function() {
+            // Find the rename button within the wishlist-options section
+            const renameButton = $('.wishlist-options .icon-container.popup-button').first();
+            if (renameButton.length) {
+                renameButton.trigger('click');
+            }
+        }, 150);
+    }
+    <?php endif; ?>
+    
+    // Reusable function to load items when copy error occurs and wishlist is preselected
+    function loadItemsForCopyError(selectId, hasError) {
+        if (hasError) {
+            setTimeout(function() {
+                const select = $(selectId);
+                if (select.length && select.val()) {
+                    select.trigger('change');
+                }
+            }, 100);
+        }
+    }
+    
+    // Load items for copy-from if error and wishlist was selected
+    loadItemsForCopyError('#other_wishlist_copy_from', <?php echo $copy_from_error && $other_wishlist_copy_from != "" ? 'true' : 'false'; ?>);
+    
+    // Load items for copy-to if error and wishlist was selected
+    loadItemsForCopyError('#other_wishlist_copy_to', <?php echo $copy_to_error && $other_wishlist_copy_to != "" ? 'true' : 'false'; ?>);
+});
+</script>
 

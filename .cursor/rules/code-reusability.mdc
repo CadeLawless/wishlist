@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+- All generated code needs to be developed in a reusable way
+- If it is used on multiple pages, making it reusable is key
+- Do not have duplicate code across multiple files or in the same file.

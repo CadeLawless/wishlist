@@ -11,7 +11,7 @@ class User extends Model
 
     public static function findByUsernameOrEmail(string $identifier): ?array
     {
-        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE username = ? OR email = ?", [$identifier, $identifier]);
+        $stmt = \App\Core\Database::query("SELECT * FROM " . static::$table . " WHERE username = ? OR email = ? OR unverified_email = ?", [$identifier, $identifier, $identifier]);
         $result = $stmt->get_result()->fetch_assoc();
         return $result ?: null;
     }
