@@ -101,6 +101,8 @@ class WishlistController extends Controller
         }
         
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
+
+        $wishlistTotalPrice = \App\Models\Item::getItemsTotalPrice($id, $user['username']);
         
         if (!$wishlist) {
             return $this->redirect('/wishlists')->withError('Wish list not found.');
@@ -159,6 +161,7 @@ class WishlistController extends Controller
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
+            'wishlist_total_price' => $wishlistTotalPrice,
             'items' => $paginatedItems,
             'all_items' => $allItems, // For total count display
             'other_wishlists' => $otherWishlists,

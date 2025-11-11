@@ -37,6 +37,19 @@ class Item extends Model
         return (int) $result['COUNT(i.id)'];
     }
 
+    public static function getItemsTotalPrice(int $wishlistId, string $username): string
+    {
+        $sql = "SELECT SUM(i.price * 1) AS total_price FROM items i JOIN wishlists w ON i.wishlist_id = w.id WHERE i.wishlist_id = ? AND w.username = ?";
+        echo $sql;
+        var_dump([$wishlistId, $username]);
+        $stmt = Database::query($sql, [$wishlistId, $username]);
+        $result = $stmt->get_result()->fetch_assoc();
+        $total = (float) ($result['total_price'] ?? 0);
+
+        // Always return a string formatted with 2 decimals
+        return number_format($total, 2, '.', ',');
+    }
+
     public static function findByCopyIdExcludingWishlist(string $copyId, int $excludeWishlistId): array
     {
         $stmt = Database::query(
