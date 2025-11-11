@@ -61,7 +61,7 @@ class FilterService
      */
     public static function processBuyerFilters(array $requestData): array
     {
-        $sortPriority = $requestData['sort_priority'] ?? '';
+        $sortPriority = $requestData['sort_priority'] ?? '1';
         $sortPrice = $requestData['sort_price'] ?? '';
         
         // Store preferences in session
