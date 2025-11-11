@@ -1,4 +1,4 @@
-name: Deploy to IONOS Webspace
+name: Deploy to IONOS via SFTP
 
 on:
   push:
@@ -6,18 +6,19 @@ on:
       - main
 
 jobs:
-  ftp-deploy:
-    name: Deploy via FTP
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Upload to IONOS via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy files over SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./        # adjust if your project is in a subfolder
-          server-dir: /htdocs/ # adjust to your IONOS root
+          server: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local_path: ./           # path to upload from
+          remote_path: ${{ secrets.SFTP_PATH }}
+          sftp_only: true          # ensures pure SFTP mode
+          delete_remote_files: false # set true if you want old files removed
