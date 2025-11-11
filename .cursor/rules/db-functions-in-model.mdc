@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+- When adding any features that query a database, always create/modify methods in the correct model to be used in the Services/Controllers
+- Never put raw SQL queries into Services or Controllers
