@@ -37,7 +37,7 @@ if (isset($flash['error'])) {
 ?>
 <div>
     <div class="form-container">
-        <h1>New Wish List</h1>
+        <h1>Create Wish List</h1>
         <form method="POST" action="/wishlists">
             <?php echo $error_msg ?? ""; ?>
             <div class="flex form-flex">

@@ -7,12 +7,19 @@
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/public/css/snow.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <title><?php echo $title ?? 'Wish List'; ?></title>
-    <?php if(isset($customStyles) && !empty($customStyles)): ?>
+    <title><?= htmlspecialchars($title ?? 'Any Wish List'); ?></title>
     <style>
-    <?php echo $customStyles; ?>
+        #body {
+            padding-top: 20px;
+        }
+        #container {
+            margin-top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+    <?php echo $customStyles ?? ""; ?>
     </style>
-    <?php endif; ?>
 </head>
 <body class="<?php echo isset($user['dark']) && $user['dark'] === 'Yes' ? 'dark' : ''; ?>">
     <div id="body">

@@ -2111,7 +2111,7 @@ img.gift-wrap {
 }
 #login-form {
     max-width: 400px;
-    margin: auto;
+    margin: 0 auto;
 }
 #login-form label {
     float: left;

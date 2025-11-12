@@ -338,12 +338,14 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                 </div>
             </div>
-            
-            <div class="center">
-                <div class="wishlist-total">
-                    <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                                                    
+            <?php if(isset($wishlist_total_price)): ?>
+                <div class="center">
+                    <div class="wishlist-total">
+                        <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
                     <!-- Sort/Filter section -->
                     <?php if(count($items) > 0): ?>

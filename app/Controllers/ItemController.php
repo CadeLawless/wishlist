@@ -62,6 +62,7 @@ class ItemController extends Controller
         $background_image = ThemeService::getBackgroundImage($wishlist['theme_background_id']) ?? '';
 
         $data = [
+            'title' => 'Add Item to ' . $wishlist['wishlist_name'],
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image])
         ];
@@ -144,6 +145,7 @@ class ItemController extends Controller
         }
         
         $data = [
+            'title' => 'Add Item to ' . $wishlist['wishlist_name'],
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item_name' => $itemName,
@@ -428,6 +430,7 @@ class ItemController extends Controller
         $error_msg = (!empty($sessionErrors)) ? $this->itemValidator->formatErrorsForDisplay($sessionErrors) : '';
 
         $data = [
+            'title' => 'Edit Item on ' . $wishlist['wishlist_name'],
             'user' => $user,
             'wishlist' => array_merge($wishlist, ['background_image' => $background_image]),
             'item' => $item,

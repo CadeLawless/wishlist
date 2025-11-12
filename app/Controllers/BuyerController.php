@@ -59,6 +59,7 @@ class BuyerController extends Controller
         $stats = $this->wishlistService->getWishlistStats($wishlist['id']);
         
         $data = [
+            'title' => $wishlist['wishlist_name'],
             'wishlist' => $wishlist,
             'items' => $paginatedItems,
             'all_items' => $allItems,

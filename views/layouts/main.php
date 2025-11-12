@@ -6,7 +6,7 @@
     <link rel="icon" type="image/x-icon" href="/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css?v=2.2" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <title><?php echo $title ?? 'Any Wish List'; ?></title>
+    <title><?php echo htmlspecialchars($title ?? 'Any Wish List'); ?></title>
     <style>
         h1 {
             margin-top: 0;
