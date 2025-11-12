@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
     <link rel="stylesheet" type="text/css" href="/public/css/snow.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <title><?= $title ?? 'Any Wish List'; ?></title>
+    <title><?= htmlspecialchars($title ?? 'Any Wish List'); ?></title>
     <style>
         #body {
             padding-top: 20px;

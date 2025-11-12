@@ -18,6 +18,7 @@ class HomeController extends Controller
         $user = $this->auth();
         
         $data = [
+            'title' => 'Any Wish List',
             'user' => $user,
             'account_created' => $this->request->get('account_created', false)
         ];

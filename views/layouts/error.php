@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/public/images/site-images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css" />
-    <title><?php echo $title ?? 'Error - Wish List'; ?></title>
+    <title><?php echo htmlspecialchars($title ?? 'Error - Any Wish List'); ?></title>
     <style>
         body {
             margin: 0;
