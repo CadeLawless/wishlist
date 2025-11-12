@@ -9,7 +9,8 @@ $(document).ready(function() {
     const paginationState = {
         currentPage: parseInt($('body').data('current-page')) || 1,
         totalPages: parseInt($('body').data('total-pages')) || 1,
-        baseUrl: $('body').data('base-url') || ''
+        baseUrl: $('body').data('base-url') || '',
+        search: false
     };
     
     // Determine the content selector based on what exists on the page
@@ -70,6 +71,9 @@ $(document).ready(function() {
         updateState: function(current, total) {
             paginationState.currentPage = current;
             paginationState.totalPages = total;
+        },
+        setSearch: function(search) {
+            paginationState.search = search;
         },
         updateBaseUrl: function(baseUrl) {
             paginationState.baseUrl = baseUrl;
@@ -180,6 +184,10 @@ $(document).ready(function() {
                         // Update pagination controls
                         $('.page-number').text(data.current);
                         $('.last-page').text(data.total);
+                        if(!paginationState.search){
+                            $('body').data('current-page', data.current);
+                            $('body').attr('data-current-page', data.current);
+                        }
                         // Update count-showing if it exists (inside bottom paginate-container)
                         if (data.paginationInfo) {
                             $('.paginate-container.bottom .count-showing, .count-showing').text(data.paginationInfo);

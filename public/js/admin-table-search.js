@@ -378,11 +378,17 @@ $(document).ready(function() {
         // Handle search input with debounce
         $searchInput.on('input', function() {
             const searchTerm = $(this).val();
+            const validSearch = searchTerm.trim() !== '';
+            const searchPageNumber = !validSearch ? $('body').data('current-page') : 1;
+
+            if (window.Pagination && window.Pagination.setSearch) {
+                window.Pagination.setSearch(validSearch);
+            }
             
             // Update clear button visibility
             const $clearBtn = $(this).siblings('.clear-search');
             if ($clearBtn.length) {
-                if (searchTerm.trim() !== '') {
+                if (validSearch) {
                     $clearBtn.show();
                 } else {
                     $clearBtn.hide();
@@ -404,7 +410,7 @@ $(document).ready(function() {
             
             // Set new timer - reset to page 1 when searching
             debounceTimer = setTimeout(function() {
-                performSearch(searchTerm, 1);
+                performSearch(searchTerm, searchPageNumber);
             }, debounceDelay);
         });
         
