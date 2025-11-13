@@ -68,7 +68,6 @@ $priority_order = $sort_priority ? "priority ASC, " : "";
 $price_order = $sort_price ? "price {$sort_price}, " : "";
 ?>
 <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
-<div id="container">
             <?php
             // All popups are now handled by PopupHelper at the top of the file
             ?>
@@ -431,7 +430,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             </div>
 
         </div>
-    </div>
     
     <!-- Image Popup Container -->
     <div class='popup-container image-popup-container hidden'>
