@@ -17,6 +17,7 @@ $currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_U
                 <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/wishlist") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlists/create") echo " active"; ?>" href="/wishlists/create">Create Wishlist<div class="underline"></div></a>
                 <a class="nav-link<?php if($currentPage == "/wishlists") echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
+                <a class="nav-link<?php if($currentPage == "/connect") echo " active"; ?>" href="/connect">Any Wish Connect<div class="underline"></div></a>
                 <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
                     <div class="outer-link">
                         <span class="profile-icon"><?php require(__DIR__ . "/../../public/images/site-images/profile-icon.php"); ?></span>

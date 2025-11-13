@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\FriendController;
 use App\Controllers\AdminController;
 use App\Controllers\HomeController;
 use App\Controllers\WishlistController;
@@ -51,6 +52,10 @@ Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 // Profile routes (must come before generic /{id} routes)
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
+
+// Any Wish Connect routes
+Router::get('/connect', [FriendController::class, 'index'])->middleware('auth');
+Router::get('/connect/find', [FriendController::class, 'findFriends'])->middleware('auth');
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');

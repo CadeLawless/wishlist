@@ -468,7 +468,7 @@ body.dark .table-search-loading-overlay {
     align-items: center;
 }
 .header .title {
-    flex-basis: calc(100% - 615px);
+    flex-basis: calc(100% - 820px);
     display: grid;
     grid-template-columns: auto auto;
     grid-auto-rows: auto;
@@ -2217,7 +2217,7 @@ img.gift-wrap {
         flex-direction: column;
     }
 }
-@media (max-width: 870px){
+@media (max-width: 1100px){
     .header .title {
         flex-basis: calc(100% - 85px);
     }
