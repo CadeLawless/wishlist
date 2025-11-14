@@ -53,9 +53,9 @@ Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
 
-// Any Wish Connect routes
-Router::get('/connect', [FriendController::class, 'index'])->middleware('auth');
-Router::get('/connect/find', [FriendController::class, 'findFriends'])->middleware('auth');
+// Add Friends routes
+Router::get('/add-friends', [FriendController::class, 'index'])->middleware('auth');
+Router::get('/add-friends/find', [FriendController::class, 'findFriends'])->middleware('auth');
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');

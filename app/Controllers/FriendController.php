@@ -25,7 +25,7 @@ class FriendController extends Controller
         $sentFriendRequests = $this->friendService->getSentFriendRequests($user['username']);
 
         if(count($userFriendships) === 0 && count($userFriendRequests) === 0 && count($sentFriendRequests) === 0){
-            $this->redirect('/connect/find');
+            $this->redirect('/add-friends/find');
         }
         
         $data = [
