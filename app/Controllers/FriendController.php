@@ -25,11 +25,11 @@ class FriendController extends Controller
         $sentFriendRequests = $this->friendService->getSentFriendRequests($user['username']);
 
         if(count($userFriendships) === 0 && count($userFriendRequests) === 0 && count($sentFriendRequests) === 0){
-            $this->redirect('/add-friends/find');
+            return $this->redirect('/add-friends/find');
         }
         
         $data = [
-            'title' => 'Any Wish Connect',
+            'title' => 'Add Friends',
             'user' => $user,
             'friendships' => $userFriendships,
             'friendRequests' => $userFriendRequests,
@@ -39,12 +39,12 @@ class FriendController extends Controller
         return $this->view('friends/index', $data);
     }
 
-    public function findFriends(): Response
+    public function find(): Response
     {
         $user = $this->auth();
 
         $data = [
-            'title' => 'Any Wish Connect',
+            'title' => 'Add Friends | Find',
             'user' => $user
         ];
 
