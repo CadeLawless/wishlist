@@ -74,4 +74,10 @@ class User extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return (int)$result['count'];
     }
+
+    public static function findNameAndEmailForAll(): array
+    {
+        $stmt = \App\Core\Database::query("SELECT username, name FROM " . static::$table);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }

@@ -29,37 +29,35 @@ class FriendRequest extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    public static function get(string $username): array
+    public function createFriendRequest(array $data): ?array
     {
-        $stmt = Database::query(
-            "SELECT * FROM " . static::$table . " WHERE username_1 = ? OR username_2 = ?",
-            [$username, $username]
-        );
-
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function createFriendship(array $data): ?array
-    {
-
         $today = date("Y-m-d H:i:s");
 
-        // Create new wishlist
         $stmt = Database::query(
-            "INSERT INTO " . static::$table . "(username_1, username_2, created_at) VALUES(?, ?, ?)",
-            [$data['username_1'], $data['username_2'], $today]
+            "INSERT INTO " . static::$table . "(sender_username, receiver_username, `status`, created_at) VALUES(?, ?, 'pending', ?)",
+            [$data['sender_username'], $data['receiver_username'], $today]
         );
 
         if ($stmt) {
-            $friendshipId = Database::lastInsertId();
-            // Return the created wishlist data
+            $friendRequestId = Database::lastInsertId();
             return [
-                'id' => $friendshipId,
+                'id' => $friendRequestId,
                 'date_created' => $today
             ];
         }
 
         return null;
+    }
+
+    public function findByUsernames(string $senderUsername, string $receiverUsername): ?array
+    {
+        $stmt = Database::query(
+            "SELECT * FROM " . static::$table . " WHERE (sender_username = ? AND receiver_username = ?) OR (sender_username = ? AND receiver_username = ?) AND `status` = 'pending'",
+            [$senderUsername, $receiverUsername, $receiverUsername, $senderUsername]
+        );
+
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result ?: null;
     }
 
 }

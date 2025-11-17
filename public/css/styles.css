@@ -39,6 +39,7 @@ body {
     --input-background: #ffffffc4;
     --border-invalid: red;
     --text-invalid: #d32f2f;
+    --red-button: #8f4646;
 }
 body.dark {
     --text: #d1d4d6;
@@ -1397,6 +1398,10 @@ textarea {
     font-weight: normal;
     z-index: 1;
     position: relative;
+
+    & > span {
+        color: white;
+    }
 }
 .flex-button {
     display: inline-flex;
@@ -2183,6 +2188,85 @@ img.gift-wrap {
     border-radius: 6px;
 }
 
+.friends-search-results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+}
+.user-result {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 2px;
+    border: 1px solid var(--text-lighter);
+
+    & .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        overflow: hidden;
+
+        & > * {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        & .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    }
+
+    & .friend-action {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        justify-self: stretch;
+    }
+
+    & .add-friend-button {
+        flex-grow: 1;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+
+        & .loading-spinner {
+            scale: 0.55;
+            margin: 0;
+            display: none;
+        }
+
+        &.loading {
+            pointer-events: none;
+            
+            & .send-text {
+                display: none;
+            }
+
+            & .loading-spinner {
+                display: block;
+            }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        &.failed {
+            background-color: var(--red-button);
+        }
+    }
+}
+
 @media (max-height: 430px){
     .options-content {
         max-height: 50vh;
@@ -2465,6 +2549,12 @@ img.gift-wrap {
     .sidebar-main .content .paginate-container-div {
         display: flex;
         flex-direction: column-reverse;
+    }
+}
+@media (max-width: 660px) {
+    .user-result {
+        grid-template-columns: 1fr;
+        row-gap: 1rem;
     }
 }
 @media (max-width: 600px){

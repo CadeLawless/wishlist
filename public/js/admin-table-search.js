@@ -27,10 +27,14 @@ $(document).ready(function() {
                 contentSelector = '.admin-table-body';
             } else if ($('.items-list.main').length) {
                 contentSelector = '.items-list.main';
+            } else if ($('.friends-search-results-container').length) {
+                contentSelector = '.friends-search-results-container';
             } else {
                 return; // Required elements not found
             }
         }
+
+        console.log(contentSelector);
         
         if (!containerSelector) {
             if ($('.admin-center-table-container').length) {
@@ -43,6 +47,8 @@ $(document).ready(function() {
                 containerSelector = '.items-list-sub-container';
             } else if ($('.items-list-container').length) {
                 containerSelector = '.items-list-container';
+            } else if ($('.friends-search-results-container').length) {
+                contentSelector = '.friends-search-results-container';
             } else {
                 containerSelector = contentSelector; // Fallback to content selector
             }
@@ -204,7 +210,7 @@ $(document).ready(function() {
                     hideLoading();
                 },
                 error: function(xhr, status, error) {
-                    console.error('Search error:', error);
+                    //console.error('Search error:', error);
                     isLoading = false;
                     hideLoading();
                 },
@@ -395,6 +401,10 @@ $(document).ready(function() {
                 }
             }
             
+            if (!validSearch && contentSelector === '.friends-search-results-container') {
+                $contentContainer.empty();
+            }
+
             // Show loading immediately when user types (if search term changed and not already loading)
             if (searchTerm !== lastSearchTerm && !isLoading) {
                 showLoading();
@@ -435,7 +445,7 @@ $(document).ready(function() {
     }
     
     // Auto-initialize search for admin tables and items pages
-    $('.admin-table-search-input, .items-search-input').each(function() {
+    $('.admin-table-search-input, .items-search-input, .friends-search-input').each(function() {
         const $searchInput = $(this);
         
         // Determine paginate URL based on current page
@@ -458,6 +468,8 @@ $(document).ready(function() {
             } else {
                 paginateUrl = '/admin/wishlists/paginate';
             }
+        } else if (path.includes('/add-friends/find')) {
+            paginateUrl = '/add-friends/search';
         }
         // Items/wishlist pages
         else if (path.match(/^\/wishlists\/\d+$/)) {
