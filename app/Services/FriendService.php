@@ -11,6 +11,7 @@ class FriendService
     public function __construct(
         private Friendship $friendship = new Friendship(),
         private FriendRequest $friendRequest = new FriendRequest(),
+        private User $user = new User(),
     ) {}
 
     public function createFriendship(string $username, array $data): ?array
@@ -47,13 +48,13 @@ class FriendService
         return $this->friendRequest->findByUsernames($senderUsername, $receiverUsername);
     }
 
-    public static function searchForRequests(string $username, string $searchTerm): array
+    public function searchForRequests(string $username, string $searchTerm): array
     {
         $allUsers = User::findNameAndEmailForAll();
         $allUsers = array_filter($allUsers, function($u) use ($username) {
             return $u['username'] !== $username;
         });
-        $filteredUsers = array_values(FriendService::filterUsers($allUsers, $searchTerm));
+        $filteredUsers = array_values($this->filterUsers($allUsers, $searchTerm));
         $allUsersWithExistingRequest = array_map(function($user) use ($username) {
             $existingRequest = (new FriendRequest())->findByUsernames($username, $user['username']);
             $user['existing_friend_request'] = $existingRequest !== null;
@@ -66,7 +67,7 @@ class FriendService
         /**
      * Filter users by search term
      */
-    public static function filterUsers(array $users, string $searchTerm): array
+    public function filterUsers(array $users, string $searchTerm): array
     {
         if (empty(trim($searchTerm))) {
             return $users;
@@ -82,4 +83,23 @@ class FriendService
         });
     }
 
+    public function getNameAndProfilePicture(string $username): ?array
+    {
+        return $this->user->getNameAndProfilePictureByUsername($username);
+    }
+
+    public function getNumberOfFriends(string $username): int
+    {
+        return $this->friendship->getCountOfFriendsByUsername($username);
+    }
+
+    public function getNumberOfReceivedRequests(string $username): int
+    {
+        return $this->friendRequest->getCountOfReceivedRequests($username);
+    }
+
+    public function getNumberOfSentRequests(string $username): int
+    {
+        return $this->friendRequest->getCountOfSentRequests($username);
+    }
 }

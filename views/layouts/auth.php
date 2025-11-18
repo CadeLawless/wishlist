@@ -17,6 +17,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: calc(100vh - 180px);
         }
     <?php echo $customStyles ?? ""; ?>
     </style>

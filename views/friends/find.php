@@ -1,11 +1,18 @@
 <?php 
 if(isset($_GET['search'])) {
     $searchTerm = trim($_GET['search']);
-    $allUsers = \App\Services\FriendService::searchForRequests($user['username'], $searchTerm);
+    $allUsers = $friendService->searchForRequests($user['username'], $searchTerm);
 }
 ?>
 
 <div class="center">
+    <?php if($friendsCount > 0 || $receivedRequestsCount > 0 || $sentRequestsCount > 0): ?>
+        <p style="text-align: left; margin-bottom: 1.5rem;">
+            <a class="button accent" href="/add-friends">
+                Back to Add Friends
+            </a>
+        </p>
+    <?php endif; ?>
     <h1>Add friends to see what others are wishing for.</h1>
     <?php
     $options = [
@@ -26,40 +33,10 @@ if(isset($_GET['search'])) {
 </div>
 
 <script src="/public/js/admin-table-search.js"></script>
-
+<script src="/public/js/button-loading.js"></script>
 <script>
     $(document).ready(function() {
-        function showButtonLoading(button) {
-            keepButtonSize(button);
-            button.addClass('loading');
-        }
-
-        function hideButtonLoading(button) {
-            button.css({
-                'width': '',
-                'height': ''
-            });
-            button.removeClass('loading');
-        }
-
-        function keepButtonSize(button) {
-            button.css({
-                'width': button.outerWidth() + 'px',
-                'height': button.outerHeight() + 'px'
-            });
-        }
-
-        function showButtonFailed(button) {
-            keepButtonSize(button);
-            button.text('Failed to Send').addClass('disabled failed');
-            setTimeout(() => {
-                button.text('Send Friend Request').removeClass('disabled failed');
-                button.css({
-                    'width': '',
-                    'height': ''
-                });
-            }, 5000);
-        }
+        $('#friends-search').focus();
 
         $(document).on('click', '.add-friend-button', function(e) {
             e.preventDefault();

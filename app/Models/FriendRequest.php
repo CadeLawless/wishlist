@@ -4,22 +4,23 @@ namespace App\Models;
 
 use App\Core\Model;
 use App\Core\Database;
+use App\Core\QueryBuilder;
 
 class FriendRequest extends Model
 {
     protected static string $table = 'friend_requests';
 
-    public static function getSentFriendRequestsByUsername(string $username): array
+    public function getSentFriendRequestsByUsername(string $username): array
     {
-        $stmt = Database::query(
-            "SELECT * FROM " . static::$table . " WHERE sender_username = ? AND `status` = 'pending'",
-            [$username]
-        );
-
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $this->queryBuilder
+            ->select(['sender_username', 'receiver_username', 'status', 'created_at'])
+            ->where('sender_username', $username)
+            ->andWhere('status', 'pending')
+            ->orderBy('created_at', 'DESC')
+            ->getAll();
     }
 
-    public static function getReceivedFriendRequestsByUsername(string $username): array
+    public function getReceivedFriendRequestsByUsername(string $username): array
     {
         $stmt = Database::query(
             "SELECT * FROM " . static::$table . " WHERE receiver_username = ? AND `status` = 'pending'",
@@ -60,4 +61,25 @@ class FriendRequest extends Model
         return $result ?: null;
     }
 
+    public function getCountOfSentRequests(string $username): int
+    {
+        $result = $this->queryBuilder
+            ->select(['COUNT(*) AS request_count'])
+            ->where('sender_username', $username)
+            ->andWhere('status', 'pending')
+            ->first();
+
+        return $result ? (int)$result['request_count'] : 0;
+    }
+
+    public function getCountOfReceivedRequests(string $username): int
+    {
+        $result = $this->queryBuilder
+            ->select(['COUNT(*) AS request_count'])
+            ->where('receiver_username', $username)
+            ->andWhere('status', 'pending')
+            ->first();
+
+        return $result ? (int)$result['request_count'] : 0;
+    }
 }

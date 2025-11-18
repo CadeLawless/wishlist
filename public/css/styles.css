@@ -101,7 +101,7 @@ body {
     padding: 0 10px 90px;
     background-repeat: no-repeat;
     background-size: cover;
-    min-height: calc(100vh - 180px);
+    /* min-height: calc(100vh - 180px); */
     background-position: center;
     background-attachment: fixed;
     margin-top: clamp(20px, 4vw, 50px);
@@ -662,7 +662,7 @@ body.dark .dark-mode-link {
 
 /* big buttons css */
 .big-buttons-container {
-    height: calc(100vh - 270px);
+    height: calc(100vh - 235px);
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -1432,6 +1432,9 @@ textarea {
     color: var(--text-light);
     background-color: var(--secondary);
 }
+.button.secondary > span {
+    color: var(--text-light);
+}
 .button.secondary:hover {
     background-color: var(--secondary-hover);
 }
@@ -2194,6 +2197,10 @@ img.gift-wrap {
     gap: 0.5rem;
 
 }
+.sent-requests {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
 .user-result {
     box-sizing: border-box;
     display: grid;
@@ -2224,14 +2231,23 @@ img.gift-wrap {
         }
     }
 
-    & .friend-action {
+    & .friend-actions {
         display: flex;
         justify-content: center;
         align-items: center;
         justify-self: stretch;
     }
 
-    & .add-friend-button {
+    & .friend-actions:has(.cancel-button, .accept-button, .decline-button) {
+        justify-self: end;
+    }
+
+    & .decision-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    & :is(.add-friend-button, .decline-button, .accept-button, .cancel-button) {
         flex-grow: 1;
         display: inline-flex;
         justify-content: center;
@@ -2263,8 +2279,25 @@ img.gift-wrap {
 
         &.failed {
             background-color: var(--red-button);
+
+            & > span {
+                color: white;
+            }
         }
     }
+}
+
+.notification-banner {
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    border: 1px solid var(--text-transparent);
+    background-color: var(--background-darker);
+}
+
+.view-requests-link {
+    display: inline-block;
 }
 
 @media (max-height: 430px){
@@ -2413,10 +2446,13 @@ img.gift-wrap {
         padding-top: 83px;
     }
     #container {
-        min-height: calc(100vh - 155px);
+        /* min-height: calc(100vh - 155px); */
     }
     #container .background-theme {
         padding-top: 75px;
+    }
+    .big-buttons-container {
+        height: calc(100vh - 318px);
     }
 }
 @media (max-width: 800px){   
@@ -2555,6 +2591,18 @@ img.gift-wrap {
     .user-result {
         grid-template-columns: 1fr;
         row-gap: 1rem;
+
+        & .friend-actions:has(.cancel-button, .accept-button, .decline-button) {
+            justify-self: stretch;
+        }
+
+        & .decision-buttons {
+            width: 100%;
+        }
+
+        & :is(.decline-button, .accept-button) {
+            flex-grow: 1;
+        }
     }
 }
 @media (max-width: 600px){

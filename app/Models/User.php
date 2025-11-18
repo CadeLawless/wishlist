@@ -80,4 +80,12 @@ class User extends Model
         $stmt = \App\Core\Database::query("SELECT username, name FROM " . static::$table);
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function getNameAndProfilePictureByUsername(string $username): ?array
+    {
+        return $this->queryBuilder
+            ->select(['name', 'profile_picture'])
+            ->where('username', $username)
+            ->first();
+    }
 }

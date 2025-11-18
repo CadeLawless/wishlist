@@ -42,4 +42,13 @@ class Friendship extends Model
         return null;
     }
 
+    public function getCountOfFriendsByUsername(string $username): int
+    {
+        $result = $this->queryBuilder
+            ->select(['COUNT(*) as friend_count'])
+            ->where('username_1', $username)
+            ->orWhere('username_2', $username)
+            ->first();
+        return (int)$result['friend_count'];
+    }
 }

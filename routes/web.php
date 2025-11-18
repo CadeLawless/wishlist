@@ -58,6 +58,8 @@ Router::get('/add-friends', [FriendController::class, 'index'])->middleware('aut
 Router::get('/add-friends/find', [FriendController::class, 'find'])->middleware('auth');
 Router::post('/add-friends/search', [FriendController::class, 'search'])->middleware('auth');
 Router::post('/add-friends/send-request', [FriendController::class, 'sendFriendRequest'])->middleware('auth');
+Router::get('/add-friends/sent-requests', [FriendController::class, 'sentRequests'])->middleware('auth');
+Router::get('/add-friends/requests', [FriendController::class, 'receivedRequests'])->middleware('auth');
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');

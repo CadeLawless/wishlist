@@ -38,8 +38,8 @@ class AuthController extends Controller
             'remember_me' => $this->request->input('remember_me', false),
             'customStyles' =>
                 'input:not([type=submit], #new_password, #current_password) {
-                margin-bottom: 0;
-            }'
+                    margin-bottom: 0;
+                }'
         ];
 
         return $this->view('auth/login', AuthController::loginDataWithTitle($data), 'auth');
