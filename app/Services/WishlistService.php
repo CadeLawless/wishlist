@@ -10,7 +10,8 @@ class WishlistService
 {
     public function __construct(
         private Wishlist $wishlist = new Wishlist(),
-        private Item $item = new Item()
+        private Item $item = new Item(),
+        private User $user = new User(),
     ) {}
 
     public function createWishlist(string $username, array $data): ?array
@@ -383,5 +384,10 @@ class WishlistService
     public function itemExistsInWishlist(string $copyId, int $wishlistId): bool
     {
         return Item::existsByCopyIdAndWishlist($copyId, $wishlistId);
+    }
+
+    public function getUserByUsername(string $username): ?array
+    {
+        return $this->user->getNameAndProfilePictureByUsername($username);
     }
 }

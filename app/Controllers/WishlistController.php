@@ -89,6 +89,33 @@ class WishlistController extends Controller
         return $this->view('wishlist/index', $data);
     }
 
+    public function publicUserWishlists(string $username): Response
+    {
+        $user = $this->auth(); // Non-authenticated users can view public wishlists
+
+        $publicUser = $this->wishlistService->getUserByUsername($username);
+        if (!$publicUser) {
+            return $this->view('errors/404', ['title' => '404 - Page Not Found'], 'error');
+        }
+        $publicUser['username'] = $username;
+
+        $wishlists = $this->wishlistService->getUserWishlists($username);
+
+        $wishlists = array_filter($wishlists, function($wishlist) {
+            return $wishlist['visibility'] === 'Public' && $wishlist['complete'] === 'No';
+        });
+
+        $data = [
+            'title' => $publicUser['name'] . "'s Wish Lists",
+            'user' => $user,
+            'public_user' => $publicUser,
+            'wishlists' => $wishlists,
+            'customStyles' => '#container { max-width: 1200px; margin: clamp(20px, 4vw, 50px) auto; }'
+        ];
+
+        return $this->view('wishlist/public-index', $data);
+    }
+
     public static function showWishListDataWithTitle(array $data, array $wishlist):array
     {
         $data['title'] = $wishlist['wishlist_name'];
@@ -818,18 +845,5 @@ class WishlistController extends Controller
             </div>
         </div>
         <div class='count-showing'>Showing {$startItem}-{$endItem} of {$totalItems} items</div>";
-    }
-    
-    /**
-     * Generate success message popup using PopupManager
-     */
-    private function generateSuccessPopup(string $title, string $message): string
-    {
-        return PopupManager::generateInfoPopup([
-            'title' => $title,
-            'message' => $message,
-            'type' => 'standard',
-            'classes' => 'active'
-        ]);
     }
 }

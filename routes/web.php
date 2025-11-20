@@ -61,6 +61,9 @@ Router::post('/add-friends/add', [FriendController::class, 'addFriend'])->middle
 Router::post('/add-friends/remove', [FriendController::class, 'removeFriend'])->middleware('auth');
 Router::post('/add-friends/decline', [FriendController::class, 'declineInvitation'])->middleware('auth');
 
+// Public User Wish Lists routes
+Router::get('/{username}/wishlists', [WishlistController::class, 'publicUserWishlists']);
+
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');
 Router::get('/admin/users', [AdminController::class, 'users'])->middleware('admin');

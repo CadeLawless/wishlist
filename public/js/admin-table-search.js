@@ -33,8 +33,6 @@ $(document).ready(function() {
                 return; // Required elements not found
             }
         }
-
-        console.log(contentSelector);
         
         if (!containerSelector) {
             if ($('.admin-center-table-container').length) {
@@ -48,7 +46,7 @@ $(document).ready(function() {
             } else if ($('.items-list-container').length) {
                 containerSelector = '.items-list-container';
             } else if ($('.friends-search-results-container').length) {
-                contentSelector = '.friends-search-results-container';
+                containerSelector = '.friends-search-results-container';
             } else {
                 containerSelector = contentSelector; // Fallback to content selector
             }
@@ -66,9 +64,12 @@ $(document).ready(function() {
         
         // Create loading overlay if it doesn't exist (use generic class name)
         let $loadingOverlay = $tableContainer.find('.table-search-loading-overlay');
-        if (!$loadingOverlay.length) {
-            $loadingOverlay = $('<div class="table-search-loading-overlay"><div class="loading-spinner"></div></div>');
-            $tableContainer.append($loadingOverlay);
+
+        function reassignLoadingOverlay() {
+            if (!$tableContainer.find('.table-search-loading-overlay').length) {
+                $loadingOverlay = $('<div class="table-search-loading-overlay"><div class="loading-spinner"></div></div>');
+                $tableContainer.append($loadingOverlay);
+            }
         }
         
         // Show loading overlay
@@ -120,7 +121,6 @@ $(document).ready(function() {
                 },
                 dataType: "json",
                 success: function(data) {
-                    console.log(data);
                     if (data.status === 'success') {
                         // Update content (works for both admin tables and items)
                         $contentContainer.html(data.html);
@@ -413,6 +413,7 @@ $(document).ready(function() {
 
             // Show loading immediately when user types (if search term changed and not already loading)
             if (searchTerm !== lastSearchTerm && !isLoading) {
+                reassignLoadingOverlay();
                 showLoading();
                 isLoading = true;
             }
