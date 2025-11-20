@@ -193,6 +193,16 @@ const FormValidator = {
                 }
             }
 
+            // Characters not allowed validation
+            if (rules.charactersNotAllowed && Array.isArray(rules.charactersNotAllowed)) {
+                for (const char of rules.charactersNotAllowed) {
+                    if (value.includes(char)) {
+                        errors.push(`${this.formatFieldName(fieldName)} contains invalid characters: "${char}".`);
+                        break;
+                    }
+                }
+            }
+
             // AJAX validation for username/email uniqueness
             if (rules.checkUnique && errors.length === 0) {
                 this.checkUniqueness(field, fieldName, value, rules.checkUnique, rules);
