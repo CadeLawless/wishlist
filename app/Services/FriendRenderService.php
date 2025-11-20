@@ -22,6 +22,7 @@ class FriendRenderService
             $existingFriend = $userRow['already_added'] ?? false;
             $disabledClass = $existingFriend ? 'disabled' : '';
             $buttonText = $existingFriend ? 'Added' : 'Add Friend';
+            $hasAddedUser = $userRow['has_added_user'] ?? false;
             ?>
             <div class="user-result">
                 <div class="user-info">
@@ -36,20 +37,28 @@ class FriendRenderService
                 </div>
                 <div class="friend-actions">
                     <?php if ($type === 'search'): ?>
-                        <a class="button primary add-friend-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Add Friend" data-fail-text="Failed">
-                            <span class="send-text"><?= $buttonText; ?></span>
-                            <div class="loading-spinner"></div>
-                        </a>
-                    <?php elseif ($type === 'sent'): ?>
-                        <a href="/add-friends/cancel/<?= htmlspecialchars($userRow['receiver_username']); ?>" class="button secondary cancel-button" data-original-text="Cancel" data-fail-text="Failed">Cancel</a>
+                        <div class="add-friend-button-container">
+                            <a class="button primary add-friend-button full-width <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Add Friend" data-fail-text="Failed">
+                                <span class="send-text"><?= $buttonText; ?></span>
+                                <div class="loading-spinner"></div>
+                            </a>
+                            <?php if ($hasAddedUser && !$existingFriend): ?>
+                                <div class="info-text">Wisher has already added you as a friend!</div>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif ($type === 'friend'): ?>
+                            <a class="button secondary remove-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Remove Friend" data-fail-text="Failed">
+                                <span class="send-text">Remove Friend</span>
+                                <div class="loading-spinner"></div>
+                            </a>
                     <?php elseif ($type === 'received'): ?>
                         <div class="decision-buttons">
                             <a class="button secondary decline-button" data-username="<?= $username; ?>"data-original-text="Remove" data-fail-text="Failed">
-                                <span>Remove</span>
+                                <span class="send-text">Remove</span>
                                 <div class="loading-spinner"></div>
                             </a>
-                            <a class="button primary accept-button" data-username="<?= $username; ?>"data-original-text="Accept" data-fail-text="Failed">
-                                <span>Add Friend</span>
+                            <a class="button primary add-friend-button accept-button" data-username="<?= $username; ?>"data-original-text="Add Friend" data-fail-text="Failed">
+                                <span class="send-text">Add Friend</span>
                                 <div class="loading-spinner"></div>
                             </a>
                         </div>

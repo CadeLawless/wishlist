@@ -1,10 +1,13 @@
 <?php 
-
+if(isset($_GET['search'])) {
+    $searchTerm = trim($_GET['search']);
+    list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
+}
 ?>
 
 <h1 class="center">Add Friends</h1>
 
-<?php if(count($friendList) === 0 && count($receivedInvitations) === 0): ?>
+<?php if(count($friendList) === 0 && count($receivedInvitations) === 0 && !isset($searchTerm)): ?>
     <div class="center">
         <p>You have no friends or friend requests yet. <a href="/add-friends/find">Find friends to get started!</a></p>
     </div>

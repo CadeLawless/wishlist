@@ -289,8 +289,6 @@ class AuthController extends Controller
         }
 
         // Show reset password form for GET requests
-        // Support both formats: ?token=... (legacy) and ?key=...&email=... (new)
-        $token = $this->request->get('token');
         $key = $this->request->get('key');
         $email = $this->request->get('email');
         
@@ -298,20 +296,9 @@ class AuthController extends Controller
         $resetKey = null;
         $userEmail = null;
         
-        // Handle legacy token format
-        if ($token) {
-            // Find user by reset_password_key (token)
-            $user = User::whereEqual('reset_password_key', $token);
-            
-            if ($user) {
-                $resetKey = $token;
-                $userEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-            }
-        } 
-        // Handle new format with key and email
-        elseif ($key && $email) {
+        if ($key && $email) {
             $user = User::findByUsernameOrEmail($email);
-            
+
             if ($user && $user['reset_password_key'] === $key) {
                 $resetKey = $key;
                 $userEmail = $email;

@@ -74,10 +74,19 @@ class FriendInvitation extends Model
     public function findInvitation(string $senderUsername, string $receiverUsername): ?array
     {
         return $this->queryBuilder
-            ->columns(['id', 'sender_username', 'receiver_username', 'status', 'created_at'])
+            ->columns(['invitation_id', 'sender_username', 'receiver_username', 'status', 'created_at'])
             ->where('sender_username', $senderUsername)
             ->andWhere('receiver_username', $receiverUsername)
             ->andWhere('status', 'pending')
             ->first();
+    }
+
+    public function deleteInvitation(int $invitationId): bool
+    {
+        $result = $this->queryBuilder
+            ->where('invitation_id', $invitationId)
+            ->delete();
+
+        return $result;
     }
 }

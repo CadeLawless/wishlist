@@ -2199,7 +2199,6 @@ img.gift-wrap {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-
 }
 .sent-requests {
     display: grid;
@@ -2221,7 +2220,7 @@ img.gift-wrap {
     & .user-info {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.4rem;
         overflow: hidden;
 
         & > * {
@@ -2279,12 +2278,30 @@ img.gift-wrap {
         gap: 0.5rem;
     }
 
-    & :is(.add-friend-button, .decline-button, .accept-button, .cancel-button) {
+    & .add-friend-button-container {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        gap: 0.3rem;
+        align-items: center;
+    }
+
+    & .info-text {
+        font-size: 0.85rem;
+        text-align: center;
+        color: var(--text);
+    }
+
+    & :is(.add-friend-button, .decline-button, .accept-button, .remove-button) {
         flex-grow: 1;
         display: inline-flex;
         justify-content: center;
         align-items: center;
         box-sizing: border-box;
+
+        &.full-width {
+            width: 100%;
+        }
 
         & .loading-spinner {
             scale: 0.55;
@@ -2319,8 +2336,14 @@ img.gift-wrap {
     }
 }
 
-.received-invitations-container .user-result {
-    grid-template-columns: 3fr 2fr;
+.received-invitations-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    & .user-result {
+        grid-template-columns: 3fr 2fr;
+    }
 }
 
 .notification-banner {
@@ -2637,7 +2660,7 @@ img.gift-wrap {
         }
 
         & :is(.decline-button, .accept-button) {
-            flex-grow: 1;
+            flex-basis: 50%;
         }
     }
 }

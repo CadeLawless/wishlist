@@ -33,6 +33,7 @@ class FriendController extends Controller
         $data = [
             'title' => 'Add Friends',
             'user' => $user,
+            'friendService' => $this->friendService,
             'friendList' => $friendList,
             'receivedInvitations' => $receivedInvitations,
             'sentInvitations' => $sentInvitations,
@@ -58,7 +59,7 @@ class FriendController extends Controller
         return $this->view('friends/find', $data);
     }
 
-    public function search(): void
+    public function search(): Response
     {
         
         $searchTerm = trim($this->request->input('search', ''));
@@ -70,72 +71,41 @@ class FriendController extends Controller
         // Apply search filter if provided
         if (empty($searchTerm)) {
             if (!$isAddFriendsPage) {
-                $this->response->json([
+                return $this->json([
                     'status' => 'success',
                     'message' => 'No search term provided'
-                ], 200)->send();
+                ], 200);
             } else {
                 $friendList = $this->friendService->getUserFriendList($user['username']);
                 $receivedInvitations = $this->friendService->getFriendInvitations($user['username']);
                 ob_start();
-                $type = 'friend';
                 require __DIR__ . '/../../views/components/friends-results.php';
                 $tableHtml = ob_get_clean();
 
-                header('Content-Type: application/json');
-                header('Cache-Control: no-cache, must-revalidate');
-
-                $this->response->json([
+                return $this->json([
                     'status' => 'success',
                     'message' => 'No search term provided',
                     'html' => $tableHtml,
                     'totalRows' => count($friendList) + count($receivedInvitations)
-                ], 200)->send();
+                ], 200);
             }
-            exit;
         }
 
 
         // Get all users
-        $allUsers = $this->friendService->searchForUsers($user['username'], $searchTerm);
-
-        $friendList = array_filter($allUsers, function ($friend) use ($user) {
-            $existingFriend = $this->friendService->findExistingFriend($user['username'], $friend['username']);
-            return $existingFriend !== null;
-        });
-
-        $newFriends = array_filter($allUsers, function ($friend) use ($user) {
-            $existingFriend = $this->friendService->findExistingFriend($user['username'], $friend['username']);
-            return $existingFriend === null;
-        });
-
-        $receivedInvitations = [];
+        list($allUsers, $friendList, $newFriends, $receivedInvitations) = $this->friendService->searchUsersAndCategorize($user['username'], $searchTerm);
 
         // Generate HTML for table rows only
         ob_start();
-        $type = 'search';
         require __DIR__ . '/../../views/components/friends-results.php';
         $tableHtml = ob_get_clean();
-                
-        // Clear any output buffering first
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        
-        // Set headers and output JSON directly
-        header('Content-Type: application/json');
-        header('Cache-Control: no-cache, must-revalidate');
-        
-        $jsonData = [
+                                
+        return $this->json([
             'status' => 'success',
             'message' => 'Users loaded successfully',
             'html' => $tableHtml,
             'totalRows' => count($allUsers)
-        ];
-        
-        echo json_encode($jsonData);
-        flush();
-        exit;
+        ], 200);
     }
 
     public function addFriend(): Response
@@ -154,7 +124,7 @@ class FriendController extends Controller
         if ($existingFriend !== null) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'A pending friend request already exists between you and this user'
+                'message' => 'You are already friends with this user'
             ], 400);
         }
 
@@ -181,4 +151,73 @@ class FriendController extends Controller
         ], 400);
     }
 
+    public function removeFriend(): Response
+    {
+        $user = $this->auth();
+        $targetUsername = trim($this->request->input('target_username', ''));
+
+        if (empty($targetUsername)) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'No username provided'
+            ], 400);
+        }
+
+        $existingFriend = $this->friendService->findExistingFriend($user['username'], $targetUsername);
+        if ($existingFriend === null) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'You are not friends with this user'
+            ], 400);
+        }
+
+        try {
+            $this->friendService->removeFriend($user['username'], $targetUsername);
+
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Friend removed successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function declineInvitation(): Response
+    {
+        $user = $this->auth();
+        $targetUsername = trim($this->request->input('target_username', ''));
+
+        if (empty($targetUsername)) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'No username provided'
+            ], 400);
+        }
+
+        $existingInvitation = $this->friendService->findExistingInvitation($targetUsername, $user['username']);
+        if ($existingInvitation === null) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'No pending invitation from this user'
+            ], 400);
+        }
+
+        try {
+            $this->friendService->declineInvitation($targetUsername, $user['username']);
+
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Invitation declined successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

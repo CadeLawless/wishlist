@@ -8,7 +8,7 @@
 <?php } ?>
 
 <?php if (isset($newFriends) && count($newFriends) > 0): ?>
-    <?php echo \App\Services\FriendRenderService::generateUserSearchResults($newFriends, $type ?? 'friend'); ?>
+    <?php echo \App\Services\FriendRenderService::generateUserSearchResults($newFriends, 'search'); ?>
 <?php endif; ?>
 
 <?php if (count($friendList) > 0): ?>

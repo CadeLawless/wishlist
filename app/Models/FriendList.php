@@ -56,4 +56,14 @@ class FriendList extends Model
             ->andWhere('friend_username', $friendUsername)
             ->first();
     }
+
+    public function deleteFriend(string $username, string $friendUsername): bool
+    {
+        $result = $this->queryBuilder
+            ->where('username', $username)
+            ->andWhere('friend_username', $friendUsername)
+            ->delete();
+
+        return $result;
+    }
 }

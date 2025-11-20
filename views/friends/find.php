@@ -1,7 +1,7 @@
 <?php 
 if(isset($_GET['search'])) {
     $searchTerm = trim($_GET['search']);
-    $allUsers = $friendService->searchForRequests($user['username'], $searchTerm);
+    list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
 }
 ?>
 
@@ -21,7 +21,7 @@ if(isset($_GET['search'])) {
 
 <div class="friends-search-results-container">
     <?php if (isset($searchTerm) && $searchTerm !== ''): ?>
-        <?php echo \App\Services\FriendRenderService::generateUserSearchResults($allUsers ?? []); ?>
+        <?php require __DIR__ . '/../components/friends-results.php'; ?>
     <?php endif; ?>
 </div>
 
