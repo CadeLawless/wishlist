@@ -9,7 +9,7 @@ class QueryBuilder
 {
     private string $table;
 
-    private array $select = ['*'];
+    private array $columns = ['*'];
     private array $where = [];
     private array $whereGlue = [];
 
@@ -35,11 +35,20 @@ class QueryBuilder
     }
 
     /* ---------------------------
-       SELECT
+       COLUMNS
     --------------------------- */
-    public function select(array $columns): self
+    public function columns(array $columns): self
     {
-        $this->select = $columns;
+        $this->columns = $columns;
+        return $this;
+    }
+
+    /* ---------------------------
+       VALUES
+    --------------------------- */
+    public function params(array $values): self
+    {
+        $this->params = $values;
         return $this;
     }
 
@@ -145,37 +154,89 @@ class QueryBuilder
     /* ---------------------------
        SQL Building
     --------------------------- */
-    private function buildSql(): string
+    private function buildSql(string $operation = 'select'): string
     {
-        $sql = "SELECT " . implode(', ', $this->select)
-             . " FROM {$this->table}";
+        if($operation !== 'select' && $operation !== 'insert' && $operation !== 'update' && $operation !== 'delete') {
+            throw new InvalidArgumentException("Unsupported operation: $operation");
+        }
 
-        if (!empty($this->where)) {
-            $sql .= " WHERE ";
+        $sql = '';
 
-            $clauses = [];
-            foreach ($this->where as $i => $clause) {
-                if ($i === 0) {
-                    $clauses[] = $clause;
-                } else {
-                    $clauses[] = $this->whereGlue[$i] . " " . $clause;
+        if($operation === 'insert') {
+            // Build INSERT SQL
+            $placeholders = array_map(fn($v) => '?', $this->columns);
+
+            $sql = "INSERT INTO {$this->table} (" . implode(', ', $this->columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            return $sql;
+        } else if ($operation === 'update') {
+            // Build UPDATE SQL
+            $setClauses = array_map(fn($col) => "$col = ?", $this->columns);
+            $sql = "UPDATE {$this->table} SET " . implode(', ', $setClauses);
+
+            if (!empty($this->where)) {
+                $sql .= " WHERE ";
+
+                $clauses = [];
+                foreach ($this->where as $i => $clause) {
+                    if ($i === 0) {
+                        $clauses[] = $clause;
+                    } else {
+                        $clauses[] = $this->whereGlue[$i] . " " . $clause;
+                    }
                 }
+
+                $sql .= implode(' ', $clauses);
+            }
+        } else if ($operation === 'delete') {
+            // Build DELETE SQL
+            $sql = "DELETE FROM {$this->table}";
+
+            if (!empty($this->where)) {
+                $sql .= " WHERE ";
+
+                $clauses = [];
+                foreach ($this->where as $i => $clause) {
+                    if ($i === 0) {
+                        $clauses[] = $clause;
+                    } else {
+                        $clauses[] = $this->whereGlue[$i] . " " . $clause;
+                    }
+                }
+
+                $sql .= implode(' ', $clauses);
+            }
+        } else if($operation === 'select') {
+            // Build SELECT SQL
+            $sql = "SELECT " . implode(', ', $this->columns)
+                . " FROM {$this->table}";
+
+            if (!empty($this->where)) {
+                $sql .= " WHERE ";
+
+                $clauses = [];
+                foreach ($this->where as $i => $clause) {
+                    if ($i === 0) {
+                        $clauses[] = $clause;
+                    } else {
+                        $clauses[] = $this->whereGlue[$i] . " " . $clause;
+                    }
+                }
+
+                $sql .= implode(' ', $clauses);
             }
 
-            $sql .= implode(' ', $clauses);
-        }
+            $orders = array_merge($this->orderBy, $this->orderByCase);
+            if (!empty($orders)) {
+                $sql .= " ORDER BY " . implode(', ', $orders);
+            }
 
-        $orders = array_merge($this->orderBy, $this->orderByCase);
-        if (!empty($orders)) {
-            $sql .= " ORDER BY " . implode(', ', $orders);
-        }
+            if ($this->limit !== null) {
+                $sql .= " LIMIT {$this->limit}";
+            }
 
-        if ($this->limit !== null) {
-            $sql .= " LIMIT {$this->limit}";
-        }
-
-        if ($this->offset !== null) {
-            $sql .= " OFFSET {$this->offset}";
+            if ($this->offset !== null) {
+                $sql .= " OFFSET {$this->offset}";
+            }
         }
 
         return $sql;
@@ -219,7 +280,7 @@ class QueryBuilder
 
     public function getAll(): array
     {
-        $sql = $this->buildSql();
+        $sql = $this->buildSql('select');
 
         $stmt = $this->prepareAndExecute($sql);
         $result = $stmt->get_result();
@@ -229,9 +290,42 @@ class QueryBuilder
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function insert(): bool
+    {
+        $sql = $this->buildSql('insert');
+
+        $stmt = $this->prepareAndExecute($sql);
+
+        $this->reset();
+
+        return $stmt !== false;
+    }
+
+    public function update(): bool
+    {
+        $sql = $this->buildSql('update');
+
+        $stmt = $this->prepareAndExecute($sql);
+
+        $this->reset();
+
+        return $stmt !== false;
+    }
+
+    public function delete(): bool
+    {
+        $sql = $this->buildSql('delete');
+
+        $stmt = $this->prepareAndExecute($sql);
+
+        $this->reset();
+
+        return $stmt !== false;
+    }
+
     private function reset(): void
     {
-        $this->select = ['*'];
+        $this->columns = ['*'];
         $this->where = [];
         $this->whereGlue = [];
         $this->limit = null;

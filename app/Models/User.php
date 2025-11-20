@@ -84,7 +84,7 @@ class User extends Model
     public function getNameAndProfilePictureByUsername(string $username): ?array
     {
         return $this->queryBuilder
-            ->select(['name', 'profile_picture'])
+            ->columns(['name', 'profile_picture'])
             ->where('username', $username)
             ->first();
     }

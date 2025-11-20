@@ -74,4 +74,19 @@ abstract class Model
         $stmt = Database::query($sql, [$id]);
         return $stmt->affected_rows > 0;
     }
+
+    public function beginTransaction(): void
+    {
+        Database::beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        Database::commit();
+    }
+
+    public function rollback(): void
+    {
+        Database::rollback();
+    }
 }

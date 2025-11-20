@@ -19,18 +19,24 @@ class FriendRenderService
         foreach ($users as $userRow) {
             $name = htmlspecialchars($userRow['name']);
             $username = htmlspecialchars($userRow['username']);
-            $existingRequest = $userRow['existing_friend_request'] ?? false;
-            $disabledClass = $existingRequest ? 'disabled' : '';
-            $buttonText = $existingRequest ? 'Already Sent' : 'Send Friend Request';
+            $existingFriend = $userRow['already_added'] ?? false;
+            $disabledClass = $existingFriend ? 'disabled' : '';
+            $buttonText = $existingFriend ? 'Added' : 'Add Friend';
             ?>
             <div class="user-result">
                 <div class="user-info">
                     <div class="user-name"><?= $name; ?></div>
                     <div class="user-username">@<?= $username; ?></div>
+                    <div class="user-wishlists-link">
+                        <a class="button" href="/<?= $username; ?>/wishlists">
+                            <?php require __DIR__ . '/../../public/images/site-images/icons/wishlist.php'; ?>
+                            <span>View Wishlists</span>
+                        </a>
+                    </div>
                 </div>
                 <div class="friend-actions">
                     <?php if ($type === 'search'): ?>
-                        <a class="button primary add-friend-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Send Friend Request" data-fail-text="Failed to Send">
+                        <a class="button primary add-friend-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Add Friend" data-fail-text="Failed">
                             <span class="send-text"><?= $buttonText; ?></span>
                             <div class="loading-spinner"></div>
                         </a>
@@ -43,7 +49,7 @@ class FriendRenderService
                                 <div class="loading-spinner"></div>
                             </a>
                             <a class="button primary accept-button" data-username="<?= $username; ?>"data-original-text="Accept" data-fail-text="Failed">
-                                <span>Accept</span>
+                                <span>Add Friend</span>
                                 <div class="loading-spinner"></div>
                             </a>
                         </div>

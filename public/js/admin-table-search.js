@@ -108,16 +108,19 @@ $(document).ready(function() {
             
             // Store hasSearchTerm for use in callbacks (closure)
             const hasSearchTermForCallback = hasSearchTerm;
+            const isAddFriendsPage = $contentContainer.hasClass('add-friends-results-container');
             
             $.ajax({
                 type: "POST",
                 url: paginateUrl,
                 data: {
                     new_page: page,
-                    search: searchTerm
+                    search: searchTerm,
+                    isAddFriendsPage: isAddFriendsPage
                 },
                 dataType: "json",
                 success: function(data) {
+                    console.log(data);
                     if (data.status === 'success') {
                         // Update content (works for both admin tables and items)
                         $contentContainer.html(data.html);
@@ -402,7 +405,10 @@ $(document).ready(function() {
             }
             
             if (!validSearch && contentSelector === '.friends-search-results-container') {
-                $contentContainer.empty();
+                if(!$contentContainer.hasClass('add-friends-results-container')) {
+                    // Clear friends search results when input is cleared
+                    $contentContainer.empty();
+                }
             }
 
             // Show loading immediately when user types (if search term changed and not already loading)
@@ -468,7 +474,7 @@ $(document).ready(function() {
             } else {
                 paginateUrl = '/admin/wishlists/paginate';
             }
-        } else if (path.includes('/add-friends/find')) {
+        } else if (path.includes('/add-friends')) {
             paginateUrl = '/add-friends/search';
         }
         // Items/wishlist pages

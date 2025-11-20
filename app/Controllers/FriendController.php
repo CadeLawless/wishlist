@@ -22,20 +22,20 @@ class FriendController extends Controller
         
         $user = $this->auth();
 
-        $userFriendships = $this->friendService->getUserFriendships($user['username']);
-        $requestsReceivedCount = $this->friendService->getNumberOfReceivedRequests($user['username']);
-        $requestsSentCount = $this->friendService->getNumberOfSentRequests($user['username']);
+        $friendList = $this->friendService->getUserFriendList($user['username']);
+        $sentInvitations = $this->friendService->getSentFriendInvitations($user['username']);
+        $receivedInvitations = $this->friendService->getFriendInvitations($user['username']);
 
-        if(count($userFriendships) === 0 && $requestsReceivedCount === 0 && $requestsSentCount === 0){
+        if(count($friendList) === 0 && count($receivedInvitations) === 0){
             return $this->redirect('/add-friends/find');
         }
         
         $data = [
             'title' => 'Add Friends',
             'user' => $user,
-            'friendships' => $userFriendships,
-            'receivedRequestsCount' => $requestsReceivedCount,
-            'sentRequestsCount' => $requestsSentCount,
+            'friendList' => $friendList,
+            'receivedInvitations' => $receivedInvitations,
+            'sentInvitations' => $sentInvitations,
             'customStyles' =>
                 '#container { max-width: 700px; margin: clamp(20px, 4vw, 50px) auto; }'
         ];
@@ -47,17 +47,10 @@ class FriendController extends Controller
     {
         $user = $this->auth();
 
-        $friendsCount = $this->friendService->getNumberOfFriends($user['username']);
-        $requestsReceivedCount = $this->friendService->getNumberOfReceivedRequests($user['username']);
-        $requestsSentCount = $this->friendService->getNumberOfSentRequests($user['username']);
-
         $data = [
             'title' => 'Add Friends | Find',
             'user' => $user,
             'friendService' => $this->friendService,
-            'friendsCount' => $friendsCount,
-            'receivedRequestsCount' => $requestsReceivedCount,
-            'sentRequestsCount' => $requestsSentCount,
             'customStyles' =>
                 '#container { max-width: 700px; margin: clamp(20px, 4vw, 50px) auto; }'
         ];
@@ -69,23 +62,60 @@ class FriendController extends Controller
     {
         
         $searchTerm = trim($this->request->input('search', ''));
+
+        $isAddFriendsPage = filter_var($this->request->input('isAddFriendsPage', false), FILTER_VALIDATE_BOOLEAN);
+
+        $user = $this->auth();
         
         // Apply search filter if provided
         if (empty($searchTerm)) {
-            $this->response->json([
-                'status' => 'success',
-                'message' => 'No search term provided'
-            ], 200)->send();
-            return;
+            if (!$isAddFriendsPage) {
+                $this->response->json([
+                    'status' => 'success',
+                    'message' => 'No search term provided'
+                ], 200)->send();
+            } else {
+                $friendList = $this->friendService->getUserFriendList($user['username']);
+                $receivedInvitations = $this->friendService->getFriendInvitations($user['username']);
+                ob_start();
+                $type = 'friend';
+                require __DIR__ . '/../../views/components/friends-results.php';
+                $tableHtml = ob_get_clean();
+
+                header('Content-Type: application/json');
+                header('Cache-Control: no-cache, must-revalidate');
+
+                $this->response->json([
+                    'status' => 'success',
+                    'message' => 'No search term provided',
+                    'html' => $tableHtml,
+                    'totalRows' => count($friendList) + count($receivedInvitations)
+                ], 200)->send();
+            }
+            exit;
         }
 
-        $user = $this->auth();
 
         // Get all users
-        $allUsers = $this->friendService->searchForRequests($user['username'], $searchTerm);        
+        $allUsers = $this->friendService->searchForUsers($user['username'], $searchTerm);
+
+        $friendList = array_filter($allUsers, function ($friend) use ($user) {
+            $existingFriend = $this->friendService->findExistingFriend($user['username'], $friend['username']);
+            return $existingFriend !== null;
+        });
+
+        $newFriends = array_filter($allUsers, function ($friend) use ($user) {
+            $existingFriend = $this->friendService->findExistingFriend($user['username'], $friend['username']);
+            return $existingFriend === null;
+        });
+
+        $receivedInvitations = [];
 
         // Generate HTML for table rows only
-        $tableHtml = FriendRenderService::generateUserSearchResults($allUsers);
+        ob_start();
+        $type = 'search';
+        require __DIR__ . '/../../views/components/friends-results.php';
+        $tableHtml = ob_get_clean();
                 
         // Clear any output buffering first
         if (ob_get_level()) {
@@ -108,7 +138,7 @@ class FriendController extends Controller
         exit;
     }
 
-    public function sendFriendRequest(): Response
+    public function addFriend(): Response
     {
         $user = $this->auth();
         $targetUsername = trim($this->request->input('target_username', ''));
@@ -120,78 +150,35 @@ class FriendController extends Controller
             ], 400);
         }
 
-        $existingRequest = $this->friendService->findExistingFriendRequest($user['username'], $targetUsername);
-        if ($existingRequest !== null) {
+        $existingFriend = $this->friendService->findExistingFriend($user['username'], $targetUsername);
+        if ($existingFriend !== null) {
             return $this->json([
                 'status' => 'error',
                 'message' => 'A pending friend request already exists between you and this user'
             ], 400);
         }
 
-        $result = $this->friendService->sendFriendRequest($user['username'], $targetUsername);
+        try {
+            $result = $this->friendService->addFriendAndSendInvitation($user['username'], $targetUsername);
 
-        if($result !== null){
+            if($result !== null){
+                return $this->json([
+                    'status' => 'success',
+                    'message' => 'Friend request sent successfully',
+                    'data' => $result
+                ], 200);
+            }
+        } catch (\Exception $e) {
             return $this->json([
-                'status' => 'success',
-                'message' => 'Friend request sent successfully',
-                'data' => $result
-            ], 200);
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
         }
         
         return $this->json([
             'status' => 'error',
-            'message' => 'Cannot send friend request to yourself'
+            'message' => 'Something went wrong while adding friend to database'
         ], 400);
     }
 
-    public function sentRequests(): Response
-    {
-        $user = $this->auth();
-
-        $sentFriendRequests = $this->friendService->getSentFriendRequests($user['username']);
-
-        $sentFriendRequests = array_map(function($request){
-            $receiverInfo = $this->friendService->getNameAndProfilePicture($request['receiver_username']);
-            $request['name'] = $receiverInfo['name'];
-            $request['profile_picture'] = $receiverInfo['profile_picture'];
-            $request['username'] = $request['receiver_username'];
-            return $request;
-        }, $sentFriendRequests);
-
-
-        $data = [
-            'title' => 'Add Friends | Sent Requests',
-            'user' => $user,
-            'sentFriendRequests' => $sentFriendRequests,
-            'customStyles' =>
-                '#container { max-width: 700px; margin: clamp(20px, 4vw, 50px) auto; }'
-        ];
-
-        return $this->view('friends/sent-requests', $data);
-    }
-
-    public function receivedRequests(): Response
-    {
-        $user = $this->auth();
-
-        $receivedFriendRequests = $this->friendService->getUserFriendRequests($user['username']);
-
-        $receivedFriendRequests = array_map(function($request){
-            $senderInfo = $this->friendService->getNameAndProfilePicture($request['sender_username']);
-            $request['name'] = $senderInfo['name'];
-            $request['profile_picture'] = $senderInfo['profile_picture'];
-            $request['username'] = $request['sender_username'];
-            return $request;
-        }, $receivedFriendRequests);
-
-        $data = [
-            'title' => 'Add Friends | Requests',
-            'user' => $user,
-            'receivedFriendRequests' => $receivedFriendRequests,
-            'customStyles' =>
-                '#container { max-width: 700px; margin: clamp(20px, 4vw, 50px) auto; }'
-        ];
-
-        return $this->view('friends/requests', $data);
-    }
 }

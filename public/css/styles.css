@@ -40,6 +40,8 @@ body {
     --border-invalid: red;
     --text-invalid: #d32f2f;
     --red-button: #8f4646;
+    --transparent-contrast: #00000012;
+    --transparent-contrast-hover: #00000030;
 }
 body.dark {
     --text: #d1d4d6;
@@ -66,6 +68,8 @@ body.dark {
     --input-background: #3a3a3ac2;
     --border-invalid: #ffa2a2;
     --text-invalid: #ffb4b4;
+    --transparent-contrast: #ffffff1f;
+    --transparent-contrast-hover: #ffffff14;
 }
 /* general css */
 * {
@@ -2209,9 +2213,10 @@ img.gift-wrap {
     column-gap: 2rem;
     row-gap: 1rem;
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 2px;
-    border: 1px solid var(--text-lighter);
+    padding: 0.7rem;
+    border-radius: 4px;
+    background-color: var(--background-darker);
+    border: 2px solid var(--text-transparent);
 
     & .user-info {
         display: flex;
@@ -2228,6 +2233,33 @@ img.gift-wrap {
         & .user-name {
             font-weight: bold;
             font-size: 1.1rem;
+        }
+
+        & .user-wishlists-link .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            background-color: var(--transparent-contrast);
+            color: var(--text);
+            padding: 3px 7px;
+            font-size: 0.9rem;
+
+            &:hover {
+                background-color: var(--transparent-contrast-hover);
+            }
+
+            & > span {
+                color: var(--text);
+                font-size: 0.9rem;
+            }
+
+            & .icon {
+                width: 1.6rem;
+                height: 1.6rem;
+                background-color: unset;
+                border: 0;
+                padding: 0;
+            }
         }
     }
 
@@ -2285,6 +2317,10 @@ img.gift-wrap {
             }
         }
     }
+}
+
+.received-invitations-container .user-result {
+    grid-template-columns: 3fr 2fr;
 }
 
 .notification-banner {
@@ -2589,7 +2625,7 @@ img.gift-wrap {
 }
 @media (max-width: 660px) {
     .user-result {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         row-gap: 1rem;
 
         & .friend-actions:has(.cancel-button, .accept-button, .decline-button) {

@@ -2,66 +2,113 @@
 
 namespace App\Services;
 
-use App\Models\Friendship;
-use App\Models\FriendRequest;
+use App\Models\FriendList;
+use App\Models\FriendInvitation;
 use App\Models\User;
 
 class FriendService
 {
     public function __construct(
-        private Friendship $friendship = new Friendship(),
-        private FriendRequest $friendRequest = new FriendRequest(),
+        private FriendList $friendList = new FriendList(),
+        private FriendInvitation $friendInvitation = new FriendInvitation(),
         private User $user = new User(),
     ) {}
 
-    public function createFriendship(string $username, array $data): ?array
+    public function addFriend(string $username, string $targetUsername): ?array
     {
-        $data['username_1'] = $username;
-        return $this->friendship->createFriendship($data);
+        $result = $this->friendList->addFriend([
+            'username' => $username,
+            'friend_username' => $targetUsername
+        ]);
+
+        if($result === null){
+            throw new \Exception("Failed to add friend");
+        }
+
+        return $result;
     }
 
-    public function getUserFriendships(string $username): array
+    public function addFriendAndSendInvitation(string $username, string $targetUsername): ?array
     {
-        return $this->friendship->getFriendshipsByUsername($username);
+        try {
+            $this->friendList->beginTransaction();
+
+            $existingOutgoingFriend = $this->findExistingFriend($username, $targetUsername);
+            if ($existingOutgoingFriend !== null) {
+                $this->friendList->rollback();
+                return null;
+            }
+
+            $this->addFriend($username, $targetUsername);
+
+            $existingIncomingFriend = $this->findExistingFriend($targetUsername, $username);
+            $existingIncomingInvitation = $this->friendInvitation->findInvitation($targetUsername, $username);
+            $existingOutgoingInvitation = $this->friendInvitation->findInvitation($username, $targetUsername);
+            if ($existingIncomingFriend === null && $existingIncomingInvitation === null && $existingOutgoingInvitation === null) {
+                $this->sendInvitation($username, $targetUsername);
+            }
+
+            $this->friendList->commit();
+
+            return ['status' => 'success'];
+        } catch (\Exception $e) {
+            $this->friendList->rollback();
+            return null;
+        }
     }
 
-    public function getUserFriendRequests(string $username): array
+    public function getUserFriendList(string $username): array
     {
-        return $this->friendRequest->getReceivedFriendRequestsByUsername($username);
+        return $this->friendList->getFriendsByUsername($username);
     }
 
-    public function getSentFriendRequests(string $username): array
+    public function getFriendInvitations(string $username): array
     {
-        return $this->friendRequest->getSentFriendRequestsByUsername($username);
+        $receivedInvitations = $this->friendInvitation->getReceivedInvitationsByUsername($username);
+
+        $receivedInvitations = $this->addNameAndProfilePictureToRequests($receivedInvitations, 'received');
+
+        return $receivedInvitations;
+
     }
 
-    public function sendFriendRequest(string $username, string $targetUsername): ?array
+    public function getSentFriendInvitations(string $username): array
     {
-        return $this->friendRequest->createFriendRequest([
+        $sentInvitations = $this->friendInvitation->getSentInvitationsByUsername($username);
+
+        $sentInvitations = $this->addNameAndProfilePictureToRequests($sentInvitations, 'sent');
+
+        return $sentInvitations;
+    }
+
+    public function sendInvitation(string $username, string $targetUsername): ?array
+    {
+        $result = $this->friendInvitation->createInvitation([
             'sender_username' => $username,
             'receiver_username' => $targetUsername
         ]);
+
+        if($result === null){
+            throw new \Exception("Failed to send friend invitation");
+        }
+
+        return $result;
     }
 
-    public function findExistingFriendRequest(string $senderUsername, string $receiverUsername): ?array
-    {
-        return $this->friendRequest->findByUsernames($senderUsername, $receiverUsername);
-    }
-
-    public function searchForRequests(string $username, string $searchTerm): array
+    public function searchForUsers(string $username, string $searchTerm): array
     {
         $allUsers = User::findNameAndEmailForAll();
         $allUsers = array_filter($allUsers, function($u) use ($username) {
             return $u['username'] !== $username;
         });
         $filteredUsers = array_values($this->filterUsers($allUsers, $searchTerm));
-        $allUsersWithExistingRequest = array_map(function($user) use ($username) {
-            $existingRequest = (new FriendRequest())->findByUsernames($username, $user['username']);
-            $user['existing_friend_request'] = $existingRequest !== null;
-            return $user;
-        }, $filteredUsers);
 
-        return $allUsersWithExistingRequest;
+        return $filteredUsers;
+    }
+
+    public function findExistingFriend(string $username, string $friendUsername): ?array
+    {
+        return $this->friendList->findFriendByUsername($username, $friendUsername);
     }
 
         /**
@@ -90,16 +137,28 @@ class FriendService
 
     public function getNumberOfFriends(string $username): int
     {
-        return $this->friendship->getCountOfFriendsByUsername($username);
+        return $this->friendList->getCountOfFriendsByUsername($username);
     }
 
     public function getNumberOfReceivedRequests(string $username): int
     {
-        return $this->friendRequest->getCountOfReceivedRequests($username);
+        return $this->friendInvitation->getCountOfReceivedInvitations($username);
     }
 
     public function getNumberOfSentRequests(string $username): int
     {
-        return $this->friendRequest->getCountOfSentRequests($username);
+        return $this->friendInvitation->getCountOfSentInvitations($username);
+    }
+
+    public function addNameAndProfilePictureToRequests(array $requests, string $type): array
+    {
+        return array_map(function($request) use ($type) {
+            $userType = $type === 'sent' ? 'receiver' : 'sender';
+            $userInfo = $this->getNameAndProfilePicture($request[$userType . '_username']);
+            $request['username'] = $request[$userType . '_username'];
+            $request['name'] = $userInfo['name'];
+            $request['profile_picture'] = $userInfo['profile_picture'];
+            return $request;
+        }, $requests);
     }
 }
