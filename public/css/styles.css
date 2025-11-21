@@ -231,6 +231,41 @@ label {
     background-color: var(--transparent-background);
 }
 
+#invitation-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 20px;
+    background: var(--background-darker);
+    color: var(--text);
+    border-radius: 4px;
+    z-index: 99999;
+    cursor: pointer;
+    max-width: min(400px, 80%);
+    box-shadow: var(--text-transparent) 0px 0px 3px;
+    animation: slide-in 0.5s forwards;
+    animation-delay: 1.5s;
+    opacity: 0;
+
+    & small {
+        color: var(--text-lighter);
+        margin-top: 0.5rem;
+        display: block;
+        font-size: 0.9rem;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 /* sidebar css */
 .sidebar-main {
     display: flex;
@@ -474,7 +509,7 @@ body.dark .table-search-loading-overlay {
     align-items: center;
 }
 .header .title {
-    flex-basis: calc(100% - 760px);
+    flex-basis: calc(100% - 790px);
     display: grid;
     grid-template-columns: auto auto;
     grid-auto-rows: auto;

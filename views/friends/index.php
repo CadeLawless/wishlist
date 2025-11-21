@@ -1,5 +1,5 @@
 <?php 
-if(isset($_GET['search'])) {
+if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $searchTerm = trim($_GET['search']);
     list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
 }

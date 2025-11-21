@@ -29,6 +29,18 @@ class FriendInvitation extends Model
             ->getAll();
     }
 
+    public static function getPendingInvitationsCount(string $username): int
+    {
+        $model = new self();
+        $result = $model->queryBuilder
+            ->columns(['COUNT(*) AS invitation_count'])
+            ->where('receiver_username', $username)
+            ->andWhere('status', 'pending')
+            ->first();
+
+        return $result ? (int)$result['invitation_count'] : 0;
+    }
+
     public function createInvitation(array $data): ?array
     {
         $today = date("Y-m-d H:i:s");

@@ -1,5 +1,34 @@
 <?php
 $currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_URI"])[0] : "/";
+
+// Check cookie
+$showPopup = false;
+
+if(isset($user)) {
+    $pendingInvitationsCount = App\Models\FriendInvitation::getPendingInvitationsCount($user['username']);
+
+    if ($pendingInvitationsCount > 0) {
+        if($currentPage === "/add-friends") {
+            $showPopup = false;
+            // Set cookie for 24 hours
+            setcookie('last_invitation_popup', time(), time() + 86400, '/');
+        } else {
+            if (!isset($_COOKIE['last_invitation_popup'])) {
+                $showPopup = true;
+            } else {
+                $lastShown = (int) $_COOKIE['last_invitation_popup'];
+                if (time() - $lastShown >= 86400) { // 24 hours
+                    $showPopup = true;
+                }
+            }
+        }
+    }else {
+        // No pending invitations, ensure cookie is cleared
+        if (isset($_COOKIE['last_invitation_popup'])) {
+            setcookie('last_invitation_popup', '', time() - 3600, '/');
+        }
+    }
+}
 ?>
 <div class="header-container">
     <div class="header">
@@ -37,3 +66,21 @@ $currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_U
         </div>
     </div>
 </div>
+
+<?php if ($showPopup): ?>
+    <div id="invitation-popup">
+        Other wishers have added you as their friend! Check your "Add Friends" page to see.
+        <br>
+        <small>Click to dismiss</small>
+    </div>
+
+    <script>
+    document.getElementById('invitation-popup').addEventListener('click', function() {
+        // Set cookie for 24 hours
+        const now = Math.floor(Date.now() / 1000);
+        document.cookie = "last_invitation_popup=" + now + "; max-age=86400; path=/";
+
+        this.remove();
+    });
+    </script>
+<?php endif; ?>
