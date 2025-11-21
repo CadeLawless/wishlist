@@ -32,7 +32,7 @@ class FriendRenderService
                 <div class="user-info">
                     <div class="user-profile-picture <?= $userUploadClass; ?>" <?= $userUploadClass ? 'title="Upload New Photo"' : ''; ?>>
                         <?php if ($profilePicture): ?>
-                            <img class="profile-picture popup-button" src="/public/images/profile-pictures/<?= htmlspecialchars($profilePicture); ?>" alt="<?= $name; ?>'s Profile Picture" />
+                            <img class="profile-picture popup-button" src="/public/images/profile-pictures/<?= htmlspecialchars($profilePicture); ?>?t=<?= time(); ?>" alt="<?= $name; ?>'s Profile Picture" />
                         <?php else: ?>
                             <div class="profile-picture popup-button placeholder"><?= strtoupper($name[0]); ?></div>
                         <?php endif; ?>
