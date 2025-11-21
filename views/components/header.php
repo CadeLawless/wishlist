@@ -3,6 +3,7 @@ $currentPage = isset($_SERVER["REQUEST_URI"]) ? explode("?", $_SERVER["REQUEST_U
 
 // Check cookie
 $showPopup = false;
+$showFeaturePopup = false;
 
 if(isset($user)) {
     $pendingInvitationsCount = App\Models\FriendInvitation::getPendingInvitationsCount($user['username']);
