@@ -6,9 +6,16 @@ $showPopup = false;
 $showFeaturePopup = false;
 
 if(isset($user)) {
+    $showFeaturePopup = $user['feature_update_seen'] === 'No';
+
+    if ($showFeaturePopup) {
+        // Update user to mark feature update as seen
+        App\Models\User::updateFeatureUpdateSeen($user['username'], 'Yes');
+    }
+
     $pendingInvitationsCount = App\Models\FriendInvitation::getPendingInvitationsCount($user['username']);
 
-    if ($pendingInvitationsCount > 0) {
+    if ($pendingInvitationsCount > 0 && !$showFeaturePopup) {
         if($currentPage === "/add-friends") {
             $showPopup = false;
             // Set cookie for 24 hours
@@ -20,22 +27,15 @@ if(isset($user)) {
                 $lastShown = (int) $_COOKIE['last_invitation_popup'];
                 if (time() - $lastShown >= 86400) { // 24 hours
                     $showPopup = true;
-                }
-            }
-        }
+                }    
+            }    
+        }    
     }else {
         // No pending invitations, ensure cookie is cleared
         if (isset($_COOKIE['last_invitation_popup'])) {
             setcookie('last_invitation_popup', '', time() - 3600, '/');
-        }
-    }
-
-    $showFeaturePopup = $user['feature_update_seen'] === 'No';
-
-    if ($showFeaturePopup) {
-        // Update user to mark feature update as seen
-        App\Models\User::updateFeatureUpdateSeen($user['username'], 'Yes');
-    }
+        }    
+    }    
 
 }
 ?>
