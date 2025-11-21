@@ -1,12 +1,17 @@
 <?php
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
 // Load Composer autoloader
 require_once __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->safeLoad();
+
+// Enable error reporting for debugging only in DEVELOPMENT environment
+if ($_ENV['APP_ENV'] === 'local') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+}
 
 // Load configuration
 \App\Core\Config::load();

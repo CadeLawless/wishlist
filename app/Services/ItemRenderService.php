@@ -100,7 +100,7 @@ class ItemRenderService
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
-            <div class='item-description'>
+            <div class='item-description' <?php if($isPurchasedInBuyerView) echo "style='flex-grow: 0;'"; ?>>
                 <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
                 <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
@@ -348,7 +348,7 @@ class ItemRenderService
                 <?php endif; ?>
                 </div>
                 <?php if(!$isPurchasedInBuyerView && count($userWishLists) > 0): ?>
-                    <div class="center">
+                    <div class="center" style="margin: 0.5rem 0;">
                         <a class="button primary popup-button" href="#">Add to My Wish List</a>
                         <div class="popup-container hidden">
                             <div class="popup">

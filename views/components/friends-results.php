@@ -1,5 +1,5 @@
 <?php if(count($receivedInvitations) > 0){ ?>
-    <h2 style="margin-bottom: 0;">Suggested Friends</h2>
+    <h2 style="margin: 0;">Suggested Friends</h2>
     <p>These fellow wishers have recently added you as their friend. Add them back below!</p>
 
     <div class="received-invitations-container">
@@ -9,8 +9,8 @@
 
 <?php if (isset($newFriends)): ?>
     <?php if (count($newFriends) > 0 || count($friendList) === 0): ?>
-        <?php if(isset($type) && !in_array($type, ['profile', 'public'])): ?>
-            <h2>Search Results</h2>
+        <?php if(!isset($type) || !in_array($type, ['profile', 'public'])): ?>
+            <h2 style="margin-top: 0; padding-left: 1px;">Search Results</h2>
         <?php endif; ?>
         <?php if (count($newFriends) > 0): ?>
             <?php echo \App\Services\FriendRenderService::generateUserSearchResults($newFriends, $type ?? 'search', $searchTerm ?? null); ?>
@@ -23,7 +23,7 @@
 <?php endif; ?>
 
 <?php if (count($friendList) > 0): ?>
-    <h2>Your Friends</h2>
+    <h2 style="margin-top: 0;">Your Friends</h2>
 
     <?php echo \App\Services\FriendRenderService::generateUserSearchResults($friendList, 'friend', $searchTerm ?? null); ?>
 <?php endif; ?>

@@ -60,7 +60,7 @@ if (isset($flash['success'])) {
     <?php endif; ?>
     
     <?php if(empty($items)): ?>
-        <p>No items in this wishlist yet.</p>
+        <p style="padding: 0.6rem; border-radius: 4px; background-color: var(--transparent-background);">No items in this wishlist yet.</p>
     <?php else: ?>
         <div class='items-list-sub-container'>
             <div class="items-list main">
