@@ -28,6 +28,14 @@ if(isset($user)) {
             setcookie('last_invitation_popup', '', time() - 3600, '/');
         }
     }
+
+    $showFeaturePopup = $user['feature_update_seen'] === 'No';
+
+    if ($showFeaturePopup) {
+        // Update user to mark feature update as seen
+        App\Models\User::updateFeatureUpdateSeen($user['username'], 'Yes');
+    }
+
 }
 ?>
 <div class="header-container">
@@ -66,6 +74,28 @@ if(isset($user)) {
         </div>
     </div>
 </div>
+
+<?php if ($showFeaturePopup): ?>
+    <div class="popup-container">
+        <div class="popup active">
+            <div class="close-container">
+                <a href="#" class="close-button">
+                    <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
+                </a>
+            </div>
+            <div class="popup-content">
+                <h2 style="margin-top: 0;">New Feature Update!</h2>
+                <p>We've just launched some exciting new features to enhance your Any Wish List experience:</p>
+                <ul>
+                    <li style="margin-bottom: 0.6rem;"><strong>Profile Customization:</strong> Upload your own profile picture to personalize your account.</li>
+                    <li style="margin-bottom: 0.6rem;"><strong>Add Friends Page:</strong> Easily search for friends, view their wish list, and add them to your friend list.</li>
+                    <li><strong>Direct Item Addition:</strong> When viewing a friend's wish list, you can now add items directly to your own wish list.</li>
+                </ul>
+                <p>Hope you enjoy the update — Cade and Meleah :)</p>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <?php if ($showPopup): ?>
     <div id="invitation-popup">
