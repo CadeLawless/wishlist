@@ -98,4 +98,14 @@ class User extends Model
             ->where('username', $username)
             ->update();
     }
+
+    public static function updateFeatureUpdateSeen(string $username, string $status): bool
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['feature_update_seen'])
+            ->params([$status])
+            ->where('username', $username)
+            ->update();
+    }
 }
