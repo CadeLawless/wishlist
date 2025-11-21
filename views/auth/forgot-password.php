@@ -51,7 +51,7 @@ if (isset($flash['error'])) {
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Send Email"></p>
 </form>
 
-<script src="/public/js/form-validation.js?v=2.1"></script>
+<script src="/public/js/form-validation.js?v=2.5"></script>
 <script>
 $(document).ready(function() {
     FormValidator.init('#login-form', {

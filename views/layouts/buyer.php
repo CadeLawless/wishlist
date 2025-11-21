@@ -79,8 +79,8 @@
     </div>
     <?php include __DIR__ . '/../components/footer.php'; ?>
     
-    <script src="/public/js/wishlist-filters.js?v=2.1"></script>
-    <script src="/public/js/pagination.js?v=2.1"></script>
+    <script src="/public/js/wishlist-filters.js?v=2.5"></script>
+    <script src="/public/js/pagination.js?v=2.5"></script>
     <script>
     // Client-side dark mode toggle for buyer view (runs after footer)
     $(document).ready(function(){

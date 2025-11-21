@@ -2,7 +2,7 @@
   <p class="center">&copy; <?php echo date("Y"); ?> Any Wish List.<br>
   Designed by Cade and Meleah Lawless. All rights reserved.</p>
 </footer>
-<script src="/public/js/popups.js?v=2.1"></script>
+<script src="/public/js/popups.js?v=2.5"></script>
 <script>
   $(document).ready(function(){
     let isToggling = false; // Prevent multiple simultaneous requests
