@@ -37,7 +37,7 @@ if (isset($flash['error'])) {
 ?>
 <div>
     <div class="form-container">
-        <h1>New Wish List</h1>
+        <h1>Create Wish List</h1>
         <form method="POST" action="/wishlists">
             <?php echo $error_msg ?? ""; ?>
             <div class="flex form-flex">
@@ -78,11 +78,8 @@ if (isset($flash['error'])) {
 </div>
 
 <style>
-    #body {
-        padding-top: 84px;
-    }
     .form-container {
-        margin: clamp(20px, 4vw, 60px) auto 30px;
+        margin: 0 auto 30px;
         background-color: var(--background-darker);
         max-width: 500px;
     }

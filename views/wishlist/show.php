@@ -68,7 +68,6 @@ $priority_order = $sort_priority ? "priority ASC, " : "";
 $price_order = $sort_price ? "price {$sort_price}, " : "";
 ?>
 <input type="hidden" id="wishlist_type" value="<?php echo strtolower($type); ?>" />
-<div id="container">
             <?php
             // All popups are now handled by PopupHelper at the top of the file
             ?>
@@ -77,7 +76,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <img class='background-theme desktop-background' src="/public/images/site-images/themes/desktop-backgrounds/<?php echo $background_image; ?>" />
                 <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
-            <p style="padding-top: 15px;">
+            <p>
                 <a class="button accent" href="<?php echo isset($isAdminView) && $isAdminView ? '/admin/wishlists' : '/wishlists'; ?>">
                     Back to All Wish Lists
                 </a>
@@ -338,12 +337,14 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     </div>
                 </div>
             </div>
-            
-            <div class="center">
-                <div class="wishlist-total">
-                    <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                                                    
+            <?php if(isset($wishlist_total_price)): ?>
+                <div class="center">
+                    <div class="wishlist-total">
+                        <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
                     <!-- Sort/Filter section -->
                     <?php if(count($items) > 0): ?>
@@ -429,7 +430,6 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             </div>
 
         </div>
-    </div>
     
     <!-- Image Popup Container -->
     <div class='popup-container image-popup-container hidden'>

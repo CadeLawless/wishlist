@@ -37,7 +37,7 @@ if (!empty($queryParams)) {
     $backUrl .= "?" . implode("&", $queryParams);
 }
 ?>
-<p style="padding-top: 15px;"><a class="button accent" href="<?php echo $backUrl; ?>">Back to List</a></p>
+<p><a class="button accent" href="<?php echo $backUrl; ?>">Back to List</a></p>
 <div class="center">
     <div class="wishlist-header transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>

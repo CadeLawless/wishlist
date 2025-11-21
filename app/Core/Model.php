@@ -2,6 +2,9 @@
 
 namespace App\Core;
 
+use App\Core\Database;
+use App\Core\QueryBuilder;
+
 /**
  * Abstract base model class providing CRUD operations for all models
  * 
@@ -12,6 +15,12 @@ abstract class Model
 {
     protected static string $table;
     protected static string $primaryKey = 'id';
+    protected QueryBuilder $queryBuilder;
+
+    public function __construct()
+    {
+        $this->queryBuilder = new QueryBuilder(static::$table);
+    }
 
     public static function all(): array
     {
@@ -64,5 +73,20 @@ abstract class Model
         $sql = "DELETE FROM " . static::$table . " WHERE " . static::$primaryKey . " = ?";
         $stmt = Database::query($sql, [$id]);
         return $stmt->affected_rows > 0;
+    }
+
+    public function beginTransaction(): void
+    {
+        Database::beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        Database::commit();
+    }
+
+    public function rollback(): void
+    {
+        Database::rollback();
     }
 }

@@ -23,6 +23,9 @@ class UserRequestValidator extends BaseValidator
         $usernameErrors = $this->validateLength($data, 'username', Constants::MIN_USERNAME_LENGTH, Constants::MAX_USERNAME_LENGTH);
         $errors = $this->mergeErrors($errors, $usernameErrors);
         
+        $usernameInvalidCharErrors = $this->validateCharactersNotAllowed($data, 'username', Constants::USERNAME_CHARACTERS_NOT_ALLOWED);
+        $errors = $this->mergeErrors($errors, $usernameInvalidCharErrors);
+        
         // Name validation
         $nameErrors = $this->validateLength($data, 'name', Constants::MIN_NAME_LENGTH, Constants::MAX_NAME_LENGTH);
         $errors = $this->mergeErrors($errors, $nameErrors);

@@ -121,6 +121,7 @@ class AdminController extends Controller
         $totalUsers = count($allUsers);
         
         $data = [
+            'title' => 'Admin Center | Users',
             'user' => $user,
             'users' => $users,
             'all_users' => $allUsers,
@@ -158,6 +159,7 @@ class AdminController extends Controller
         $totalBackgrounds = count($allBackgrounds);
         
         $data = [
+            'title' => 'Admin Center | Backgrounds',
             'user' => $user,
             'backgrounds' => $backgrounds,
             'all_backgrounds' => $allBackgrounds,
@@ -195,6 +197,7 @@ class AdminController extends Controller
         $totalGiftWraps = count($allGiftWraps);
         
         $data = [
+            'title' => 'Admin Center | Gift Wraps',
             'user' => $user,
             'giftWraps' => $giftWraps,
             'all_gift_wraps' => $allGiftWraps,
@@ -238,6 +241,7 @@ class AdminController extends Controller
         $totalWishlists = count($allWishlists);
         
         $data = [
+            'title' => 'Admin Center | Wish Lists',
             'user' => $user,
             'wishlists' => $wishlists,
             'all_wishlists' => $allWishlists,
@@ -500,6 +504,7 @@ class AdminController extends Controller
         }
         
         $data = [
+            'title' => 'Edit Background',
             'user' => $user,
             'background' => $background,
             'pageno' => $pageno,
@@ -716,6 +721,7 @@ class AdminController extends Controller
         $giftWrapImages = $this->fileUploadService->getGiftWrapImages($giftWrap['theme_image']);
         
         $data = [
+            'title' => 'Edit Gift Wrap',
             'user' => $user,
             'giftWrap' => $giftWrap,
             'pageno' => $pageno,
@@ -974,6 +980,7 @@ class AdminController extends Controller
         }
         
         $data = [
+            'title' => 'Edit User',
             'user' => $user,
             'editUser' => $editUser,
             'pageno' => $pageno,
@@ -1114,6 +1121,8 @@ class AdminController extends Controller
         if (!$wishlist) {
             return $this->redirect('/admin/wishlists')->withError('Wishlist not found.');
         }
+
+        $wishlistTotalPrice = \App\Models\Item::getItemsTotalPrice($id, $wishlist['username']);
         
         // Get the wishlist owner's username for the service call
         $wishlistUsername = $wishlist['username'];
@@ -1162,8 +1171,10 @@ class AdminController extends Controller
         }
         
         $data = [
+            'title' => 'Admin | ' . $wishlist['wishlist_name'],
             'user' => $user,
             'wishlist' => $wishlist,
+            'wishlist_total_price' => $wishlistTotalPrice,
             'items' => $paginatedItems,
             'all_items' => $allItems, // For total count display
             'other_wishlists' => $otherWishlists,

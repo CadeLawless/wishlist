@@ -74,4 +74,28 @@ class User extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return (int)$result['count'];
     }
+
+    public static function findProfileForAll(): array
+    {
+        $stmt = \App\Core\Database::query("SELECT username, name, profile_picture FROM " . static::$table);
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getNameAndProfilePictureByUsername(string $username): ?array
+    {
+        return $this->queryBuilder
+            ->columns(['name', 'profile_picture'])
+            ->where('username', $username)
+            ->first();
+    }
+
+    public static function updateProfilePicture(string $username, string $filename): bool
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['profile_picture'])
+            ->params([$filename])
+            ->where('username', $username)
+            ->update();
+    }
 }

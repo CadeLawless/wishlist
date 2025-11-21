@@ -70,6 +70,7 @@ class WishlistController extends Controller
         }
         
         $data = [
+            'title' => $user['name'] . "'s Wish Lists",
             'user' => $user,
             'wishlists' => $paginatedWishlists,
             'all_wishlists' => $allWishlists,
@@ -88,6 +89,38 @@ class WishlistController extends Controller
         return $this->view('wishlist/index', $data);
     }
 
+    public function publicUserWishlists(string $username): Response
+    {
+        $user = $this->auth(); // Non-authenticated users can view public wishlists
+
+        $publicUser = $this->wishlistService->getUserByUsername($username);
+        if (!$publicUser) {
+            return $this->view('errors/404', ['title' => '404 - Page Not Found'], 'error');
+        }
+        $publicUser['username'] = $username;
+
+        $wishlists = $this->wishlistService->getUserWishlists($username);
+
+        $wishlists = array_filter($wishlists, function($wishlist) {
+            return $wishlist['visibility'] === 'Public' && $wishlist['complete'] === 'No';
+        });
+
+        $data = [
+            'title' => $publicUser['name'] . "'s Wish Lists",
+            'user' => $user,
+            'public_user' => $publicUser,
+            'wishlists' => $wishlists,
+            'customStyles' => '#container { max-width: 1200px; margin: clamp(20px, 4vw, 50px) auto; }'
+        ];
+
+        return $this->view('wishlist/public-index', $data);
+    }
+
+    public static function showWishListDataWithTitle(array $data, array $wishlist):array
+    {
+        $data['title'] = $wishlist['wishlist_name'];
+        return $data;
+    }
 
     public function show(string|int $id): Response
     {
@@ -172,7 +205,13 @@ class WishlistController extends Controller
             'searchTerm' => $searchTerm
         ];
 
-        return $this->view('wishlist/show', $data);
+        return $this->view('wishlist/show', WishlistController::showWishListDataWithTitle($data, $wishlist));
+    }
+
+    public static function createWishListDataWithTitle(array $data):array
+    {
+        $data['title'] = 'Create Wish List';
+        return $data;
     }
 
     public function create(): Response
@@ -181,7 +220,6 @@ class WishlistController extends Controller
         $user = $this->auth();
         
         $data = [
-            'title' => 'Create a Wish List',
             'user' => $user,
             'wishlist_type' => $this->request->input('wishlist_type', ''),
             'wishlist_name' => $this->request->input('wishlist_name', ''),
@@ -189,7 +227,7 @@ class WishlistController extends Controller
             'theme_gift_wrap_id' => $this->request->input('theme_gift_wrap_id', '')
         ];
 
-        return $this->view('wishlist/create', $data);
+        return $this->view('wishlist/create', WishlistController::createWishListDataWithTitle($data));
     }
 
     public function store(): Response
@@ -200,14 +238,14 @@ class WishlistController extends Controller
         $errors = $this->wishlistValidator->validateWishlist($data);
 
         if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->view('wishlist/create', [
+            return $this->view('wishlist/create', WishlistController::createWishListDataWithTitle([
                 'user' => $user,
                 'wishlist_type' => $data['wishlist_type'] ?? '',
                 'wishlist_name' => $data['wishlist_name'] ?? '',
                 'theme_background_id' => $data['theme_background_id'] ?? '',
                 'theme_gift_wrap_id' => $data['theme_gift_wrap_id'] ?? '',
                 'error_msg' => $this->wishlistValidator->formatErrorsForDisplay($errors)
-            ]);
+            ]));
         }
 
         $wishlist = $this->wishlistService->createWishlist($user['username'], $data);
@@ -216,79 +254,14 @@ class WishlistController extends Controller
             return $this->redirect("/wishlists/{$wishlist['id']}")->withSuccess('Wish list created successfully!');
         }
 
-        return $this->view('wishlist/create', [
+        return $this->view('wishlist/create', WishlistController::createWishListDataWithTitle([
             'user' => $user,
             'wishlist_type' => $data['wishlist_type'] ?? '',
             'wishlist_name' => $data['wishlist_name'] ?? '',
             'theme_background_id' => $data['theme_background_id'] ?? '',
             'theme_gift_wrap_id' => $data['theme_gift_wrap_id'] ?? '',
             'error_msg' => '<div class="submit-error"><strong>Wish list creation failed:</strong><ul><li>Unable to create wishlist. Please try again.</li></ul></div>'
-        ]);
-    }
-
-    public function edit(string|int $id): Response
-    {
-        
-        $user = $this->auth();
-        
-        $id = $this->validateId($id);
-        if ($id instanceof Response) {
-            return $id;
-        }
-        
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
-        }
-
-        $data = [
-            'user' => $user,
-            'wishlist' => $wishlist,
-            'wishlist_name' => $this->request->input('wishlist_name', $wishlist['wishlist_name'])
-        ];
-
-        return $this->view('wishlist/edit', $data);
-    }
-
-    public function update(string|int $id): Response
-    {
-        
-        $user = $this->auth();
-        
-        $id = $this->validateId($id);
-        if ($id instanceof Response) {
-            return $id;
-        }
-        
-        $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
-        
-        if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
-        }
-
-        $data = $this->request->input();
-        $errors = $this->wishlistValidator->validateWishlist($data);
-
-        if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->view('wishlist/edit', [
-                'user' => $user,
-                'wishlist' => $wishlist,
-                'wishlist_name' => $data['wishlist_name'] ?? '',
-                'error_msg' => $this->wishlistValidator->formatErrorsForDisplay($errors)
-            ]);
-        }
-
-        if ($this->wishlistService->updateWishlistName($id, $data['wishlist_name'])) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list updated successfully!');
-        }
-
-        return $this->view('wishlist/edit', [
-            'user' => $user,
-            'wishlist' => $wishlist,
-            'wishlist_name' => $data['wishlist_name'] ?? '',
-            'error_msg' => '<div class="submit-error"><strong>Update failed:</strong><ul><li>Unable to update wishlist. Please try again.</li></ul></div>'
-        ]);
+        ]));
     }
 
     public function delete(string|int $id): Response
@@ -872,18 +845,5 @@ class WishlistController extends Controller
             </div>
         </div>
         <div class='count-showing'>Showing {$startItem}-{$endItem} of {$totalItems} items</div>";
-    }
-    
-    /**
-     * Generate success message popup using PopupManager
-     */
-    private function generateSuccessPopup(string $title, string $message): string
-    {
-        return PopupManager::generateInfoPopup([
-            'title' => $title,
-            'message' => $message,
-            'type' => 'standard',
-            'classes' => 'active'
-        ]);
     }
 }

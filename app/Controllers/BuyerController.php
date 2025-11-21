@@ -15,13 +15,20 @@ class BuyerController extends Controller
 {
     public function __construct(
         private WishlistService $wishlistService = new WishlistService(),
-        private PaginationService $paginationService = new PaginationService()
+        private PaginationService $paginationService = new PaginationService(),
     ) {
         parent::__construct();
     }
 
     public function show(string $secretKey): Response
     {
+        $user = $this->auth();
+
+        $userWishLists = [];
+        if ($user) {
+            $userWishLists = $this->wishlistService->getUserWishlists($user['username']);
+        }
+
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
         
         if (!$wishlist) {
@@ -59,6 +66,9 @@ class BuyerController extends Controller
         $stats = $this->wishlistService->getWishlistStats($wishlist['id']);
         
         $data = [
+            'title' => $wishlist['wishlist_name'],
+            'user' => $user,
+            'user_wishlists' => $userWishLists,
             'wishlist' => $wishlist,
             'items' => $paginatedItems,
             'all_items' => $allItems,
@@ -67,7 +77,11 @@ class BuyerController extends Controller
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'sort_priority' => $sort_priority,
-            'sort_price' => $sort_price
+            'sort_price' => $sort_price,
+            'customStyles' => '
+                .wishlist-header {
+                    margin: 0 0 20px;
+                }'
         ];
 
         return $this->view('buyer/show', $data, 'buyer');
@@ -282,6 +296,35 @@ class BuyerController extends Controller
         
         echo json_encode($jsonData);
         exit;
+    }
+
+    public function addItemToUserWishlist(): Response
+    {
+        $user = $this->auth();
+        if (!$user) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'You must be logged in to add items to your wishlist.',
+            ]);
+        }
+
+        $username = $user['username'];
+
+        $itemId = (int) $this->request->input('item_id');
+        $wishListId = (int) $this->request->input('wishlist_id');
+
+        $result = $this->wishlistService->addItemToUserList($itemId, $wishListId, $username);
+        if($result) {
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Item added to your wishlist successfully.',
+            ]);
+        }else{
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Failed to add item to your wishlist.',
+            ]);
+        }
     }
 
 }

@@ -13,15 +13,22 @@ use App\Services\EmailService;
 use App\Services\SessionManager;
 use App\Services\UserPreferencesService;
 use App\Helpers\StringHelper;
+use App\Services\FileUploadService;
 
 class AuthController extends Controller
 {
     public function __construct(
         private AuthService $authService = new AuthService(),
         private UserRequestValidator $userValidator = new UserRequestValidator(),
-        private EmailService $emailService = new EmailService()
+        private EmailService $emailService = new EmailService(),
+        private FileUploadService $fileUploadService = new FileUploadService(),
     ) {
         parent::__construct();
+    }
+
+    public static function loginDataWithTitle(array $data): array {
+        $data['title'] = 'Any Wish List | Login';
+        return $data;
     }
 
     public function showLogin(): Response
@@ -33,11 +40,11 @@ class AuthController extends Controller
             'remember_me' => $this->request->input('remember_me', false),
             'customStyles' =>
                 'input:not([type=submit], #new_password, #current_password) {
-                margin-bottom: 0;
-            }'
+                    margin-bottom: 0;
+                }'
         ];
 
-        return $this->view('auth/login', $data, 'auth');
+        return $this->view('auth/login', AuthController::loginDataWithTitle($data), 'auth');
     }
 
     /**
@@ -57,12 +64,12 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateLogin($data);
 
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/login', [
+                return $this->view('auth/login', AuthController::loginDataWithTitle([
                     'username' => $data['username'] ?? '',
                     'password' => '',
                     'remember_me' => isset($data['remember_me']),
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ], 'auth');
+                ]), 'auth');
             }
 
             $remember = isset($data['remember_me']);
@@ -71,27 +78,32 @@ class AuthController extends Controller
                 return $this->redirect('/');
             }
 
-            return $this->view('auth/login', [
+            return $this->view('auth/login', AuthController::loginDataWithTitle([
                 'username' => $data['username'] ?? '',
                 'password' => '',
                 'remember_me' => $remember,
                 'error_msg' => '<div class="submit-error"><strong>Login failed due to the following errors:</strong><ul><li>Username/email or password is incorrect</li></ul></div>'
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Show login form for GET requests
-        return $this->view('auth/login', [
+        return $this->view('auth/login', AuthController::loginDataWithTitle([
             'username' => '',
             'password' => '',
             'remember_me' => false,
             'error_msg' => ''
-        ], 'auth');
+        ]), 'auth');
     }
 
     public function logout(): Response
     {
         $this->authService->logout();
         return $this->redirect('/login')->withSuccess('You have been logged out successfully.');
+    }
+
+    public static function registerDataWithTitle(array $data): array {
+        $data['title'] = 'Create an Account';
+        return $data;
     }
 
     public function showRegister(): Response
@@ -109,7 +121,7 @@ class AuthController extends Controller
             }'
         ];
 
-        return $this->view('auth/register', $data, 'auth');
+        return $this->view('auth/register', AuthController::registerDataWithTitle($data), 'auth');
     }
 
     public function register(): Response
@@ -121,14 +133,14 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateRegistration($data);
 
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/register', [
+                return $this->view('auth/register', AuthController::registerDataWithTitle([
                     'username' => $data['username'] ?? '',
                     'name' => $data['name'] ?? '',
                     'email' => $data['email'] ?? '',
                     'password' => '',
                     'password_confirmation' => '',
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ], 'auth');
+                ]), 'auth');
             }
 
             if ($this->authService->register($data)) {
@@ -141,25 +153,30 @@ class AuthController extends Controller
                 return $this->redirect('/')->withSuccess('Registration successful! Please check your email to verify your account.');
             }
 
-            return $this->view('auth/register', [
+            return $this->view('auth/register', AuthController::registerDataWithTitle([
                 'username' => $data['username'] ?? '',
                 'name' => $data['name'] ?? '',
                 'email' => $data['email'] ?? '',
                 'password' => '',
                 'password_confirmation' => '',
                 'error_msg' => '<div class="submit-error"><strong>Registration failed:</strong><ul><li>Unable to create account. Please try again.</li></ul></div>'
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Show registration form for GET requests
-        return $this->view('auth/register', [
+        return $this->view('auth/register', AuthController::registerDataWithTitle([
             'username' => '',
             'name' => '',
             'email' => '',
             'password' => '',
             'password_confirmation' => '',
             'error_msg' => ''
-        ], 'auth');
+        ]), 'auth');
+    }
+
+    public static function forgotPasswordDataWithTitle(array $data): array {
+        $data['title'] = 'Forgot Password';
+        return $data;
     }
 
     public function forgotPassword(): Response
@@ -175,10 +192,10 @@ class AuthController extends Controller
             }
             
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/forgot-password', [
+                return $this->view('auth/forgot-password', AuthController::forgotPasswordDataWithTitle([
                     'identifier' => $data['identifier'] ?? '',
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ], 'auth');
+                ]), 'auth');
             }
 
             // Check if email or username exists
@@ -213,10 +230,15 @@ class AuthController extends Controller
         }
 
         // Show forgot password form for GET requests
-        return $this->view('auth/forgot-password', [
+        return $this->view('auth/forgot-password', AuthController::forgotPasswordDataWithTitle([
             'identifier' => '',
             'error_msg' => ''
-        ], 'auth');
+        ]), 'auth');
+    }
+
+    public static function resetPasswordDataWithTitle(array $data): array {
+        $data['title'] = 'Any Wish List | Reset Password';
+        return $data;
     }
 
     public function resetPassword(): Response
@@ -227,13 +249,13 @@ class AuthController extends Controller
             $errors = $this->userValidator->validateNewPassword($data);
 
             if ($this->userValidator->hasErrors($errors)) {
-                return $this->view('auth/reset-password', [
+                return $this->view('auth/reset-password', AuthController::resetPasswordDataWithTitle([
                     'key' => $data['key'] ?? '',
                     'email' => $data['email'] ?? '',
                     'password' => $data['password'] ?? '',
                     'password_confirmation' => $data['password_confirmation'] ?? '',
                     'error_msg' => $this->userValidator->formatErrorsForDisplay($errors)
-                ], 'auth');
+                ]), 'auth');
             }
 
             // Validate the reset key and expiration
@@ -269,8 +291,6 @@ class AuthController extends Controller
         }
 
         // Show reset password form for GET requests
-        // Support both formats: ?token=... (legacy) and ?key=...&email=... (new)
-        $token = $this->request->get('token');
         $key = $this->request->get('key');
         $email = $this->request->get('email');
         
@@ -278,20 +298,9 @@ class AuthController extends Controller
         $resetKey = null;
         $userEmail = null;
         
-        // Handle legacy token format
-        if ($token) {
-            // Find user by reset_password_key (token)
-            $user = User::whereEqual('reset_password_key', $token);
-            
-            if ($user) {
-                $resetKey = $token;
-                $userEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-            }
-        } 
-        // Handle new format with key and email
-        elseif ($key && $email) {
+        if ($key && $email) {
             $user = User::findByUsernameOrEmail($email);
-            
+
             if ($user && $user['reset_password_key'] === $key) {
                 $resetKey = $key;
                 $userEmail = $email;
@@ -300,29 +309,34 @@ class AuthController extends Controller
         
         // Validate we have the required information
         if (!$user || !$resetKey || !$userEmail) {
-            return $this->view('auth/reset-password-error', [
+            return $this->view('auth/reset-password-error', AuthController::resetPasswordDataWithTitle([
                 'error' => 'Invalid reset link.',
                 'link_text' => 'Go to Login',
                 'link_url' => '/login'
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Check expiration
         if (isset($user['reset_password_expiration']) && strtotime($user['reset_password_expiration']) < time()) {
-            return $this->view('auth/reset-password-error', [
+            return $this->view('auth/reset-password-error', AuthController::resetPasswordDataWithTitle([
                 'error' => 'This password reset link has expired. Try again!',
                 'link_text' => 'Go to Login',
                 'link_url' => '/login'
-            ], 'auth');
+            ]), 'auth');
         }
 
-        return $this->view('auth/reset-password', [
+        return $this->view('auth/reset-password', AuthController::resetPasswordDataWithTitle([
             'key' => $resetKey,
             'email' => $userEmail,
             'password' => '',
             'password_confirmation' => '',
             'error_msg' => ''
-        ], 'auth');
+        ]), 'auth');
+    }
+
+    public static function verifyEmailDataWithTitle(array $data): array {
+        $data['title'] = 'Any Wish List | Verify Email';
+        return $data;
     }
 
     public function verifyEmail(): Response
@@ -331,41 +345,41 @@ class AuthController extends Controller
         $key = $this->request->get('key');
 
         if (!$username || !$key) {
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => false,
                 'expired' => false,
                 'notFound' => true
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Get user by username
         $user = User::findByUsernameOrEmail($username);
         
         if (!$user) {
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => false,
                 'expired' => false,
                 'notFound' => true
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Verify the key matches
         if ($user['email_key'] !== $key) {
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => false,
                 'expired' => false,
                 'notFound' => true
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Check if key has expired
         if (isset($user['email_key_expiration']) && strtotime($user['email_key_expiration']) < time()) {
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => false,
                 'expired' => true,
                 'notFound' => false,
                 'username' => $username
-            ], 'auth');
+            ]), 'auth');
         }
 
         // Move unverified_email to email field and clear the verification fields
@@ -377,17 +391,17 @@ class AuthController extends Controller
                 'email_key_expiration' => null
             ]);
             
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => true,
                 'expired' => false,
                 'notFound' => false
-            ], 'auth');
+            ]), 'auth');
         } catch (\Exception $e) {
-            return $this->view('auth/verify-email', [
+            return $this->view('auth/verify-email', AuthController::verifyEmailDataWithTitle([
                 'success' => false,
                 'expired' => false,
                 'notFound' => false
-            ], 'auth');
+            ]), 'auth');
         }
     }
 
@@ -479,6 +493,7 @@ class AuthController extends Controller
         string $passwordErrorMsg = ''
     ): array {
         return [
+            'title' => 'View Profile',
             'user' => $user,
             'name' => $name ?: ($user['name'] ?? ''),
             'email' => $email,
@@ -493,6 +508,51 @@ class AuthController extends Controller
                     max-width: unset;
                 }'
         ];
+    }
+
+    public function uploadProfilePicture(): Response
+    {
+        $user = $this->auth();
+        if (!$user) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $picture = $this->request->input('picture');
+        if(!$picture) {
+            return $this->json([
+                'success' => false,
+                'message' => 'No picture data provided'
+            ], 400);
+        }
+
+        try {
+            $filename = $this->fileUploadService->uploadProfilePicture($user['username'], $picture);
+
+            if($filename['success'] === false) {
+                throw new \Exception($filename['error']);
+            }
+
+            if(!isset($filename['filename'])) {
+                throw new \Exception('Invalid file upload response');
+            }
+
+            // Update user's profile picture in database
+            User::updateProfilePicture($user['username'], $filename['filename']);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Profile picture uploaded successfully',
+                'filename' => $filename
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function updateProfile(): Response

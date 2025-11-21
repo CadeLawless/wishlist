@@ -8,11 +8,8 @@
     <link rel="stylesheet" type="text/css" href="/public/css/snow.css" />
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <title><?php echo $title ?? 'Wish List'; ?></title>
+    <title><?php echo htmlspecialchars($title ?? 'Any Wish List'); ?></title>
     <style>
-        #body {
-            padding-top: 100px;
-        }
         h1 {
             display: inline-block;
         }
