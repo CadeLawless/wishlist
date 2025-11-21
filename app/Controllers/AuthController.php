@@ -13,13 +13,15 @@ use App\Services\EmailService;
 use App\Services\SessionManager;
 use App\Services\UserPreferencesService;
 use App\Helpers\StringHelper;
+use App\Services\FileUploadService;
 
 class AuthController extends Controller
 {
     public function __construct(
         private AuthService $authService = new AuthService(),
         private UserRequestValidator $userValidator = new UserRequestValidator(),
-        private EmailService $emailService = new EmailService()
+        private EmailService $emailService = new EmailService(),
+        private FileUploadService $fileUploadService = new FileUploadService(),
     ) {
         parent::__construct();
     }
@@ -506,6 +508,51 @@ class AuthController extends Controller
                     max-width: unset;
                 }'
         ];
+    }
+
+    public function uploadProfilePicture(): Response
+    {
+        $user = $this->auth();
+        if (!$user) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $picture = $this->request->input('picture');
+        if(!$picture) {
+            return $this->json([
+                'success' => false,
+                'message' => 'No picture data provided'
+            ], 400);
+        }
+
+        try {
+            $filename = $this->fileUploadService->uploadProfilePicture($user['username'], $picture);
+
+            if($filename['success'] === false) {
+                throw new \Exception($filename['error']);
+            }
+
+            if(!isset($filename['filename'])) {
+                throw new \Exception('Invalid file upload response');
+            }
+
+            // Update user's profile picture in database
+            User::updateProfilePicture($user['username'], $filename['filename']);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Profile picture uploaded successfully',
+                'filename' => $filename
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function updateProfile(): Response

@@ -129,6 +129,7 @@ $(document).ready(function() {
         
         if (openPopups.length > 0) {
             const isPopupButton = e.target.classList.contains("popup-button") || 
+                                 e.target.id === "change-profile-picture" ||
                                  e.target.classList.contains("image-popup-button") ||
                                  $(e.target).closest(".popup-button").length > 0;
             const isInsidePopup = e.target.closest(".popup-container") !== null && 

@@ -25,9 +25,12 @@ $(document).ready(function() {
                     if(button.closest('.user-result').find('.decline-button').length){
                         button.closest('.user-result').find('.decline-button').addClass('disabled');
                     }
+                    button.closest('.user-result').fadeOut(1000, function() {
+                        $(this).remove();
+                    });
                     setTimeout(() => {
                         $('#friends-search').trigger('input');
-                    }, 1000);
+                    }, 700);
                 } else {
                     hideButtonLoading(button);
                     showButtonFailed(button);
@@ -58,8 +61,10 @@ $(document).ready(function() {
                     button.text('Removed').addClass('disabled');
                     button.closest('.user-result').fadeOut(1000, function() {
                         $(this).remove();
-                        $('#friends-search').trigger('input');
                     });
+                    setTimeout(() => {
+                        $('#friends-search').trigger('input');
+                    }, 700);
                 } else {
                     hideButtonLoading(button);
                     showButtonFailed(button);

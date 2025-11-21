@@ -7,11 +7,18 @@
     </div>
 <?php } ?>
 
-<?php if (isset($newFriends) && count($newFriends) > 0): ?>
-    <?php echo \App\Services\FriendRenderService::generateUserSearchResults($newFriends, $type ?? 'search', $searchTerm ?? null); ?>
-<?php else: ?>
-    <?php if (isset($newFriends)): ?>
-        <div class="center" style="padding: 40px 20px; color: var(--text-secondary); font-size: 1.1em;">No results found</div>
+<?php if (isset($newFriends)): ?>
+    <?php if (count($newFriends) > 0 || count($friendList) === 0): ?>
+        <?php if(isset($type) && !in_array($type, ['profile', 'public'])): ?>
+            <h2>Search Results</h2>
+        <?php endif; ?>
+        <?php if (count($newFriends) > 0): ?>
+            <?php echo \App\Services\FriendRenderService::generateUserSearchResults($newFriends, $type ?? 'search', $searchTerm ?? null); ?>
+        <?php else: ?>
+            <?php if (isset($newFriends)): ?>
+                <div class="center" style="padding: 40px 20px; color: var(--text-secondary); font-size: 1.1em;">No results found</div>
+            <?php endif; ?>
+        <?php endif; ?>
     <?php endif; ?>
 <?php endif; ?>
 

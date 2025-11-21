@@ -235,11 +235,11 @@ label {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 20px;
+    padding: 0.6rem;
     background: var(--background-darker);
     color: var(--text);
     border-radius: 4px;
-    z-index: 99999;
+    z-index: 999;
     cursor: pointer;
     max-width: min(400px, 80%);
     box-shadow: var(--text-transparent) 0px 0px 3px;
@@ -509,7 +509,7 @@ body.dark .table-search-loading-overlay {
     align-items: center;
 }
 .header .title {
-    flex-basis: calc(100% - 790px);
+    flex-basis: calc(100% - 760px);
     display: grid;
     grid-template-columns: auto auto;
     grid-auto-rows: auto;
@@ -2242,6 +2242,37 @@ img.gift-wrap {
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
+.profile-picture {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--text-transparent);
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &.small {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &.placeholder {
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+    }
+}
+#change-profile-picture {
+    flex-grow: 1;
+}
 .user-result {
     box-sizing: border-box;
     display: grid;
@@ -2257,11 +2288,35 @@ img.gift-wrap {
 
     & .user-info {
         display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
+        align-items: center;
+        gap: 1rem;
         overflow: hidden;
 
-        & > * {
+        & .user-profile-picture {
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+
+            & .edit-text {
+                font-size: 0.75rem;
+                color: var(--text);
+            }
+
+            &.user-upload {
+                pointer-events: unset;
+            }
+        }
+
+        & .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            overflow: hidden;
+        }
+
+        & > *:not(.user-profile-picture) {
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -2270,6 +2325,8 @@ img.gift-wrap {
         & .user-name {
             font-weight: bold;
             font-size: 1.1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         & .user-wishlists-link .button {
@@ -2330,7 +2387,7 @@ img.gift-wrap {
         color: var(--text);
     }
 
-    & :is(.add-friend-button, .decline-button, .accept-button, .remove-button) {
+    & :is(.add-friend-button, .decline-button, .accept-button, .remove-button, #crop-btn) {
         flex-grow: 1;
         display: inline-flex;
         justify-content: center;
@@ -2670,6 +2727,13 @@ img.gift-wrap {
     }
     .theme:hover > .theme-image.default-background {
         height: 275px;
+    }
+}
+@media (max-width: 750px) {
+    .user-result-profile {
+        grid-template-columns: 1fr;
+        row-gap: 1rem;
+        justify-items: stretch;
     }
 }
 @media (max-width: 710px) {

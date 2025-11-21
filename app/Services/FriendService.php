@@ -80,7 +80,7 @@ class FriendService
 
     public function getUserFriendList(string $username): array
     {
-        $allUsers = User::findNameAndEmailForAll();
+        $allUsers = User::findProfileForAll();
         $allUsers = array_filter($allUsers, function($u) use ($username) {
             return $u['username'] !== $username;
         });
@@ -128,7 +128,7 @@ class FriendService
 
     public function searchForUsers(string $username, string $searchTerm): array
     {
-        $allUsers = User::findNameAndEmailForAll();
+        $allUsers = User::findProfileForAll();
         $allUsers = array_filter($allUsers, function($u) use ($username) {
             return $u['username'] !== $username;
         });

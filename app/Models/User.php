@@ -75,9 +75,9 @@ class User extends Model
         return (int)$result['count'];
     }
 
-    public static function findNameAndEmailForAll(): array
+    public static function findProfileForAll(): array
     {
-        $stmt = \App\Core\Database::query("SELECT username, name FROM " . static::$table);
+        $stmt = \App\Core\Database::query("SELECT username, name, profile_picture FROM " . static::$table);
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
@@ -87,5 +87,15 @@ class User extends Model
             ->columns(['name', 'profile_picture'])
             ->where('username', $username)
             ->first();
+    }
+
+    public static function updateProfilePicture(string $username, string $filename): bool
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['profile_picture'])
+            ->params([$filename])
+            ->where('username', $username)
+            ->update();
     }
 }

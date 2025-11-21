@@ -52,6 +52,7 @@ Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 // Profile routes (must come before generic /{id} routes)
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
+Router::post('/profile/upload-profile-picture', [AuthController::class, 'uploadProfilePicture'])->middleware('auth');
 
 // Add Friends routes
 Router::get('/add-friends', [FriendController::class, 'index'])->middleware('auth');

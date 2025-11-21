@@ -69,18 +69,20 @@ if(isset($user)) {
 
 <?php if ($showPopup): ?>
     <div id="invitation-popup">
-        Other wishers have added you as their friend! Check your "Add Friends" page to see.
-        <br>
-        <small>Click to dismiss</small>
+        <p style="margin-top: 0;">Other wishers have added you as their friend!</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: end; align-items: center;">
+            <a href="/add-friends" class="button primary">Go to Friends</a>
+            <button class="button secondary invitation-close-button">Dismiss</button>
+        </div>
     </div>
 
     <script>
-    document.getElementById('invitation-popup').addEventListener('click', function() {
+    document.querySelector('.invitation-close-button').addEventListener('click', function() {
         // Set cookie for 24 hours
         const now = Math.floor(Date.now() / 1000);
         document.cookie = "last_invitation_popup=" + now + "; max-age=86400; path=/";
 
-        this.remove();
+        this.closest('#invitation-popup').remove();
     });
     </script>
 <?php endif; ?>
