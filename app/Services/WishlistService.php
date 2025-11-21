@@ -12,6 +12,7 @@ class WishlistService
         private Wishlist $wishlist = new Wishlist(),
         private Item $item = new Item(),
         private User $user = new User(),
+        private FileUploadService $fileUploadService = new FileUploadService()
     ) {}
 
     public function createWishlist(string $username, array $data): ?array
@@ -389,5 +390,65 @@ class WishlistService
     public function getUserByUsername(string $username): ?array
     {
         return $this->user->getNameAndProfilePictureByUsername($username);
+    }
+
+    public function addItemToUserList(string $itemId, string $wishlistId, string $username): ?int
+    {
+        $this->item->beginTransaction();
+
+        try {
+            $item = Item::find($itemId);
+            if (!$item) {
+                return null;
+            }
+            
+            $wishlist = Wishlist::find($wishlistId);
+            if (!$wishlist) {
+                return null;
+            }
+
+            if($wishlist['username'] !== $username) {
+                return null;
+            }
+
+            $newItem = Item::create([
+                'copy_id' => null,
+                'wishlist_id' => $wishlistId,
+                'name' => $item['name'],
+                'notes' => $item['notes'],
+                'price' => $item['price'],
+                'quantity' => 1,
+                'unlimited' => $item['unlimited'],
+                'link' => $item['link'],
+                'image' => $item['image'],
+                'priority' => $item['priority'],
+                'quantity_purchased' => 0,
+                'purchased' => 'No',
+                'date_added' => date('Y-m-d H:i:s'),
+                'date_modified' => null,
+            ]);
+
+            if(!$newItem) {
+                throw new \Exception('Failed to create new item');
+            }
+
+            $copyFileResult = $this->fileUploadService->copyItemImage(
+                sourcePath: FileUploadService::getBaseUploadPath() . "{$item['wishlist_id']}/{$item['image']}",
+                targetWishlistId: $wishlistId,
+                filename: $item['image']
+            );
+
+            if($copyFileResult['success'] === false) {
+                throw new \Exception('Failed to copy item image: ' . $copyFileResult['message']);
+            }
+
+            $this->item->commit();
+            return $newItem;
+
+        } catch (\Exception $e) {
+            $this->item->rollback();
+            error_log('Add item to user list failed: ' . $e->getMessage());
+            return null;
+        }
     }
 }

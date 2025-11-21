@@ -134,3 +134,4 @@ Router::get('/buyer/{key}', [BuyerController::class, 'show']);
 Router::post('/buyer/{key}/filter', [BuyerController::class, 'filterItems']);
 Router::post('/buyer/{key}/paginate', [BuyerController::class, 'paginateItems']);
 Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);
+Router::post('/buyer/add-item-to-wishlist', [BuyerController::class, 'addItemToUserWishlist'])->middleware('auth');

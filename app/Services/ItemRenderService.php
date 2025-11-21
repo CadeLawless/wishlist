@@ -6,7 +6,7 @@ use App\Core\Constants;
 
 class ItemRenderService
 {
-    public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = ''): string
+    public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = '', array $userWishLists = []): string
     {
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
         $itemNameShort = mb_substr($item['name'], 0, Constants::ITEM_NAME_SHORT_LENGTH, 'UTF-8');
@@ -347,6 +347,34 @@ class ItemRenderService
                     </div>
                 <?php endif; ?>
                 </div>
+                <?php if(!$isPurchasedInBuyerView && count($userWishLists) > 0): ?>
+                    <div class="center">
+                        <a class="button primary popup-button" href="#">Add to My Wish List</a>
+                        <div class="popup-container hidden">
+                            <div class="popup">
+                                <div class="close-container">
+                                    <a href="#" class="close-button">
+                                        <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
+                                    </a>
+                                </div>
+                                <div class="popup-content">
+                                    <h2 style="margin-top: 0;">Add Item to My Wish List</h2>
+                                    <input type="hidden" name="item_id" value="<?php echo $item['id']; ?>">
+                                    <label for="target_wishlist_id">Select Wish List:</label>
+                                    <select id="target_wishlist_id" name="target_wishlist_id" required>
+                                        <?php foreach($userWishLists as $wishList): ?>
+                                            <option value="<?php echo (int)$wishList['id']; ?>"><?php echo htmlspecialchars($wishList['wishlist_name'], ENT_QUOTES, 'UTF-8'); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div style="margin: 1rem 0;" class="center">
+                                        <a class="button secondary no-button" href="#">Cancel</a>
+                                        <button class="button primary add-item-button">Add Item</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <?php if($type === 'buyer'): ?>
                     <?php if($item['purchased'] !== 'Yes' && $item['unlimited'] !== 'Yes'): ?>
                         <?php $wishlistForBuyer = \App\Models\Wishlist::find($wishlistId); $secretKey = $wishlistForBuyer ? $wishlistForBuyer['secret_key'] : ''; ?>

@@ -20,7 +20,9 @@ $stmt = \App\Core\Database::query("SELECT name FROM wishlist_users WHERE usernam
 $name_result = $stmt->get_result()->fetch_assoc();
 $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 
-// Sort variables are passed from the controller
+if (isset($flash['success'])) {
+	\App\Helpers\PopupHelper::handleFlashMessages(['success' => $flash['success']]);
+}
 ?>
 
 <?php if($background_image): ?>
@@ -63,7 +65,13 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
         <div class='items-list-sub-container'>
             <div class="items-list main">
                 <?php foreach($items as $item): ?>
-                    <?php echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'buyer'); ?>
+                    <?php echo \App\Services\ItemRenderService::renderItem(
+						item: $item,
+						wishlistId: $wishlistID,
+						page: $pageno,
+						type: 'buyer',
+						userWishLists: $user_wishlists
+					); ?>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -174,6 +182,50 @@ $name = $name_result ? htmlspecialchars($name_result['name']) : $username;
 				disableForReducedMotion: true,
 			});
 		});
+
+		$(document).on('click', '.add-item-button', function(e){
+			e.preventDefault();
+			var button = $(this);
+			var popup = button.closest('.popup');
+			var select = popup.find('select[name="target_wishlist_id"]');
+			var wishlistId = select.val();
+			var itemId = popup.find('input[name="item_id"]').val();
+			if(!wishlistId) {
+				if(popup.find('.error-message').length) {
+					popup.find('.error-message').remove();
+				}
+				popup.find('.popup-content').append('<p class="error-message">Please select a wish list.</p>');
+				return;
+			}
+			button.prop('disabled', true);
+			$.ajax({
+				url: '/buyer/add-item-to-wishlist',
+				method: 'POST',
+				data: {
+					item_id: itemId,
+					wishlist_id: wishlistId
+				},
+				success: function(response) {
+					if(response.status === 'error') {
+						if(popup.find('.error-message').length) {
+							popup.find('.error-message').remove();
+						}
+						popup.find('.popup-content').append('<p class="error-message">' + (response.message || 'An error occurred.') + '</p>');
+						return;
+					}
+					popup.find('.popup-content').html('<p>The item has been added to your wish list!</p><p class="center" style="margin-top: 1rem;"><a class="button primary" href="/wishlists/'+wishlistId+'">View Updated Wish List</a></p>');
+				},
+				error: function() {
+					if(popup.find('.error-message').length) {
+						popup.find('.error-message').remove();
+					}
+					popup.find('.popup-content').append('<p class="error-message">An error occurred while adding the item. Please try again.</p>');
+				},
+				complete: function() {
+					button.prop('disabled', false);
+				}
+			});
+		})
 	});
 	
 </script>
