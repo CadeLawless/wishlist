@@ -31,6 +31,6 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
     </div>
 <?php endif; ?>
 
-<script src="/public/js/admin-table-search.js"></script>
-<script src="/public/js/button-loading.js"></script>
-<script src="/public/js/friend-search.js"></script>
+<script src="/public/js/admin-table-search.js?v=2.1"></script>
+<script src="/public/js/button-loading.js?v=2.1"></script>
+<script src="/public/js/friend-search.js?v=2.1"></script>
