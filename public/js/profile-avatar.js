@@ -2,21 +2,56 @@ $(document).ready(function () {
 
     var croppieInstance = $('#croppie-container').croppie({
         viewport: { width: 200, height: 200, type: 'circle' },
-        boundary: { width: 300, height: 300 },
-        enableExif: true
+        boundary: { width: 250, height: 250 },
+        enableExif: false,     // avoid iOS crash issues
+        enableOrientation: true
     });
+
+    // Resize extremely large photos BEFORE using croppie
+    function resizeImageForIOS(imgSrc, maxDim = 2000, callback) {
+        const img = new Image();
+        img.onload = function () {
+            let width = img.width;
+            let height = img.height;
+
+            // Scale down if needed
+            if (width > maxDim || height > maxDim) {
+                const scale = Math.min(maxDim / width, maxDim / height);
+                width = width * scale;
+                height = height * scale;
+            }
+
+            // Canvas resize
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            callback(resizedDataUrl);
+        };
+
+        img.src = imgSrc;
+    }
 
     // Load the selected image into Croppie
     $('#upload').on('change', function () {
-        var reader = new FileReader();
+        const file = this.files[0];
+        const reader = new FileReader();
 
         reader.onload = function (e) {
-            croppieInstance.croppie('bind', {
-                url: e.target.result
+            const originalImg = e.target.result;
+
+            // Resize for iOS BEFORE Croppie binds to it
+            resizeImageForIOS(originalImg, 2000, function (resizedImg) {
+                croppieInstance.croppie('bind', {
+                    url: resizedImg
+                });
             });
         };
 
-        reader.readAsDataURL(this.files[0]);
+        reader.readAsDataURL(file);
         $('#croppie-container').removeClass('hidden');
     });
 

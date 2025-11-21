@@ -85,8 +85,8 @@ if (isset($flash['error'])) {
     </div>
 </div>
 
-<script src="/public/js/admin-table-search.js?v=2.1"></script>
+<script src="/public/js/admin-table-search.js?v=2.5"></script>
 <?php if(isset($all_backgrounds) && count($all_backgrounds) > 0 && isset($totalPages) && $totalPages > 1): ?>
-<script src="/public/js/pagination.js?v=2.1"></script>
+<script src="/public/js/pagination.js?v=2.5"></script>
 <?php endif; ?>
 
