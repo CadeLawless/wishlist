@@ -27,7 +27,8 @@ class FriendController extends Controller
         $receivedInvitations = $this->friendService->getFriendInvitations($user['username']);
 
         if(count($friendList) === 0 && count($receivedInvitations) === 0){
-            return $this->redirect('/add-friends/find');
+            $searchUrlParam = $this->request->input('search', '');
+            return $this->redirect('/add-friends/find' . (!empty($searchUrlParam) ? '?search=' . urlencode($searchUrlParam) : ''));
         }
         
         $data = [
