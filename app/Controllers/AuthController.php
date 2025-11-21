@@ -13,13 +13,15 @@ use App\Services\EmailService;
 use App\Services\SessionManager;
 use App\Services\UserPreferencesService;
 use App\Helpers\StringHelper;
+use App\Services\FileUploadService;
 
 class AuthController extends Controller
 {
     public function __construct(
         private AuthService $authService = new AuthService(),
         private UserRequestValidator $userValidator = new UserRequestValidator(),
-        private EmailService $emailService = new EmailService()
+        private EmailService $emailService = new EmailService(),
+        private FileUploadService $fileUploadService = new FileUploadService(),
     ) {
         parent::__construct();
     }
@@ -38,8 +40,8 @@ class AuthController extends Controller
             'remember_me' => $this->request->input('remember_me', false),
             'customStyles' =>
                 'input:not([type=submit], #new_password, #current_password) {
-                margin-bottom: 0;
-            }'
+                    margin-bottom: 0;
+                }'
         ];
 
         return $this->view('auth/login', AuthController::loginDataWithTitle($data), 'auth');
@@ -289,8 +291,6 @@ class AuthController extends Controller
         }
 
         // Show reset password form for GET requests
-        // Support both formats: ?token=... (legacy) and ?key=...&email=... (new)
-        $token = $this->request->get('token');
         $key = $this->request->get('key');
         $email = $this->request->get('email');
         
@@ -298,20 +298,9 @@ class AuthController extends Controller
         $resetKey = null;
         $userEmail = null;
         
-        // Handle legacy token format
-        if ($token) {
-            // Find user by reset_password_key (token)
-            $user = User::whereEqual('reset_password_key', $token);
-            
-            if ($user) {
-                $resetKey = $token;
-                $userEmail = $user['email'] ?? $user['unverified_email'] ?? '';
-            }
-        } 
-        // Handle new format with key and email
-        elseif ($key && $email) {
+        if ($key && $email) {
             $user = User::findByUsernameOrEmail($email);
-            
+
             if ($user && $user['reset_password_key'] === $key) {
                 $resetKey = $key;
                 $userEmail = $email;
@@ -519,6 +508,51 @@ class AuthController extends Controller
                     max-width: unset;
                 }'
         ];
+    }
+
+    public function uploadProfilePicture(): Response
+    {
+        $user = $this->auth();
+        if (!$user) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $picture = $this->request->input('picture');
+        if(!$picture) {
+            return $this->json([
+                'success' => false,
+                'message' => 'No picture data provided'
+            ], 400);
+        }
+
+        try {
+            $filename = $this->fileUploadService->uploadProfilePicture($user['username'], $picture);
+
+            if($filename['success'] === false) {
+                throw new \Exception($filename['error']);
+            }
+
+            if(!isset($filename['filename'])) {
+                throw new \Exception('Invalid file upload response');
+            }
+
+            // Update user's profile picture in database
+            User::updateProfilePicture($user['username'], $filename['filename']);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Profile picture uploaded successfully',
+                'filename' => $filename
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Failed to upload profile picture: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function updateProfile(): Response

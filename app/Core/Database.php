@@ -89,4 +89,19 @@ class Database
     {
         return self::lastInsertId();
     }
+
+    public static function beginTransaction(): void
+    {
+        self::connect()->begin_transaction();
+    }
+
+    public static function commit(): void
+    {
+        self::connect()->commit();
+    }
+
+    public static function rollback(): void
+    {
+        self::connect()->rollback();
+    }
 }

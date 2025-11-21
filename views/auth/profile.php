@@ -35,14 +35,14 @@ if (isset($flash['error'])) {
 
 <div class="form-container">
     <h2>Your Profile</h2>
-    
-    <!-- Username Display (Read-only) -->
-    <div class="flex form-flex">
-        <div class="large-input">
-            <label for="username_display">Username:<br></label>
-            <input type="text" id="username_display" value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>" disabled style="background-color: var(--background-darker); cursor: not-allowed;" />
-        </div>
-    </div>
+
+    <?php
+    $friendList = [];
+    $receivedInvitations = [];
+    $newFriends = [$user];
+    $type = 'profile';
+    require __DIR__ . '/../../views/components/friends-results.php';
+    ?>
     <br />
     
     <!-- Name Update Form -->
@@ -164,6 +164,8 @@ if (isset($flash['error'])) {
 </div>
 
 <script src="/public/js/form-validation.js"></script>
+<script src="/public/js/button-loading.js"></script>
+<script src="/public/js/profile-avatar.js"></script>
 <script>
 $(document).ready(function(){
     // Initialize validation for name form
@@ -264,5 +266,10 @@ $(document).ready(function(){
     if($(".submit-error").length > 0){
         $(".submit-error")[0].scrollIntoView({ behavior: "smooth" })
     }
+
+    $('#change-profile-picture').on('click', function(e) {
+        e.preventDefault();
+        $('.profile-picture.popup-button').click();
+    });
 });
 </script>

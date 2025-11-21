@@ -1,5 +1,5 @@
 <footer>
-  <p class="center">&copy; <?php echo date("Y"); ?> Wishlist.<br>
+  <p class="center">&copy; <?php echo date("Y"); ?> Any Wish List.<br>
   Designed by Cade and Meleah Lawless. All rights reserved.</p>
 </footer>
 <script src="/public/js/popups.js"></script>

@@ -41,6 +41,17 @@ class UrlMetadataService
             return $response;
         }
 
+        // Expand Amazon short URLs
+        if (preg_match('~https?://a\.co/~i', $url)) {
+            //error_log("Expanding Amazon short URL: $url");
+            $expanded = $this->expandShortUrl($url);
+            //error_log("Expanded URL: $expanded");
+            if ($expanded !== false) {
+                //error_log("Successfully expanded short URL to: $expanded");
+                $url = $expanded;
+            }
+        }
+
         // Check if it's Amazon or Etsy and use ScraperAPI directly
         if (strpos($url, 'amazon.com') !== false || strpos($url, 'amazon.') !== false || strpos($url, 'etsy.com') !== false) {
             $scraperConfig = require __DIR__ . '/../../config/scraperapi.php';
@@ -51,7 +62,7 @@ class UrlMetadataService
                     $parsedUrl = parse_url($url);
                     $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
                     
-                    error_log("Etsy URL stripped to base: $url -> $baseUrl");
+                    //error_log("Etsy URL stripped to base: $url -> $baseUrl");
                     
                     // Always use base URL for Etsy (params cause timeouts on free tier)
                     $html = $this->fetchWithScraperAPI($baseUrl, $scraperConfig['api_key']);
@@ -348,19 +359,19 @@ class UrlMetadataService
         
         // Handle timeout errors gracefully
         if (!empty($error) && strpos($error, 'timeout') !== false) {
-            error_log("ScraperAPI timeout for $url after {$totalTime}s with error: $error");
+            //error_log("ScraperAPI timeout for $url after {$totalTime}s with error: $error");
             return false;
         }
         
         // Log if we got a non-200 response or other errors
         if ($httpCode !== 200 || !empty($error)) {
-            error_log("ScraperAPI error for $url: HTTP $httpCode, error: $error, time: {$totalTime}s");
+            //error_log("ScraperAPI error for $url: HTTP $httpCode, error: $error, time: {$totalTime}s");
         }
         
         if ($html !== false && $httpCode === 200 && empty($error)) {
             // Only check for specific blocking indicators, not general "error" words
             if (!$this->isBlockedResponse($html)) {
-                error_log("ScraperAPI success for $url in {$totalTime}s");
+                //error_log("ScraperAPI success for $url in {$totalTime}s");
                 return $html;
             }
         }
@@ -525,12 +536,12 @@ class UrlMetadataService
             }
             
             // Debug: Log what we found for Amazon URLs
-            error_log('Amazon price extraction failed. HTML length: ' . strlen($html));
+            //error_log('Amazon price extraction failed. HTML length: ' . strlen($html));
             if (preg_match_all('/\$[\d,]+\.?\d*/', $html, $matches)) {
-                error_log('Found prices in HTML: ' . implode(', ', $matches[0]));
+                //error_log('Found prices in HTML: ' . implode(', ', $matches[0]));
                 // Also try the split price pattern
                 if (preg_match('/\$(\d+)[\s]*(\d{2})/', $html, $splitMatches)) {
-                    error_log('Found split price: $' . $splitMatches[1] . ' and ' . $splitMatches[2] . ' cents');
+                    //error_log('Found split price: $' . $splitMatches[1] . ' and ' . $splitMatches[2] . ' cents');
                 }
             }
             
@@ -540,7 +551,7 @@ class UrlMetadataService
                     $value = (float) str_replace(',', '', $num);
                     return $value >= 1 && $value <= 1000;
                 });
-                error_log('Found potential price numbers: ' . implode(', ', $filteredNumbers));
+                //error_log('Found potential price numbers: ' . implode(', ', $filteredNumbers));
             }
         }
 
@@ -1835,5 +1846,133 @@ class UrlMetadataService
         
         return '';
     }
+
+    private function expandShortUrl(string $url): string|false
+    {
+        $maxRedirects = 8;
+        $current = $url;
+
+        for ($i = 0; $i < $maxRedirects; $i++) {
+            $ch = curl_init($current);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => true,
+                CURLOPT_NOBODY => true,              // try HEAD first (fast)
+                CURLOPT_FOLLOWLOCATION => false,     // we'll handle redirects manually
+                CURLOPT_MAXREDIRS => 0,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_ENCODING => '',              // accept compressed if any
+            ]);
+
+            $response = curl_exec($ch);
+            $err = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response === false) {
+                //error_log("expandShortUrl HEAD error for $current: $err");
+                // fallback to lightweight GET below
+                $useGet = true;
+            } else {
+                // parse headers to find Location
+                if (preg_match('/\r\nLocation:\s*(.+)\r\n/i', $response, $m)) {
+                    $next = trim($m[1]);
+                    // Resolve relative Location
+                    $next = $this->resolveRelativeUrl($next, $current);
+                    //error_log("expandShortUrl: Location header -> $next");
+                    $current = $next;
+                    continue; // follow redirect
+                }
+
+                // If HEAD returned 200 and no Location, try lightweight GET (some services only redirect on GET)
+                if ($httpCode >= 200 && $httpCode < 300) {
+                    $useGet = true;
+                } else {
+                    $useGet = true;
+                }
+            }
+
+            // Lightweight GET fallback (reads small amount and checks for meta-refresh)
+            if (!empty($useGet)) {
+                $ch = curl_init($current);
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HEADER => true,
+                    CURLOPT_NOBODY => false,
+                    CURLOPT_FOLLOWLOCATION => false,
+                    CURLOPT_MAXREDIRS => 0,
+                    CURLOPT_TIMEOUT => 10,
+                    CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_ENCODING => '',
+                    // only fetch minimal body
+                    CURLOPT_RANGE => '0-2048',
+                ]);
+
+                $resp = curl_exec($ch);
+                $err = curl_error($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($resp === false) {
+                    //error_log("expandShortUrl GET error for $current: $err");
+                    return false;
+                }
+
+                // Check Location header first
+                if (preg_match('/\r\nLocation:\s*(.+)\r\n/i', $resp, $m)) {
+                    $next = trim($m[1]);
+                    $next = $this->resolveRelativeUrl($next, $current);
+                    //error_log("expandShortUrl (GET): Location header -> $next");
+                    $current = $next;
+                    continue;
+                }
+
+                // Look for meta refresh: <meta http-equiv="refresh" content="0;url=...">
+                if (preg_match('/<meta[^>]+http-equiv=["\']?refresh["\']?[^>]*content=["\']?\s*\d+\s*;\s*url=([^"\'>\s]+)/i', $resp, $m)) {
+                    $next = html_entity_decode(trim($m[1]));
+                    $next = $this->resolveRelativeUrl($next, $current);
+                    //error_log("expandShortUrl: meta refresh -> $next");
+                    $current = $next;
+                    continue;
+                }
+
+                // No Location or meta refresh — consider current the final URL
+                break;
+            }
+        }
+
+        return $current !== $url ? $current : false;
+    }
+
+    /**
+     * Resolve a possibly relative Location against a base URL.
+     */
+    private function resolveRelativeUrl(string $location, string $base): string
+    {
+        // if location is absolute, return it
+        if (parse_url($location, PHP_URL_SCHEME) !== null) {
+            return $location;
+        }
+
+        // build absolute from base
+        $baseParts = parse_url($base);
+        $scheme = $baseParts['scheme'] ?? 'https';
+        $host = $baseParts['host'] ?? '';
+        $path = $baseParts['path'] ?? '/';
+        // if location starts with '/', absolute path on host
+        if (strpos($location, '/') === 0) {
+            return "{$scheme}://{$host}{$location}";
+        }
+
+        // remove filename from path
+        $dir = rtrim(dirname($path), '/\\');
+        return "{$scheme}://{$host}{$dir}/{$location}";
+    }
+
 }
 

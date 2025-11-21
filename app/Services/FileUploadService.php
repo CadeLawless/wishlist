@@ -90,6 +90,70 @@ class FileUploadService
         return $result;
     }
 
+    public function uploadProfilePicture(string $username, string $base64Image): array
+    {
+        $uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'profile-pictures' . DIRECTORY_SEPARATOR;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Validate base64 image
+        if (!$this->validateBase64Image($base64Image)) {
+            return [
+                'success' => false,
+                'error' => Constants::ERROR_INVALID_FILE
+            ];
+        }
+
+        // Decode base64 data
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $base64Image)) {
+            $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+        }
+        $imageData = base64_decode($base64Image, true);
+        if ($imageData === false) {
+            return [
+                'success' => false,
+                'error' => 'Failed to decode image data.'
+            ];
+        }
+
+        // Detect image type and extension
+        $imageInfo = getimagesizefromstring($imageData);
+        if ($imageInfo === false) {
+            return [
+                'success' => false,
+                'error' => 'Invalid image format.'
+            ];
+        }
+
+        $mimeType = $imageInfo['mime'];
+        $extension = $this->getExtensionFromMimeType($mimeType);
+        
+        if (!$extension) {
+            return [
+                'success' => false,
+                'error' => 'Unsupported image format. Please use JPG, PNG, or WEBP.'
+            ];
+        }
+
+        // Generate filename
+        $filename = $this->sanitizeFilename($username) . '.' . $extension;
+
+        // Save image
+        $targetPath = $uploadDir . $filename;
+        if (file_put_contents($targetPath, $imageData)) {
+            return [
+                'success' => true,
+                'filename' => $filename
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Failed to save profile picture. Please try again.'
+            ];
+        }
+    }
+
     public function copyItemImage(string $sourcePath, string $targetWishlistId, string $filename): array
     {
         $result = [

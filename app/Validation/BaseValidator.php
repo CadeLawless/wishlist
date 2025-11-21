@@ -122,6 +122,26 @@ abstract class BaseValidator
         
         return $errors;
     }
+
+    /**
+     * Validate characters not allowed
+     */
+    protected function validateCharactersNotAllowed(array $data, string $field, array $charactersNotAllowed): array
+    {
+        $errors = [];
+
+        if (!isset($data[$field]) || empty($data[$field])) {
+            return $errors;
+        }
+
+        foreach ($charactersNotAllowed as $char) {
+            if (strpos($data[$field], $char) !== false) {
+                $errors[$field][] = ucfirst($field) . " contains invalid characters: \"{$char}\".";
+            }
+        }
+
+        return $errors;
+    }
     
     /**
      * Merge validation errors

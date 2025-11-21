@@ -89,7 +89,8 @@ $(document).ready(function(){
             required: true,
             minLength: 3,
             maxLength: 50,
-            checkUnique: '/api/check-username'
+            checkUnique: '/api/check-username',
+            charactersNotAllowed: [' ', '/', '\\', '?', '@', '%', '#', '&', '*', '<', '>', '"', '\'']
         },
         email: {
             required: true,

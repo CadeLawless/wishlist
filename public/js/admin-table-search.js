@@ -27,6 +27,8 @@ $(document).ready(function() {
                 contentSelector = '.admin-table-body';
             } else if ($('.items-list.main').length) {
                 contentSelector = '.items-list.main';
+            } else if ($('.friends-search-results-container').length) {
+                contentSelector = '.friends-search-results-container';
             } else {
                 return; // Required elements not found
             }
@@ -43,6 +45,8 @@ $(document).ready(function() {
                 containerSelector = '.items-list-sub-container';
             } else if ($('.items-list-container').length) {
                 containerSelector = '.items-list-container';
+            } else if ($('.friends-search-results-container').length) {
+                containerSelector = '.friends-search-results-container';
             } else {
                 containerSelector = contentSelector; // Fallback to content selector
             }
@@ -60,9 +64,12 @@ $(document).ready(function() {
         
         // Create loading overlay if it doesn't exist (use generic class name)
         let $loadingOverlay = $tableContainer.find('.table-search-loading-overlay');
-        if (!$loadingOverlay.length) {
-            $loadingOverlay = $('<div class="table-search-loading-overlay"><div class="loading-spinner"></div></div>');
-            $tableContainer.append($loadingOverlay);
+
+        function reassignLoadingOverlay() {
+            if (!$tableContainer.find('.table-search-loading-overlay').length) {
+                $loadingOverlay = $('<div class="table-search-loading-overlay"><div class="loading-spinner"></div></div>');
+                $tableContainer.append($loadingOverlay);
+            }
         }
         
         // Show loading overlay
@@ -102,13 +109,15 @@ $(document).ready(function() {
             
             // Store hasSearchTerm for use in callbacks (closure)
             const hasSearchTermForCallback = hasSearchTerm;
+            const isAddFriendsPage = $contentContainer.hasClass('add-friends-results-container');
             
             $.ajax({
                 type: "POST",
                 url: paginateUrl,
                 data: {
                     new_page: page,
-                    search: searchTerm
+                    search: searchTerm,
+                    isAddFriendsPage: isAddFriendsPage
                 },
                 dataType: "json",
                 success: function(data) {
@@ -204,7 +213,7 @@ $(document).ready(function() {
                     hideLoading();
                 },
                 error: function(xhr, status, error) {
-                    console.error('Search error:', error);
+                    //console.error('Search error:', error);
                     isLoading = false;
                     hideLoading();
                 },
@@ -395,8 +404,16 @@ $(document).ready(function() {
                 }
             }
             
+            if (!validSearch && contentSelector === '.friends-search-results-container') {
+                if(!$contentContainer.hasClass('add-friends-results-container')) {
+                    // Clear friends search results when input is cleared
+                    $contentContainer.empty();
+                }
+            }
+
             // Show loading immediately when user types (if search term changed and not already loading)
             if (searchTerm !== lastSearchTerm && !isLoading) {
+                reassignLoadingOverlay();
                 showLoading();
                 isLoading = true;
             }
@@ -435,7 +452,7 @@ $(document).ready(function() {
     }
     
     // Auto-initialize search for admin tables and items pages
-    $('.admin-table-search-input, .items-search-input').each(function() {
+    $('.admin-table-search-input, .items-search-input, .friends-search-input').each(function() {
         const $searchInput = $(this);
         
         // Determine paginate URL based on current page
@@ -458,6 +475,8 @@ $(document).ready(function() {
             } else {
                 paginateUrl = '/admin/wishlists/paginate';
             }
+        } else if (path.includes('/add-friends')) {
+            paginateUrl = '/add-friends/search';
         }
         // Items/wishlist pages
         else if (path.match(/^\/wishlists\/\d+$/)) {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\FriendController;
 use App\Controllers\AdminController;
 use App\Controllers\HomeController;
 use App\Controllers\WishlistController;
@@ -51,6 +52,18 @@ Router::get('/', [HomeController::class, 'index'])->middleware('auth');
 // Profile routes (must come before generic /{id} routes)
 Router::get('/profile', [AuthController::class, 'profile'])->middleware('auth');
 Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('auth');
+Router::post('/profile/upload-profile-picture', [AuthController::class, 'uploadProfilePicture'])->middleware('auth');
+
+// Add Friends routes
+Router::get('/add-friends', [FriendController::class, 'index'])->middleware('auth');
+Router::get('/add-friends/find', [FriendController::class, 'find'])->middleware('auth');
+Router::post('/add-friends/search', [FriendController::class, 'search'])->middleware('auth');
+Router::post('/add-friends/add', [FriendController::class, 'addFriend'])->middleware('auth');
+Router::post('/add-friends/remove', [FriendController::class, 'removeFriend'])->middleware('auth');
+Router::post('/add-friends/decline', [FriendController::class, 'declineInvitation'])->middleware('auth');
+
+// Public User Wish Lists routes
+Router::get('/{username}/wishlists', [WishlistController::class, 'publicUserWishlists']);
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');
@@ -122,3 +135,4 @@ Router::get('/buyer/{key}', [BuyerController::class, 'show']);
 Router::post('/buyer/{key}/filter', [BuyerController::class, 'filterItems']);
 Router::post('/buyer/{key}/paginate', [BuyerController::class, 'paginateItems']);
 Router::post('/buyer/{key}/purchase/{itemId}', [BuyerController::class, 'purchaseItem']);
+Router::post('/buyer/add-item-to-wishlist', [BuyerController::class, 'addItemToUserWishlist'])->middleware('auth');

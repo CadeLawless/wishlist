@@ -23,6 +23,7 @@ class Constants
     public const MIN_NAME_LENGTH = 2;
     public const MIN_ITEM_NAME_LENGTH = 1;
     public const MIN_WISHLIST_NAME_LENGTH = 1;
+    public const USERNAME_CHARACTERS_NOT_ALLOWED = [' ', '/', '\\', '@', '?', '%', '#', '&', '*', '<', '>', '"', '\''];
     
     // Display Constants
     public const ITEM_NAME_SHORT_LENGTH = 25;
