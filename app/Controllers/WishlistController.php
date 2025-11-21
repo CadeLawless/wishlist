@@ -91,7 +91,7 @@ class WishlistController extends Controller
 
     public function publicUserWishlists(string $username): Response
     {
-        $user = $this->auth(); // Non-authenticated users can view public wishlists
+        $user = $this->auth();
 
         $publicUser = $this->wishlistService->getUserByUsername($username);
         if (!$publicUser) {

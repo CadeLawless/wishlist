@@ -1,12 +1,12 @@
 <?php 
-if(isset($_GET['search'])) {
+if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $searchTerm = trim($_GET['search']);
     list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
 }
 ?>
 
 <div class="center">
-    <h1>Add friends to see what others are wishing for.</h1>
+    <h1 style="max-width: 500px; margin: 0 auto 0.67em;">Add friends to see what others are wishing for.</h1>
     <?php
     $options = [
         'placeholder' => 'Search for people by name or username...',
