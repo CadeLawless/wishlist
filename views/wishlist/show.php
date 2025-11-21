@@ -446,15 +446,15 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
     </div>
 
 <!-- Wishlist-specific scripts -->
-<script src="/public/js/copy-link.js"></script>
-<script src="/public/js/copy-select.js"></script>
-<script src="/public/js/checkbox-selection.js"></script>
-<script src="/public/js/wishlist-filters.js"></script>
-<script src="/public/js/pagination.js"></script>
-<script src="/public/js/admin-table-search.js"></script>
-<script src="/public/js/choose-theme.js"></script>
-<script src="/public/js/popup.js"></script>
-<script src="/public/js/form-validation.js"></script>
+<script src="/public/js/copy-link.js?v=2.1"></script>
+<script src="/public/js/copy-select.js?v=2.1"></script>
+<script src="/public/js/checkbox-selection.js?v=2.1"></script>
+<script src="/public/js/wishlist-filters.js?v=2.1"></script>
+<script src="/public/js/pagination.js?v=2.1"></script>
+<script src="/public/js/admin-table-search.js?v=2.1"></script>
+<script src="/public/js/choose-theme.js?v=2.1"></script>
+<script src="/public/js/popup.js?v=2.1"></script>
+<script src="/public/js/form-validation.js?v=2.1"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script>
 $(document).ready(function() {

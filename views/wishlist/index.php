@@ -66,5 +66,5 @@ if (isset($flash['error'])) {
 <?php endif; ?>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
-<script src="/public/js/pagination.js"></script>
+<script src="/public/js/pagination.js?v=2.1"></script>
 <?php endif; ?>

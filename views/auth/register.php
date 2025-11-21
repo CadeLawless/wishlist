@@ -75,7 +75,7 @@ if (isset($flash['error'])) {
     <p class="large-input center"><input type="submit" class="button text" name="submit_button" value="Start Wishing"></p>
 </form>
 
-<script src="/public/js/form-validation.js"></script>
+<script src="/public/js/form-validation.js?v=2.1"></script>
 <script>
 $(document).ready(function(){
     // Initialize form validation
