@@ -132,6 +132,8 @@ class WishlistController extends Controller
         if ($id instanceof Response) {
             return $id;
         }
+
+        $fromPublic = $this->request->get('from_public', false);
         
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
 
@@ -194,6 +196,7 @@ class WishlistController extends Controller
         $data = [
             'user' => $user,
             'wishlist' => $wishlist,
+            'from_public' => $fromPublic,
             'wishlist_total_price' => $wishlistTotalPrice,
             'items' => $paginatedItems,
             'all_items' => $allItems, // For total count display

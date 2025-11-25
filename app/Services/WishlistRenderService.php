@@ -7,7 +7,7 @@ class WishlistRenderService
     /**
      * Generate HTML for a collection of wishlist grid items
      */
-    public static function generateWishlistsHtml(array $wishlists, string $context='user', string $search = ''): string
+    public static function generateWishlistsHtml(array $wishlists, string $context='user', string $search = '', array $user = []): string
     {
         $html = '';
         
@@ -19,9 +19,9 @@ class WishlistRenderService
             $theme_gift_wrap_id = $wishlist['theme_gift_wrap_id'];
             $secretKey = $wishlist['secret_key'];
             $wishListLink = htmlspecialchars(
-                $context === 'public' ?
+                $context === 'public' && (empty($user) || $wishlist['username'] !== $user['username']) ?
                 "/buyer/$secretKey?from_friends=true" . ($search !== '' ? '&search=' . urlencode($search) : '') :
-                "/wishlists/$id");
+                "/wishlists/$id" . ($context === 'public' ? "?from_public=true" : ""));
             
             $background_image = ThemeService::getBackgroundImage($theme_background_id) ?? "";
             $wrap_image = ThemeService::getGiftWrapImage($theme_gift_wrap_id) ?? "";
