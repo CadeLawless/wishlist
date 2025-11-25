@@ -20,7 +20,7 @@ class WishlistRenderService
             $secretKey = $wishlist['secret_key'];
             $wishListLink = htmlspecialchars(
                 $context === 'public' ?
-                "/buyer/$secretKey" . ($search !== '' ? '?search=' . urlencode($search) : '') :
+                "/buyer/$secretKey?from_friends=true" . ($search !== '' ? '&search=' . urlencode($search) : '') :
                 "/wishlists/$id");
             
             $background_image = ThemeService::getBackgroundImage($theme_background_id) ?? "";
