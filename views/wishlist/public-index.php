@@ -18,7 +18,7 @@ require __DIR__ . '/../../views/components/friends-results.php';
     <?php
     if(count($wishlists) > 0){
         // Use WishlistRenderService to generate the HTML
-        echo \App\Services\WishlistRenderService::generateWishlistsHtml($wishlists, 'public');
+        echo \App\Services\WishlistRenderService::generateWishlistsHtml($wishlists, 'public', $_GET['search'] ?? '');
     }else{
         echo "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like " . htmlspecialchars($public_user['name']) . " has any wish lists created yet!</p>";
     }

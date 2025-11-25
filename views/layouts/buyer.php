@@ -16,29 +16,14 @@
         h2.items-list-title {
             position: relative;
         }
-        .header .title {
-            flex-basis: 100%;
-        }
-        .menu-links, .hamburger-menu, .close-menu {
-            display: none !important;
-        }
-        
-        /* Ensure navigation stays hidden even if JavaScript removes hidden class */
-        body .menu-links,
-        body .hamburger-menu, 
-        body .close-menu {
-            display: none !important;
-        }
-        
-        /* Prevent any JavaScript from showing navigation in buyer view */
-        .buyer-view .menu-links,
-        .buyer-view .hamburger-menu,
-        .buyer-view .close-menu {
-            display: none !important;
-        }
         .popup.fullscreen .gift-wrap-content .popup-content {
             max-height: calc(100% - 184px);
         }
+        <?php if (!isset($user) || $user === null): ?>
+            .header .title {
+                flex-basis: 100%;
+            }
+        <?php endif; ?>
         #container .background-theme.mobile-background {
             display: none;
         }

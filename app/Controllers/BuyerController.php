@@ -9,6 +9,7 @@ use App\Services\PaginationService;
 use App\Services\HtmlGenerationService;
 use App\Services\FilterService;
 use App\Services\SessionManager;
+use App\Models\User;
 use Exception;
 
 class BuyerController extends Controller
@@ -29,6 +30,8 @@ class BuyerController extends Controller
             $userWishLists = $this->wishlistService->getUserWishlists($user['username']);
         }
 
+        $search = $this->request->get('search', '');
+
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
         
         if (!$wishlist) {
@@ -37,6 +40,12 @@ class BuyerController extends Controller
 
         if ($wishlist['visibility'] !== 'Public' || $wishlist['complete'] === 'Yes') {
             return $this->view('errors/access-denied', ['title' => '403 - Access Denied'], 'error');
+        }
+
+        $wishListUser = User::findByUsernameOrEmail($wishlist['username']);
+
+        if (!$wishListUser) {
+            return $this->view('errors/404', ['title' => '404 - Wish List Not Found'], 'error');
         }
 
         // Handle pagination
@@ -68,7 +77,9 @@ class BuyerController extends Controller
         $data = [
             'title' => $wishlist['wishlist_name'],
             'user' => $user,
+            'search' => $search,
             'user_wishlists' => $userWishLists,
+            'wishlist_user' => $wishListUser,
             'wishlist' => $wishlist,
             'items' => $paginatedItems,
             'all_items' => $allItems,

@@ -7,7 +7,7 @@ class WishlistRenderService
     /**
      * Generate HTML for a collection of wishlist grid items
      */
-    public static function generateWishlistsHtml(array $wishlists, string $context='user'): string
+    public static function generateWishlistsHtml(array $wishlists, string $context='user', string $search = ''): string
     {
         $html = '';
         
@@ -18,8 +18,10 @@ class WishlistRenderService
             $theme_background_id = $wishlist['theme_background_id'];
             $theme_gift_wrap_id = $wishlist['theme_gift_wrap_id'];
             $secretKey = $wishlist['secret_key'];
-            $wishListLink = htmlspecialchars($context === 'public' ? "/buyer/$secretKey" : "/wishlists/$id");
-            $linkTarget = $context === 'public' ? "_blank" : "_self";
+            $wishListLink = htmlspecialchars(
+                $context === 'public' ?
+                "/buyer/$secretKey" . ($search !== '' ? '?search=' . urlencode($search) : '') :
+                "/wishlists/$id");
             
             $background_image = ThemeService::getBackgroundImage($theme_background_id) ?? "";
             $wrap_image = ThemeService::getGiftWrapImage($theme_gift_wrap_id) ?? "";
@@ -27,7 +29,7 @@ class WishlistRenderService
             $backgroundStyle = $background_image == "" ? "" : "background-image: url(/public/images/site-images/themes/desktop-thumbnails/$background_image);";
             
             $html .= "
-            <a class='wishlist-grid-item' href='$wishListLink' target='$linkTarget'>
+            <a class='wishlist-grid-item' href='$wishListLink'>
                 <div class='items-list preview' style='$backgroundStyle'>
                     <div class='item-container'>
                         <img src='/public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
