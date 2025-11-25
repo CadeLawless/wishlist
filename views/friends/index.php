@@ -5,6 +5,13 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
 }
 ?>
 
+<?php if(count($friendList) > 0): ?>
+    <div class="notification-banner">
+        Check out your public wish list page to make sure all your wish lists are up to date!
+        <a style="display: block;" href="/<?php echo htmlspecialchars($user['username']); ?>/wishlists" class="banner-link">View Wish Lists</a>
+    </div>
+<?php endif; ?>
+
 <h1 class="center">Add Friends</h1>
 
 <?php if(count($friendList) === 0 && count($receivedInvitations) === 0 && !isset($searchTerm)): ?>
