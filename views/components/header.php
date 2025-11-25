@@ -47,31 +47,33 @@ if(isset($user)) {
             <a href="#" class="light-mode-link"><?php require(__DIR__ . "/../../public/images/site-images/icons/light-mode.php"); ?></a>
         </div>
         <div class="menu">
-            <?php
-            require(__DIR__ . "/../../public/images/site-images/hamburger-menu.php");
-            require(__DIR__ . "/../../public/images/site-images/menu-close.php");
-            ?>
-            <div class="menu-links">
-                <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/wishlist") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/wishlists/create") echo " active"; ?>" href="/wishlists/create">Create Wishlist<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/wishlists") echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
-                <a class="nav-link<?php if($currentPage == "/add-friends") echo " active"; ?>" href="/add-friends">Add Friends<div class="underline"></div></a>
-                <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
-                    <div class="outer-link">
-                        <span class="profile-icon"><?php require(__DIR__ . "/../../public/images/site-images/profile-icon.php"); ?></span>
-                        <span>My Account</span>
-                        <span class="dropdown-arrow"><?php require(__DIR__ . "/../../public/images/site-images/dropdown-arrow.php"); ?></span>
-                    </div>
-                    <div class="underline"></div>
-                    <div class="dropdown-menu hidden">
-                        <a class="dropdown-menu-link" href="/profile">View Profile</a>
-                        <?php if(isset($user['role']) && $user['role'] == 'Admin'){ ?>
-                            <a class="dropdown-menu-link" href="/admin">Admin Center</a>
-                        <?php } ?>
-                        <a class="dropdown-menu-link" href="/logout">Log Out</a>
+            <?php if(isset($user) && $user !== null): ?>
+                <?php
+                require(__DIR__ . "/../../public/images/site-images/hamburger-menu.php");
+                require(__DIR__ . "/../../public/images/site-images/menu-close.php");
+                ?>
+                <div class="menu-links">
+                    <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/wishlist") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
+                    <a class="nav-link<?php if($currentPage == "/wishlists/create") echo " active"; ?>" href="/wishlists/create">Create Wishlist<div class="underline"></div></a>
+                    <a class="nav-link<?php if($currentPage == "/wishlists") echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
+                    <a class="nav-link<?php if($currentPage == "/add-friends") echo " active"; ?>" href="/add-friends">Add Friends<div class="underline"></div></a>
+                    <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
+                        <div class="outer-link">
+                            <span class="profile-icon"><?php require(__DIR__ . "/../../public/images/site-images/profile-icon.php"); ?></span>
+                            <span>My Account</span>
+                            <span class="dropdown-arrow"><?php require(__DIR__ . "/../../public/images/site-images/dropdown-arrow.php"); ?></span>
+                        </div>
+                        <div class="underline"></div>
+                        <div class="dropdown-menu hidden">
+                            <a class="dropdown-menu-link" href="/profile">View Profile</a>
+                            <?php if(isset($user['role']) && $user['role'] == 'Admin'){ ?>
+                                <a class="dropdown-menu-link" href="/admin">Admin Center</a>
+                            <?php } ?>
+                            <a class="dropdown-menu-link" href="/logout">Log Out</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

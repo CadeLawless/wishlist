@@ -30,6 +30,14 @@ if (isset($flash['success'])) {
     <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo htmlspecialchars($background_image); ?>" />
 <?php endif; ?>
 
+<?php if($user !== null && $search !== ''): ?>
+	<p>
+		<a class="button accent" href="<?php echo htmlspecialchars("/" . $wishlist_user['username'] . "/wishlists?search=" . urlencode($search)); ?>">
+			Back to <?=  htmlspecialchars($wishlist_user['name']) ?>'s Wish Lists
+		</a>
+	</p>
+<?php endif; ?>
+
 <div class="center">
     <div class="wishlist-header center transparent-background">
         <h1><?php echo $wishlistTitle; ?></h1>
