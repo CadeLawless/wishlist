@@ -7,8 +7,8 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
 
 <?php if(count($friendList) > 0): ?>
     <div class="notification-banner">
-        Check out your public wish list page to make sure all your wish lists are up to date!
-        <a style="display: block;" href="/<?php echo htmlspecialchars($user['username']); ?>/wishlists" class="banner-link">View Wish Lists</a>
+        Keep your public wish list page updated!
+        <a style="display: block;" href="/<?php echo htmlspecialchars($user['username']); ?>/wishlists" class="banner-link">View Your Page</a>
     </div>
 <?php endif; ?>
 
