@@ -30,6 +30,7 @@ class BuyerController extends Controller
             $userWishLists = $this->wishlistService->getUserWishlists($user['username']);
         }
 
+        $fromFriends = $this->request->get('from_friends', false);
         $search = $this->request->get('search', '');
 
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
@@ -77,6 +78,7 @@ class BuyerController extends Controller
         $data = [
             'title' => $wishlist['wishlist_name'],
             'user' => $user,
+            'from_friends' => $fromFriends,
             'search' => $search,
             'user_wishlists' => $userWishLists,
             'wishlist_user' => $wishListUser,
