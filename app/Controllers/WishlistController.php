@@ -57,7 +57,7 @@ class WishlistController extends Controller
         $pageno = (int) $this->request->get('pageno', 1);
         
         // Get all wishlists for the user
-        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        $allWishlists = $this->wishlistService->getActiveUserWishlists($user['username']);
         
         // Apply pagination to get only 12 wishlists per page
         $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
@@ -71,12 +71,55 @@ class WishlistController extends Controller
         
         $data = [
             'title' => $user['name'] . "'s Wish Lists",
+            'active' => true,
             'user' => $user,
             'wishlists' => $paginatedWishlists,
             'all_wishlists' => $allWishlists,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
             'base_url' => '/wishlists',
+            'customStyles' => 
+                '.paginate-container {
+                    margin: 0 0 2rem;
+                }
+                .paginate-container.bottom {
+                    margin: 0.5rem 0;
+                }'
+        ];
+
+        return $this->view('wishlist/index', $data);
+    }
+
+    public function inactiveWishLists(): Response
+    {
+        
+        $user = $this->auth();
+        
+        // Get pagination number
+        $pageno = (int) $this->request->get('pageno', 1);
+        
+        // Get all inactive wishlists for the user
+        $allWishlists = $this->wishlistService->getInactiveUserWishlists($user['username']);
+        
+        // Apply pagination to get only 12 wishlists per page
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
+        $totalPages = $this->paginationService->getTotalPages();
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno) {
+            return $this->redirect("/wishlists/inactive?pageno={$correctedPage}");
+        }
+        
+        $data = [
+            'title' => $user['name'] . "'s Wish Lists",
+            'active' => false,
+            'user' => $user,
+            'wishlists' => $paginatedWishlists,
+            'all_wishlists' => $allWishlists,
+            'pageno' => $pageno,
+            'total_pages' => $totalPages,
+            'base_url' => '/wishlists/inactive',
             'customStyles' => 
                 '.paginate-container {
                     margin: 0 0 2rem;
@@ -767,7 +810,7 @@ class WishlistController extends Controller
         return new Response(content: $html);
     }
 
-    public function paginateWishlists(): Response
+    public function paginateWishLists(): Response
     {
         
         $user = $this->auth();

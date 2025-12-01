@@ -55,12 +55,13 @@ Router::post('/profile', [AuthController::class, 'updateProfile'])->middleware('
 Router::post('/profile/upload-profile-picture', [AuthController::class, 'uploadProfilePicture'])->middleware('auth');
 
 // Add Friends routes
+Router::get('/friends', [FriendController::class, 'index'])->middleware('auth');
 Router::get('/add-friends', [FriendController::class, 'index'])->middleware('auth');
-Router::get('/add-friends/find', [FriendController::class, 'find'])->middleware('auth');
-Router::post('/add-friends/search', [FriendController::class, 'search'])->middleware('auth');
-Router::post('/add-friends/add', [FriendController::class, 'addFriend'])->middleware('auth');
-Router::post('/add-friends/remove', [FriendController::class, 'removeFriend'])->middleware('auth');
-Router::post('/add-friends/decline', [FriendController::class, 'declineInvitation'])->middleware('auth');
+Router::get('/friends/find', [FriendController::class, 'find'])->middleware('auth');
+Router::post('/friends/search', [FriendController::class, 'search'])->middleware('auth');
+Router::post('/friends/add', [FriendController::class, 'addFriend'])->middleware('auth');
+Router::post('/friends/remove', [FriendController::class, 'removeFriend'])->middleware('auth');
+Router::post('/friends/decline', [FriendController::class, 'declineInvitation'])->middleware('auth');
 
 // Public User Wish Lists routes
 Router::get('/{username}/wishlists', [WishlistController::class, 'publicUserWishlists']);
@@ -92,7 +93,8 @@ Router::post('/admin/wishlists/paginate-items', [AdminController::class, 'pagina
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/wishlists/create', [WishlistController::class, 'create'])->middleware('auth');
 Router::get('/wishlists', [WishlistController::class, 'index'])->middleware('auth');
-Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishlists'])->middleware('auth');
+Router::get('/wishlists/inactive', [WishlistController::class, 'inactiveWishLists'])->middleware('auth');
+Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishLists'])->middleware('auth');
 Router::post('/wishlists', [WishlistController::class, 'store'])->middleware('auth');
 Router::get('/wishlists/{id}', [WishlistController::class, 'show'])->middleware('auth');
 Router::get('/wishlists/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');

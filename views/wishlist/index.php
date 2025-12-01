@@ -33,8 +33,13 @@ if (isset($flash['error'])) {
 }
 ?>
 
-<h1 class="center"><?php echo $user['name']; ?>'s Wish Lists</h1>
+<h1 class="center"><?= htmlspecialchars($title); ?></h1>
 <p class="center" style="margin: 0 0 36px;"><a class="button primary" href="/wishlists/create">Create a New Wish List</a></p>
+
+<div class="wishlist-tabs">
+    <a class="wishlist-tab<?php if($active) echo ' active'; ?>" href="/wishlists">Active</a>
+    <a class="wishlist-tab<?php if(!$active) echo ' active'; ?>" href="/wishlists/inactive">Inactive</a>
+</div>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
     <!-- Top Pagination controls -->
@@ -50,7 +55,7 @@ if (isset($flash['error'])) {
         // Use WishlistRenderService to generate the HTML
         echo \App\Services\WishlistRenderService::generateWishlistsHtml($wishlists);
     }else{
-        echo "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any wish lists created yet</p>";
+        echo "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any " .  ($active ? "active" : "inactive") . " wish lists right now</p>";
     }
     ?>
 </div>

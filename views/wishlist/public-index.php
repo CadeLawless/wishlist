@@ -1,6 +1,6 @@
 <p>
-    <a class="button accent" href="/add-friends<?= isset($_GET['search']) ? '?search=' . htmlspecialchars(urlencode($_GET['search'])) : ''; ?>">
-        Back to Add Friends
+    <a class="button accent" href="/friends<?= isset($_GET['search']) ? '?search=' . htmlspecialchars(urlencode($_GET['search'])) : ''; ?>">
+        Back to Friends
     </a>
 </p>
 

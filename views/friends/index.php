@@ -16,7 +16,7 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
 
 <?php if(count($friendList) === 0 && count($receivedInvitations) === 0 && !isset($searchTerm)): ?>
     <div class="center">
-        <p>You have no friends or friend requests yet. <a href="/add-friends/find">Find friends to get started!</a></p>
+        <p>You have no friends or friend requests yet. <a href="/friends/find">Find friends to get started!</a></p>
     </div>
 <?php else: ?>
 

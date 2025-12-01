@@ -180,4 +180,25 @@ class Wishlist extends Model
         );
     }
 
+    public function getActiveWishListsByUsername(string $username): array
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['id', 'type', 'wishlist_name', 'theme_background_id', 'theme_gift_wrap_id', 'visibility', 'complete', 'duplicate', 'date_created', 'secret_key'])
+            ->where('username', $username)
+            ->andWhere('complete', 'No')
+            ->orderBy('date_created', 'DESC')
+            ->getAll();
+    }
+
+    public function getInactiveWishListsByUsername(string $username): array
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['id', 'type', 'wishlist_name', 'theme_background_id', 'theme_gift_wrap_id', 'visibility', 'complete', 'duplicate', 'date_created', 'secret_key'])
+            ->where('username', $username)
+            ->andWhere('complete', 'Yes')
+            ->orderBy('date_created', 'DESC')
+            ->getAll();
+    }
 }

@@ -475,8 +475,8 @@ $(document).ready(function() {
             } else {
                 paginateUrl = '/admin/wishlists/paginate';
             }
-        } else if (path.includes('/add-friends')) {
-            paginateUrl = '/add-friends/search';
+        } else if (path.includes('/friends')) {
+            paginateUrl = '/friends/search';
         }
         // Items/wishlist pages
         else if (path.match(/^\/wishlists\/\d+$/)) {
