@@ -83,10 +83,10 @@ Router::post('/admin/gift-wraps/update', [AdminController::class, 'updateGiftWra
 Router::post('/admin/gift-wraps/add-image', [AdminController::class, 'addGiftWrapImage'])->middleware('admin');
 Router::post('/admin/gift-wraps/remove-image', [AdminController::class, 'removeGiftWrapImage'])->middleware('admin');
 Router::post('/admin/gift-wraps/reorder-images', [AdminController::class, 'reorderGiftWrapImages'])->middleware('admin');
-Router::get('/admin/wishlists', [AdminController::class, 'wishlists'])->middleware('admin');
-Router::post('/admin/wishlists/paginate', [AdminController::class, 'paginateWishlists'])->middleware('admin');
-Router::get('/admin/wishlists/view', [AdminController::class, 'viewWishlist'])->middleware('admin');
-Router::post('/admin/wishlists/paginate-items', [AdminController::class, 'paginateWishlistItems'])->middleware('admin');
+Router::get('/admin/wish-lists', [AdminController::class, 'wishlists'])->middleware('admin');
+Router::post('/admin/wish-lists/paginate', [AdminController::class, 'paginateWishlists'])->middleware('admin');
+Router::get('/admin/wish-lists/view', [AdminController::class, 'viewWishlist'])->middleware('admin');
+Router::post('/admin/wish-lists/paginate-items', [AdminController::class, 'paginateWishlistItems'])->middleware('admin');
 
 
 // Wishlist routes (home page shows user's wishlists)

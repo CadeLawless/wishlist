@@ -248,7 +248,7 @@ class AdminController extends Controller
             'currentPage' => $correctedPage,
             'totalPages' => $totalPages,
             'totalWishlists' => $totalWishlists,
-            'currentPageUrl' => '/admin/wishlists',
+            'currentPageUrl' => '/admin/wish-lists',
             'searchTerm' => $searchTerm
         ];
         
@@ -1111,7 +1111,7 @@ class AdminController extends Controller
         
         $id = (int) $this->request->get('id');
         if (!$id) {
-            return $this->redirect('/admin/wishlists')->withError('Invalid wishlist ID.');
+            return $this->redirect('/admin/wish-lists')->withError('Invalid wishlist ID.');
         }
         
         // Get wishlist without username restriction (admin can view any wishlist)
@@ -1119,7 +1119,7 @@ class AdminController extends Controller
         $wishlist = $stmt->get_result()->fetch_assoc();
         
         if (!$wishlist) {
-            return $this->redirect('/admin/wishlists')->withError('Wishlist not found.');
+            return $this->redirect('/admin/wish-lists')->withError('Wishlist not found.');
         }
 
         $wishlistTotalPrice = \App\Models\Item::getItemsTotalPrice($id, $wishlist['username']);
@@ -1167,7 +1167,7 @@ class AdminController extends Controller
         
         // Redirect if page number was out of range
         if ($correctedPage !== $pageno && count($allItems) > 0) {
-            return $this->redirect("/admin/wishlists/view?id={$id}&pageno={$correctedPage}");
+            return $this->redirect("/admin/wish-lists/view?id={$id}&pageno={$correctedPage}");
         }
         
         $data = [
@@ -1183,7 +1183,7 @@ class AdminController extends Controller
             'filters' => $filters,
             'wishlist_id' => $id,
             'isAdminView' => true, // Flag to indicate this is an admin view
-            'base_url' => "/admin/wishlists/view?id={$id}" // Admin base URL for pagination
+            'base_url' => "/admin/wish-lists/view?id={$id}" // Admin base URL for pagination
         ];
         
         // Reuse the wishlist show view but with admin context
