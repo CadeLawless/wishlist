@@ -35,7 +35,7 @@ class AdminRenderService
                 <td data-label="Role"><?php echo $role; ?></td>
                 <td>
                     <div class="icon-group">
-                        <a class="icon-container" href="/admin/wishlists?username=<?php echo urlencode($username); ?>">
+                        <a class="icon-container" href="/admin/wish-lists?username=<?php echo urlencode($username); ?>">
                             <?php require(__DIR__ . '/../../public/images/site-images/icons/wishlist.php'); ?>
                         </a>
                         <a class="icon-container" href="/admin/users/edit?username=<?php echo urlencode($username); ?>">
@@ -218,7 +218,7 @@ class AdminRenderService
                         <a class="icon-container" href="/buyer/<?php echo $secretKey; ?>" target="_blank" title="View as buyer">
                             <?php require(__DIR__ . '/../../public/images/site-images/icons/wishlist.php'); ?>
                         </a>
-                        <a class="icon-container" href="/admin/wishlists/view?id=<?php echo $id; ?>" title="View as admin">
+                        <a class="icon-container" href="/admin/wish-lists/view?id=<?php echo $id; ?>" title="View as admin">
                             <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
                         </a>
                     </div>

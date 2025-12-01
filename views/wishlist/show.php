@@ -77,7 +77,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                 <img class='background-theme mobile-background' src="/public/images/site-images/themes/mobile-backgrounds/<?php echo $background_image; ?>" />
             <?php } ?>
             <p>
-                <a class="button accent" href="<?php echo isset($isAdminView) && $isAdminView ? '/admin/wishlists' : ($from_public !== false ? '/' . $user['username'] . '/wishlists' : '/wishlists'); ?>">
+                <a class="button accent" href="<?php echo isset($isAdminView) && $isAdminView ? '/admin/wish-lists' : ($from_public !== false ? '/' . $user['username'] . '/wishlists' : '/wishlists'); ?>">
                     Back to All Wish Lists
                 </a>
             </p>
@@ -165,7 +165,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <?php endif; ?>
                                                     <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-from">
                                                         <label for="other_wishlist_copy_from">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
+                                                        <select id="other_wishlist_copy_from" class="copy-select" name="other_wishlist_copy_from" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wish-lists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_from == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -213,7 +213,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                                                     <?php endif; ?>
                                                     <form method="POST" action="/wishlists/<?php echo $wishlistID; ?>/copy-to">
                                                         <label for="other_wishlist_copy_to">Choose Wish List:</label><br />
-                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
+                                                        <select id="other_wishlist_copy_to" class="copy-select" name="other_wishlist_copy_to" data-base-url="<?php echo isset($isAdminView) && $isAdminView ? "/admin/wish-lists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}"; ?>" required>
                                                             <option value="" disabled <?php if($other_wishlist_copy_to == "") echo "selected"; ?>>Select an option</option>
                                                             <?php
                                                             foreach($other_wishlist_options as $opt){
@@ -350,7 +350,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     <?php if(count($items) > 0): ?>
                     <div class="sort-filters">
                         <?php 
-                        $baseUrl = isset($isAdminView) && $isAdminView ? "/admin/wishlists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}";
+                        $baseUrl = isset($isAdminView) && $isAdminView ? "/admin/wish-lists/view?id={$wishlistID}" : "/wishlists/{$wishlistID}";
                         $options = [
                             'form_action' => "/wishlists/{$wishlistID}/filter",
                             'form_class' => 'filter-form center',

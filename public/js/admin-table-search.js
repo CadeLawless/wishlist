@@ -466,14 +466,14 @@ $(document).ready(function() {
             paginateUrl = '/admin/backgrounds/paginate';
         } else if (path.includes('/admin/gift-wraps')) {
             paginateUrl = '/admin/gift-wraps/paginate';
-        } else if (path.includes('/admin/wishlists')) {
+        } else if (path.includes('/admin/wish-lists')) {
             // Check if it's the view page (items) or list page
-            if (path.includes('/admin/wishlists/view')) {
+            if (path.includes('/admin/wish-lists/view')) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get('id') || '';
-                paginateUrl = '/admin/wishlists/paginate-items?id=' + id;
+                paginateUrl = '/admin/wish-lists/paginate-items?id=' + id;
             } else {
-                paginateUrl = '/admin/wishlists/paginate';
+                paginateUrl = '/admin/wish-lists/paginate';
             }
         } else if (path.includes('/friends')) {
             paginateUrl = '/friends/search';

@@ -108,11 +108,11 @@ $(document).ready(function() {
             let paginateUrl;
             let ajaxData = { new_page: newPage };
             
-            if (paginationState.baseUrl.includes('/admin/wishlists/view')) {
+            if (paginationState.baseUrl.includes('/admin/wish-lists/view')) {
                 // For admin wishlist view, use admin-specific pagination endpoint
                 const urlParams = new URLSearchParams(paginationState.baseUrl.split('?')[1] || '');
                 const id = urlParams.get('id') || '';
-                paginateUrl = '/admin/wishlists/paginate-items?id=' + id;
+                paginateUrl = '/admin/wish-lists/paginate-items?id=' + id;
             } else if (paginationState.baseUrl.includes('/admin/') || window.location.pathname.includes('/admin/')) {
                 // For admin pages, use admin pagination endpoints and include search term
                 // Use current pathname to determine endpoint (more reliable than baseUrl which may have query params)
@@ -123,8 +123,8 @@ $(document).ready(function() {
                     paginateUrl = '/admin/backgrounds/paginate';
                 } else if (pathname.includes('/admin/gift-wraps')) {
                     paginateUrl = '/admin/gift-wraps/paginate';
-                } else if (pathname.includes('/admin/wishlists')) {
-                    paginateUrl = '/admin/wishlists/paginate';
+                } else if (pathname.includes('/admin/wish-lists')) {
+                    paginateUrl = '/admin/wish-lists/paginate';
                 } else {
                     // Fallback to using baseUrl if pathname check doesn't match
                     const basePath = paginationState.baseUrl.split('?')[0]; // Remove query params
