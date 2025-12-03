@@ -62,7 +62,7 @@ class WishlistRenderService
                             require(__DIR__ . '/../../public/images/site-images/icons/three-dots.php');
                             $html .= ob_get_clean();
                             $html .= "</div>
-                            <div class='quick-menu hidden'>
+                            <div class='quick-menu'>
                                 <button class='quick-menu-item toggle-complete' data-wishlist-id='$id' data-current-complete='" . ($active ? 'No' : 'Yes') . "'>
                                     <span class='menu-icon'>";
                                     ob_start();

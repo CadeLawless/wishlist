@@ -73,3 +73,43 @@ if (isset($flash['error'])) {
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
 <script src="/public/js/pagination.js?v=2.5"></script>
 <?php endif; ?>
+
+<script>
+    function scrollToIfNotVisible($elem, padding = 20) {
+        const elemTop = $elem.offset().top;
+        const elemBottom = elemTop + $elem.outerHeight();
+
+        const navbarHeight = $('.header-container').outerHeight() || 0; 
+        const viewportTop = $(window).scrollTop() + navbarHeight;
+        const viewportBottom = viewportTop + $(window).height();
+
+        const fullyVisible = elemTop >= viewportTop && elemBottom <= viewportBottom;
+
+        if(!fullyVisible){
+            const targetScroll = elemTop - navbarHeight - padding;
+
+            $('html, body').animate({
+                scrollTop: targetScroll
+            }, 200);
+        }
+    }
+
+    $(document).ready(function(){
+        $(document).on('click', '.dots-icon', function(e){
+            e.stopPropagation();
+            var quickMenu = $(this).closest('.three-dots-menu').find('.quick-menu');
+            $('.quick-menu').not(quickMenu).removeClass('active-menu'); // Hide other open menus
+            quickMenu.toggleClass('active-menu');
+            if(quickMenu.hasClass('active-menu')){
+                setTimeout(() => scrollToIfNotVisible(quickMenu), 200);
+            }
+        });
+
+        // Hide quick menu when clicking outside
+        $(document).on('click', function(e){
+            if (!$(e.target).closest('.three-dots-menu').length) {
+                $('.quick-menu').removeClass('active-menu');
+            }
+        });
+    });
+</script>
