@@ -232,7 +232,7 @@ label {
     background-color: var(--transparent-background);
 }
 
-#invitation-popup {
+#invitation-popup, .alert-message {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -245,7 +245,6 @@ label {
     max-width: min(400px, 80%);
     box-shadow: var(--text-transparent) 0px 0px 3px;
     animation: slide-in 0.5s forwards;
-    animation-delay: 1.5s;
     opacity: 0;
 
     & small {
@@ -254,6 +253,10 @@ label {
         display: block;
         font-size: 0.9rem;
     }
+}
+
+#invitation-popup {
+    animation-delay: 1.5s;
 }
 
 @keyframes slide-in {
@@ -920,17 +923,17 @@ body.dark .dark-mode-link {
 }
 .wishlist-checkbox {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 5px;
+    left: 5px;
     z-index: 10;
     background-color: var(--background-darker);
-    padding: 5px;
-    border-radius: 14px 0 14px 0;
+    padding: 3px;
+    border-radius: 8px;
     cursor: pointer;
 
     & .checkbox-icon {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -976,6 +979,7 @@ body.dark .dark-mode-link {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
+    border-radius: 0 0 14px 14px;
 }
 
 .three-dots-menu {
@@ -1031,6 +1035,10 @@ body.dark .dark-mode-link {
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.2s;
+
+            &.disabled {
+                pointer-events: none;
+            }
 
             &:hover {
                 background-color: var(--background-darker-hover);

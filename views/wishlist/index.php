@@ -111,5 +111,72 @@ if (isset($flash['error'])) {
                 $('.quick-menu').removeClass('active-menu');
             }
         });
+
+        $(document).on('click', '.quick-menu-item', function(e){
+            e.preventDefault();
+            var menuItem = $(this);
+            menuItem.addClass('disabled');
+            switch (menuItem.attr('class').split(' ')[1]) {
+                case 'toggle-complete':
+                    var wishlistId = $(this).data('wishlist-id');
+                    var currentComplete = $(this).data('current-complete');
+
+                    $.ajax({
+                        url: `/wishlists/${wishlistId}/toggle-complete`,
+                        type: 'POST',
+                        data: {},
+                        success: function(response) {
+                            if (response.status === 'error') {
+                                addAlertMessage(response.message);
+                                menuItem.removeClass('disabled');
+                                return;
+                            }
+                            menuItem.closest('.three-dots-menu').find('.quick-menu').hide();
+                            menuItem.closest('.wishlist-grid-item').fadeOut(500, function() {
+                                $(this).remove();
+                                $(".paginate-arrow.paginate-first").trigger('click');
+                                var newTab = currentComplete === 'Yes' ? 'Active' : 'Inactive';
+                                addAlertMessage(`Wish list moved to ${newTab}`);
+                                reloadWishLists();
+                            });
+                        },
+                        error: function() {
+                            addAlertMessage('Failed to update wish list status');
+                            menuItem.removeClass('disabled');
+                        }
+                    });
+                    break;
+            }
+        });
+
+        function addAlertMessage(message) {
+            $(".alert-message").remove(); // Remove existing messages
+            const alertPopup = $(`
+                <div class="alert-message">
+                    <p style="margin: 0;">${message}</p>
+                </div>
+            `);
+            $('body').append(alertPopup);
+            $('.alert-message').fadeOut(5000, function() {
+                $(this).remove();
+            });
+        }
+
+        function reloadWishLists() {
+            const currentUrl = window.location.href;
+            $.ajax({
+                url: currentUrl + "/reload",
+                type: 'GET',
+                success: function(response) {
+                    $('.wishlist-grid').html(response.html);
+                    if(response.count <= 12){
+                        $('.paginate-container').remove();
+                    }
+                },
+                error: function() {
+                    addAlertMessage('Failed to reload wish lists');
+                }
+            });
+        }
     });
 </script>

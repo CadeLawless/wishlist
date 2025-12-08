@@ -132,6 +132,44 @@ class WishlistController extends Controller
         return $this->view('wishlist/index', $data);
     }
 
+    public function reloadWishLists(): Response
+    {
+        $user = $this->auth();
+
+        $wishlists = $this->wishlistService->getActiveUserWishlists($user['username']);
+
+        $wishListCount = count($wishlists);
+
+        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($wishlists) : 
+            "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any active wish lists right now</p>";
+
+        $html = WishlistRenderService::generateWishlistsHtml($wishlists);
+
+        return $this->json([
+            'status' => 'success',
+            'count' => $wishListCount,
+            'html' => $html
+        ], 200);
+    }
+
+    public function reloadInactiveWishLists(): Response
+    {
+        $user = $this->auth();
+
+        $wishlists = $this->wishlistService->getInactiveUserWishlists($user['username']);
+
+        $wishListCount = count($wishlists);
+
+        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($wishlists) : 
+            "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any inactive wish lists right now</p>";
+
+        return $this->json([
+            'status' => 'success',
+            'count' => $wishListCount,
+            'html' => $html
+        ], 200);
+    }
+
     public function publicUserWishlists(string $username): Response
     {
         $user = $this->auth();
@@ -373,15 +411,37 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
+            return $this->json([
+                    'status' => 'error',
+                    'message' => 'Wish list not found'
+                ], 400);
         }
 
-        if ($this->wishlistService->toggleWishlistComplete($id)) {
-            $message = $wishlist['complete'] ? 'Wish list has been reactivated.' : 'Wish list has been deactivated.';
-            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
-        }
+        try {
+            $result = $this->wishlistService->toggleWishlistComplete($id);
 
-        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist status.');
+            if($result !== false){
+                return $this->json([
+                    'status' => 'success',
+                    'message' => 'Friend request sent successfully'
+                ], 200);
+            } else {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Unable to update wish list status'
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+        
+        return $this->json([
+            'status' => 'error',
+            'message' => 'Something went wrong while adding friend to database'
+        ], 400);
     }
 
     public function rename(string|int $id): Response

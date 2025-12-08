@@ -93,7 +93,9 @@ Router::post('/admin/wish-lists/paginate-items', [AdminController::class, 'pagin
 // Wishlist routes (home page shows user's wishlists)
 Router::get('/wishlists/create', [WishlistController::class, 'create'])->middleware('auth');
 Router::get('/wishlists', [WishlistController::class, 'index'])->middleware('auth');
+Router::get('/wishlists/reload', [WishlistController::class, 'reloadWishLists'])->middleware('auth');
 Router::get('/wishlists/inactive', [WishlistController::class, 'inactiveWishLists'])->middleware('auth');
+Router::get('/wishlists/inactive/reload', [WishlistController::class, 'reloadInactiveWishLists'])->middleware('auth');
 Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishLists'])->middleware('auth');
 Router::post('/wishlists', [WishlistController::class, 'store'])->middleware('auth');
 Router::get('/wishlists/{id}', [WishlistController::class, 'show'])->middleware('auth');
