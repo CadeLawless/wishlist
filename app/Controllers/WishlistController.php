@@ -387,15 +387,39 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish list not found'
+            ], 400);
         }
 
-        if ($this->wishlistService->toggleWishlistVisibility($id)) {
-            $message = $wishlist['public'] ? 'Wish list is now hidden.' : 'Wish list is now public.';
-            return $this->redirect("/wishlists/{$id}")->withSuccess($message);
+        try {
+            $result = $this->wishlistService->toggleWishlistVisibility($id);
+
+            if($result !== false){
+                $newVisibility = $result ? 'Public' : 'Hidden';
+                return $this->json([
+                    'status' => 'success',
+                    'message' => 'Wish list visibility updated successfully',
+                    'new_visibility' => $newVisibility
+                ], 200);
+            } else {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Unable to update wish list visibility'
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
         }
 
-        return $this->redirect("/wishlists/{$id}")->withError('Unable to update wishlist visibility.');
+        return $this->json([
+            'status' => 'error',
+            'message' => 'Something went wrong while updating wish list visibility'
+        ], 400);
     }
 
     public function toggleComplete(string|int $id): Response
@@ -412,9 +436,9 @@ class WishlistController extends Controller
         
         if (!$wishlist) {
             return $this->json([
-                    'status' => 'error',
-                    'message' => 'Wish list not found'
-                ], 400);
+                'status' => 'error',
+                'message' => 'Wish list not found'
+            ], 400);
         }
 
         try {
@@ -423,7 +447,7 @@ class WishlistController extends Controller
             if($result !== false){
                 return $this->json([
                     'status' => 'success',
-                    'message' => 'Friend request sent successfully'
+                    'message' => 'Wish list status updated successfully',
                 ], 200);
             } else {
                 return $this->json([
@@ -440,7 +464,7 @@ class WishlistController extends Controller
         
         return $this->json([
             'status' => 'error',
-            'message' => 'Something went wrong while adding friend to database'
+            'message' => 'Something went wrong while updating wish list status'
         ], 400);
     }
 

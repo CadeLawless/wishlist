@@ -919,6 +919,25 @@ body.dark .dark-mode-link {
         top: unset;
         left: unset;
         transform: unset;
+
+        &.private {
+            opacity: 0.2;
+        }
+    }
+
+    & .private-wishlist-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+        padding: 0;
+
+        & svg {
+            width: 25px;
+            height: 25px;
+            background: unset;
+            border: none;
+        }
     }
 }
 .wishlist-checkbox {

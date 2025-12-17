@@ -116,9 +116,9 @@ if (isset($flash['error'])) {
             e.preventDefault();
             var menuItem = $(this);
             menuItem.addClass('disabled');
+            var wishlistId = menuItem.closest('.wishlist-grid-item').data('wishlist-id');
             switch (menuItem.attr('class').split(' ')[1]) {
                 case 'toggle-complete':
-                    var wishlistId = $(this).data('wishlist-id');
                     var currentComplete = $(this).data('current-complete');
 
                     $.ajax({
@@ -146,7 +146,51 @@ if (isset($flash['error'])) {
                         }
                     });
                     break;
+                case 'toggle-visibility':
+                    var currentVisibility = $(this).data('current-visibility');
+
+                    $.ajax({
+                        url: `/wishlists/${wishlistId}/toggle-visibility`,
+                        type: 'POST',
+                        data: {},
+                        success: function(response) {
+                            if (response.status === 'error') {
+                                addAlertMessage(response.message);
+                                menuItem.removeClass('disabled');
+                                return;
+                            }
+                            var newVisibility = currentVisibility === 'Public' ? 'Hidden' : 'Public';
+                            // Update the icon and text in the quick menu
+                            if(newVisibility === 'Public'){
+                                menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`);
+                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Hide');
+                            }else{
+                                menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/view.php'); echo addslashes(ob_get_clean()); ?>`);
+                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Make Public');
+                            }
+                            // Update the private icon visibility
+                            var wishlistItem = menuItem.closest('.wishlist-grid-item');
+                            if(newVisibility === 'Public'){
+                                wishlistItem.find('.private-wishlist-icon').remove();
+                                wishlistItem.find('.items-list').removeClass('private');
+                            }else{
+                                var privateIconHtml = `<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`;
+                                wishlistItem.prepend(`<div class='private-wishlist-icon'>${privateIconHtml}</div>`);
+                                wishlistItem.find('.items-list').addClass('private');
+                            }
+                            var alertMessage = newVisibility === 'Public' ? 'Wish list is now public' : 'Wish list is now hidden';
+                            addAlertMessage(alertMessage);
+                            menuItem.removeClass('disabled').data('current-visibility', newVisibility);
+                        },
+                        error: function() {
+                            addAlertMessage('Failed to update wish list visibility');
+                            menuItem.removeClass('disabled');
+                        }
+                    });
+                    break;
             }
+
+            menuItem.closest('.quick-menu').removeClass('active-menu');
         });
 
         function addAlertMessage(message) {

@@ -33,15 +33,23 @@ class WishlistRenderService
             $backgroundStyle = $background_image == "" ? "" : "background-image: url(/public/images/site-images/themes/desktop-thumbnails/$background_image);";
             
             $html .= "
-            <div class='wishlist-grid-item'>
+            <div class='wishlist-grid-item' data-wishlist-id='$id'>
                 <div class='wishlist-checkbox'>
                     <div class='checkbox-icon'>";
                     ob_start();
                     require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php');
                     $html .= ob_get_clean();
                     $html .= "</div>
-                </div>
-                <div class='items-list preview' style='$backgroundStyle'>
+                </div>";
+                if(!$public) {
+                    $html .= "<div class='private-wishlist-icon'>";
+                    ob_start();
+                    require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php');
+                    $html .= ob_get_clean();
+                    $html .= "</div>";
+                }
+                $html .= "
+                <div class='items-list preview" . (!$public ? " private" : "") . "' style='$backgroundStyle'>
                     <div class='item-container'>
                         <img src='/public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                         <div class='item-description'>
@@ -63,7 +71,7 @@ class WishlistRenderService
                             $html .= ob_get_clean();
                             $html .= "</div>
                             <div class='quick-menu'>
-                                <button class='quick-menu-item toggle-complete' data-wishlist-id='$id' data-current-complete='" . ($active ? 'No' : 'Yes') . "'>
+                                <button class='quick-menu-item toggle-complete' data-current-complete='" . ($active ? 'No' : 'Yes') . "'>
                                     <span class='menu-icon'>";
                                     ob_start();
                                     require(__DIR__ . '/../../public/images/site-images/icons/' . ($active ? 'cancel.php' : 'checkmark.php'));
@@ -71,7 +79,7 @@ class WishlistRenderService
                                     $html .= "</span>
                                     " . ($active ? 'Deactivate' : 'Reactivate') . "
                                 </button>
-                                <button class='quick-menu-item toggle-visibility' data-wishlist-id='$id' data-current-visibility='" . htmlspecialchars($visibility) . "'>
+                                <button class='quick-menu-item toggle-visibility' data-current-visibility='" . htmlspecialchars($visibility) . "'>
                                     <span class='menu-icon'>";
                                     ob_start();
                                     require(__DIR__ . '/../../public/images/site-images/icons/' . ($public ? 'hide-view.php' : 'view.php'));
@@ -79,7 +87,7 @@ class WishlistRenderService
                                     $html .= "</span>
                                     " . ($public ? 'Hide' : 'Make Public') . "
                                 </button>
-                                <button class='quick-menu-item rename-wishlist' data-wishlist-id='$id' data-current-name='" . htmlspecialchars($wishlist['wishlist_name'], ENT_QUOTES, 'UTF-8') . "'>
+                                <button class='quick-menu-item rename-wishlist' data-current-name='" . htmlspecialchars($wishlist['wishlist_name'], ENT_QUOTES, 'UTF-8') . "'>
                                     <span class='menu-icon'>";
                                     ob_start();
                                     require(__DIR__ . '/../../public/images/site-images/icons/edit.php');
@@ -87,7 +95,7 @@ class WishlistRenderService
                                     $html .= "</span>
                                     Rename
                                 </button>
-                                <button class='quick-menu-item delete-wishlist' data-wishlist-id='$id' data-wishlist-name='" . htmlspecialchars($wishlist['wishlist_name'], ENT_QUOTES, 'UTF-8') . "'>
+                                <button class='quick-menu-item delete-wishlist' data-wishlist-name='" . htmlspecialchars($wishlist['wishlist_name'], ENT_QUOTES, 'UTF-8') . "'>
                                     <span class='menu-icon'>";
                                     ob_start();
                                     require(__DIR__ . '/../../public/images/site-images/icons/delete-trashcan.php');
