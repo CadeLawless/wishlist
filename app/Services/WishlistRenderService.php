@@ -34,13 +34,14 @@ class WishlistRenderService
             
             $html .= "
             <div class='wishlist-grid-item' data-wishlist-id='$id'>
-                <div class='wishlist-checkbox'>
+                <div class='click-to-select'>Click to Select</div>
+                <button class='wishlist-checkbox'>
                     <div class='checkbox-icon'>";
                     ob_start();
                     require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php');
                     $html .= ob_get_clean();
                     $html .= "</div>
-                </div>";
+                </button>";
                 if(!$public) {
                     $html .= "<div class='private-wishlist-icon'>";
                     ob_start();

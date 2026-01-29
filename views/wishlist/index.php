@@ -60,6 +60,23 @@ if (isset($flash['error'])) {
     ?>
 </div>
 
+<div id="bulk-actions-bar">
+    <div class="selection-actions-buttons">
+        <button id="select-all-button" class="button secondary">Select All</button>
+        <button id="clear-selection-button" class="button secondary">Clear Selection</button>
+    </div>
+    <div class="bulk-actions-container">
+        <div id="selected-count-container"><span id="selected-count">0</span> wish list(s) selected</div>
+        <button id="bulk-action-dropdown-button" class="button primary">Bulk Actions ▼</button>
+        <div id="bulk-action-dropdown-menu" class="dropdown-menu">
+            <a href="#" class="dropdown-menu-link" id="bulk-deactivate-wishlists">
+                <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/cancel.php'); ?></span>
+                <span>Deactivate Selected Wish Lists</span>
+            </a>
+
+        </div>
+    </div>
+</div>
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
     <!-- Bottom Pagination controls -->
     <?php 
@@ -192,6 +209,77 @@ if (isset($flash['error'])) {
 
             menuItem.closest('.quick-menu').removeClass('active-menu');
         });
+
+        $(document).on('click', '.wishlist-checkbox', function(e){
+            e.preventDefault();
+            var checkbox = $(this);
+            var wishlistId = checkbox.closest('.wishlist-grid-item').data('wishlist-id');
+            checkbox.toggleClass('checked');
+            if(checkbox.hasClass('checked')){
+                checkbox.closest('.wishlist-grid-item').addClass('selected');
+                checkbox.closest('.wishlist-grid-item').find('.click-to-select').text('Selected');
+            }else{
+                checkbox.closest('.wishlist-grid-item').removeClass('selected');
+                checkbox.closest('.wishlist-grid-item').find('.click-to-select').text('Click to Select');
+            }
+            showBulkActionsBarIfWishListsSelected();
+            $(document.body).click();
+        });
+
+        $(document).on('click', '.wishlist-grid-item.bulk-select .items-list, .wishlist-grid-item.bulk-select .private-wishlist-icon, .wishlist-grid-item.bulk-select .wishlist-grid-item-footer, .wishlist-grid-item.bulk-select .click-to-select', function(){
+            var selectedIds = getSelectedWishlists();
+            if(selectedIds.length > 0){
+                $(this).closest('.wishlist-grid-item').find('.wishlist-checkbox').click();
+            }
+        });
+
+        $('#select-all-button').on('click', function(e){
+            e.preventDefault();
+            selectAllWishlists();
+            showBulkActionsBarIfWishListsSelected();
+        });
+
+        $('#clear-selection-button').on('click', function(e){
+            e.preventDefault();
+            clearAllSelections();
+            showBulkActionsBarIfWishListsSelected();
+        });
+
+        function showBulkActionsBarIfWishListsSelected() {
+            var selectedIds = getSelectedWishlists();
+            if(selectedIds.length > 0){
+                $('#bulk-actions-bar').addClass('active');
+                $('.wishlist-grid-item').addClass('bulk-select');
+                $('#selected-count').text(selectedIds.length);
+                $("#container").css("margin-bottom", $("#bulk-actions-bar").outerHeight() + 20 + "px");
+            }else{
+                $('#bulk-actions-bar').removeClass('active');
+                $('.wishlist-grid-item').removeClass('bulk-select');
+                $('#selected-count').text('0');
+                $("#container").css("margin-bottom", "0px");
+            }
+        }
+
+        function getSelectedWishlists() {
+            var selectedIds = [];
+            $('.wishlist-checkbox.checked').each(function(){
+                var wishlistId = $(this).closest('.wishlist-grid-item').data('wishlist-id');
+                selectedIds.push(wishlistId);
+            });
+            return selectedIds;
+        }
+
+        function selectAllWishlists() {
+            $('.wishlist-checkbox').each(function(){
+                $(this).addClass('checked');
+                $(this).closest('.wishlist-grid-item').addClass('selected');
+            });
+        }
+
+        function clearAllSelections() {
+            $('.wishlist-checkbox.checked').removeClass('checked');
+            $('.wishlist-grid-item.selected').removeClass('selected');
+        }
 
         function addAlertMessage(message) {
             $(".alert-message").remove(); // Remove existing messages

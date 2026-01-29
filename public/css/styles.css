@@ -403,7 +403,7 @@ tbody tr.active-row {
     transition: color 0.2s ease;
 }
 
-.admin-table-search-container .clear-search:hover {
+.admin-table-search-container .clear-search:active {
     color: var(--text-color);
 }
 
@@ -578,7 +578,7 @@ body.dark .table-search-loading-overlay {
 .dark-mode path, .light-mode path {
     fill: var(--text);
 }
-.dark-mode-link:hover, .light-mode-link:hover {
+.dark-mode-link:active, .light-mode-link:active {
     background-color: var(--background-darker);
 }
 .light-mode-link {
@@ -651,7 +651,7 @@ body.dark .dark-mode-link {
 .dropdown-menu .dropdown-menu-link:last-of-type {
     border-radius: 0 0 6px 6px;
 }
-.dropdown-menu-link:hover {
+.dropdown-menu-link:active {
     background-color: var(--background-hover);
 }
 .menu .nav-link.active, .menu .nav-link.active-page, .menu .nav-link:hover {
@@ -908,6 +908,31 @@ body.dark .dark-mode-link {
     border-radius: 14px;
     box-shadow: var(--text-transparent) 0px 0px 2px;
 
+    &.bulk-select {
+        cursor: pointer;
+
+        & :is(.items-list, .private-wishlist-icon, .wishlist-grid-item-footer) {
+            opacity: 0.2;
+        }
+
+        & :is(.view-wishlist-button, .three-dots-menu) {
+            pointer-events: none;
+        }
+
+        &.selected :is(.wishlist-grid-item-footer) {
+            opacity: 1;
+
+            & :is(.view-wishlist-button, .three-dots-menu) {
+                opacity: 0.2;
+                transition: none;
+            }
+        }
+
+        & .click-to-select {
+            display: block;
+        }
+    }
+
     & .items-list.preview {
         position: relative;
         width: 100%;
@@ -940,6 +965,16 @@ body.dark .dark-mode-link {
         }
     }
 }
+.click-to-select {
+    display: none;
+    position: absolute;
+    top: 34%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.1rem;
+    opacity: 0.8;
+    z-index: 100;
+}
 .wishlist-checkbox {
     position: absolute;
     top: 5px;
@@ -949,6 +984,7 @@ body.dark .dark-mode-link {
     padding: 3px;
     border-radius: 8px;
     cursor: pointer;
+    border: 0;
 
     & .checkbox-icon {
         width: 20px;
@@ -970,8 +1006,62 @@ body.dark .dark-mode-link {
         }
     }
 
-    &:hover .checkbox-icon svg path {
+    &:is(:active, .checked) .checkbox-icon svg path {
         fill: var(--text);
+    }
+}
+#bulk-actions-bar {
+    position: fixed;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: var(--background-darker);
+    padding: 10px 0;
+    box-shadow: var(--text-transparent) 0px 0px 3px;
+    z-index: 500;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+
+    &.active {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    & #selected-count-container {
+        padding: 0 20px;
+        font-size: 1.2rem;
+        flex-grow: 1;
+
+        & #selected-count {
+            font-size: 1.2rem;
+        }
+    }
+
+    & .bulk-actions-buttons {
+        display: flex;
+        gap: 10px;
+        padding: 0 20px;
+
+        & .button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+    }
+}
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }
 .title-row {
@@ -1127,7 +1217,7 @@ body.dark .dark-mode-link {
 .paginate-arrow path {
     fill: var(--text);
 }
-.paginate-arrow:hover {
+.paginate-arrow:active {
     background-color: var(--transparent-background-hover);
 }
 .paginate-arrow.disabled {
@@ -1477,7 +1567,7 @@ textarea {
     100% { opacity: 1; left: 0;}
 }
 .active:not(.nav-link, .admin-table-loading-overlay,
-.table-search-loading-overlay) {
+.table-search-loading-overlay, #bulk-actions-bar) {
     animation: fadein 0.4s;
 }
 @keyframes fadein {
@@ -1624,7 +1714,7 @@ textarea {
 .button.primary {
     background-color: var(--primary);
 }
-.button.primary:hover {
+.button.primary:active {
     background-color: var(--primary-hover);
 }
 .button.secondary {
@@ -1634,20 +1724,20 @@ textarea {
 .button.secondary > span {
     color: var(--text-light);
 }
-.button.secondary:hover {
+.button.secondary:active {
     background-color: var(--secondary-hover);
 }
 .button.accent {
     background-color: var(--accent);
 }
-.button.accent:hover {
+.button.accent:active {
     background-color: var(--accent-hover);
 }
 .button.text {
     color: var(--contrast);
     background-color: var(--text);
 }
-.button.text:hover {
+.button.text:active {
     background-color: var(--text-hover);
 }
 .choose-theme-button {
@@ -2639,6 +2729,45 @@ img.gift-wrap {
             color: var(--text);
         }
     }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-table-search-container .clear-search:hover {
+        color: var(--text-color);
+    }
+
+    .dark-mode-link:hover, .light-mode-link:hover {
+        background-color: var(--background-darker);
+    }
+
+    .dropdown-menu-link:hover {
+        background-color: var(--background-hover);
+    }
+
+    .paginate-arrow:hover {
+        background-color: var(--transparent-background-hover);
+    }
+
+    .button.primary:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .button.secondary:hover {
+        background-color: var(--secondary-hover);
+    }
+
+    .button.accent:hover {
+        background-color: var(--accent-hover);
+    }
+
+    .button.text:hover {
+        background-color: var(--text-hover);
+    }
+
+    .wishlist-checkbox:hover .checkbox-icon svg path {
+        fill: var(--text);
+    }
+
 }
 
 @media (max-height: 430px){
