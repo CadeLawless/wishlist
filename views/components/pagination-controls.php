@@ -15,6 +15,7 @@ $type = $type ?? 'wisher';
 $position = $position ?? '';
 $total_count = $total_count ?? null;
 $item_label = $item_label ?? 'items';
+$backgroundColorClass = $backgroundColorClass ?? '';
 
 // For admin pages, use ADMIN_ITEMS_PER_PAGE (10), otherwise use 12
 $items_per_page = ($type === 'admin') ? 10 : 12;
@@ -38,7 +39,7 @@ if ($position === 'top') {
 
 <?php if($show_pagination || $always_render): ?>
 <div class="center"<?php echo (!$show_pagination) ? ' style="display: none;"' : ''; ?>>
-    <div class="paginate-container<?php echo $position ? ' ' . $position : ''; ?>">
+    <div class="paginate-container<?php echo $position ? ' ' . $position : ''; ?><?=  $backgroundColorClass ? " $backgroundColorClass" : ''; ?>">
         <?php 
         // Always render controls (even if total_pages is 1) so JavaScript can update them dynamically
         // This ensures pagination controls are available when search results change

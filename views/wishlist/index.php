@@ -45,6 +45,7 @@ if (isset($flash['error'])) {
     <!-- Top Pagination controls -->
     <?php 
     $position = 'top';
+    $backgroundColorClass = 'no-background';
     include __DIR__ . '/../components/pagination-controls.php'; 
     ?>
 <?php endif; ?>
@@ -67,13 +68,33 @@ if (isset($flash['error'])) {
     </div>
     <div class="bulk-actions-container">
         <div id="selected-count-container"><span id="selected-count">0</span> wish list(s) selected</div>
-        <button id="bulk-action-dropdown-button" class="button primary">Bulk Actions ▼</button>
-        <div id="bulk-action-dropdown-menu" class="dropdown-menu">
-            <a href="#" class="dropdown-menu-link" id="bulk-deactivate-wishlists">
-                <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/cancel.php'); ?></span>
-                <span>Deactivate Selected Wish Lists</span>
-            </a>
-
+        <div class="bulk-button-group">
+            <div class="action-dropdown-container">
+                <button id="bulk-action-dropdown-button" class="button dropdown">Bulk Actions ▼</button>
+                <div id="bulk-action-dropdown-menu">
+                    <button class="bulk-action-item" id="bulk-deactivate-wishlists">
+                        <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/cancel.php'); ?></span>
+                        <span>Deactivate</span>
+                    </button>
+                    <button class="bulk-action-item" id="bulk-activate-wishlists">
+                        <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?></span>
+                        <span>Reactivate</span>
+                    </button>
+                    <button class="bulk-action-item" id="bulk-make-public-wishlists">
+                        <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?></span>
+                        <span>Make Public</span>
+                    </button>
+                    <button class="bulk-action-item" id="bulk-make-hidden-wishlists">
+                        <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); ?></span>
+                        <span>Hide</span>
+                    </button>
+                    <button class="bulk-action-item" id="bulk-delete-wishlists">
+                        <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/delete-trashcan.php'); ?></span>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+            <button class="button primary">Confirm</button>
         </div>
     </div>
 </div>
@@ -83,6 +104,7 @@ if (isset($flash['error'])) {
     $position = 'bottom';
     $total_count = count($all_wishlists);
     $item_label = 'wishlists';
+    $backgroundColorClass = 'no-background';
     include __DIR__ . '/../components/pagination-controls.php'; 
     ?>
 <?php endif; ?>
@@ -280,6 +302,11 @@ if (isset($flash['error'])) {
             $('.wishlist-checkbox.checked').removeClass('checked');
             $('.wishlist-grid-item.selected').removeClass('selected');
         }
+
+        $(document).on('click', '#bulk-action-dropdown-button', function(e){
+            e.preventDefault();
+            $('#bulk-action-dropdown-menu').toggleClass('active-menu');
+        });
 
         function addAlertMessage(message) {
             $(".alert-message").remove(); // Remove existing messages
