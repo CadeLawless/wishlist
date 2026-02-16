@@ -481,21 +481,34 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish list not found'
+            ], 400);
         }
 
-        $name = $this->request->input('wishlist_name');
+        $name = $this->request->input('name');
         $errors = $this->wishlistValidator->validateWishlistName($name);
 
         if ($this->wishlistValidator->hasErrors($errors)) {
-            return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', $this->wishlistValidator->formatErrorsForDisplay($errors));
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Invalid wish list name',
+                'errorHtml' => $this->wishlistValidator->formatErrorsForDisplay($errors)
+            ], 400);
         }
 
         if ($this->wishlistService->updateWishlistName($id, $name)) {
-            return $this->redirect("/wishlists/{$id}")->withSuccess('Wish list renamed successfully!');
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Wish list renamed successfully',
+            ], 200);
         }
 
-        return $this->redirect("/wishlists/{$id}")->withFlash('rename_error', 'Unable to rename wishlist. Please try again.');
+        return $this->json([
+            'status' => 'error',
+            'message' => 'Unable to rename wishlist. Please try again.'
+        ], 400);
     }
 
     public function updateTheme(string|int $id): Response

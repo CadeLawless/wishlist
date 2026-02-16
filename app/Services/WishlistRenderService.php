@@ -33,7 +33,7 @@ class WishlistRenderService
             $backgroundStyle = $background_image == "" ? "" : "background-image: url(/public/images/site-images/themes/desktop-thumbnails/$background_image);";
             
             $html .= "
-            <div class='wishlist-grid-item' data-wishlist-id='$id'>
+            <div class='wishlist-grid-item' data-wishlist-id='$id' data-visibility='" . htmlspecialchars($visibility, ENT_QUOTES, 'UTF-8') . "' data-complete='$complete'>
                 <div class='click-to-select'>Click to Select</div>
                 <button class='wishlist-checkbox'>
                     <div class='checkbox-icon'>";

@@ -1064,7 +1064,15 @@ body.dark .dark-mode-link {
     & .action-dropdown-container {
         position: relative;
 
-        #bulk-action-dropdown-menu {
+        & button#bulk-action-dropdown-button {
+            text-align: center;
+            width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        & #bulk-action-dropdown-menu {
             position: absolute;
             bottom: calc(100% + 6px);
             background-color: var(--background-darker);
@@ -1096,7 +1104,7 @@ body.dark .dark-mode-link {
                     pointer-events: none;
                 }
 
-                &:hover {
+                &:is(:hover, .selected) {
                     background-color: var(--background-darker-hover);
                 }
 
