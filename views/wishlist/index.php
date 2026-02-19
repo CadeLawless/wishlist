@@ -116,6 +116,8 @@ if (isset($flash['error'])) {
 <script src="/public/js/pagination.js?v=2.5"></script>
 <?php endif; ?>
 
+<script src="/public/js/form-validation.js?v=2.5"></script>
+
 <script>
     function scrollToIfNotVisible($elem, padding = 20) {
         const elemTop = $elem.offset().top;
@@ -239,17 +241,26 @@ if (isset($flash['error'])) {
                             'id' => 'rename-popup',
                             "content" => "
                                 <h2 class='no-margin-top'>Rename Wish List</h2>
-                                <input type='text' id='rename-input' class='input-field' value='' placeholder='Enter new wish list name' />
-                                <button id='rename-confirm-button' class='button primary'>Rename</button>"
+                                <form id='rename-form'>
+                                    <input type='text' id='rename-input' name='wishlist_name' class='input-field' required value='' placeholder='Enter new wish list name' />
+                                    <input type='submit' id='rename-confirm-button' class='button primary' value='Rename' />
+                                </form>"
                         ];
                         echo $popupManager->generatePopupContainer($popupOptions);
                         ?>
                     `);
                     setTimeout(() => {
-                        $('#rename-popup popup').addClass('active');
+                        $('#rename-popup .popup').addClass('active');
                         $('#rename-popup').removeClass('hidden');
                         $('#rename-input').val(menuItem.closest('.wishlist-grid-item').find('.wishlist-name').text()).focus();
-                        $('#rename-popup #rename-confirm-button').data('wishlist-id', wishlistId);
+                        $('#rename-popup #rename-form').data('wishlist-id', wishlistId);
+                        FormValidator.init('#rename-form', {
+                            wishlist_name: {
+                                required: true,
+                                minLength: 1,
+                                maxLength: 100
+                            }
+                        });
                     }, 100);
                     menuItem.removeClass('disabled');
                     break;
@@ -269,7 +280,7 @@ if (isset($flash['error'])) {
             }
         });
 
-        $(document).on('click', '#rename-confirm-button', function(e){
+        $(document).on('submit', '#rename-form', function(e){
             e.preventDefault();
             var newName = $('#rename-input').val().trim();
             if(newName === ''){
