@@ -103,13 +103,12 @@ $(document).ready(function() {
             maxLength: 100
         }
     });
-});
-
+    
     let name_input = document.querySelector("#wishlist_name");
     name_input.addEventListener("focus", function(){
         this.select();
     });
-
+    
     let type_select = document.querySelector("#wishlist_type");
     type_select.addEventListener("change", function(){
         let current_year = new Date().getFullYear();
@@ -126,4 +125,5 @@ $(document).ready(function() {
             document.querySelector(".choose-theme-button").classList.add("disabled");
         }
     });
+});
 </script>
