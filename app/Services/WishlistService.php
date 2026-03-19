@@ -316,9 +316,19 @@ class WishlistService
         return Wishlist::toggleVisibility($id);
     }
 
+    public function setWishlistVisibility(int $id, string $visibility): bool
+    {
+        return Wishlist::setVisibility($id, $visibility);
+    }
+
     public function toggleWishlistComplete(int $id): bool
     {
         return Wishlist::toggleComplete($id);
+    }
+
+    public function setWishlistComplete(int $id, string $complete): bool
+    {
+        return Wishlist::setComplete($id, $complete);
     }
 
     public function deleteWishlistAndItems(int $id): bool

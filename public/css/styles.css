@@ -1061,6 +1061,20 @@ body.dark .dark-mode-link {
         padding: 0 20px;
     }
 
+    & #bulk-action-confirm-button:has(div.loading-spinner) {
+        width: 91px;
+        height: 37px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        & div.loading-spinner {
+            margin: 0;
+            scale: 0.5;
+        }
+    }
+
     & .action-dropdown-container {
         position: relative;
 
@@ -1070,6 +1084,10 @@ body.dark .dark-mode-link {
             display: flex;
             align-items: center;
             justify-content: space-between;
+
+            &.shake {
+                animation: shake 0.3s;
+            }
         }
 
         & #bulk-action-dropdown-menu {
@@ -1141,6 +1159,13 @@ body.dark .dark-mode-link {
         transform: translateY(0);
         opacity: 1;
     }
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
 }
 .title-row {
     display: flex;

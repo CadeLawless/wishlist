@@ -170,6 +170,84 @@ class WishlistController extends Controller
         ], 200);
     }
 
+    public function bulkAction(): Response
+    {
+        $user = $this->auth();
+
+        $action = $this->request->input('action');
+        $ids = $this->request->input('ids', []);
+
+        if (empty($action) || empty($ids)) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Please select at least one wish list and a bulk action to perform'
+            ], 400);
+        }
+
+        try {
+            switch ($action) {
+                case 'delete':
+                    foreach ($ids as $id) {
+                        $this->wishlistService->deleteWishlistAndItems($id);
+                    }
+                    break;
+                case 'hide':
+                    foreach ($ids as $id) {
+                        $this->wishlistService->setWishlistVisibility($id, 'Hidden');
+                    }
+                    break;
+                case 'make-public':
+                    foreach ($ids as $id) {
+                        $this->wishlistService->setWishlistVisibility($id, 'Public');
+                    }
+                    break;
+                case 'deactivate':
+                    foreach ($ids as $id) {
+                        $this->wishlistService->setWishlistComplete($id, 'Yes');
+                    }
+                    break;
+                case 'reactivate':
+                    foreach ($ids as $id) {
+                        $this->wishlistService->setWishlistComplete($id, 'No');
+                    }
+                    break;
+                default:
+                    return $this->json([
+                        'status' => 'error',
+                        'message' => 'Please select a valid bulk action to perform'
+                    ], 400);
+            }
+
+            $actionLabelPastTense = match($action) {
+                'delete' => 'deleted',
+                'hide' => 'hidden',
+                'make-public' => 'made public',
+                'deactivate' => 'deactivated',
+                'reactivate' => 'reactivated',
+                default => 'updated'
+            };
+
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Wish list(s) successfully ' . $actionLabelPastTense
+            ], 200);
+        } catch (\Exception $e) {
+            $actionLabelPresentTense = match($action) {
+                'delete' => 'delete',
+                'hide' => 'hide',
+                'make-public' => 'make public',
+                'deactivate' => 'deactivate',
+                'reactivate' => 'reactivate',
+                default => 'update'
+            };
+
+            return $this->json([
+                'status' => 'error',
+                'message' => 'An error occurred while trying to ' . $actionLabelPresentTense . ' wish list(s): ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function publicUserWishlists(string $username): Response
     {
         $user = $this->auth();

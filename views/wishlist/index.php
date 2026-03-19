@@ -75,29 +75,29 @@ if (isset($flash['error'])) {
                     <span>▼</span>
                 </button>
                 <div id="bulk-action-dropdown-menu">
-                    <button class="bulk-action-item" id="bulk-deactivate-wishlists">
+                    <button class="bulk-action-item" data-action="deactivate" id="bulk-deactivate-wishlists">
                         <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/cancel.php'); ?></span>
                         <span>Deactivate</span>
                     </button>
-                    <button class="bulk-action-item" id="bulk-activate-wishlists">
+                    <button class="bulk-action-item" data-action="reactivate" id="bulk-reactivate-wishlists">
                         <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?></span>
                         <span>Reactivate</span>
                     </button>
-                    <button class="bulk-action-item" id="bulk-make-public-wishlists">
+                    <button class="bulk-action-item" data-action="make-public" id="bulk-make-public-wishlists">
                         <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?></span>
                         <span>Make Public</span>
                     </button>
-                    <button class="bulk-action-item" id="bulk-make-hidden-wishlists">
+                    <button class="bulk-action-item" data-action="hide" id="bulk-hide-wishlists">
                         <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); ?></span>
                         <span>Hide</span>
                     </button>
-                    <button class="bulk-action-item" id="bulk-delete-wishlists">
+                    <button class="bulk-action-item" data-action="delete" id="bulk-delete-wishlists">
                         <span class="menu-icon"><?php require(__DIR__ . '/../../public/images/site-images/icons/delete-trashcan.php'); ?></span>
                         <span>Delete</span>
                     </button>
                 </div>
             </div>
-            <button class="button primary">Confirm</button>
+            <button id="bulk-action-confirm-button" class="button primary">Confirm</button>
         </div>
     </div>
 </div>
@@ -355,7 +355,7 @@ if (isset($flash['error'])) {
                 actionItems.show();
                 if(isActiveTab){
                     // Active tab - hide Activate option
-                    actionItems.filter('#bulk-activate-wishlists').hide();
+                    actionItems.filter('#bulk-reactivate-wishlists').hide();
                 }else{
                     // Inactive tab - hide Deactivate option
                     actionItems.filter('#bulk-deactivate-wishlists').hide();
@@ -378,15 +378,15 @@ if (isset($flash['error'])) {
             if(allPublic){
                 // All selected are public - hide Make Public option
                 actionItems.filter('#bulk-make-public-wishlists').hide();
-                actionItems.filter('#bulk-make-hidden-wishlists').show();
+                actionItems.filter('#bulk-hide-wishlists').show();
             }else if(allHidden){
                 // All selected are hidden - hide Make Hidden option
-                actionItems.filter('#bulk-make-hidden-wishlists').hide();
+                actionItems.filter('#bulk-hide-wishlists').hide();
                 actionItems.filter('#bulk-make-public-wishlists').show();
             }else{
                 // Mixed - show both options
                 actionItems.filter('#bulk-make-public-wishlists').show();
-                actionItems.filter('#bulk-make-hidden-wishlists').show();
+                actionItems.filter('#bulk-hide-wishlists').show();
             }
 
             var selectedIds = getSelectedWishlists();
@@ -444,6 +444,55 @@ if (isset($flash['error'])) {
             $('#bulk-action-dropdown-menu').removeClass('active-menu');
             actionItem.addClass('selected');
             actionItem.siblings().removeClass('selected');
+            $('#bulk-action-confirm-button').attr('data-selected-action', actionItem.data('action'));
+        });
+
+        $(document).on('click', '#bulk-action-confirm-button', function(e){
+            e.preventDefault();
+            $(this).prop('disabled', true).html('<div class="loading-spinner"></div>');
+            var selectedAction = $(this).data('selected-action');
+            if(!selectedAction){
+                // Shake bulk actions dropdown button to indicate error
+                var dropdownButton = $('#bulk-action-dropdown-button');
+                dropdownButton.removeClass('shake');
+                // force reflow
+                dropdownButton[0].offsetWidth;
+                dropdownButton.addClass('shake');
+                $(this).prop('disabled', false).html('Confirm');
+                return;
+            }
+            var selectedIds = getSelectedWishlists();
+            if(!selectedAction){
+                addAlertMessage('Please select a bulk action');
+                $(this).prop('disabled', false).html('Confirm');
+                return;
+            }
+            if(selectedIds.length === 0){
+                addAlertMessage('Please select at least one wish list');
+                $(this).prop('disabled', false).html('Confirm');
+                return;
+            }
+            $.ajax({
+                url: '/wishlists/bulk-action',
+                type: 'POST',
+                data: { action: selectedAction, ids: selectedIds },
+                success: function(response) {
+                    if (response.status === 'error') {
+                        $('#bulk-action-confirm-button').prop('disabled', false).html('Confirm');
+                        addAlertMessage(response.message);
+                        return;
+                    }
+                    addAlertMessage(response.message);
+                    clearAllSelections();
+                    showBulkActionsBarIfWishListsSelected();
+                    reloadWishLists();
+                    $('#bulk-action-confirm-button').prop('disabled', false).html('Confirm');
+                },
+                error: function() {
+                    $('#bulk-action-confirm-button').prop('disabled', false).html('Confirm');
+                    addAlertMessage('Failed to perform bulk action');
+                }
+            });
         });
 
         function addAlertMessage(message) {
