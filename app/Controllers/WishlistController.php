@@ -136,14 +136,26 @@ class WishlistController extends Controller
     {
         $user = $this->auth();
 
-        $wishlists = $this->wishlistService->getActiveUserWishlists($user['username']);
+        // Get pagination number
+        $pageno = (int) $this->request->get('pageno', 1);
+        
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getActiveUserWishlists($user['username']);
+        
+        // Apply pagination to get only 12 wishlists per page
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno) {
+            $pageno = $correctedPage; // Update page number to corrected page for response
+            $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno); // Re-paginate with corrected page
+        }
 
-        $wishListCount = count($wishlists);
+        $wishListCount = count($allWishlists);
 
-        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($wishlists) : 
+        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($paginatedWishlists) : 
             "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any active wish lists right now</p>";
-
-        $html = WishlistRenderService::generateWishlistsHtml($wishlists);
 
         return $this->json([
             'status' => 'success',
@@ -156,11 +168,25 @@ class WishlistController extends Controller
     {
         $user = $this->auth();
 
-        $wishlists = $this->wishlistService->getInactiveUserWishlists($user['username']);
+        // Get pagination number
+        $pageno = (int) $this->request->get('pageno', 1);
+        
+        // Get all wishlists for the user
+        $allWishlists = $this->wishlistService->getInactiveUserWishlists($user['username']);
+        
+        // Apply pagination to get only 12 wishlists per page
+        $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno);
+        $correctedPage = $this->paginationService->getCurrentPage();
+        
+        // Redirect if page number was out of range
+        if ($correctedPage !== $pageno) {
+            $pageno = $correctedPage; // Update page number to corrected page for response
+            $paginatedWishlists = $this->paginationService->paginate($allWishlists, $pageno); // Re-paginate with corrected page
+        }
 
-        $wishListCount = count($wishlists);
+        $wishListCount = count($allWishlists);
 
-        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($wishlists) : 
+        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($paginatedWishlists) : 
             "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like you have any inactive wish lists right now</p>";
 
         return $this->json([
@@ -991,9 +1017,18 @@ class WishlistController extends Controller
         $user = $this->auth();
         
         $page = (int) $this->request->input('new_page', 1);
+
+        $isInactiveWishListsPage = filter_var(
+            $this->request->input('inactive_wishlists', false),
+            FILTER_VALIDATE_BOOLEAN
+        );
         
         // Get all wishlists for the user
-        $allWishlists = $this->wishlistService->getUserWishlists($user['username']);
+        if ($isInactiveWishListsPage) {
+            $allWishlists = $this->wishlistService->getInactiveUserWishlists($user['username']);
+        } else {
+            $allWishlists = $this->wishlistService->getActiveUserWishlists($user['username']);
+        }
         $paginatedWishlists = $this->paginationService->paginate($allWishlists, $page);
         $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($allWishlists);
@@ -1018,7 +1053,7 @@ class WishlistController extends Controller
         
         $jsonData = [
             'status' => 'success',
-            'message' => 'Wishlists loaded successfully',
+            'message' => 'Wish lists loaded successfully',
             'html' => $wishlistsHtml,
             'current' => $page,
             'total' => $totalPages,

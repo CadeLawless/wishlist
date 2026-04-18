@@ -44,6 +44,10 @@ body {
     --red-button: #8f4646;
     --transparent-contrast: #00000012;
     --transparent-contrast-hover: #00000030;
+    --checkbox-background: #85857e;
+    --checkbox-text: #b3b3a6;
+    --checkbox-text-hover: #ffffff;
+    --checkbox-active-text: #ffffff;
 }
 body.dark {
     --text: #d1d4d6;
@@ -74,6 +78,10 @@ body.dark {
     --text-invalid: #ffb4b4;
     --transparent-contrast: #ffffff1f;
     --transparent-contrast-hover: #ffffff14;
+    --checkbox-background: var(--background-darker);
+    --checkbox-text: var(--text-transparent);
+    --checkbox-text-hover: var(--text);
+    --checkbox-active-text: var(--text);
 }
 /* general css */
 * {
@@ -982,7 +990,7 @@ body.dark .dark-mode-link {
     top: 5px;
     left: 5px;
     z-index: 10;
-    background-color: var(--background-darker);
+    background-color: var(--checkbox-background);
     padding: 3px;
     border-radius: 8px;
     cursor: pointer;
@@ -1002,14 +1010,14 @@ body.dark .dark-mode-link {
             border: none;
 
             & path {
-                fill: var(--text-transparent);
+                fill: var(--checkbox-text);
                 transition: fill 0.2s;
             }
         }
     }
 
     &:is(:active, .checked) .checkbox-icon svg path {
-        fill: var(--text);
+        fill: var(--checkbox-active-text);
     }
 }
 #bulk-actions-bar {
@@ -1084,11 +1092,14 @@ body.dark .dark-mode-link {
             display: flex;
             align-items: center;
             justify-content: space-between;
-
+            
             &.shake {
                 animation: shake 0.3s;
             }
-        }
+
+            & > span {
+                color: var(--text);
+            }        }
 
         & #bulk-action-dropdown-menu {
             position: absolute;
@@ -2885,7 +2896,7 @@ img.gift-wrap {
     }
 
     .wishlist-checkbox:hover .checkbox-icon svg path {
-        fill: var(--text);
+        fill: var(--checkbox-text-hover);
     }
 
 }

@@ -348,6 +348,8 @@ if (isset($flash['error'])) {
 
         var bulkActionDropdownFiltered = false;
 
+        var originalContainerPaddingBottom = null;
+
         function showBulkActionsBarIfWishListsSelected() {
             if (!bulkActionDropdownFiltered) {
                 var actionItems = $('#bulk-action-dropdown-menu .bulk-action-item');
@@ -394,12 +396,28 @@ if (isset($flash['error'])) {
                 $('#bulk-actions-bar').addClass('active');
                 $('.wishlist-grid-item').addClass('bulk-select');
                 $('#selected-count').text(selectedIds.length);
-                $("#container").css("margin-bottom", $("#bulk-actions-bar").outerHeight() + 20 + "px");
+                $("footer").hide();
+                
+                // Store original padding only once, before changing it
+                if (originalContainerPaddingBottom === null) {
+                    originalContainerPaddingBottom = parseInt($("#container").css("padding-bottom")) || 0;
+                    // hide alert message when selecting/deselecting wish lists to avoid confusion with bulk action messages
+                    $('.alert-message').remove();
+                }
+
+                $("#container").css("padding-bottom", $("#bulk-actions-bar").outerHeight() + "px");
             }else{
                 $('#bulk-actions-bar').removeClass('active');
                 $('.wishlist-grid-item').removeClass('bulk-select');
                 $('#selected-count').text('0');
-                $("#container").css("margin-bottom", "0px");
+                $("footer").show();
+                
+                // Restore original padding
+                if (originalContainerPaddingBottom !== null) {
+                    $("#container").css("padding-bottom", originalContainerPaddingBottom + "px");
+                    originalContainerPaddingBottom = null;
+                }
+
                 $('#bulk-action-dropdown-button .action-text').text('Bulk Actions');
             }
         }
@@ -415,14 +433,16 @@ if (isset($flash['error'])) {
 
         function selectAllWishlists() {
             $('.wishlist-checkbox').each(function(){
-                $(this).addClass('checked');
-                $(this).closest('.wishlist-grid-item').addClass('selected');
+                $(this).removeClass('checked');
+                $(this).click();
             });
         }
 
         function clearAllSelections() {
-            $('.wishlist-checkbox.checked').removeClass('checked');
-            $('.wishlist-grid-item.selected').removeClass('selected');
+            $('.wishlist-checkbox').each(function(){
+                $(this).addClass('checked');
+                $(this).click();
+            });
         }
 
         $(document).on('click', '#bulk-action-dropdown-button', function(e){
@@ -450,7 +470,7 @@ if (isset($flash['error'])) {
         $(document).on('click', '#bulk-action-confirm-button', function(e){
             e.preventDefault();
             $(this).prop('disabled', true).html('<div class="loading-spinner"></div>');
-            var selectedAction = $(this).data('selected-action');
+            var selectedAction = $(this).attr('data-selected-action');
             if(!selectedAction){
                 // Shake bulk actions dropdown button to indicate error
                 var dropdownButton = $('#bulk-action-dropdown-button');
@@ -483,6 +503,7 @@ if (isset($flash['error'])) {
                         return;
                     }
                     addAlertMessage(response.message);
+                    $('.bulk-action-item').removeClass('selected');
                     clearAllSelections();
                     showBulkActionsBarIfWishListsSelected();
                     reloadWishLists();
@@ -509,17 +530,22 @@ if (isset($flash['error'])) {
         }
 
         function reloadWishLists() {
-            const currentUrl = window.location.href;
+            const params = new URLSearchParams(window.location.search);
+            const pageno = params.get('pageno');
             $.ajax({
-                url: currentUrl + "/reload",
+                url: window.location.pathname + "/reload?pageno=" + pageno,
                 type: 'GET',
+                dataType: 'json',
                 success: function(response) {
                     $('.wishlist-grid').html(response.html);
                     if(response.count <= 12){
                         $('.paginate-container').remove();
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.log('Status:', status);
+                    console.log('Error:', error);
+                    console.log('Response:', xhr.responseText);
                     addAlertMessage('Failed to reload wish lists');
                 }
             });

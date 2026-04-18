@@ -107,6 +107,7 @@ $(document).ready(function() {
             // Handle admin URLs with query parameters differently
             let paginateUrl;
             let ajaxData = { new_page: newPage };
+            const pathname = window.location.pathname;
             
             if (paginationState.baseUrl.includes('/admin/wish-lists/view')) {
                 // For admin wishlist view, use admin-specific pagination endpoint
@@ -116,7 +117,6 @@ $(document).ready(function() {
             } else if (paginationState.baseUrl.includes('/admin/') || window.location.pathname.includes('/admin/')) {
                 // For admin pages, use admin pagination endpoints and include search term
                 // Use current pathname to determine endpoint (more reliable than baseUrl which may have query params)
-                const pathname = window.location.pathname;
                 if (pathname.includes('/admin/users')) {
                     paginateUrl = '/admin/users/paginate';
                 } else if (pathname.includes('/admin/backgrounds')) {
@@ -166,6 +166,14 @@ $(document).ready(function() {
                     }
                 } else {
                     ajaxData.search = searchTerm;
+                }
+                                
+                if (pathname.includes('/wishlists')) {
+                    if (pathname.includes('/wishlists/inactive')) {
+                        ajaxData.inactive_wishlists = true;
+                    } else {
+                        ajaxData.inactive_wishlists = false;
+                    }
                 }
             }
             

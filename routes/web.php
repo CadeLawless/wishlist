@@ -98,6 +98,7 @@ Router::get('/wishlists/inactive', [WishlistController::class, 'inactiveWishList
 Router::get('/wishlists/inactive/reload', [WishlistController::class, 'reloadInactiveWishLists'])->middleware('auth');
 Router::post('/wishlists/bulk-action', [WishlistController::class, 'bulkAction'])->middleware('auth');
 Router::post('/wishlists/paginate', [WishlistController::class, 'paginateWishLists'])->middleware('auth');
+Router::post('/wishlists/inactive/paginate', [WishlistController::class, 'paginateWishLists'])->middleware('auth');
 Router::post('/wishlists', [WishlistController::class, 'store'])->middleware('auth');
 Router::get('/wishlists/{id}', [WishlistController::class, 'show'])->middleware('auth');
 Router::get('/wishlists/{id}/edit', [WishlistController::class, 'edit'])->middleware('auth');
