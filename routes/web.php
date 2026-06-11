@@ -116,6 +116,7 @@ Router::post('/wishlists/{id}/hide', [WishlistController::class, 'hide'])->middl
 Router::post('/wishlists/{id}/show', [WishlistController::class, 'showPublic'])->middleware('auth');
 Router::post('/wishlists/{id}/complete', [WishlistController::class, 'complete'])->middleware('auth');
 Router::post('/wishlists/{id}/reactivate', [WishlistController::class, 'reactivate'])->middleware('auth');
+Router::post('/wishlists/{id}/delete', [WishlistController::class, 'delete'])->middleware('auth');
 
 // AJAX endpoints
 Router::post('/wishlists/{id}/paginate', [WishlistController::class, 'paginateItems'])->middleware('auth');

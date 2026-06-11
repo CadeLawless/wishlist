@@ -112,205 +112,18 @@ if (isset($flash['error'])) {
     ?>
 <?php endif; ?>
 
+<?php require __DIR__ . '/../components/wishlist-action-popups.php'; ?>
+
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
 <script src="/public/js/pagination.js?v=2.5"></script>
 <?php endif; ?>
 
 <script src="/public/js/form-validation.js?v=2.5"></script>
+<script src="/public/js/add-alert-message.js"></script>
+<?php require __DIR__ . '/../../public/js/wishlist-action-menu.php'; ?>
 
 <script>
-    function scrollToIfNotVisible($elem, padding = 20) {
-        const elemTop = $elem.offset().top;
-        const elemBottom = elemTop + $elem.outerHeight();
-
-        const navbarHeight = $('.header-container').outerHeight() || 0; 
-        const viewportTop = $(window).scrollTop() + navbarHeight;
-        const viewportBottom = viewportTop + $(window).height();
-
-        const fullyVisible = elemTop >= viewportTop && elemBottom <= viewportBottom;
-
-        if(!fullyVisible){
-            const targetScroll = elemTop - navbarHeight - padding;
-
-            $('html, body').animate({
-                scrollTop: targetScroll
-            }, 200);
-        }
-    }
-
     $(document).ready(function(){
-        $(document).on('click', '.dots-icon', function(e){
-            e.stopPropagation();
-            var quickMenu = $(this).closest('.three-dots-menu').find('.quick-menu');
-            $('.quick-menu').not(quickMenu).removeClass('active-menu'); // Hide other open menus
-            quickMenu.toggleClass('active-menu');
-            if(quickMenu.hasClass('active-menu')){
-                setTimeout(() => scrollToIfNotVisible(quickMenu), 200);
-            }
-        });
-
-        // Hide quick menu when clicking outside
-        $(document).on('click', function(e){
-            if (!$(e.target).closest('.three-dots-menu').length) {
-                $('.quick-menu').removeClass('active-menu');
-            }
-        });
-
-        $(document).on('click', '.quick-menu-item', function(e){
-            e.preventDefault();
-            var menuItem = $(this);
-            menuItem.addClass('disabled');
-            var wishlistId = menuItem.closest('.wishlist-grid-item').data('wishlist-id');
-            switch (menuItem.attr('class').split(' ')[1]) {
-                case 'toggle-complete':
-                    var currentComplete = $(this).data('current-complete');
-
-                    $.ajax({
-                        url: `/wishlists/${wishlistId}/toggle-complete`,
-                        type: 'POST',
-                        data: {},
-                        success: function(response) {
-                            if (response.status === 'error') {
-                                addAlertMessage(response.message);
-                                menuItem.removeClass('disabled');
-                                return;
-                            }
-                            menuItem.closest('.three-dots-menu').find('.quick-menu').hide();
-                            menuItem.closest('.wishlist-grid-item').fadeOut(500, function() {
-                                $(this).remove();
-                                $(".paginate-arrow.paginate-first").trigger('click');
-                                var newTab = currentComplete === 'Yes' ? 'Active' : 'Inactive';
-                                addAlertMessage(`Wish list moved to ${newTab}`);
-                                reloadWishLists();
-                            });
-                        },
-                        error: function() {
-                            addAlertMessage('Failed to update wish list status');
-                            menuItem.removeClass('disabled');
-                        }
-                    });
-                    break;
-                case 'toggle-visibility':
-                    var currentVisibility = $(this).data('current-visibility');
-
-                    $.ajax({
-                        url: `/wishlists/${wishlistId}/toggle-visibility`,
-                        type: 'POST',
-                        data: {},
-                        success: function(response) {
-                            if (response.status === 'error') {
-                                addAlertMessage(response.message);
-                                menuItem.removeClass('disabled');
-                                return;
-                            }
-                            var newVisibility = currentVisibility === 'Public' ? 'Hidden' : 'Public';
-                            // Update the icon and text in the quick menu
-                            if(newVisibility === 'Public'){
-                                menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`);
-                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Hide');
-                            }else{
-                                menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/view.php'); echo addslashes(ob_get_clean()); ?>`);
-                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Make Public');
-                            }
-                            // Update the private icon visibility
-                            var wishlistItem = menuItem.closest('.wishlist-grid-item');
-                            if(newVisibility === 'Public'){
-                                wishlistItem.find('.private-wishlist-icon').remove();
-                                wishlistItem.find('.items-list').removeClass('private');
-                            }else{
-                                var privateIconHtml = `<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`;
-                                wishlistItem.prepend(`<div class='private-wishlist-icon'>${privateIconHtml}</div>`);
-                                wishlistItem.find('.items-list').addClass('private');
-                            }
-                            var alertMessage = newVisibility === 'Public' ? 'Wish list is now public' : 'Wish list is now hidden';
-                            addAlertMessage(alertMessage);
-                            menuItem.removeClass('disabled').data('current-visibility', newVisibility);
-                        },
-                        error: function() {
-                            addAlertMessage('Failed to update wish list visibility');
-                            menuItem.removeClass('disabled');
-                        }
-                    });
-                    break;
-
-                case 'rename-wishlist':
-                    menuItem.closest('.wishlist-grid-item').after(`
-                        <?php
-                        $popupManager = new \App\Services\PopupManager();
-                        $popupOptions = [
-                            'id' => 'rename-popup',
-                            "content" => "
-                                <h2 class='no-margin-top'>Rename Wish List</h2>
-                                <form id='rename-form'>
-                                    <input type='text' id='rename-input' name='wishlist_name' class='input-field' required value='' placeholder='Enter new wish list name' />
-                                    <input type='submit' id='rename-confirm-button' class='button primary' value='Rename' />
-                                </form>"
-                        ];
-                        echo $popupManager->generatePopupContainer($popupOptions);
-                        ?>
-                    `);
-                    setTimeout(() => {
-                        $('#rename-popup .popup').addClass('active');
-                        $('#rename-popup').removeClass('hidden');
-                        $('#rename-input').val(menuItem.closest('.wishlist-grid-item').find('.wishlist-name').text()).focus();
-                        $('#rename-popup #rename-form').data('wishlist-id', wishlistId);
-                        FormValidator.init('#rename-form', {
-                            wishlist_name: {
-                                required: true,
-                                minLength: 1,
-                                maxLength: 100
-                            }
-                        });
-                    }, 100);
-                    menuItem.removeClass('disabled');
-                    break;
-            }
-
-            menuItem.closest('.quick-menu').removeClass('active-menu');
-        });
-
-        $(document).on('click', '#rename-popup .close-button', function(e){
-            e.preventDefault();
-            $('#rename-popup').remove();
-        });
-
-        $(window).on('click', function(e){
-            if (!$(e.target).closest('#rename-popup .popup').length && !$(e.target).closest('.quick-menu-item.rename-wishlist').length) {
-                $('#rename-popup').remove();
-            }
-        });
-
-        $(document).on('submit', '#rename-form', function(e){
-            e.preventDefault();
-            var newName = $('#rename-input').val().trim();
-            if(newName === ''){
-                addAlertMessage('Wish list name cannot be empty');
-                return;
-            }
-            var wishlistId = $(this).data('wishlist-id');
-            var menuItem = $(`.wishlist-grid-item[data-wishlist-id='${wishlistId}']`).find('.quick-menu-item.rename-wishlist');
-            $("#rename-popup .popup-content").find('.submit-error').remove();
-            $.ajax({
-                url: `/wishlists/${wishlistId}/rename`,
-                type: 'POST',
-                data: { name: newName },
-                success: function(response) {
-                    if (response.status === 'error') {
-                        $("#rename-popup .popup-content h2").after(`<div class='submit-error'>${response.errorHtml}</div>`);
-                        return;
-                    }
-                    menuItem.closest('.wishlist-grid-item').find('.wishlist-name span').text(newName);
-                    addAlertMessage('Wish list renamed successfully');
-                    menuItem.removeClass('disabled');
-                    $('#rename-popup').remove();
-                },
-                error: function() {
-                    $("#rename-popup .popup-content h2").after(`<div class='submit-error'>Failed to rename wish list</div>`);
-                    menuItem.removeClass('disabled');
-                }
-            });
-        });
-
         $(document).on('click', '.wishlist-checkbox', function(e){
             e.preventDefault();
             var checkbox = $(this);
@@ -515,19 +328,6 @@ if (isset($flash['error'])) {
                 }
             });
         });
-
-        function addAlertMessage(message) {
-            $(".alert-message").remove(); // Remove existing messages
-            const alertPopup = $(`
-                <div class="alert-message">
-                    <p style="margin: 0;">${message}</p>
-                </div>
-            `);
-            $('body').append(alertPopup);
-            $('.alert-message').fadeOut(5000, function() {
-                $(this).remove();
-            });
-        }
 
         function reloadWishLists() {
             const params = new URLSearchParams(window.location.search);
