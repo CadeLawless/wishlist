@@ -1,4 +1,6 @@
 <?php
+use App\Services\WishlistRenderService;
+
 // Wishlist data
 $wishlistID = $wishlist['id'];
 $wishlist_name_input = $wishlist['wishlist_name'];
@@ -84,7 +86,10 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 
             <div class="center">
                 <div class="wishlist-header center transparent-background">
-                    <h1><?php echo $wishlistTitle; ?></h1>
+                    <h1>
+                        <?= $wishlistTitle; ?>
+                        <?= WishlistRenderService::generateWishListActionMenu(true, $wishlist_name_input, $wishlistID, $complete === 'No', $visibility === 'Public', $visibility); ?>
+                    </h1>
                     <div class="flex-row">
                         <div><strong>Status:</strong> <?php echo $complete == "Yes" ? "Inactive" : "Active"; ?></div>
                         <div><strong>Visibility:</strong> <?php echo htmlspecialchars($visibility); ?></div>
@@ -445,6 +450,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
         </div>
     </div>
 
+    <?php require __DIR__ . '/../components/wishlist-action-popups.php'; ?>
+
 <!-- Wishlist-specific scripts -->
 <script src="/public/js/copy-link.js?v=2.5"></script>
 <script src="/public/js/copy-select.js?v=2.5"></script>
@@ -455,6 +462,8 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/public/js/choose-theme.js?v=2.5"></script>
 <script src="/public/js/popup.js?v=2.5"></script>
 <script src="/public/js/form-validation.js?v=2.5"></script>
+<script src="/public/js/add-alert-message.js"></script>
+<script src="/public/js/wishlist-action-menu.js"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script>
 $(document).ready(function() {

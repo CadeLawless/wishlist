@@ -120,7 +120,7 @@ if (isset($flash['error'])) {
 
 <script src="/public/js/form-validation.js?v=2.5"></script>
 <script src="/public/js/add-alert-message.js"></script>
-<?php require __DIR__ . '/../../public/js/wishlist-action-menu.php'; ?>
+<script src="/public/js/wishlist-action-menu.js"></script>
 
 <script>
     $(document).ready(function(){
