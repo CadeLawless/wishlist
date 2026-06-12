@@ -1,4 +1,15 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $flash
+ * @var string $error_msg
+ * @var string $wishlist_type
+ * @var int $theme_background_id
+ * @var int $theme_gift_wrap_id
+ * @var string $wishlist_name
+ * @var array $user
+ */
+
 use App\Helpers\ThemePopupHelper;
 ?>
 <?php

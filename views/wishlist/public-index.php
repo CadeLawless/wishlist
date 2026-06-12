@@ -1,3 +1,11 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var array $wishlists
+ * @var array $public_user
+ * @var array $user
+ */
+?>
 <p>
     <a class="button accent" href="/friends<?= isset($_GET['search']) ? '?search=' . htmlspecialchars(urlencode($_GET['search'])) : ''; ?>">
         Back to Friends

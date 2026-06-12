@@ -1,4 +1,18 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $wishlist
+ * @var array $items
+ * @var array $all_items
+ * @var array $other_wishlists
+ * @var array $user
+ * @var array $flash
+ * @var string $searchTerm
+ * @var bool $isAdminView
+ * @var bool|int $from_public
+ * @var float|null $wishlist_total_price
+ */
+
 use App\Services\WishlistRenderService;
 
 // Wishlist data

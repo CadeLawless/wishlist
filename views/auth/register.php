@@ -1,4 +1,20 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $user
+ * @var string $username
+ * @var bool $remember_me
+ * @var string $name
+ * @var string $email
+ * @var string $current_password
+ * @var string $new_password
+ * @var string $confirm_password
+ * @var string $name_error_msg
+ * @var string $email_error_msg
+ * @var string $password_error_msg
+ * @var string $password_confirmation
+ */
+
 // Display flash messages
 if (isset($flash['success'])) {
     echo "

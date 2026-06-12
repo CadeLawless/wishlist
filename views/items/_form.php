@@ -1,3 +1,22 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var array $item
+ * @var string $item_name
+ * @var string $price
+ * @var string $quantity
+ * @var string $link
+ * @var string $notes
+ * @var string $priority
+ * @var string $filename
+ * @var bool $unlimited
+ * @var array $wishlist
+ * @var bool $add
+ * @var bool $has_new_image
+ * @var bool $is_temp
+ * @var string $temp_filename
+ */
+?>
 <div class="large-input">
     <label for="name">Item Name:<br></label>
     <textarea required name="name" id="name" autocapitalize="words" rows="1" placeholder="New Gaming PC"><?php echo htmlspecialchars($item_name ?? ''); ?></textarea>

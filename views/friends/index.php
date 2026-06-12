@@ -1,4 +1,15 @@
 <?php 
+/**
+ * Variables available in this view:
+ * @var array $friendList
+ * @var array $receivedInvitations
+ * @var array $newFriends
+ * @var array $allUsers
+ * @var string $searchTerm
+ * @var array $user
+ * @var object $friendService
+ */
+
 if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $searchTerm = trim($_GET['search']);
     list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
