@@ -366,7 +366,7 @@ class WishlistController extends Controller
         
         // Apply pagination to get only 12 items per page
         $paginatedItems = $this->paginationService->paginate($allItems, $pageno);
-        $totalPages = $this->paginationService->getTotalPages($allItems);
+        $totalPages = $this->paginationService->getTotalPages();
         $correctedPage = $this->paginationService->getCurrentPage();
         
         // Redirect if page number was out of range
@@ -865,7 +865,7 @@ class WishlistController extends Controller
             }
             
             $paginatedItems = $this->paginationService->paginate($items, $page);
-            $totalPages = $this->paginationService->getTotalPages($items);
+            $totalPages = $this->paginationService->getTotalPages();
             $totalRows = count($items);
 
             // Generate HTML for items only (no pagination controls)
@@ -944,7 +944,7 @@ class WishlistController extends Controller
         }
         
         $paginatedItems = $this->paginationService->paginate($items, 1);
-        $totalPages = $this->paginationService->getTotalPages($items);
+        $totalPages = $this->paginationService->getTotalPages();
         $totalRows = count($items);
         
         $html = HtmlGenerationService::generateItemsHtml($paginatedItems, $id, 1, 'wisher', $searchTerm);
