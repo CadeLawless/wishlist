@@ -48,6 +48,6 @@ if (isset($flash['error'])) {
     </div>
 </div>
 
-<script src="/public/js/form-validation.js?v=2.5"></script>
-<script src="/public/js/background-form.js"></script>
+<script src="/public/js/form-validation.js?v=2.6"></script>
+<script src="/public/js/background-form.js?v=2.6"></script>
 

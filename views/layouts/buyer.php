@@ -16,8 +16,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/public/images/site-images/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/public/css/styles.css?v=2.1" />
-    <link rel="stylesheet" type="text/css" href="/public/css/snow.css?v=2.1" />
+    <link rel="stylesheet" type="text/css" href="/public/css/styles.css?v=2.2" />
+    <link rel="stylesheet" type="text/css" href="/public/css/snow.css?v=2.2" />
     <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.0/tsparticles.confetti.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <title><?php echo htmlspecialchars($title ?? 'Any Wish List'); ?></title>
@@ -76,8 +76,8 @@
     </div>
     <?php include __DIR__ . '/../components/footer.php'; ?>
     
-    <script src="/public/js/wishlist-filters.js?v=2.5"></script>
-    <script src="/public/js/pagination.js?v=2.5"></script>
+    <script src="/public/js/wishlist-filters.js?v=2.6"></script>
+    <script src="/public/js/pagination.js?v=2.6"></script>
     <script>
     // Client-side dark mode toggle for buyer view (runs after footer)
     $(document).ready(function(){

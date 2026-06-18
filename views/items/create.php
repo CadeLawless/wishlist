@@ -67,5 +67,5 @@ $priority_options = ["1", "2", "3", "4"];
 </div>
 
 <script src="/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
-<script src="/public/js/form-validation.js?v=2.5"></script>
-<script src="/public/js/item-form.js?v=2.5"></script>
+<script src="/public/js/form-validation.js?v=2.6"></script>
+<script src="/public/js/item-form.js?v=2.6"></script>

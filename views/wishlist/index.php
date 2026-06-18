@@ -87,14 +87,14 @@ if (isset($flash['error'])) {
 <?php require __DIR__ . '/../components/wishlist-action-popups.php'; ?>
 
 <?php if(isset($all_wishlists) && count($all_wishlists) > 0 && isset($total_pages) && $total_pages > 1): ?>
-<script src="/public/js/pagination.js?v=2.5"></script>
+<script src="/public/js/pagination.js?v=2.6"></script>
 <?php endif; ?>
 
-<script src="/public/js/form-validation.js?v=2.5"></script>
-<script src="/public/js/add-alert-message.js"></script>
-<script src="/public/js/reload-wishlists.js"></script>
-<script src="/public/js/wishlist-action-menu.js"></script>
-<script src="/public/js/wishlist-bulk-select.js"></script>
+<script src="/public/js/form-validation.js?v=2.6"></script>
+<script src="/public/js/add-alert-message.js?v=2.6"></script>
+<script src="/public/js/reload-wishlists.js?v=2.6"></script>
+<script src="/public/js/wishlist-action-menu.js?v=2.6"></script>
+<script src="/public/js/wishlist-bulk-select.js?v=2.6"></script>
 
 <script>
     function getCookie(name) {
