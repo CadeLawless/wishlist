@@ -14,7 +14,7 @@ class ThemePopupHelper
         
         ob_start();
         ?>
-        <div class='popup-container first <?php echo $type; ?> hidden'>
+        <div id="wish-list-show-theme-popup" class='popup-container first <?php echo $type; ?> hidden'>
             <div class='popup fullscreen theme-popup-container'>
                 <img class='background-theme desktop-background hidden' src="" />
                 <img class='background-theme mobile-background hidden' src="" />
@@ -65,8 +65,8 @@ class ThemePopupHelper
                                 $defaultGiftWrap = $row["default_gift_wrap"];
                                 echo "
                                 <a class='theme popup-button' href='#'>
-                                    <img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
-                                    <img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
+                                    <img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage?t=" . time() . "' class='theme-image desktop-theme-image' alt='$backgroundName theme' />
+                                    <img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage?t=" . time() . "' class='theme-image mobile-theme-image' alt='$backgroundName theme' />
                                     <div class='hover-title'>$backgroundName</div>
                                 </a>
                                 <div class='popup-container second center-items individual-theme-popup hidden'>
@@ -83,8 +83,8 @@ class ThemePopupHelper
                                                 <a href='#' class='mobile'>Mobile</a>
                                             </div>
                                             <div class='theme-picture'>
-                                                <img class='desktop' src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
-                                                <img class='mobile hidden' src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' alt='$backgroundName desktop' />
+                                                <img class='desktop' src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage?t=" . time() . "' alt='$backgroundName desktop' />
+                                                <img class='mobile hidden' src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage?t=" . time() . "' alt='$backgroundName desktop' />
                                             </div>
                                             <p class='center'><a class='select-theme button primary' data-default-gift-wrap='$defaultGiftWrap' data-background-id='$backgroundId' data-background-image='$backgroundImage' href='#'>Select Background</a></p>
                                         </div>
@@ -151,8 +151,8 @@ class ThemePopupHelper
                                         echo "
                                         <div class='option'>
                                             <span class='value' data-background-image='$backgroundImage' data-background-id='$backgroundId' data-default-gift-wrap='$defaultGiftWrap'>$backgroundName</span>
-                                            <span class='preview-image desktop-background-image'><img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage' /></span>
-                                            <span class='preview-image mobile-background-image'><img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage' /></span>
+                                            <span class='preview-image desktop-background-image'><img src='/public/images/site-images/themes/desktop-thumbnails/$backgroundImage?t=" . time() . "' /></span>
+                                            <span class='preview-image mobile-background-image'><img src='/public/images/site-images/themes/mobile-thumbnails/$backgroundImage?t=" . time() . "' /></span>
                                         </div>";
                                     }
                                     ?>
@@ -186,7 +186,7 @@ class ThemePopupHelper
                                             <span class='value' data-wrap-image='$wrapImage' data-wrap-id='$wrapId' data-number-of-files='$numberOfWraps'>$wrapName</span>";
                                         for($i=1; $i<=$numberOfWraps; $i++) {
                                             if($i <= 6){
-                                                echo "<span class='preview-image'><img src='/public/images/site-images/themes/gift-wraps/$wrapImage/$i.png' /></span>";
+                                                echo "<span class='preview-image'><img src='/public/images/site-images/themes/gift-wraps/$wrapImage/$i.png?t=" . time() . "' /></span>";
                                             }
                                         }
                                         echo "
@@ -225,7 +225,7 @@ class ThemePopupHelper
                             $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
                             
                             echo "<div class='item-container'>
-                                <img src='/public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png' class='gift-wrap' alt='gift wrap'>
+                                <img src='/public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png?t=" . time() . "' class='gift-wrap' alt='gift wrap'>
                                 <div class='item-description'>
                                     <div class='line'><h3>" . htmlspecialchars($item["name"]) . "</h3></div>
                                     <div class='line'><p>" . htmlspecialchars($item["description"]) . "</p></div>

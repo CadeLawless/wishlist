@@ -64,7 +64,7 @@
     </style>
     <?php endif; ?>
 </head>
-<body class="buyer-view" 
+<body class="buyer-view <?php echo isset($user['dark']) && $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
       data-current-page="<?php echo $pageno ?? 1; ?>" 
       data-total-pages="<?php echo $total_pages ?? 1; ?>" 
       data-base-url="/buyer/<?php echo $wishlist['secret_key'] ?? ''; ?>">

@@ -8,6 +8,7 @@
  * @param string $position Position of pagination (top, bottom, or empty)
  * @param int|null $total_count Total count of items for count-showing (only shown in bottom position)
  * @param string|null $item_label Label for items (e.g., "items", "wishlists")
+ * @var string|null $count_showing_text Pre-generated text for count showing (overrides default if provided)
  */
 $pageno = $pageno ?? 1;
 $total_pages = $total_pages ?? 1;
@@ -38,48 +39,48 @@ if ($position === 'top') {
 ?>
 
 <?php if($show_pagination || $always_render): ?>
-<div class="center"<?php echo (!$show_pagination) ? ' style="display: none;"' : ''; ?>>
-    <div class="paginate-container<?php echo $position ? ' ' . $position : ''; ?><?=  $backgroundColorClass ? " $backgroundColorClass" : ''; ?>">
-        <?php 
-        // Always render controls (even if total_pages is 1) so JavaScript can update them dynamically
-        // This ensures pagination controls are available when search results change
-        // For bottom pagination, always render arrows so JS can show/hide them based on result count
-        $render_controls = $always_render || $total_pages > 1;
-        ?>
-        <?php if($render_controls): ?>
-        <?php 
-        // For bottom pagination, hide arrows initially if there are 12 or fewer results
-        // JavaScript will show/hide them dynamically based on actual result count
-        $hide_arrows = ($position === 'bottom' && $total_count !== null && $total_count > 0 && $total_count <= $items_per_page);
-        $arrow_style = $hide_arrows ? ' style="display: none;"' : '';
-        ?>
-        <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
-            <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
-        </a>
-        <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
-            <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
-        </a>
-        <div class="paginate-title"<?php echo $arrow_style; ?>>
-            <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
-        </div>
-        <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
-            <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
-        </a>
-        <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
-            <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
-        </a>
-        <?php endif; ?>
-        <?php 
-        // For bottom pagination, always render count-showing div so JavaScript can update it
-        if ($position === 'bottom') {
-            if ($total_count !== null && $total_count > 0) {
-                echo '<div class="count-showing">Showing ' . ((($pageno - 1) * $items_per_page) + 1) . '-' . min($pageno * $items_per_page, $total_count) . ' of ' . $total_count . ' ' . $item_label . '</div>';
-            } else {
-                // Render empty div for JavaScript to populate later when results change
-                echo '<div class="count-showing"></div>';
+    <?php 
+    // Always render controls (even if total_pages is 1) so JavaScript can update them dynamically
+    // This ensures pagination controls are available when search results change
+    // For bottom pagination, always render arrows so JS can show/hide them based on result count
+    $render_controls = $always_render || $total_pages > 1;
+    ?>
+    <div class="center"<?php echo (!$show_pagination) ? ' style="display: none;"' : ''; ?>>
+        <div class="paginate-container<?php echo $position ? ' ' . $position : ''; ?><?=  $backgroundColorClass ? " $backgroundColorClass" : ''; ?>" style="<?= $render_controls ? 'grid-template-rows: auto;' : '' ?>">
+            <?php if($render_controls): ?>
+            <?php 
+            // For bottom pagination, hide arrows initially if there are 12 or fewer results
+            // JavaScript will show/hide them dynamically based on actual result count
+            $hide_arrows = ($position === 'bottom' && $total_count !== null && $total_count > 0 && $total_count <= $items_per_page);
+            $arrow_style = $hide_arrows ? ' style="display: none;"' : '';
+            ?>
+            <a class="paginate-arrow paginate-first<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
+                <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
+            </a>
+            <a class="paginate-arrow paginate-previous<?php echo $pageno <= 1 ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
+                <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
+            </a>
+            <div class="paginate-title"<?php echo $arrow_style; ?>>
+                <span class="page-number"><?php echo $pageno; ?></span>/<span class="last-page"><?php echo $total_pages; ?></span>
+            </div>
+            <a class="paginate-arrow paginate-next<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
+                <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'prev.php'); ?>
+            </a>
+            <a class="paginate-arrow paginate-last<?php echo $pageno >= $total_pages ? ' disabled' : ''; ?>" href="#"<?php echo $arrow_style; ?>>
+                <?php require(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'site-images' . DIRECTORY_SEPARATOR . 'first.php'); ?>
+            </a>
+            <?php endif; ?>
+            <?php 
+            // For bottom pagination, always render count-showing div so JavaScript can update it
+            if ($position === 'bottom') {
+                if ($total_count !== null && $total_count > 0) {
+                    echo '<div class="count-showing">' . $count_showing_text . '</div>';
+                } else {
+                    // Render empty div for JavaScript to populate later when results change
+                    echo '<div class="count-showing"></div>';
+                }
             }
-        }
-        ?>
+            ?>
+        </div>
     </div>
-</div>
 <?php endif; ?>

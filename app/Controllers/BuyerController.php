@@ -89,6 +89,7 @@ class BuyerController extends Controller
             'filters' => $filters,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
+            'count_showing_text' => $this->paginationService->getShowingText('item'),
             'sort_priority' => $sort_priority,
             'sort_price' => $sort_price,
             'customStyles' => '

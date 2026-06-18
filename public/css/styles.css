@@ -31,6 +31,7 @@ body {
     --accent-hover: #997b00;
     --transparent-background: #ffffffe3;
     --transparent-background-hover: #c1bdbde3;
+    --transparent-background-hover-dark: #a7a7a780;
     --transparent-background-more: #ffffff5e;
     --icon-background: #e7e7e7;
     --icon-background-hover: #b9b9b9;
@@ -66,6 +67,7 @@ body.dark {
     --secondary-hover: #88958c;
     --transparent-background: #222b25e6;
     --transparent-background-hover: #58675ee6;
+    --transparent-background-hover-dark: #55635a80;
     --transparent-background-more: #222b2580;
     --icon-background: #323232;
     --icon-background-hover: #575757;
@@ -204,9 +206,18 @@ h1 {
 }
 .wishlist-header h1 {
     margin: 0;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+
+    & > span.wishlist-title {
+        font-size: 32px;
+        flex-grow: 1;
+        text-align: center;
+    }
 }
 .wishlist-header > :is(h1, div:not(.popup-container)){
-    padding: 0 40px;
+    padding: 0 20px;
 }
 h2, h2 div {
     font-size: 24px;
@@ -890,6 +901,10 @@ body.dark .dark-mode-link {
 .copy-link svg {
     width: 25px;
     height: 25px;
+
+    & path {
+        fill: white;
+    }
 }
 .copy-link a {
     display: inline-flex;
@@ -1290,6 +1305,19 @@ body.dark .dark-mode-link {
             scale: 1;
             opacity: 1;
         }
+    }
+}
+
+.wishlist-header .three-dots-menu {
+    & .dots-icon:hover {
+        background-color: var(--transparent-background-hover-dark);
+    }
+
+    & .quick-menu {
+        bottom: unset;
+        top: calc(100% + 6px);
+        transform-origin: top right;
+        width: 180px;
     }
 }
 
@@ -3273,7 +3301,11 @@ img.gift-wrap {
     .default-background-option {
         height: auto;
         padding-bottom: 10px !important;
-    }  
+    }
+    .three-dots-menu .quick-menu button.quick-menu-item {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
 }
 @media (max-width: 550px){
     .sidebar {

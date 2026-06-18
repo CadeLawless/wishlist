@@ -77,6 +77,7 @@ class WishlistController extends Controller
             'all_wishlists' => $allWishlists,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
+            'count_showing_text' => $this->paginationService->getShowingText('wish list'),
             'base_url' => '/wishlists',
             'customStyles' => 
                 '.paginate-container {
@@ -159,7 +160,10 @@ class WishlistController extends Controller
 
         return $this->json([
             'status' => 'success',
+            'pageno' => $pageno,
+            'total_pages' => $this->paginationService->getTotalPages(),
             'count' => $wishListCount,
+            'pagination_text' => $this->paginationService->getShowingText('wish list'),
             'html' => $html
         ], 200);
     }
@@ -301,6 +305,36 @@ class WishlistController extends Controller
         return $this->view('wishlist/public-index', $data);
     }
 
+    public function reloadPublicUserWishlists(string $username): Response
+    {
+        $user = $this->auth();
+
+        $publicUser = $this->wishlistService->getUserByUsername($username);
+        if (!$publicUser) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Public user not found'
+            ], 404);
+        }
+
+        $wishlists = $this->wishlistService->getUserWishlists($username);
+
+        $wishlists = array_filter($wishlists, function($wishlist) {
+            return $wishlist['visibility'] === 'Public' && $wishlist['complete'] === 'No';
+        });
+
+        $wishListCount = count($wishlists);
+
+        $html = $wishListCount > 0 ? WishlistRenderService::generateWishlistsHtml($wishlists, 'public', $_GET['search'] ?? '', $user) : 
+            "<p style='grid-column: 1 / -1;' class='center'>It doesn't look like " . htmlspecialchars($publicUser['name']) . " has any wish lists created yet!</p>";
+                   
+        return $this->json([
+            'status' => 'success',
+            'count' => $wishListCount,
+            'html' => $html
+        ], 200);
+    }
+
     public static function showWishListDataWithTitle(array $data, array $wishlist):array
     {
         $data['title'] = $wishlist['wishlist_name'];
@@ -388,6 +422,7 @@ class WishlistController extends Controller
             'other_wishlists' => $otherWishlists,
             'pageno' => $pageno,
             'total_pages' => $totalPages,
+            'count_showing_text' => $this->paginationService->getShowingText('item'),
             'filters' => $filters,
             'wishlist_id' => $id,
             'searchTerm' => $searchTerm
@@ -465,17 +500,26 @@ class WishlistController extends Controller
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $id);
         
         if (!$wishlist) {
-            return $this->redirect('/wishlists')->withError('Wish list not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish list not found'
+            ], 400);
         }
 
         if ($this->wishlistService->deleteWishlistAndItems($id)) {
             // Update duplicate flags for other wishlists with the same name
             $this->wishlistService->updateDuplicateFlags($user['username'], $wishlist['wishlist_name']);
             
-            return $this->redirect('/wishlists')->withSuccess('Wish list deleted successfully!');
+            return $this->json([
+                'status' => 'success',
+                'message' => 'Wish list deleted successfully!'
+            ], 200);
         }
 
-        return $this->redirect('/wishlists')->withError('Unable to delete wishlist. Please try again.');
+        return $this->json([
+            'status' => 'error',
+            'message' => 'Unable to delete wishlist. Please try again.'
+        ], 400);
     }
 
     public function toggleVisibility(string|int $id): Response

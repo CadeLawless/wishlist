@@ -63,9 +63,11 @@ abstract class Model
         
         
         $stmt = Database::query($sql, $params);
-        $affected = $stmt->affected_rows > 0;
-        
-        return $affected;
+        if ($stmt === false) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function delete(int $id): bool

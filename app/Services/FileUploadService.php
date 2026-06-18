@@ -199,33 +199,40 @@ class FileUploadService
     {
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {
+            error_log('UPLOAD ERROR CODE: ' . $file['error']);
             return false;
         }
-
+            
         // Check file size
         if ($file['size'] > $this->maxFileSize) {
             return false;
         }
 
         // Check file type
+        ini_set('log_errors', 1);
+        ini_set('error_log', __DIR__ . '/debug.log');
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        error_log("Extension: " . $extension);
         if (!in_array($extension, $this->allowedTypes)) {
             return false;
         }
 
         // Additional MIME type check (if Fileinfo extension is available)
         if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mimeType = finfo_file($finfo, $file['tmp_name']);
-            finfo_close($finfo);
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($file['tmp_name']);
+            error_log("MIME: " . $mimeType);
 
             $allowedMimeTypes = [
                 'image/jpeg',
                 'image/png',
-                'image/webp'
+                'image/webp',
+                'image/x-png'
             ];
 
-            return in_array($mimeType, $allowedMimeTypes);
+            if (!in_array($mimeType, $allowedMimeTypes)) {
+                return false;
+            }
         }
 
         // If Fileinfo is not available, rely on file extension check only
@@ -1253,6 +1260,8 @@ class FileUploadService
         $newWidth = (int)($width * $ratio);
         $newHeight = (int)($height * $ratio);
 
+        error_log("Creating thumbnail for {$sourceFilename}: original size {$width}x{$height}, new size {$newWidth}x{$newHeight}");
+
         // Create image resource
         $source = match ($mimeType) {
             'image/jpeg' => imagecreatefromjpeg($sourcePath),
@@ -1524,5 +1533,22 @@ class FileUploadService
         }
 
         return $deleted;
+    }
+
+    public function renameGiftWrapFolder(string $oldName, string $newName): bool
+    {
+        $basePath = self::getThemesBasePath() . 'gift-wraps' . DIRECTORY_SEPARATOR;
+        $oldPath = $basePath . $oldName;
+        $newPath = $basePath . $newName;
+
+        if (!is_dir($oldPath)) {
+            return false;
+        }
+
+        if (is_dir($newPath)) {
+            return false; // Prevent overwriting existing folder
+        }
+
+        return rename($oldPath, $newPath);
     }
 }

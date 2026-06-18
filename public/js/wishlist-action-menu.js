@@ -26,6 +26,9 @@ $(document).ready(function(){
         if(quickMenu.hasClass('active-menu')){
             setTimeout(() => scrollToIfNotVisible(quickMenu), 200);
         }
+        if ($('.wishlist-header').length) {
+            scrollToIfNotVisible($('.wishlist-header'));
+        }
     });
 
     // Hide quick menu when clicking outside
@@ -40,7 +43,7 @@ $(document).ready(function(){
         e.stopPropagation();
         var menuItem = $(this);
         menuItem.addClass('disabled');
-        var wishlistId = menuItem.closest('.wishlist-grid-item').data('wishlist-id');
+        var wishlistId = $('#wishlist_show_wishlist_id').val() || menuItem.closest('.wishlist-grid-item').data('wishlist-id');
         //console.log(menuItem.attr('class').split(' ')[1]);
         switch (menuItem.attr('class').split(' ')[1]) {
             case 'toggle-complete':
@@ -56,14 +59,43 @@ $(document).ready(function(){
                             menuItem.removeClass('disabled');
                             return;
                         }
-                        menuItem.closest('.three-dots-menu').find('.quick-menu').hide();
-                        menuItem.closest('.wishlist-grid-item').fadeOut(500, function() {
-                            $(this).remove();
-                            $(".paginate-arrow.paginate-first").trigger('click');
-                            var newTab = currentComplete === 'Yes' ? 'Active' : 'Inactive';
-                            addAlertMessage(`Wish list moved to ${newTab}`);
-                            reloadWishLists();
-                        });
+
+                        var newComplete = currentComplete === 'Yes' ? 'No' : 'Yes';
+
+                        if ($('.wishlist-header').length) {
+                            // If we're on the wishlist detail page, just update the status text without showing an alert
+                            $('#wish-list-status').text(currentComplete === 'Yes' ? 'Active' : 'Inactive');
+                            
+                            // Update the icon and text in the quick menu
+                            if(newComplete === 'No'){
+                                fetch('/public/images/site-images/icons/cancel.php')
+                                .then(response => response.text())
+                                .then(svg => {
+                                    menuItem.find('.menu-icon').html(svg);
+                                });
+                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Deactivate');
+                            }else{
+                                fetch('/public/images/site-images/icons/checkmark.php')
+                                .then(response => response.text())
+                                .then(svg => {
+                                    menuItem.find('.menu-icon').html(svg);
+                                });
+                                menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Reactivate');
+                            }
+                            var alertMessage = currentComplete === 'Yes' ? 'Wish reactivated successfully' : 'Wish list deactivated successfully';
+                            addAlertMessage(alertMessage);
+                            menuItem.removeClass('disabled').data('current-complete', newComplete);;
+                        } else {
+                            menuItem.closest('.three-dots-menu').find('.quick-menu').hide();
+                            menuItem.closest('.wishlist-grid-item').fadeOut(500, function() {
+                                $(this).remove();
+                                $(".paginate-arrow.paginate-first").trigger('click');
+                                var newTab = currentComplete === 'Yes' ? 'Active' : 'Inactive';
+                                var alertMessage = $('.user-result').length && newComplete === 'Yes' ? 'Wish list deactivated successfully' : `Wish list moved to ${newTab}`;
+                                addAlertMessage(alertMessage);
+                                reloadWishLists();
+                            });
+                        }
                     },
                     error: function() {
                         addAlertMessage('Failed to update wish list status');
@@ -85,23 +117,53 @@ $(document).ready(function(){
                             return;
                         }
                         var newVisibility = currentVisibility === 'Public' ? 'Hidden' : 'Public';
+
+                        if ($('.user-result').length && newVisibility === 'Hidden') {
+                            menuItem.closest('.three-dots-menu').find('.quick-menu').hide();
+                            menuItem.closest('.wishlist-grid-item').fadeOut(500, function() {
+                                $(this).remove();
+                                $(".paginate-arrow.paginate-first").trigger('click');
+                                var newTab = currentComplete === 'Yes' ? 'Active' : 'Inactive';
+                                addAlertMessage(`Wish list is now hidden`);
+                                reloadWishLists();
+                            });
+                            return;
+                        }
+
                         // Update the icon and text in the quick menu
                         if(newVisibility === 'Public'){
-                            menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`);
+                            fetch('/public/images/site-images/icons/hide-view.php')
+                            .then(response => response.text())
+                            .then(svg => {
+                                menuItem.find('.menu-icon').html(svg);
+                            });
                             menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Hide');
                         }else{
-                            menuItem.find('.menu-icon').html(`<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/view.php'); echo addslashes(ob_get_clean()); ?>`);
+                            fetch('/public/images/site-images/icons/view.php')
+                            .then(response => response.text())
+                            .then(svg => {
+                                menuItem.find('.menu-icon').html(svg);
+                            });
                             menuItem.contents().filter(function() { return this.nodeType === 3; }).last().replaceWith(' Make Public');
                         }
-                        // Update the private icon visibility
-                        var wishlistItem = menuItem.closest('.wishlist-grid-item');
-                        if(newVisibility === 'Public'){
-                            wishlistItem.find('.private-wishlist-icon').remove();
-                            wishlistItem.find('.items-list').removeClass('private');
-                        }else{
-                            var privateIconHtml = `<?php ob_start(); require(__DIR__ . '/../../public/images/site-images/icons/hide-view.php'); echo addslashes(ob_get_clean()); ?>`;
-                            wishlistItem.prepend(`<div class='private-wishlist-icon'>${privateIconHtml}</div>`);
-                            wishlistItem.find('.items-list').addClass('private');
+
+                        if ($('.wishlist-header').length) {
+                            // If we're on the wishlist detail page, just update the visibility status and icon without showing an alert
+                            $('#wish-list-visibility').text(newVisibility);
+                        } else {
+                            // Update the private icon visibility
+                            var wishlistItem = menuItem.closest('.wishlist-grid-item');
+                            if(newVisibility === 'Public'){
+                                wishlistItem.find('.private-wishlist-icon').remove();
+                                wishlistItem.find('.items-list').removeClass('private');
+                            }else{
+                                fetch('/public/images/site-images/icons/hide-view.php')
+                                .then(response => response.text())
+                                .then(svg => {
+                                    wishlistItem.prepend(`<div class='private-wishlist-icon'>${svg}</div>`);
+                                });
+                                wishlistItem.find('.items-list').addClass('private');
+                            }
                         }
                         var alertMessage = newVisibility === 'Public' ? 'Wish list is now public' : 'Wish list is now hidden';
                         addAlertMessage(alertMessage);
@@ -115,10 +177,11 @@ $(document).ready(function(){
                 break;
 
             case 'rename-wishlist':
+                let currentWishListNameElement = $('.wishlist-header').length ? $('.wishlist-header .wishlist-title') : menuItem.closest('.wishlist-grid-item').find('.wishlist-name span');
                 requestAnimationFrame(() => {
                     $('#rename-popup .popup').addClass('active');
                     $('#rename-popup').removeClass('hidden');
-                    $('#rename-input').val(menuItem.closest('.wishlist-grid-item').find('.wishlist-name').text()).focus();
+                    $('#rename-input').val(currentWishListNameElement.text().trim()).focus();
                     $('#rename-popup #rename-form').data('wishlist-id', wishlistId);
                     FormValidator.init('#rename-form', {
                         wishlist_name: {
@@ -137,6 +200,33 @@ $(document).ready(function(){
                     $('#delete-popup').removeClass('hidden');
                     $('.delete-wishlist-name').text(menuItem.closest('.wishlist-grid-item').find('.wishlist-name').text());
                     $('.delete-wishlist-yes').data('wishlist-id', wishlistId);
+                });
+                menuItem.removeClass('disabled');
+                break;
+
+            case 'change-theme':
+                requestAnimationFrame(() => {
+                    $('#wish-list-show-theme-popup .popup').addClass('active');
+                    $('#wish-list-show-theme-popup').removeClass('hidden');
+                    $('#wish-list-show-theme-popup').data('wishlist-id', wishlistId);
+                });
+                menuItem.removeClass('disabled');
+                break;
+
+            case 'copy-from':
+                requestAnimationFrame(() => {
+                    $('#wish-list-show-copy-from-popup .popup').addClass('active');
+                    $('#wish-list-show-copy-from-popup').removeClass('hidden');
+                    $('#wish-list-show-copy-from-popup').data('wishlist-id', wishlistId);
+                });
+                menuItem.removeClass('disabled');
+                break;
+
+            case 'copy-to':
+                requestAnimationFrame(() => {
+                    $('#wish-list-show-copy-to-popup .popup').addClass('active');
+                    $('#wish-list-show-copy-to-popup').removeClass('hidden');
+                    $('#wish-list-show-copy-to-popup').data('wishlist-id', wishlistId);
                 });
                 menuItem.removeClass('disabled');
                 break;
@@ -173,6 +263,7 @@ $(document).ready(function(){
         }
         var wishlistId = $(this).data('wishlist-id');
         var menuItem = $(`.wishlist-grid-item[data-wishlist-id='${wishlistId}']`).find('.quick-menu-item.rename-wishlist');
+        let currentWishListNameElement = $('.wishlist-header').length ? $('.wishlist-header .wishlist-title') : menuItem.closest('.wishlist-grid-item').find('.wishlist-name span');
         $("#rename-popup .popup-content").find('.submit-error').remove();
         $.ajax({
             url: `/wishlists/${wishlistId}/rename`,
@@ -183,7 +274,10 @@ $(document).ready(function(){
                     $("#rename-popup .popup-content h2").after(`<div class='submit-error'>${response.errorHtml}</div>`);
                     return;
                 }
-                menuItem.closest('.wishlist-grid-item').find('.wishlist-name span').text(newName);
+                currentWishListNameElement.text(newName);
+                if ($('.wishlist-header').length) {
+                    $(document).attr('title', newName);
+                }
                 addAlertMessage('Wish list renamed successfully');
                 menuItem.removeClass('disabled');
                 $('#rename-popup').addClass('hidden').find('.popup').removeClass('active');
@@ -207,6 +301,12 @@ $(document).ready(function(){
             success: function(response) {
                 if (response.status === 'error') {
                     $("#delete-popup .popup-content h2").after(`<div class='submit-error'>${response.errorHtml}</div>`);
+                    return;
+                }
+                if ($('.wishlist-header').length) {
+                    // set cookie for alert message to show on wishlist index page after redirect
+                    document.cookie = "alertMessage=Wish list deleted successfully; path=/wishlists; max-age=5";
+                    window.location.href = '/wishlists';
                     return;
                 }
                 $("#delete-popup").addClass("hidden").find('.popup').removeClass('active');

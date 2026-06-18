@@ -65,6 +65,7 @@ Router::post('/friends/decline', [FriendController::class, 'declineInvitation'])
 
 // Public User Wish Lists routes
 Router::get('/{username}/wishlists', [WishlistController::class, 'publicUserWishlists']);
+Router::get('/{username}/wishlists/reload', [WishlistController::class, 'reloadPublicUserWishlists']);
 
 // Admin routes (must come before generic /{id} routes)
 Router::get('/admin', [AdminController::class, 'users'])->middleware('admin');
@@ -76,10 +77,14 @@ Router::post('/admin/users/send-password-reset', [AdminController::class, 'sendP
 Router::get('/admin/backgrounds', [AdminController::class, 'backgrounds'])->middleware('admin');
 Router::post('/admin/backgrounds/paginate', [AdminController::class, 'paginateBackgrounds'])->middleware('admin');
 Router::get('/admin/backgrounds/edit', [AdminController::class, 'editBackground'])->middleware('admin');
+Router::get('/admin/backgrounds/add', [AdminController::class, 'addBackground'])->middleware('admin');
+Router::post('/admin/backgrounds/create', [AdminController::class, 'createBackground'])->middleware('admin');
 Router::post('/admin/backgrounds/update', [AdminController::class, 'updateBackground'])->middleware('admin');
 Router::get('/admin/gift-wraps', [AdminController::class, 'giftWraps'])->middleware('admin');
 Router::post('/admin/gift-wraps/paginate', [AdminController::class, 'paginateGiftWraps'])->middleware('admin');
 Router::get('/admin/gift-wraps/edit', [AdminController::class, 'editGiftWrap'])->middleware('admin');
+Router::get('/admin/gift-wraps/add', [AdminController::class, 'addGiftWrap'])->middleware('admin');
+Router::post('/admin/gift-wraps/create', [AdminController::class, 'createGiftWrap'])->middleware('admin');
 Router::post('/admin/gift-wraps/update', [AdminController::class, 'updateGiftWrap'])->middleware('admin');
 Router::post('/admin/gift-wraps/add-image', [AdminController::class, 'addGiftWrapImage'])->middleware('admin');
 Router::post('/admin/gift-wraps/remove-image', [AdminController::class, 'removeGiftWrapImage'])->middleware('admin');
