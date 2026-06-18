@@ -105,7 +105,9 @@ const FormValidator = {
             isSubmitting = true;
             
             // Submit the form using native submit (bypasses jQuery event handlers)
-            this.submit();
+            if (form.attr('id') !== 'rename-form') {
+                this.submit();
+            }
         });
     },
 

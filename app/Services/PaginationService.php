@@ -152,10 +152,10 @@ class PaginationService
         return $baseUrl . ($queryString ? '?' . $queryString : '');
     }
 
-    public function getShowingText(): string
+    public function getShowingText(string $item='item'): string
     {
         $start = $this->offset + 1;
         $end = min($this->offset + $this->itemsPerPage, $this->totalItems);
-        return "Showing {$start}-{$end} of {$this->totalItems} items";
+        return "Showing {$start}-{$end} of {$this->totalItems} {$item}" . ($this->totalItems !== 1 ? 's' : '');
     }
 }

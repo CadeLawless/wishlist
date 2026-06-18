@@ -55,7 +55,7 @@ abstract class Controller
         return $errors;
     }
 
-    private function validateField(string $field, $value, string $rule): ?string
+    private function validateField(string $field, mixed $value, string $rule): ?string
     {
         if (strpos($rule, ':') !== false) {
             [$ruleName, $ruleValue] = explode(':', $rule, 2);

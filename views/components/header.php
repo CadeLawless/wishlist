@@ -16,7 +16,7 @@ if(isset($user)) {
     $pendingInvitationsCount = App\Models\FriendInvitation::getPendingInvitationsCount($user['username']);
 
     if ($pendingInvitationsCount > 0 && !$showFeaturePopup) {
-        if($currentPage === "/add-friends") {
+        if($currentPage === "/friends") {
             $showPopup = false;
             // Set cookie for 24 hours
             setcookie('last_invitation_popup', time(), time() + 86400, '/');
@@ -56,7 +56,7 @@ if(isset($user)) {
                     <a class="nav-link<?php if($currentPage == "/" || $currentPage == "/wishlist") echo " active"; ?>" href="/">Home<div class="underline"></div></a>
                     <a class="nav-link<?php if($currentPage == "/wishlists/create") echo " active"; ?>" href="/wishlists/create">Create Wishlist<div class="underline"></div></a>
                     <a class="nav-link<?php if($currentPage == "/wishlists") echo " active"; ?>" href="/wishlists">View Wishlists<div class="underline"></div></a>
-                    <a class="nav-link<?php if($currentPage == "/add-friends") echo " active"; ?>" href="/add-friends">Add Friends<div class="underline"></div></a>
+                    <a class="nav-link<?php if($currentPage == "/friends") echo " active"; ?>" href="/friends">Friends<div class="underline"></div></a>
                     <div class="nav-link dropdown-link profile-link<?php if(in_array($currentPage, ["/profile", "/admin"])) echo " active-page"; ?>">
                         <div class="outer-link">
                             <span class="profile-icon"><?php require(__DIR__ . "/../../public/images/site-images/profile-icon.php"); ?></span>
@@ -104,7 +104,7 @@ if(isset($user)) {
     <div id="invitation-popup">
         <p style="margin-top: 0;">Other wishers have added you as their friend!</p>
         <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: end; align-items: center;">
-            <a href="/add-friends" class="button primary">Go to Friends</a>
+            <a href="/friends" class="button primary">Go to Friends</a>
             <button class="button secondary invitation-close-button">Dismiss</button>
         </div>
     </div>

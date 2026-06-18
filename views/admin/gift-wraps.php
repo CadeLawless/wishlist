@@ -1,4 +1,15 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $backgrounds
+ * @var array $giftWraps
+ * @var int $currentPage
+ * @var int $totalPages
+ * @var array $all_backgrounds
+ * @var array $all_gift_wraps
+ * @var string $searchTerm
+ */
+
 // Display flash messages
 if (isset($flash['success'])) {
     echo "

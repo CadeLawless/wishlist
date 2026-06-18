@@ -97,9 +97,39 @@ class Request
         return $this->files[$key] ?? null;
     }
 
+    public function files(): array
+    {
+        return $this->files;
+    }
+
     public function hasFile(string $key): bool
     {
         return isset($this->files[$key]) && $this->files[$key]['error'] === UPLOAD_ERR_OK;
+    }
+    
+    public function hasFiles(): bool
+    {
+        foreach ($this->files as $field) {
+            if (!isset($field['error'])) {
+                continue;
+            }
+
+            // multi-file upload structure
+            if (is_array($field['error'])) {
+                foreach ($field['error'] as $error) {
+                    if ($error === UPLOAD_ERR_OK) {
+                        return true;
+                    }
+                }
+            }
+
+            // single file fallback
+            if ($field['error'] === UPLOAD_ERR_OK) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function param(string $key, mixed $default = null): mixed

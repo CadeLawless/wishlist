@@ -1,4 +1,9 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var string $username
+ */
+
 // Display flash messages
 if (isset($flash['success'])) {
     echo "

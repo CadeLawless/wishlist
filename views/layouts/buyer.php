@@ -1,3 +1,15 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var string $title
+ * @var string $content
+ * @var array|null $user
+ * @var int|null $pageno
+ * @var int|null $total_pages
+ * @var array|null $wishlist
+ * @var string|null $customStyles
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +64,7 @@
     </style>
     <?php endif; ?>
 </head>
-<body class="buyer-view" 
+<body class="buyer-view <?php echo isset($user['dark']) && $user['dark'] === 'Yes' ? 'dark' : ''; ?>" 
       data-current-page="<?php echo $pageno ?? 1; ?>" 
       data-total-pages="<?php echo $total_pages ?? 1; ?>" 
       data-base-url="/buyer/<?php echo $wishlist['secret_key'] ?? ''; ?>">

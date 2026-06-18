@@ -1,4 +1,20 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $wishlist
+ * @var array $wishlist_user
+ * @var array $items
+ * @var array $all_items
+ * @var int $pageno
+ * @var int $total_pages
+ * @var string $sort_priority
+ * @var string $sort_price
+ * @var array $user_wishlists
+ * @var array|null $user
+ * @var bool|array $from_friends - false if not from friends, otherwise contains the friend's user info
+ * @var string $search - the search term if coming from a search within the wishlist, otherwise empty string
+ */
+
 // Buyer view for public wishlist access - matches original structure
 $wishlistID = $wishlist['id'];
 $wishlist_name_input = $wishlist['wishlist_name'];

@@ -1,3 +1,12 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var bool $success
+ * @var bool $expired
+ * @var bool $notFound
+ * @var string $username
+ */
+?>
 <div class="form-container">
     <?php if ($success): ?>
         <h2>Success!</h2>

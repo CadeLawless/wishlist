@@ -90,6 +90,8 @@ class FriendService
             return $existingFriend !== null;
         });
 
+        array_multisort($friendList, array_column($friendList, 'name'), SORT_ASC, array_column($friendList, 'username'), SORT_ASC);
+
         return $friendList;
     }
 

@@ -31,12 +31,12 @@ class EmailService
         return $this->sendEmail($email, $subject, $message);
     }
 
-    public function sendPasswordResetEmail(string $email, string $resetKey): bool
+    public function sendPasswordResetEmail(string $email, string $name, string $resetKey): bool
     {
         $subject = 'Reset Your Password for Wish List';
         $resetLink = $this->generateResetLink($resetKey);
         
-        $message = $this->getPasswordResetEmailTemplate('User', $resetLink);
+        $message = $this->getPasswordResetEmailTemplate($name, $resetLink);
         
         return $this->sendEmail($email, $subject, $message);
     }

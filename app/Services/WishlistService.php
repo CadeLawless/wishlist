@@ -31,6 +31,16 @@ class WishlistService
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function getActiveUserWishlists(string $username): array
+    {
+        return $this->wishlist->getActiveWishListsByUsername($username);
+    }
+
+    public function getInactiveUserWishlists(string $username): array
+    {
+        return $this->wishlist->getInactiveWishListsByUsername($username);
+    }
+
     public function getWishlistById(string $username, int $id): ?array
     {
         return Wishlist::findByUserAndId($username, $id);
@@ -306,9 +316,19 @@ class WishlistService
         return Wishlist::toggleVisibility($id);
     }
 
+    public function setWishlistVisibility(int $id, string $visibility): bool
+    {
+        return Wishlist::setVisibility($id, $visibility);
+    }
+
     public function toggleWishlistComplete(int $id): bool
     {
         return Wishlist::toggleComplete($id);
+    }
+
+    public function setWishlistComplete(int $id, string $complete): bool
+    {
+        return Wishlist::setComplete($id, $complete);
     }
 
     public function deleteWishlistAndItems(int $id): bool

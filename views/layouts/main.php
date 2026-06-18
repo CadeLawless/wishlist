@@ -1,3 +1,19 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var string $title
+ * @var string $content
+ * @var array $user
+ * @var string $currentPage
+ * @var int $pageno
+ * @var int $totalPages
+ * @var string $currentPageUrl
+ * @var int $wishlist_id
+ * @var string $base_url
+ * @var string $customStyles
+ */
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
