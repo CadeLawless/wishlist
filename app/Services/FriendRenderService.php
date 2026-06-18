@@ -66,9 +66,9 @@ class FriendRenderService
                         <div class="user-username">@<?= $username; ?></div>
                         <?php if($type !== 'public' && $type !== 'profile'): ?>
                             <div class="user-wishlists-link">
-                                <a class="button" href="/<?= $username; ?>/wishlists?search=<?=  $searchTerm ?? $username; ?>">
-                                    <?php require __DIR__ . '/../../public/images/site-images/icons/wishlist.php'; ?>
-                                    <span>View Wishlists</span>
+                                <a class="button remove-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Remove Friend" data-fail-text="Failed">
+                                    <span class="send-text">Remove Friend</span>
+                                    <div class="loading-spinner"></div>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -90,9 +90,8 @@ class FriendRenderService
                                     <?php endif; ?>
                                 </div>
                             <?php elseif ($type === 'friend'): ?>
-                                    <a class="button secondary remove-button <?= $disabledClass; ?>" data-username="<?= $username; ?>" data-original-text="Remove Friend" data-fail-text="Failed">
-                                        <span class="send-text">Remove Friend</span>
-                                        <div class="loading-spinner"></div>
+                                    <a class="button secondary" href="/<?= $username; ?>/wishlists?search=<?=  $searchTerm ?? $username; ?>">
+                                        <span>View Wish Lists</span>
                                     </a>
                             <?php elseif ($type === 'received'): ?>
                                 <div class="decision-buttons">

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $wishlist
+ */
+
 // Get wishlist data
 $wishlistID = $wishlist['id'];
 $wishlistTitle = htmlspecialchars($wishlist['wishlist_name']);

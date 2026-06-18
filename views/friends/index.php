@@ -1,4 +1,15 @@
 <?php 
+/**
+ * Variables available in this view:
+ * @var array $friendList
+ * @var array $receivedInvitations
+ * @var array $newFriends
+ * @var array $allUsers
+ * @var string $searchTerm
+ * @var array $user
+ * @var object $friendService
+ */
+
 if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $searchTerm = trim($_GET['search']);
     list($allUsers, $friendList, $newFriends, $receivedInvitations) = $friendService->searchUsersAndCategorize($user['username'], $searchTerm);
@@ -16,7 +27,7 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))) {
 
 <?php if(count($friendList) === 0 && count($receivedInvitations) === 0 && !isset($searchTerm)): ?>
     <div class="center">
-        <p>You have no friends or friend requests yet. <a href="/add-friends/find">Find friends to get started!</a></p>
+        <p>You have no friends or friend requests yet. <a href="/friends/find">Find friends to get started!</a></p>
     </div>
 <?php else: ?>
 

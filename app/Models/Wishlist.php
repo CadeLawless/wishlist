@@ -143,6 +143,11 @@ class Wishlist extends Model
         return static::update($id, ['visibility' => $newVisibility]);
     }
 
+    public static function setVisibility(int $id, string $visibility): bool
+    {
+        return static::update($id, ['visibility' => $visibility]);
+    }
+
     public static function toggleComplete(int $id): bool
     {
         // Get current complete status
@@ -153,6 +158,11 @@ class Wishlist extends Model
         
         $newComplete = $wishlist['complete'] === 'Yes' ? 'No' : 'Yes';
         return static::update($id, ['complete' => $newComplete]);
+    }
+
+    public static function setComplete(int $id, string $complete): bool
+    {
+        return static::update($id, ['complete' => $complete]);
     }
 
     public static function updateName(int $id, string $name): bool
@@ -180,4 +190,25 @@ class Wishlist extends Model
         );
     }
 
+    public function getActiveWishListsByUsername(string $username): array
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['id', 'type', 'wishlist_name', 'theme_background_id', 'theme_gift_wrap_id', 'visibility', 'complete', 'duplicate', 'date_created', 'secret_key'])
+            ->where('username', $username)
+            ->andWhere('complete', 'No')
+            ->orderBy('date_created', 'DESC')
+            ->getAll();
+    }
+
+    public function getInactiveWishListsByUsername(string $username): array
+    {
+        $model = new self();
+        return $model->queryBuilder
+            ->columns(['id', 'type', 'wishlist_name', 'theme_background_id', 'theme_gift_wrap_id', 'visibility', 'complete', 'duplicate', 'date_created', 'secret_key'])
+            ->where('username', $username)
+            ->andWhere('complete', 'Yes')
+            ->orderBy('date_created', 'DESC')
+            ->getAll();
+    }
 }

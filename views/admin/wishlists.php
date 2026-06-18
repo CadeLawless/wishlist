@@ -1,4 +1,15 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var array $users
+ * @var int $currentPage
+ * @var int $totalPages
+ * @var array $all_users
+ * @var string $searchTerm
+ * @var array $wishlists
+ * @var array $all_wishlists
+ */
+
 // Display flash messages
 if (isset($flash['success'])) {
     echo "

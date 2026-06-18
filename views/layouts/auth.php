@@ -1,3 +1,12 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var string $title
+ * @var array $user
+ * @var string $content
+ * @var string $customStyles
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,6 +1,14 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var array $wishlists
+ * @var array $public_user
+ * @var array $user
+ */
+?>
 <p>
-    <a class="button accent" href="/add-friends<?= isset($_GET['search']) ? '?search=' . htmlspecialchars(urlencode($_GET['search'])) : ''; ?>">
-        Back to Add Friends
+    <a class="button accent" href="/friends<?= isset($_GET['search']) ? '?search=' . htmlspecialchars(urlencode($_GET['search'])) : ''; ?>">
+        Back to Friends
     </a>
 </p>
 
@@ -24,3 +32,13 @@ require __DIR__ . '/../../views/components/friends-results.php';
     }
     ?>
 </div>
+
+<?php include __DIR__ . '/../components/bulk-action-bar.php'; ?>
+
+<?php require __DIR__ . '/../components/wishlist-action-popups.php'; ?>
+
+<script src="/public/js/form-validation.js?v=2.5"></script>
+<script src="/public/js/add-alert-message.js"></script>
+<script src="/public/js/reload-wishlists.js"></script>
+<script src="/public/js/wishlist-action-menu.js"></script>
+<script src="/public/js/wishlist-bulk-select.js"></script>

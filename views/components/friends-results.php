@@ -1,3 +1,15 @@
+<?php
+/**
+ * Variables available in this view:
+ * @var array $allUsers
+ * @var array $friendList
+ * @var array $newFriends
+ * @var array $receivedInvitations
+ * @var string $searchTerm
+ * @var string $type
+ * @var array $user
+ */
+?>
 <?php if(count($receivedInvitations) > 0){ ?>
     <h2 style="margin: 0;">Suggested Friends</h2>
     <p>These fellow wishers have recently added you as their friend. Add them back below!</p>

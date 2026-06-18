@@ -1,4 +1,9 @@
 <?php
+/**
+ * Variables available in this view:
+ * @var bool $account_created
+ */
+
 if($account_created){
     echo "
     <div class='popup-container'>

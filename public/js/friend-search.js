@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    if(window.location.pathname === '/add-friends/find'){
+    if(window.location.pathname === '/friends/find'){
         $('#friends-search').focus();
         // Make sure cursor is at the end of the input
         const val = $('#friends-search').val();
@@ -14,7 +14,7 @@ $(document).ready(function() {
         const targetUsername = button.data('username');
 
         $.ajax({
-            url: '/add-friends/add',
+            url: '/friends/add',
             method: 'POST',
             data: { target_username: targetUsername },
             success: function(response) {
@@ -51,7 +51,7 @@ $(document).ready(function() {
         showButtonLoading(button);
 
         $.ajax({
-            url: '/add-friends/remove',
+            url: '/friends/remove',
             method: 'POST',
             data: { target_username: targetUsername },
             success: function(response) {
@@ -85,7 +85,7 @@ $(document).ready(function() {
         showButtonLoading(button);
 
         $.ajax({
-            url: '/add-friends/decline',
+            url: '/friends/decline',
             method: 'POST',
             data: { target_username: targetUsername },
             success: function(response) {
