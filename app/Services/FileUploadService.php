@@ -1566,10 +1566,6 @@ class FileUploadService
             $oldPath = $basePath . $oldName;
             $newPath = $basePath . $newName;
 
-            if (is_dir($newPath)) {
-                return false; // Prevent overwriting existing folder
-            }
-
             if (!rename($oldPath, $newPath)) {
                 return false;
             }
