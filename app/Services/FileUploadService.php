@@ -1551,4 +1551,34 @@ class FileUploadService
 
         return rename($oldPath, $newPath);
     }
+
+    public function renameBackgroundPictures(string $oldName, string $newName): bool
+    {
+        $backgroundFolders = [
+            'desktop-backgrounds',
+            'desktop-thumbnails',
+            'mobile-backgrounds',
+            'mobile-thumbnails'
+        ];
+
+        foreach ($backgroundFolders as $folder) {
+            $basePath = self::getThemesBasePath() . $folder . DIRECTORY_SEPARATOR;
+            $oldPath = $basePath . $oldName;
+            $newPath = $basePath . $newName;
+
+            if (!is_dir($oldPath)) {
+                return false;
+            }
+
+            if (is_dir($newPath)) {
+                return false; // Prevent overwriting existing folder
+            }
+
+            if (!rename($oldPath, $newPath)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

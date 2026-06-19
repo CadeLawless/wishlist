@@ -841,6 +841,19 @@ class AdminController extends Controller
                 error_log('Failed to auto-generate mobile thumbnail: ' . $thumbnailResult['error']);
             }
         }
+
+        // Update folder name if theme_image (which is used as folder name) has changed
+        if ($theme_image !== $background['theme_image']) {
+            $renameResult = $this->fileUploadService->renameBackgroundPictures($background['theme_image'], $theme_image);
+            if (!$renameResult) {
+                \App\Services\SessionManager::set('admin_giftwrap_edit_form_data', [
+                    'theme_name' => $theme_name,
+                    'theme_tag' => $theme_tag,
+                    'theme_image' => $theme_image
+                ]);
+                return $this->redirect("/admin/gift-wraps/edit?id={$id}&pageno={$pageno}")->withError('Failed to rename background image folders. Please try again.');
+            }
+        }
                 
         // Update the background - use finalImageName if it was updated by uploads
         $updateData = [
