@@ -49,6 +49,8 @@ $(document).ready(function(){
             }else{
                 // Inactive tab - hide Deactivate option
                 actionItems.filter('#bulk-deactivate-wishlists').hide();
+                actionItems.filter('#bulk-make-public-wishlists').remove();
+                actionItems.filter('#bulk-hide-wishlists').remove();
             }
             bulkActionDropdownFiltered = true;
         }

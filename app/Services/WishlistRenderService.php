@@ -137,15 +137,18 @@ class WishlistRenderService
                         </button>";
                     }
                 }
+                if ($active) {
+                    $html .= "
+                    <button class='quick-menu-item toggle-visibility' data-current-visibility='" . htmlspecialchars($visibility) . "'>
+                        <span class='menu-icon'>";
+                        ob_start();
+                        require(__DIR__ . '/../../public/images/site-images/icons/' . ($public ? 'hide-view.php' : 'view.php'));
+                        $html .= ob_get_clean();
+                        $html .= "</span>
+                        " . ($public ? 'Hide' : 'Make Public') . "
+                    </button>";
+                }
                 $html .= "
-                <button class='quick-menu-item toggle-visibility' data-current-visibility='" . htmlspecialchars($visibility) . "'>
-                    <span class='menu-icon'>";
-                    ob_start();
-                    require(__DIR__ . '/../../public/images/site-images/icons/' . ($public ? 'hide-view.php' : 'view.php'));
-                    $html .= ob_get_clean();
-                    $html .= "</span>
-                    " . ($public ? 'Hide' : 'Make Public') . "
-                </button>
                 <button class='quick-menu-item toggle-complete' data-current-complete='" . ($active ? 'No' : 'Yes') . "'>
                     <span class='menu-icon'>";
                     ob_start();
