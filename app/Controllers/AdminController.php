@@ -535,7 +535,7 @@ class AdminController extends Controller
             $errors[] = 'Theme name is required.';
         }
         
-        if (empty($theme_tag) || !in_array($theme_tag, ['birthday', 'christmas'])) {
+        if (empty($theme_tag) || !in_array($theme_tag, ['Birthday', 'Christmas'])) {
             $errors[] = 'Valid theme tag is required.';
         }
         
@@ -742,7 +742,7 @@ class AdminController extends Controller
             $errors[] = 'Theme name is required.';
         }
         
-        if (empty($theme_tag) || !in_array($theme_tag, ['birthday', 'christmas'])) {
+        if (empty($theme_tag) || !in_array($theme_tag, ['Birthday', 'Christmas'])) {
             $errors[] = 'Valid theme tag is required.';
         }
         
@@ -907,7 +907,7 @@ class AdminController extends Controller
             $errors[] = 'Theme name is required.';
         }
         
-        if (empty($theme_tag) || !in_array($theme_tag, ['birthday', 'christmas'])) {
+        if (empty($theme_tag) || !in_array($theme_tag, ['Birthday', 'Christmas'])) {
             $errors[] = 'Valid theme tag is required.';
         }
         
@@ -1000,7 +1000,7 @@ class AdminController extends Controller
             $errors[] = 'Theme name is required.';
         }
         
-        if (empty($theme_tag) || !in_array($theme_tag, ['birthday', 'christmas'])) {
+        if (empty($theme_tag) || !in_array($theme_tag, ['Birthday', 'Christmas'])) {
             $errors[] = 'Valid theme tag is required.';
         }
         
