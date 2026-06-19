@@ -121,7 +121,6 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <p style="margin-top: 5px; font-size: 0.9em; color: var(--text-secondary);">Theme ID of the default gift wrap (0 for none)</p>
         </div>
         
         <div class="large-input center">
