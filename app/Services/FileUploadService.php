@@ -219,7 +219,7 @@ class FileUploadService
 
         // Additional MIME type check (if Fileinfo extension is available)
         if (function_exists('finfo_open')) {
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->file($file['tmp_name']);
             error_log("MIME: " . $mimeType);
 
