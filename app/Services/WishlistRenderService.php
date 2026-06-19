@@ -37,7 +37,7 @@ class WishlistRenderService
             
             $html .= "
             <div class='wishlist-grid-item' data-wishlist-id='$id' data-visibility='" . htmlspecialchars($visibility, ENT_QUOTES, 'UTF-8') . "' data-complete='$complete'>";
-                if ($context === 'user' || ($context === 'public' && !empty($user) && $wishlist_username === $user['username'])) {
+                if (($context === 'user' || ($context === 'public' && !empty($user) && $wishlist_username === $user['username'])) && count($wishlists) > 1) {
                     $html .= "
                     <div class='click-to-select'>Click to Select</div>
                     <button class='wishlist-checkbox'>
