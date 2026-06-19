@@ -17,8 +17,8 @@
                 <label for="theme_tag">Tag:<br></label>
                 <select required name="theme_tag" id="theme_tag">
                     <option value="" disabled>Select an option</option>
-                    <option value="birthday" <?php echo (($theme_tag ?? $giftWrap['theme_tag'] ?? '') == 'birthday') ? 'selected' : ''; ?>>Birthday</option>
-                    <option value="christmas" <?php echo (($theme_tag ?? $giftWrap['theme_tag'] ?? '') == 'christmas') ? 'selected' : ''; ?>>Christmas</option>
+                    <option value="Birthday" <?php echo (($theme_tag ?? $giftWrap['theme_tag'] ?? '') == 'Birthday') ? 'selected' : ''; ?>>Birthday</option>
+                    <option value="Christmas" <?php echo (($theme_tag ?? $giftWrap['theme_tag'] ?? '') == 'Christmas') ? 'selected' : ''; ?>>Christmas</option>
                 </select>
             </div>
             
