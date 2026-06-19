@@ -1835,7 +1835,7 @@ textarea {
     z-index: 1;
     position: relative;
 
-    & > span {
+    & > span:not(.inline-popup) {
         color: white;
     }
 }
