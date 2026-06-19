@@ -851,7 +851,7 @@ class AdminController extends Controller
                     'theme_tag' => $theme_tag,
                     'theme_image' => $theme_image
                 ]);
-                return $this->redirect("/admin/gift-wraps/edit?id={$id}&pageno={$pageno}")->withError('Failed to rename background image folders. Please try again.');
+                return $this->redirect("/admin/backgrounds/edit?id={$id}&pageno={$pageno}")->withError('Failed to rename background image folders. Please try again.');
             }
         }
                 
