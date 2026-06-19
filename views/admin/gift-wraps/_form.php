@@ -91,7 +91,7 @@
                 <?php endif; ?>
             </div>
             <?php if (!empty($giftWrapImages) && count($giftWrapImages) > 1): ?>
-                <p style="margin-top: 20px; font-size: 0.9em; color: var(--text-secondary);">💡 Drag images to reorder them. The order will be saved automatically.</p>
+                <p style="margin-top: 20px; font-size: 0.9em; color: var(--text-secondary);">Drag images to reorder them. The order will be saved automatically.</p>
             <?php endif; ?>
         </div>
     </div>
