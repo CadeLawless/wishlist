@@ -481,6 +481,7 @@ body.dark .table-search-loading-overlay {
 
 .admin-center-table {
     width: 100%;
+    border-radius: 6px 6px 0 0;
 }
 .icon-group {
     display: flex;
