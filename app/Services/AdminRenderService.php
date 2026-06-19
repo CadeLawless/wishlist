@@ -78,7 +78,7 @@ class AdminRenderService
                 <td data-label="Name"><?php echo $name; ?></td>
                 <td data-label="Thumbnail">
                     <?php if ($thumbnailExists): ?>
-                        <img src="<?php echo $thumbnailPath; ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
+                        <img src="<?php echo $thumbnailPath . "?t=" . time(); ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
                     <?php else: ?>
                         <span style="color: var(--text-secondary);">No thumbnail</span>
                     <?php endif; ?>
@@ -146,7 +146,7 @@ class AdminRenderService
                 <td data-label="Name"><?php echo $name; ?></td>
                 <td data-label="Preview">
                     <?php if ($firstWrapExists): ?>
-                        <img src="<?php echo $firstWrapPath; ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
+                        <img src="<?php echo $firstWrapPath . "?t=" . time(); ?>" alt="<?php echo $name; ?>" style="max-width: 80px; max-height: 80px; border-radius: 4px; object-fit: cover;">
                     <?php else: ?>
                         <span style="color: var(--text-secondary);">No preview</span>
                     <?php endif; ?>

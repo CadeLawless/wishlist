@@ -638,33 +638,18 @@ class AdminController extends Controller
             }
             
             // Auto-generate mobile thumbnail if not provided
-            if (!$this->request->hasFile('mobile_thumbnail')) {
-                $thumbnailResult = $this->fileUploadService->createBackgroundThumbnail(
-                    $uploadResult['filename'],
-                    $imageNameBase,
-                    'mobile'
-                );
-                if (!$thumbnailResult['success']) {
-                    error_log('Failed to auto-generate mobile thumbnail: ' . $thumbnailResult['error']);
-                }
-            }
-        }
-        
-        // Upload mobile thumbnail (if provided)
-        if ($this->request->hasFile('mobile_thumbnail')) {
-            $thumbnailResult = $this->fileUploadService->uploadBackgroundThumbnail(
-                $this->request->file('mobile_thumbnail'),
+            $thumbnailResult = $this->fileUploadService->createBackgroundThumbnail(
+                $uploadResult['filename'],
                 $imageNameBase,
                 'mobile',
                 212,
                 300
             );
-            
             if (!$thumbnailResult['success']) {
-                error_log('Failed to upload mobile thumbnail: ' . $thumbnailResult['error']);
+                error_log('Failed to auto-generate mobile thumbnail: ' . $thumbnailResult['error']);
             }
         }
-        
+                
         // Update the background - use finalImageName if it was updated by uploads
         $createData = [
             'theme_name' => $theme_name,
