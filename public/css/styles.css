@@ -2058,6 +2058,39 @@ textarea {
 .item-description .line {
     margin: 0 0 8px;
 }
+.item-description h3 {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.view-full {
+        white-space: unset;
+        overflow: unset;
+        text-overflow: unset;
+    }
+}
+.item-description .line.notes-line {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.view-full {
+        white-space: unset;
+        overflow: unset;
+        text-overflow: unset;
+    }
+}
+& .see-more-link {
+    display: block;
+    margin-top: -0.5rem;
+    font-size: 0.85rem;
+
+    &.notes-link {
+        margin-top: 0;
+    }
+}
 .item-container .notes-label {
     display: inline;
 }
