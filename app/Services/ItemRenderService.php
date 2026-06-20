@@ -10,7 +10,7 @@ class ItemRenderService
     {
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
         $itemNameShort = mb_substr($item['name'], 0, Constants::ITEM_NAME_SHORT_LENGTH, 'UTF-8');
-        if (mb_strlen($item['name'], 'UTF-8') > Constants::ITEM_NAME_SHORT_LENGTH) $itemNameShort .= '...';
+        if (mb_strlen($item['name'], 'UTF-8') > Constants::ITEM_NAME_SHORT_LENGTH) $itemNameShort .= 'hello';
         $itemNameShort = htmlspecialchars($itemNameShort, ENT_QUOTES, 'UTF-8');
         
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
@@ -30,7 +30,7 @@ class ItemRenderService
         }
         $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
         $notesShort = mb_substr($item['notes'] ?? '', 0, Constants::ITEM_NOTES_SHORT_LENGTH, 'UTF-8');
-        if (mb_strlen($item['notes'] ?? '', 'UTF-8') > Constants::ITEM_NOTES_SHORT_LENGTH) $notesShort .= '...';
+        if (mb_strlen($item['notes'] ?? '', 'UTF-8') > Constants::ITEM_NOTES_SHORT_LENGTH) $notesShort .= 'hello';
         $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
         
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');

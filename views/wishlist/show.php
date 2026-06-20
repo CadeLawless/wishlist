@@ -180,25 +180,25 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     
                     <div class='items-list-sub-container'>
                     <div class="items-list main">
-                                <?php if(count($items) > 0): ?>
-                                    <?php 
-                                    // Use the same item generation service as AJAX pagination
-                                    foreach($items as $item): 
-                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
-                                    endforeach; 
-                                    ?>
-                                <?php else: ?>
-                                    <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
-                                        <div class='item-image-container'>
-                                            <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
-                                        </div>
-                                        <div class='item-description'></div>
-                                        <div class='add-label'>
-                                            <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
-                                            Add Item
-                                        </div>
-                                    </a>
-                                <?php endif; ?>
+                        <?php if(count($items) > 0): ?>
+                            <?php 
+                            // Use the same item generation service as AJAX pagination
+                            foreach($items as $item): 
+                                echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
+                            endforeach;
+                            ?>
+                        <?php else: ?>
+                            <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
+                                <div class='item-image-container'>
+                                    <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
+                                </div>
+                                <div class='item-description'></div>
+                                <div class='add-label'>
+                                    <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
+                                    Add Item
+                                </div>
+                            </a>
+                        <?php endif; ?>
                     </div>
                     
                             <!-- Pagination controls -->
