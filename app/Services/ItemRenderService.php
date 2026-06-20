@@ -8,11 +8,7 @@ class ItemRenderService
 {
     public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = '', array $userWishLists = []): string
     {
-        $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');
-        $itemNameShort = mb_substr($item['name'], 0, Constants::ITEM_NAME_SHORT_LENGTH, 'UTF-8');
-        if (mb_strlen($item['name'], 'UTF-8') > Constants::ITEM_NAME_SHORT_LENGTH) $itemNameShort .= 'hello';
-        $itemNameShort = htmlspecialchars($itemNameShort, ENT_QUOTES, 'UTF-8');
-        
+        $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');   
         $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
         $quantityDisplay = '';
         if ($item['unlimited'] == 'Yes') {
@@ -28,11 +24,7 @@ class ItemRenderService
         if($item['notes'] === null || trim($item['notes']) === '') {
             $item['notes'] = 'None';
         }
-        $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');
-        $notesShort = mb_substr($item['notes'] ?? '', 0, Constants::ITEM_NOTES_SHORT_LENGTH, 'UTF-8');
-        if (mb_strlen($item['notes'] ?? '', 'UTF-8') > Constants::ITEM_NOTES_SHORT_LENGTH) $notesShort .= 'hello';
-        $notesShort = htmlspecialchars($notesShort, ENT_QUOTES, 'UTF-8');
-        
+        $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');        
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
         $imagePath = htmlspecialchars("/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
@@ -101,45 +93,19 @@ class ItemRenderService
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
             <div class='item-description' <?php if($isPurchasedInBuyerView) echo "style='flex-grow: 0;'"; ?>>
-                <div class='line'><h3><?php echo $itemNameShort; ?></h3></div>
+                <div class='line'>
+                    <h3><?= $itemName ?></h3>
+                    <a href="#" class="see-more-link title-link" style="display: none;">View Full Name</a>
+                </div>
                 <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
-                    <div class='line'><h4 class='notes-label'>Notes: </h4><span><?php echo $notesShort; ?></span></div>
+                    <div class='line notes-line'>
+                        <h4 class='notes-label'>Notes: </h4><span><?php echo $notes; ?></span>
+                        <a href="#" class="see-more-link notes-link" style="display: none;">View Full Notes</a>
+                    </div>
                     <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
                     <div class='icon-options item-options <?php echo $type; ?>-item-options'>
-                        <a class='icon-container popup-button' href='#'>
-                            <?php require(__DIR__ . '/../../public/images/site-images/icons/view.php'); ?>
-                            <div class='inline-label'>View</div>
-                        </a>
-                        <div class='popup-container hidden'>
-                            <div class='popup fullscreen'>
-                                <div class='close-container'>
-                                    <a href='#' class='close-button'>
-                                        <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
-                                    </a>
-                                </div>
-                                <div class='popup-content'>
-                                    <h2 style='margin-top: 0;'>Item Details</h2>
-                                    <p><label>Item Name:<br /></label><?php echo $itemName; ?></p>
-                                    <p><label>Item Price:<br /></label>$<?php echo $price; ?></p>
-                                    <p><label>Notes: </label><br /><?php echo nl2br($notes); ?></p>
-                                    <p><label>Priority:<br /></label><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></p>
-                                    <p><label>Date Added:<br /></label><?php echo $dateAdded; ?></p>
-                                    <?php if($dateModified): ?>
-                                    <p><label>Last Date Modified:</label><br /><?php echo $dateModified; ?></p>
-                                    <?php endif; ?>
-                                    <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
-                                    <?php $qtyTotal = (int)($item['quantity'] ?? 0); $qtyPurchased = (int)($item['quantity_purchased'] ?? 0); $qtyRemaining = max(0, $qtyTotal - $qtyPurchased); ?>
-                                    <p><label>Remaining Needed:<br /></label><?php echo $qtyRemaining; ?> (of <?php echo $qtyTotal; ?>)</p>
-                                    <?php elseif($item['unlimited'] === 'Yes'): ?>
-                                    <p><label>Quantity:<br /></label>Unlimited</p>
-                                    <?php else: ?>
-                                    <p><label>Quantity:<br /></label><?php echo (int)($item['quantity'] ?? 0); ?></p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
                         <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
                             <a class='icon-container popup-button' href='#'>
                                 <?php require(__DIR__ . '/../../public/images/site-images/icons/link.php'); ?>

@@ -285,6 +285,10 @@ $(document).ready(function() {
                                 window.Pagination.updateBaseUrl(newBaseUrl);
                             }
                         }
+
+                        if (typeof checkEllipsis === "function") {
+                            checkEllipsis();
+                        }
                         
                         // Scroll behavior based on page type
                         const isAdminPage = contentSelector === '.admin-table-body';

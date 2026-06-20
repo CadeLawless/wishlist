@@ -28,6 +28,9 @@
         h2.items-list-title {
             position: relative;
         }
+        h3 {
+            margin-bottom: 0.5em;
+        }
         .popup.fullscreen .gift-wrap-content .popup-content {
             max-height: calc(100% - 184px);
         }

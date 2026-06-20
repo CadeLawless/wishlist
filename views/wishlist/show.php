@@ -333,6 +333,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/public/js/form-validation.js?v=2.6"></script>
 <script src="/public/js/add-alert-message.js?v=2.6"></script>
 <script src="/public/js/wishlist-action-menu.js?v=2.6"></script>
+<script src="/public/js/see-more-link.js?v=2.6"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script>
     $(document).ready(function() {
