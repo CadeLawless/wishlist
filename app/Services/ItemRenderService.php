@@ -43,13 +43,13 @@ class ItemRenderService
         
         // Priority descriptions with wisher's name
         $priorities = [
-            1 => "{$wisherName} absolutely needs this item",
-            2 => "{$wisherName} really wants this item", 
-            3 => "It would be cool if {$wisherName} had this item",
-            4 => "{$wisherName} could always use this item"
+            1 => "Must have this",
+            2 => "Really want this", 
+            3 => "Would be nice to have this",
+            4 => "Could always use this"
         ];
 
-        
+        $itemLinkLabel = "View on Store Website";
         
         $priorityText = $priorities[$item['priority']] ?? '';
 
@@ -93,6 +93,40 @@ class ItemRenderService
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
             </div>
             <div class='item-description' <?php if($isPurchasedInBuyerView) echo "style='flex-grow: 0;'"; ?>>
+                <?php if(!$isPurchasedInBuyerView): ?>
+                    <div class="line link-line">
+                        <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
+                            <div class="center">
+                                <a class='button secondary view-on-website-link popup-button' href='#'>
+                                <span><?= $itemLinkLabel ?></span>
+                                <?php require(__DIR__ . '/../../public/images/site-images/icons/open-in-new-window.php'); ?>
+                                </a>
+                                <div class='popup-container hidden'>
+                                    <div class='popup'>
+                                        <div class='close-container'>
+                                            <a href='#' class='close-button'>
+                                                <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
+                                            </a>
+                                        </div>
+                                        <div class='popup-content'>
+                                            <h2 style='margin-top: 0;'>Purchase Reminder</h2>
+                                            <p>Please make sure to come back and mark this item as purchased if you buy it. <?php echo $wisherName; ?> will not see that you purchased it.</p>
+                                            <div style='margin: 16px 0;' class='center'>
+                                                <a class='button primary' href='<?php echo $link; ?>' target='_blank'>View Item on Store Site</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="center"><a class='button secondary view-on-website-link' href='<?php echo $link; ?>' target='_blank'>
+                                <span><?= $itemLinkLabel ?></span>
+                                <?php require(__DIR__ . '/../../public/images/site-images/icons/open-in-new-window.php'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
                 <div class='line'>
                     <h3><?= $itemName ?></h3>
                     <a href="#" class="see-more-link title-link" style="display: none;">View Full Name</a>
@@ -100,39 +134,11 @@ class ItemRenderService
                 <?php if(!$isPurchasedInBuyerView): ?>
                     <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
                     <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
+                    <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
                     <div class='line notes-line'>
                         <h4 class='notes-label'>Notes: </h4><span><?php echo $notes; ?></span>
-                        <a href="#" class="see-more-link notes-link" style="display: none;">View Full Notes</a>
                     </div>
-                    <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
                     <div class='icon-options item-options <?php echo $type; ?>-item-options'>
-                        <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
-                            <a class='icon-container popup-button' href='#'>
-                                <?php require(__DIR__ . '/../../public/images/site-images/icons/link.php'); ?>
-                                <div class='inline-label'>Website Link</div>
-                            </a>
-                            <div class='popup-container hidden'>
-                                <div class='popup'>
-                                    <div class='close-container'>
-                                        <a href='#' class='close-button'>
-                                            <?php require(__DIR__ . '/../../public/images/site-images/menu-close.php'); ?>
-                                        </a>
-                                    </div>
-                                    <div class='popup-content'>
-                                        <h2 style='margin-top: 0;'>Purchase Reminder</h2>
-                                        <p>Please make sure to come back and mark this item as purchased if you buy it. <?php echo $wisherName; ?> will not see that you purchased it.</p>
-                                        <div style='margin: 16px 0;' class='center'>
-                                            <a class='button primary' href='<?php echo $link; ?>' target='_blank'>View Item on Website</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php else: ?>
-                            <a class='icon-container' href='<?php echo $link; ?>' target='_blank'>
-                                <?php require(__DIR__ . '/../../public/images/site-images/icons/link.php'); ?>
-                                <div class='inline-label'>Website Link</div>
-                            </a>
-                        <?php endif; ?>
                         <?php if($type === 'wisher'): ?>
                             <?php
                             // Build edit URL with pageno and search term

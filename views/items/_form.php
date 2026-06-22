@@ -80,16 +80,16 @@
 
 </div>
 <div class="large-input">
-    <label for="notes">Item Notes:<br></label>
-    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
-</div>
-<div class="large-input">
     <label for="priority">How much do you want this item?</label><br>
     <select id="priority" name="priority">
-        <option value="1" <?php if(($priority ?? '1') == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
-        <option value="2" <?php if(($priority ?? '1') == "2") echo "selected"; ?>>(2) I really want this item</option>
-        <option value="3" <?php if(($priority ?? '1') == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
-        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>I could always use this item</option>
+        <option value="1" <?php if(($priority ?? '1') == "1") echo "selected"; ?>>(1) Must have this</option>
+        <option value="2" <?php if(($priority ?? '1') == "2") echo "selected"; ?>>(2) Really want this</option>
+        <option value="3" <?php if(($priority ?? '1') == "3") echo "selected"; ?>>(3) Would be nice to have this</option>
+        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>Could always use this</option>
     </select>
+</div>
+<div class="large-input">
+    <label for="notes">Item Notes:<br></label>
+    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
 </div>
 

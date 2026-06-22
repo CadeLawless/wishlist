@@ -56,7 +56,7 @@ class WishlistRenderService
                     }
                 }
                 $html .= "
-                <div class='items-list preview" . (!$public ? " private" : "") . "' style='$backgroundStyle'>
+                <a href='$wishListLink' class='items-list preview" . (!$public ? " private" : "") . "' style='$backgroundStyle'>
                     <div class='item-container'>
                         <img src='/public/images/site-images/themes/gift-wraps/$wrap_image/1.png' class='gift-wrap' alt='gift wrap'>
                         <div class='item-description'>
@@ -67,7 +67,7 @@ class WishlistRenderService
                             <div class='bar'></div>
                         </div>
                     </div>
-                </div>
+                </a>
                 <div class='wishlist-grid-item-footer'>
                     <div class='title-row'>
                         <div class='wishlist-name'><span>$list_name$duplicate</span></div>";
