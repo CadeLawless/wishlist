@@ -2063,6 +2063,7 @@ textarea {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 0;
 
     &.view-full {
         white-space: unset;
@@ -2070,26 +2071,37 @@ textarea {
         text-overflow: unset;
     }
 }
-.item-description .line.notes-line {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &.view-full {
-        white-space: unset;
-        overflow: unset;
-        text-overflow: unset;
-    }
-}
-& .see-more-link {
+.see-more-link {
     display: block;
-    margin-top: -0.5rem;
     font-size: 0.85rem;
 
     &.notes-link {
         margin-top: 0;
     }
+}
+.view-on-website-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 6px 12px;
+
+    & > span {
+        font-size: 0.9rem;
+    }
+
+    & .icon {
+        width: 10px;
+        height: 10px;
+        background-color: unset;
+        border: 0;
+
+        & path {
+            fill: var(--text-light);
+        }
+    }
+}
+.item-description .line.link-line {
+    margin-top: 0.5rem;
 }
 .item-container .notes-label {
     display: inline;

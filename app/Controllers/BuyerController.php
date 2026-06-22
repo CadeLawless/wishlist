@@ -217,6 +217,8 @@ class BuyerController extends Controller
             'html' => $itemsHtml,
             'current' => 1,
             'total' => $totalPages,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => 12,
             'paginationInfo' => $paginationInfo
         ];
         

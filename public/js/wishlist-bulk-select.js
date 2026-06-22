@@ -85,6 +85,7 @@ $(document).ready(function(){
         if(selectedIds.length > 0){
             $('#bulk-actions-bar').addClass('active');
             $('.wishlist-grid-item').addClass('bulk-select');
+            $('.wishlist-grid-item .items-list.preview').removeAttr('href');
             $('#selected-count').text(selectedIds.length);
             $("footer").hide();
             
@@ -99,6 +100,11 @@ $(document).ready(function(){
         }else{
             $('#bulk-actions-bar').removeClass('active');
             $('.wishlist-grid-item').removeClass('bulk-select');
+            $('.wishlist-grid-item').each(function() {
+                var preview = $(this).find('.items-list.preview');
+                var link = $(this).find('.view-wishlist-button').attr('href');
+                preview.attr('href', link);
+            });
             $('#selected-count').text('0');
             $("footer").show();
             
