@@ -7,12 +7,12 @@ class HtmlGenerationService
     /**
      * Generate HTML for a collection of items
      */
-    public static function generateItemsHtml(array $items, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = ''): string
+    public static function generateItemsHtml(array $items, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = '', array $userWishLists=[]): string
     {
         $html = '';
         
         foreach ($items as $item) {
-            $html .= ItemRenderService::renderItem($item, $wishlistId, $page, $type, $searchTerm);
+            $html .= ItemRenderService::renderItem($item, $wishlistId, $page, $type, $searchTerm, $userWishLists);
         }
         
         return $html;

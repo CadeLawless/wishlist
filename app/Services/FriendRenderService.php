@@ -90,7 +90,7 @@ class FriendRenderService
                                     <?php endif; ?>
                                 </div>
                             <?php elseif ($type === 'friend'): ?>
-                                    <a class="button secondary" href="/<?= $username; ?>/wishlists?search=<?=  $searchTerm ?? $username; ?>">
+                                    <a class="button secondary view-wish-lists" href="/<?= $username; ?>/wishlists?search=<?=  $searchTerm ?? $username; ?>">
                                         <span>View Wish Lists</span>
                                     </a>
                             <?php elseif ($type === 'received'): ?>

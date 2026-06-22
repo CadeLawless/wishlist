@@ -2102,6 +2102,10 @@ textarea {
 }
 .item-description .line.link-line {
     margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: center;
 }
 .item-container .notes-label {
     display: inline;
@@ -2161,6 +2165,39 @@ img.gift-wrap {
 .items-list.preview .item-description {
     width: 100%;
 }
+.item-actions {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+
+    & a.action-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+
+        &:hover {
+            background-color: var(--transparent-background-hover);
+        }
+
+        & .icon {
+            border: 0;
+            background-color: unset;
+            width: 1.5rem;
+            height: 1.5rem;
+            padding: 0.4rem;
+            
+            &.trashcan path {
+                fill: var(--text-invalid);
+            }
+
+            &.edit path {
+                fill: var(--text);
+            }
+        }
+    }
+}
 .item-container.add-placeholder .item-description, .item-container.add-placeholder .item-image-container {
     pointer-events: none;
 }
@@ -2214,7 +2251,7 @@ img.gift-wrap {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    margin-bottom: 6px;
+    margin: 6px 0;
 }
 
 /* theme list */
@@ -2839,7 +2876,7 @@ img.gift-wrap {
         color: var(--text);
     }
 
-    & :is(.add-friend-button, .decline-button, .accept-button, .remove-button, #crop-btn) {
+    & :is(.add-friend-button, .decline-button, .accept-button, .remove-button, .view-wish-lists, #crop-btn) {
         flex-grow: 1;
         display: inline-flex;
         justify-content: center;

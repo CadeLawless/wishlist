@@ -42,6 +42,10 @@ $(document).ready(function() {
                 if (data.status === 'success') {
                     // Update items HTML
                     $(".items-list.main").html(data.html);
+
+                    if (typeof checkEllipsis === "function") {
+                        checkEllipsis();
+                    }
                     
                     // Update pagination info
                     const $countShowing = $('.paginate-container.bottom .count-showing');
