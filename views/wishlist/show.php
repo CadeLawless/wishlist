@@ -474,6 +474,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                         if (typeof checkEllipsis === "function") {
                             checkEllipsis();
                         }
+                        scrollToElement($itemContainer, 20);
                     } else {
                         $itemContainer.find('.submit-error').remove();
                         $itemContainer.find('#item-form').prepend(response.errors || '<div class="submit-error">Unable to update item. Please try again.</div>');
