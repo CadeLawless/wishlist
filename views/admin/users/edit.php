@@ -111,7 +111,7 @@ if (isset($flash['error'])) {
     }
 </style>
 
-<script src="/public/js/form-validation.js?v=2.6"></script>
+<script src="/public/js/form-validation.js?v=2.8"></script>
 <script>
 $(document).ready(function() {
     FormValidator.init('form', {
