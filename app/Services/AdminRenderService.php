@@ -103,7 +103,7 @@ class AdminRenderService
                                 <div class='popup-content'>
                                     <label>Are you sure you want to delete this background?</label>
                                     <p><?php echo $name; ?></p>
-                                    <div style='margin: 16px 0;' class='center'>
+                                    <div style='margin: 16px 0;' class='delete-popup-buttons center'>
                                         <a class='button secondary no-button' href='#'>No</a>
                                         <a class='button primary' href='/admin/backgrounds/delete?id=<?php echo $id; ?>&pageno=<?php echo $currentPage; ?>'>Yes</a>
                                     </div>

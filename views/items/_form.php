@@ -42,14 +42,14 @@
     <label for="link">Item URL:<br></label>
     <input required type="url" name="link" id="link" value="<?php echo htmlspecialchars($link ?? ''); ?>" placeholder="https://example.com">
 </div>
-<div class="large-input">
-    <label for="image">Item Image:<br></label>
-    <a class="file-input">Choose Item Image</a>
-    <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
-    <input type="text" placeholder="Or paste an image here..." id="paste-image" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
-    <input type="hidden" name="paste_image" id="paste-image-hidden" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
-    <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
-    <?php if($add ?? false){ ?>
+<?php if($add ?? false){ ?>
+    <div class="large-input">
+        <label for="image">Item Image:<br></label>
+        <a class="file-input">Choose Item Image</a>
+        <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
+        <input type="text" placeholder="Or paste an image here..." id="paste-image" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
+        <input type="hidden" name="paste_image" id="paste-image-hidden" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
+        <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">
             <?php if(!empty($filename)): ?>
                 <?php if(($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
@@ -65,31 +65,20 @@
                 <img class="preview image-preview" style="display: none;">
             <?php endif; ?>
         </div>
-    <?php }else{ ?>
-        <div id="preview_container">
-            <?php if(($has_new_image ?? false) && ($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
-                <!-- Temp image preview for edit form -->
-                <img class="preview image-preview" src="<?php echo htmlspecialchars($filename); ?>">
-                <input type="hidden" name="temp_filename" value="<?php echo htmlspecialchars($temp_filename); ?>">
-            <?php else: ?>
-                <!-- Regular existing image preview -->
-                <img class="preview image-preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
-            <?php endif; ?>
-        </div>
     <?php } ?>
 
 </div>
 <div class="large-input">
-    <label for="notes">Item Notes:<br></label>
-    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
-</div>
-<div class="large-input">
     <label for="priority">How much do you want this item?</label><br>
     <select id="priority" name="priority">
-        <option value="1" <?php if(($priority ?? '1') == "1") echo "selected"; ?>>(1) I absolutely need this item</option>
-        <option value="2" <?php if(($priority ?? '1') == "2") echo "selected"; ?>>(2) I really want this item</option>
-        <option value="3" <?php if(($priority ?? '1') == "3") echo "selected"; ?>>(3) It would be cool if I had this item</option>
-        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>I could always use this item</option>
+        <option value="1" <?php if(($priority ?? '1') == "1") echo "selected"; ?>>(1) Must have this</option>
+        <option value="2" <?php if(($priority ?? '1') == "2") echo "selected"; ?>>(2) Really want this</option>
+        <option value="3" <?php if(($priority ?? '1') == "3") echo "selected"; ?>>(3) Would be nice to have this</option>
+        <option value="4" <?php if(($priority ?? '1') == "4") echo "selected"; ?>>Could always use this</option>
     </select>
+</div>
+<div class="large-input">
+    <label for="notes">Item Notes:<br></label>
+    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="<?= $add ? '4' : '1' ?>"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
 </div>
 

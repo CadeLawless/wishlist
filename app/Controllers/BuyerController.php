@@ -146,6 +146,13 @@ class BuyerController extends Controller
     public function filterItems(string $secretKey): Response
     {
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
+
+        $user = $this->auth();
+
+        $userWishLists = [];
+        if ($user) {
+            $userWishLists = $this->wishlistService->getUserWishlists($user['username']);
+        }
         
         if (!$wishlist) {
             header('Content-Type: application/json');
@@ -191,7 +198,7 @@ class BuyerController extends Controller
 
         // Generate HTML for items only (no pagination controls)
         try {
-            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $wishlist['id'], 1, 'buyer');
+            $itemsHtml = HtmlGenerationService::generateItemsHtml(items: $paginatedItems, wishlistId: $wishlist['id'], page: 1, type: 'buyer', userWishLists: $userWishLists);
         } catch (Exception $e) {
             $itemsHtml = '<div class="error">Error loading items</div>';
         }
@@ -217,6 +224,8 @@ class BuyerController extends Controller
             'html' => $itemsHtml,
             'current' => 1,
             'total' => $totalPages,
+            'totalRows' => $totalRows,
+            'itemsPerPage' => 12,
             'paginationInfo' => $paginationInfo
         ];
         
@@ -227,6 +236,13 @@ class BuyerController extends Controller
     public function paginateItems(string $secretKey): Response
     {
         $wishlist = $this->wishlistService->getWishlistBySecretKey($secretKey);
+
+        $user = $this->auth();
+
+        $userWishLists = [];
+        if ($user) {
+            $userWishLists = $this->wishlistService->getUserWishlists($user['username']);
+        }
         
         if (!$wishlist) {
             header('Content-Type: application/json');
@@ -279,7 +295,7 @@ class BuyerController extends Controller
 
         // Generate HTML for items only (no pagination controls)
         try {
-            $itemsHtml = HtmlGenerationService::generateItemsHtml($paginatedItems, $wishlist['id'], $page, 'buyer');
+            $itemsHtml = HtmlGenerationService::generateItemsHtml(items: $paginatedItems, wishlistId: $wishlist['id'], page: $page, type: 'buyer', userWishLists: $userWishLists);
         } catch (Exception $e) {
             $itemsHtml = '<div class="error">Error loading items</div>';
         }

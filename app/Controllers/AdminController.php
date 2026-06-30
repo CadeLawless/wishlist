@@ -879,6 +879,31 @@ class AdminController extends Controller
         return $this->redirect("/admin/backgrounds/edit?id={$id}&pageno={$pageno}")->withError('Failed to update background. Please try again.');
     }
 
+    public function deleteBackground(): Response
+    {
+        $user = $this->auth();
+
+        $backgroundId = $this->request->input('id');
+
+        if (!$backgroundId) {
+            return $this->redirect('/admin/backgrounds')->withError('Invalid background ID.');
+        }
+        
+        $background = Theme::find($backgroundId);
+        if (!$background || $background['theme_type'] !== 'Background') {
+            return $this->redirect('/admin/backgrounds')->withError('Background not found.');
+        }
+
+        if (Theme::delete($backgroundId)) {
+            if(!$this->fileUploadService->deleteBackgroundImages(pathinfo($background['theme_image'], PATHINFO_FILENAME))) {
+                $this->redirect('/admin/backgrounds')->withError('Background deleted successfully, but at least one image failed to delete. May need to delete manually.');
+            }
+            return $this->redirect('/admin/backgrounds')->withSuccess('Background deleted successfully');
+        }
+
+        return $this->redirect('/admin/backgrounds')->withError('Background unable to be deleted. Try again.');
+    }
+
     public function addGiftWrap(): Response
     {
         $user = $this->auth();

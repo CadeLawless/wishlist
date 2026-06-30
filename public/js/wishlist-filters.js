@@ -42,6 +42,10 @@ $(document).ready(function() {
                 if (data.status === 'success') {
                     // Update items HTML
                     $(".items-list.main").html(data.html);
+
+                    if (typeof checkEllipsis === "function") {
+                        checkEllipsis();
+                    }
                     
                     // Update pagination info
                     const $countShowing = $('.paginate-container.bottom .count-showing');
@@ -89,6 +93,7 @@ $(document).ready(function() {
     
     // Update bottom pagination controls after filter
     function updatePaginationAfterFilter(data) {
+        console.log(data);
         const itemsPerPage = parseInt(data.itemsPerPage) || 12;
         const totalRows = parseInt(data.totalRows) || 0;
         const totalPages = parseInt(data.total) || 1;

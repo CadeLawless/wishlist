@@ -124,7 +124,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             <?php if(isset($wishlist_total_price)): ?>
                 <div class="center">
                     <div class="wishlist-total">
-                        <strong>Total Price: </strong><span>$<?= htmlspecialchars($wishlist_total_price); ?></span>
+                        <strong>Total Price: </strong><span>$<span class="total-price-value"><?= htmlspecialchars($wishlist_total_price); ?></span></span>
                     </div>
                 </div>
             <?php endif; ?>
@@ -180,25 +180,25 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
                     
                     <div class='items-list-sub-container'>
                     <div class="items-list main">
-                                <?php if(count($items) > 0): ?>
-                                    <?php 
-                                    // Use the same item generation service as AJAX pagination
-                                    foreach($items as $item): 
-                                        echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
-                                    endforeach; 
-                                    ?>
-                                <?php else: ?>
-                                    <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
-                                        <div class='item-image-container'>
-                                            <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
-                                        </div>
-                                        <div class='item-description'></div>
-                                        <div class='add-label'>
-                                            <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
-                                            Add Item
-                                        </div>
-                                    </a>
-                                <?php endif; ?>
+                        <?php if(count($items) > 0): ?>
+                            <?php 
+                            // Use the same item generation service as AJAX pagination
+                            foreach($items as $item): 
+                                echo \App\Services\ItemRenderService::renderItem($item, $wishlistID, $pageno, 'wisher', $searchTerm ?? '');
+                            endforeach;
+                            ?>
+                        <?php else: ?>
+                            <a class='item-container add-placeholder' href='/wishlists/<?php echo $wishlist['id']; ?>/item/add'>
+                                <div class='item-image-container'>
+                                    <img class='item-image' src='/public/images/site-images/default-photo.png' alt='wishlist item image'>
+                                </div>
+                                <div class='item-description'></div>
+                                <div class='add-label'>
+                                    <?php require(__DIR__ . '/../../public/images/site-images/icons/plus.php'); ?>
+                                    Add Item
+                                </div>
+                            </a>
+                        <?php endif; ?>
                     </div>
                     
                             <!-- Pagination controls -->
@@ -313,6 +313,14 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
             </div>
             <div class='popup-content'>
                 <img class='popup-image' src='' alt='Full size item image'>
+                <div class="change-image-container">
+                    <p class="center" style="margin-bottom: 0;">
+                        <a class="change-image-button button secondary">Choose New Item Image</a>
+                        <input type="file" name="new_item_image" class="hidden" id="newItemImage" accept=".png, .jpg, .jpeg, .webp">
+                        <input type="text" placeholder="Or paste a new image here..." id="paste-new-image" />
+                        <div class="loading-spinner"></div>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -329,10 +337,12 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/public/js/pagination.js?v=2.6"></script>
 <script src="/public/js/admin-table-search.js?v=2.6"></script>
 <script src="/public/js/choose-theme.js?v=2.6"></script>
-<script src="/public/js/popups.js?v=2.6"></script>
+<script src="/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script src="/public/js/form-validation.js?v=2.6"></script>
+<script src="/public/js/item-form.js?v=2.6"></script>
 <script src="/public/js/add-alert-message.js?v=2.6"></script>
 <script src="/public/js/wishlist-action-menu.js?v=2.6"></script>
+<script src="/public/js/see-more-link.js?v=2.6"></script>
 <script>$type = "wisher"; $key_url = "";</script>
 <script>
     $(document).ready(function() {
@@ -384,5 +394,223 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
         
         // Load items for copy-to if error and wishlist was selected
         loadItemsForCopyError('#other_wishlist_copy_to', <?php echo $copy_to_error && $other_wishlist_copy_to != "" ? 'true' : 'false'; ?>);
+
+        function cancelEditForm() {
+            $('.edit-item-button').removeClass('disabled-icon disabled-showing');
+            $('.item-form').removeClass('active-form').html('').hide();
+            $('.item-information').show();
+            $('.view-on-website-link').removeClass('invisible');
+            $('.item-actions').show();
+            $('.item-form-actions').hide();
+        }
+
+        $(document.body).on('click', '.edit-item-button', function(e) {
+            e.preventDefault();
+            $editButton = $(this);
+            var $activeDescription = $('.item-form.active-form').closest('.item-description');
+            if ($activeDescription.length > 0) {
+                $activeDescription.css('height', $activeDescription.outerHeight() + 'px')
+            }
+            cancelEditForm();
+            $('.edit-item-button').addClass('disabled-icon');
+            $itemContainer = $editButton.closest('.item-container');
+            var itemId = $itemContainer.data('item-id');
+            var wishListId = $('#wishlist_show_wishlist_id').val();
+            
+            $.ajax({
+                url: `/wishlists/${wishListId}/fetch-item-form`,
+                type: 'POST',
+                data: { id: itemId },
+                success: function(response) {
+                    if (response.status === 'error') {
+                        addAlertMessage(response.message);
+                        cancelEditForm();
+                        $('.item-description').css('height', 'auto');
+                        return;
+                    }
+                    $('.edit-item-button').removeClass('disabled-icon');
+                    $itemContainer.find('.view-on-website-link').addClass('invisible');
+                    $itemContainer.find('.item-actions').hide();
+                    $itemContainer.find('.item-form-actions').show();
+                    $editButton.addClass('disabled-icon disabled-showing');
+                    $itemContainer.find('.item-information').hide();
+                    $itemContainer.find('.item-form').addClass('active-form').html(response.formHTML).show();
+                    if ($activeDescription.length > 0) {
+                        $activeDescription.css('height', 'auto');
+                    }
+                    initializeItemForm();
+                    scrollToElement($itemContainer.find('.item-form'), 50);
+                },
+                error: function() {
+                    addAlertMessage('Failed to load edit form for item');
+                    cancelEditForm();
+                    $('.item-description').css('height', 'auto');
+                }
+            });
+        });
+
+        $(document.body).on('click', '.edit-item-submit', function(e) {
+            e.preventDefault();
+            $itemContainer = $(this).closest('.item-container');
+            $itemContainer.find('.edit-item-submit').css('pointer-events', 'none');
+            const formData = new FormData($itemContainer.find('#item-form')[0]);
+            var itemId = $itemContainer.data('item-id');
+            var wishListId = $('#wishlist_show_wishlist_id').val();
+
+            $.ajax({
+                url: `/wishlists/${wishListId}/item/${itemId}`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('.total-price-value').html(response.wishListTotalPrice);
+                        $itemContainer.find('.item-information').html(response.newItemInformation);
+                        $itemContainer.find('.submit-error').remove();
+                        cancelEditForm();
+                        addAlertMessage('Item updated successfully');
+                        $itemContainer.find('.edit-item-submit').css('pointer-events', '');
+                        if (typeof checkEllipsis === "function") {
+                            checkEllipsis();
+                        }
+                    } else {
+                        $itemContainer.find('.submit-error').remove();
+                        $itemContainer.find('#item-form').prepend(response.errors || '<div class="submit-error">Unable to update item. Please try again.</div>');
+                        $itemContainer.find('.edit-item-submit').css('pointer-events', '');
+                    }
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON && xhr.responseJSON.error 
+                        ? xhr.responseJSON.error 
+                        : 'Error updating item. Please try again.';
+                    $itemContainer.find('.submit-error').remove();
+                    $itemContainer.find('#item-form').prepend(`<div class="submit-error">${errorMsg}</div>`);
+                    $itemContainer.find('.edit-item-submit').css('pointer-events', '');
+                }
+            });
+        });
+
+        $(document.body).on('click', '.cancel-form-button', function(e) {
+            e.preventDefault();
+            cancelEditForm();
+        });
+
+            // File input click handler
+        $('.change-image-button').on('click', function(e) {
+            e.preventDefault();
+            const $fileInput = $('#newItemImage');
+            if ($fileInput.length) {
+                $fileInput.trigger('click');
+            }
+        });
+
+        function changeItemImage(formData) {
+            var wishListId = $('#wishlist_show_wishlist_id').val();
+            const itemId = $('#newItemImage').data('item-id');
+            const $changeImageContainer = $('.change-image-container');
+            $changeImageContainer.css('height', $changeImageContainer.outerHeight() + 'px').addClass('loading');
+            
+            $.ajax({
+                url: `/wishlists/${wishListId}/item/${itemId}/change-image`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('.image-popup-container .popup .popup-image').attr("src", response.newImage);
+                        $(`.item-container[data-item-id="${itemId}"]`).find(".item-image").attr("src", response.newImage);
+                        addAlertMessage('Item image changed successfully');
+                        $('.change-image-button').css('pointer-events', '');
+                        $('.change-image-container').css('height', '').removeClass('loading');
+                    } else {
+                        $changeImageContainer.find('.submit-error').remove();
+                        $changeImageContainer.prepend(response.errors || '<div class="submit-error">Unable to change item image. Please try again.</div>');
+                        $('.change-image-button').css('pointer-events', '');
+                        $('.change-image-container').css('height', '').removeClass('loading');
+                    }
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON && xhr.responseJSON.error 
+                        ? xhr.responseJSON.error 
+                        : 'Error updating item. Please try again.';
+                    $changeImageContainer.find('.submit-error').remove();
+                    $changeImageContainer.prepend(`<div class="submit-error">${errorMsg}</div>`);
+                    $('.change-image-button').css('pointer-events', '');
+                    $('.change-image-container').css('height', '').removeClass('loading');
+                }
+            });
+        }
+
+        // On file select, upload file immediately
+        $('#newItemImage').on('change', function() {
+            var $newImageInput = $(this);
+            $('.change-image-button').css('pointer-events', 'none');
+            const file = this.files && this.files[0];
+        
+            if (!file) {
+                addAlertMessage('Please select an image first.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('item_image', file);
+            
+            changeItemImage(formData);
+        });
+        
+        // Handle URL input in paste image field
+        $(document.body).on("paste", "#paste-new-image", function(e) {
+            e.preventDefault();
+            const clipboardData = e.originalEvent.clipboardData;
+            
+            if (clipboardData && clipboardData.items) {
+                for (let i = 0; i < clipboardData.items.length; i++) {
+                    const item = clipboardData.items[i];
+                    
+                    if (item.type.indexOf('image') !== -1) {
+                        const file = item.getAsFile();
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(event) {
+                            const formData = new FormData();
+                            formData.append('paste_image', event.target.result);
+                            
+                            changeItemImage(formData);
+                        };
+
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
+        });
+
+        $(document.body).on("keydown", "#paste-new-image", function(e) {
+            // Allow Ctrl/Cmd shortcuts (copy, paste, select all, etc.)
+            if (e.ctrlKey || e.metaKey) {
+                return;
+            }
+
+            // Allow navigation/editing keys
+            const allowedKeys = [
+                "Backspace",
+                "Delete",
+                "ArrowLeft",
+                "ArrowRight",
+                "ArrowUp",
+                "ArrowDown",
+                "Home",
+                "End",
+                "Tab"
+            ];
+
+            if (allowedKeys.includes(e.key)) {
+                return;
+            }
+
+            // Block everything else (typing)
+            e.preventDefault();
+        });
     });
 </script>

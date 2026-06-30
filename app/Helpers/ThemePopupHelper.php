@@ -201,7 +201,7 @@ class ThemePopupHelper
                         <?php
                         // Template preview items with gift wrap functionality
                         // Use the same default gift wrap IDs as the original system
-                        $defaultWrapImage = $type == "birthday" ? "28" : "60"; // Default gift wrap IDs
+                        $defaultWrapImage = $type == "birthday" ? "black-and-white-foggy" : "christmas-black-and-white"; // Default gift wrap IDs
                         
                         // Sample items data
                         $sampleItems = [
@@ -222,7 +222,7 @@ class ThemePopupHelper
                         echo "<div class='items-list'>";
                         
                         foreach($sampleItems as $index => $item) {
-                            $giftWrapNumber = ($index % 8) + 1; // Cycle through 8 gift wrap variations
+                            $giftWrapNumber = ($index % 6) + 1; // Cycle through 8 gift wrap variations
                             
                             echo "<div class='item-container'>
                                 <img src='/public/images/site-images/themes/gift-wraps/$defaultWrapImage/$giftWrapNumber.png?t=" . time() . "' class='gift-wrap' alt='gift wrap'>
