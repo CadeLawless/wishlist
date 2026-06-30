@@ -8,23 +8,8 @@ class ItemRenderService
 {
     public static function renderItem(array $item, int $wishlistId, int $page, string $type = 'wisher', string $searchTerm = '', array $userWishLists = []): string
     {
+        $itemId = $item['id'];
         $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');   
-        $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
-        $quantityDisplay = '';
-        if ($item['unlimited'] == 'Yes') {
-            $quantityDisplay = 'Unlimited';
-        } else {
-            $qtyTotal = (int)($item['quantity'] ?? 0);
-            $qtyPurchased = (int)($item['quantity_purchased'] ?? 0);
-            $qtyRemaining = max(0, $qtyTotal - $qtyPurchased);
-            // For buyer view show remaining needed; for wisher show total
-            $quantityDisplay = $type === 'buyer' ? (string)$qtyRemaining : (string)$qtyTotal;
-        }
-
-        if($item['notes'] === null || trim($item['notes']) === '') {
-            $item['notes'] = 'None';
-        }
-        $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');        
         $link = htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8');
         $imagePath = htmlspecialchars("/public/images/item-images/{$wishlistId}/{$item['image']}?t=" . time(), ENT_QUOTES, 'UTF-8');
         $dateAdded = date("n/j/Y g:i A", strtotime($item['date_added']));
@@ -41,25 +26,15 @@ class ItemRenderService
             $wisherName = \App\Services\SessionManager::get('name', 'User');
         }
         
-        // Priority descriptions with wisher's name
-        $priorities = [
-            1 => "Must have this",
-            2 => "Really want this", 
-            3 => "Would be nice to have this",
-            4 => "Could always use this"
-        ];
-
         $itemLinkLabel = "View on Store Website";
         
-        $priorityText = $priorities[$item['priority']] ?? '';
-
         // Check if this is a purchased item in buyer view
         $isPurchasedInBuyerView = $type === 'buyer' && $item['purchased'] === 'Yes';
 
         // Use output buffering to capture the PHP includes
         ob_start();
         ?>
-        <div class='item-container'>
+        <div class='item-container' data-item-id="<?= $itemId ?>">
             <?php if($isPurchasedInBuyerView): ?>
                 <?php
                 // Get the wishlist's gift wrap theme
@@ -91,10 +66,13 @@ class ItemRenderService
             <?php endif; ?>
             <div class='item-image-container image-popup-button'>
                 <img class='item-image' src='<?php echo $imagePath; ?>' alt='wishlist item image'>
+                <a class="action-icon edit-image-button" href='#'>
+                    <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
+                </a>
             </div>
             <div class='item-description' <?php if($isPurchasedInBuyerView) echo "style='flex-grow: 0;'"; ?>>
                 <?php if(!$isPurchasedInBuyerView): ?>
-                    <div class="line link-line">
+                    <div class="line link-line<?= $type == "buyer" ? " justify-center" : "" ?>">
                         <?php if($type === 'buyer' && $item['unlimited'] !== 'Yes'): ?>
                             <div>
                                 <a class='button secondary view-on-website-link popup-button' href='#'>
@@ -126,21 +104,7 @@ class ItemRenderService
                         <?php endif; ?>
                         <?php if ($type == 'wisher'): ?>
                             <div class="item-actions">
-                                <?php
-                                // Build edit URL with pageno and search term
-                                $editUrl = '/wishlists/' . $wishlistId . '/item/' . $item['id'] . '/edit';
-                                $editParams = [];
-                                if ($page > 1) {
-                                    $editParams[] = 'pageno=' . urlencode($page);
-                                }
-                                if (!empty($searchTerm)) {
-                                    $editParams[] = 'search=' . urlencode($searchTerm);
-                                }
-                                if (!empty($editParams)) {
-                                    $editUrl .= '?' . implode('&', $editParams);
-                                }
-                                ?>
-                                <a class="action-icon" href='<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>'>
+                                <a class="action-icon edit-item-button" href='#'>
                                     <?php require(__DIR__ . '/../../public/images/site-images/icons/edit.php'); ?>
                                 </a>
                                 <a class='action-icon popup-button' href='#'>
@@ -157,14 +121,13 @@ class ItemRenderService
                                             <?php 
                                             $copyId = $item['copy_id'] ?? '';
                                             $purchased = $item['purchased'] ?? 'No';
-                                            $itemId = $item['id'];
                                             
                                             if(empty($copyId)): 
                                                 // Not a copied item - simple confirmation
                                             ?>
                                                 <label>Are you sure you want to delete this item?</label>
                                                 <p><?php echo $itemName; ?></p>
-                                                <div style='margin: 16px 0;' class='center'>
+                                                <div style='margin: 16px 0;' class='delete-popup-buttons center'>
                                                     <a class='button secondary no-button' href='#'>No</a>
                                                     <?php if($purchased == 'Yes'): ?>
                                                         <a class='button primary popup-button' href='#'>Yes</a>
@@ -179,7 +142,7 @@ class ItemRenderService
                                                                     <p><strong>NOTE: This item has already been marked as purchased.</strong></p>
                                                                     <label>Are you REALLY sure you want to delete this item?</label>
                                                                     <p><?php echo $itemName; ?></p>
-                                                                    <div style="margin: 1rem 0;" class='center'>
+                                                                    <div style="margin: 1rem 0;" class='delete-popup-buttons center'>
                                                                         <a class='button secondary no-button double-no' href='#'>No</a>
                                                                         <form method="POST" action="/wishlists/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>" style="display: inline;">
                                                                             <input type="hidden" name="_method" value="DELETE">
@@ -201,8 +164,8 @@ class ItemRenderService
                                             ?>
                                                 <label>This item has been copied to or from other wish list(s). Do you want to delete it from this list only or from ALL lists?</label>
                                                 <p><?php echo $itemName; ?></p>
-                                                <div style='margin: 16px 0;' class='center'>
-                                                    <a class='button secondary popup-button' style='margin-right: 30px;' href='#'>Delete from this list only</a>
+                                                <div style='margin: 16px 0;' class='delete-popup-buttons center'>
+                                                    <a class='button secondary popup-button' href='#'>Delete from this list only</a>
                                                     <div class='popup-container hidden'>
                                                         <div class='popup'>
                                                             <div class='close-container'>
@@ -213,7 +176,7 @@ class ItemRenderService
                                                             <div class='popup-content'>
                                                                 <label>Are you sure you want to delete this item from this wish list only?</label>
                                                                 <p><?php echo $itemName; ?></p>
-                                                                <div style="margin: 1rem 0;" class='center'>
+                                                                <div style="margin: 1rem 0;" class='delete-popup-buttons center'>
                                                                     <a class='button secondary no-button double-no' href='#'>No</a>
                                                                     <?php if($purchased == 'Yes'): ?>
                                                                         <a class='button primary popup-button' href='#'>Yes</a>
@@ -259,7 +222,7 @@ class ItemRenderService
                                                             <div class='popup-content'>
                                                                 <label>Are you sure you want to delete this item from ALL lists?</label>
                                                                 <p><?php echo $itemName; ?></p>
-                                                                <div style="margin: 1rem 0;" class='center'>
+                                                                <div style="margin: 1rem 0;" class='delete-popup-buttons center'>
                                                                     <a class='button secondary no-button double-no' href='#'>No</a>
                                                                     <?php if($purchased == 'Yes'): ?>
                                                                         <a class='button primary popup-button' href='#'>Yes</a>
@@ -274,7 +237,7 @@ class ItemRenderService
                                                                                     <p><strong>NOTE: This item has already been marked as purchased.</strong></p>
                                                                                     <label>Are you REALLY sure you want to delete this item from ALL lists?</label>
                                                                                     <p><?php echo $itemName; ?></p>
-                                                                                    <div style="margin: 1rem 0;" class='center'>
+                                                                                    <div style="margin: 1rem 0;" class='delete-popup-buttons center'>
                                                                                         <a class='button secondary no-button double-no' href='#'>No</a>
                                                                                         <form method="POST" action="/wishlists/<?php echo $wishlistId; ?>/item/<?php echo $itemId; ?>?pageno=<?php echo $page; ?>&deleteAll=yes" style="display: inline;">
                                                                                             <input type="hidden" name="_method" value="DELETE">
@@ -300,21 +263,21 @@ class ItemRenderService
                                     </div>
                                 </div>
                             </div>
+                            <div class="item-form-actions" style="display: none;">
+                                <a class="action-icon cancel-form-button" href='#'>
+                                    <?php require(__DIR__ . '/../../public/images/site-images/icons/delete-x.php'); ?>
+                                </a>
+                                <a class="action-icon edit-item-submit" href='#'>
+                                    <?php require(__DIR__ . '/../../public/images/site-images/icons/checkmark.php'); ?>
+                                </a>
+                            </div>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
-                <div class='line'>
-                    <h3><?= $itemName ?></h3>
-                    <a href="#" class="see-more-link title-link" style="display: none;">View Full Name</a>
+                <div class="item-form" style="display: none;"></div>
+                <div class="item-information">
+                    <?php echo self::renderItemInformation($type, $item, $isPurchasedInBuyerView); ?>
                 </div>
-                <?php if(!$isPurchasedInBuyerView): ?>
-                    <div class='line'><h4>Price: $<?php echo $price; ?> <span class='price-date'>(as of <?php echo $dateModified ? date("n/j/Y", strtotime($dateModified)) : date("n/j/Y", strtotime($dateAdded)); ?>)</span></h4></div>
-                    <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
-                    <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
-                    <div class='line notes-line'>
-                        <h4 class='notes-label'>Notes: </h4><span><?php echo $notes; ?></span>
-                    </div>
-                <?php endif; ?>
                 </div>
                 <?php if(!$isPurchasedInBuyerView && count($userWishLists) > 0): ?>
                     <div class="center" style="margin: 0.5rem 0;">
@@ -396,6 +359,52 @@ class ItemRenderService
                 <p class='date-added center'><em>Date Added: <?php echo $dateAdded; ?></em></p>
             <?php endif; ?>
         </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    public static function renderItemInformation(string $type, array $item, bool $isPurchasedInBuyerView): string {
+        $itemName = htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8');   
+        $price = htmlspecialchars($item['price'], ENT_QUOTES, 'UTF-8');
+        $quantityDisplay = '';
+        if ($item['unlimited'] == 'Yes') {
+            $quantityDisplay = 'Unlimited';
+        } else {
+            $qtyTotal = (int)($item['quantity'] ?? 0);
+            $qtyPurchased = (int)($item['quantity_purchased'] ?? 0);
+            $qtyRemaining = max(0, $qtyTotal - $qtyPurchased);
+            // For buyer view show remaining needed; for wisher show total
+            $quantityDisplay = $type === 'buyer' ? (string)$qtyRemaining : (string)$qtyTotal;
+        }
+
+        if($item['notes'] === null || trim($item['notes']) === '') {
+            $item['notes'] = 'None';
+        }
+        $notes = htmlspecialchars($item['notes'] ?? '', ENT_QUOTES, 'UTF-8');        
+
+        // Priority descriptions with wisher's name
+        $priorities = [
+            1 => "Must have this",
+            2 => "Really want this", 
+            3 => "Would be nice to have this",
+            4 => "Could always use this"
+        ];
+
+        $priorityText = $priorities[$item['priority']] ?? '';
+
+        ob_start(); ?>
+        <div class='line'>
+            <h3><?= $itemName ?></h3>
+            <a href="#" class="see-more-link title-link" style="display: none;">View Full Name</a>
+        </div>
+        <?php if(!$isPurchasedInBuyerView): ?>
+            <div class='line'><h4>Price: $<?php echo $price; ?></h4></div>
+            <div class='line'><h4 class='notes-label'>Quantity Needed:</h4> <?php echo $quantityDisplay; ?></div>
+            <div class='line'><h4 class='notes-label'>Priority: </h4><span><?php echo $item['priority'] == 4 ? '' : '('.$item['priority'].') '; ?><?php echo $priorityText; ?></span></div>
+            <div class='line notes-line'>
+                <h4 class='notes-label'>Notes: </h4><span><?php echo $notes; ?></span>
+            </div>
+        <?php endif; ?>
         <?php
         return ob_get_clean();
     }

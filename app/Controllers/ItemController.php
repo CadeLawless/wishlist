@@ -10,6 +10,7 @@ use App\Services\FileUploadService;
 use App\Services\ThemeService;
 use App\Services\ItemCopyService;
 use App\Models\Item;
+use App\Services\ItemRenderService;
 
 class ItemController extends Controller
 {
@@ -346,31 +347,45 @@ class ItemController extends Controller
         return $this->redirect("/wishlists/{$wishlistId}/item/create");
     }
 
-    public function edit(string|int $wishlistId, string|int $itemId): Response
+    public function fetchItemForm(string|int $wishlistId): Response
     {
         
         $user = $this->auth();
         
         $wishlistId = $this->validateId($wishlistId);
         if ($wishlistId instanceof Response) {
-            return $wishlistId;
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
         }
+
+        $itemId = $this->request->input('id');
         
         $itemId = $this->validateId($itemId);
         if ($itemId instanceof Response) {
-            return $itemId;
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
         }
         
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('')->withError('Wishlist not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
         }
 
         // Get background image for theme
@@ -453,7 +468,24 @@ class ItemController extends Controller
             'searchTerm' => $searchTerm // Pass search term for back button
         ];
 
-        return $this->view('items/edit', $data);
+        ob_start();
+        extract($data);
+        $add = false;
+        echo "<form id='item-form'>";
+        if($otherCopies){
+            echo "
+            <div class='alert warning'>
+                <div class='alert-content' style='font-size: 0.9rem;'>Note: This item has been copied to or from $numberOfOtherCopies other wish list(s). Any changes made here will be made for the item on these wish lists as well.</div>
+            </div>";
+        }
+        require(__DIR__ . '../../../views/items/_form.php');
+        echo '<div class="center"><input type="submit" class="button text edit-item-submit" id="submit_button" name="submit_button" value="Update"></div></form>';
+        $itemForm = ob_get_clean();
+
+        return $this->json([
+            'status' => 'success',
+            'formHTML' => $itemForm
+        ], 200);
     }
 
     public function update(string|int $wishlistId, string|int $itemId): Response
@@ -463,24 +495,36 @@ class ItemController extends Controller
         
         $wishlistId = $this->validateId($wishlistId);
         if ($wishlistId instanceof Response) {
-            return $wishlistId;
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
         }
         
         $itemId = $this->validateId($itemId);
         if ($itemId instanceof Response) {
-            return $itemId;
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
         }
         
         $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
         
         if (!$wishlist) {
-            return $this->redirect('')->withError('Wishlist not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
         }
 
         $item = $this->wishlistService->getItem($wishlistId, $itemId);
         
         if (!$item) {
-            return $this->redirect("/wishlists/{$wishlistId}")->withError('Item not found.');
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
         }
 
         $data = $this->request->input();
@@ -555,43 +599,10 @@ class ItemController extends Controller
         // If no new image uploaded, keep existing image (hasNewImage stays false)
 
         if ($this->itemValidator->hasErrors($errors)) {
-            // Keep temp files for form persistence - store temp filename in session
-            
-            // Get pageno and search term from request to preserve them across redirects
-            $pageno = (int) $this->request->input('pageno', 1);
-            $searchTerm = trim($this->request->input('search', ''));
-            
-            // Store form data and errors in session for redirect
-            \App\Services\SessionManager::set('item_edit_errors', $errors);
-            \App\Services\SessionManager::set('item_edit_form_data', [
-                'name' => $data['name'] ?? $item['name'],
-                'price' => $data['price'] ?? $item['price'],
-                'quantity' => $data['quantity'] ?? $item['quantity'],
-                'unlimited' => $data['unlimited'] ?? $item['unlimited'],
-                'link' => $data['link'] ?? $item['link'],
-                'notes' => $data['notes'] ?? $item['notes'],
-                'priority' => $data['priority'] ?? $item['priority'],
-                'temp_filename' => $tempFilename, // Store temp filename if new image
-                'is_temp' => $isTempImage,
-                'has_new_image' => $hasNewImage,
-                'old_image' => $oldImage, // Keep reference to old image
-                'pageno' => $pageno, // Store pageno to preserve it
-                'search' => $searchTerm // Store search term to preserve it
-            ]);
-            
-            // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno and search parameters
-            $redirectUrl = "/wishlists/{$wishlistId}/item/{$itemId}/edit";
-            $queryParams = [];
-            if ($pageno > 1) {
-                $queryParams[] = "pageno={$pageno}";
-            }
-            if (!empty($searchTerm)) {
-                $queryParams[] = "search=" . urlencode($searchTerm);
-            }
-            if (!empty($queryParams)) {
-                $redirectUrl .= "?" . implode("&", $queryParams);
-            }
-            return $this->redirect($redirectUrl);
+            return $this->json([
+                'status' => 'error',
+                'errors' => $this->itemValidator->formatErrorsForDisplay($errors)
+            ], 200);
         }
 
         // Validation passed - handle image: move temp to final if new image, or keep existing
@@ -603,19 +614,10 @@ class ItemController extends Controller
             $moveResult = $this->fileUploadService->moveTempToFinal($tempFilename, $wishlistId, $data['name'] ?? 'item');
             if (!$moveResult['success']) {
                 // If move fails, delete temp file and return error
-                $this->fileUploadService->deleteTempImage($tempFilename);
-                \App\Services\SessionManager::set('item_edit_errors', ['general' => ['Failed to save image. Please try again.']]);
-                \App\Services\SessionManager::set('item_edit_form_data', [
-                    'name' => $data['name'] ?? $item['name'],
-                    'price' => $data['price'] ?? $item['price'],
-                    'quantity' => $data['quantity'] ?? $item['quantity'],
-                    'unlimited' => $data['unlimited'] ?? $item['unlimited'],
-                    'link' => $data['link'] ?? $item['link'],
-                    'notes' => $data['notes'] ?? $item['notes'],
-                    'priority' => $data['priority'] ?? $item['priority'],
-                    'old_image' => $oldImage
-                ]);
-                return $this->redirect("/wishlists/{$wishlistId}/item/{$itemId}/edit");
+                return $this->json([
+                    'status' => 'error',
+                    'errors' => $this->itemValidator->formatErrorsForDisplay(['general' => ['Failed to save image. Please try again.']])
+                ], 200);
             }
             $filename = $moveResult['filename'];
             $imageChanged = true;
@@ -656,29 +658,16 @@ class ItemController extends Controller
             if ($imageChanged && $oldImage !== $filename) {
                 $this->fileUploadService->deleteItemImage($wishlistId, $oldImage);
             }
+
+            $item = $this->wishlistService->getItem($wishlistId, $itemId);
+
+            $newItemInfo = ItemRenderService::renderItemInformation('wisher', $item, false);
             
-            // Clear session data on success
-            \App\Services\SessionManager::remove('item_edit_form_data');
-            \App\Services\SessionManager::remove('item_edit_errors');
-            
-            // Get pageno and search term from request to preserve them in redirect
-            $pageno = (int) $this->request->input('pageno', 1);
-            $searchTerm = trim($this->request->input('search', ''));
-            
-            // Build redirect URL with query parameters
-            $redirectUrl = "/wishlists/{$wishlistId}";
-            $queryParams = [];
-            if ($pageno > 1) {
-                $queryParams[] = "pageno={$pageno}";
-            }
-            if (!empty($searchTerm)) {
-                $queryParams[] = "search=" . urlencode($searchTerm);
-            }
-            if (!empty($queryParams)) {
-                $redirectUrl .= "?" . implode("&", $queryParams);
-            }
-            
-            return $this->redirect($redirectUrl)->withSuccess('Item updated successfully!');
+            return $this->json([
+                'success' => 'true',
+                'newItemInformation' => $newItemInfo,
+                'wishListTotalPrice' => htmlspecialchars(Item::getItemsTotalPrice($wishlistId, $user['username']))
+            ], 200);
         }
 
         // Database operation failed - clean up the new image file we created
@@ -687,31 +676,184 @@ class ItemController extends Controller
             $this->fileUploadService->deleteItemImage($wishlistId, $filename);
         }
 
-        // Get pageno from request to preserve it
-        $pageno = (int) $this->request->input('pageno', 1);
-        
-        // Store form data and error in session for redirect
-        \App\Services\SessionManager::set('item_edit_errors', [
-            'general' => ['Unable to update item. Please try again.']
-        ]);
-        \App\Services\SessionManager::set('item_edit_form_data', [
-            'name' => $data['name'] ?? $item['name'],
-            'price' => $data['price'] ?? $item['price'],
-            'quantity' => $data['quantity'] ?? $item['quantity'],
-            'unlimited' => $data['unlimited'] ?? $item['unlimited'],
-            'link' => $data['link'] ?? $item['link'],
-            'notes' => $data['notes'] ?? $item['notes'],
-            'priority' => $data['priority'] ?? $item['priority'],
-            'old_image' => $oldImage,
-            'pageno' => $pageno // Store pageno to preserve it
-        ]);
+        return $this->json([
+            'status' => 'error',
+            'errors' => $this->itemValidator->formatErrorsForDisplay(['general' => ['Unable to update item. Please try again.']])
+        ], 200);
+    }
 
-        // Redirect to GET edit route (POST-Redirect-GET pattern) with pageno parameter
-        $redirectUrl = "/wishlists/{$wishlistId}/item/{$itemId}/edit";
-        if ($pageno > 1) {
-            $redirectUrl .= "?pageno={$pageno}";
+    public function updateImage(string|int $wishlistId, string|int $itemId): Response
+    {
+        
+        $user = $this->auth();
+        
+        $wishlistId = $this->validateId($wishlistId);
+        if ($wishlistId instanceof Response) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
         }
-        return $this->redirect($redirectUrl);
+        
+        $itemId = $this->validateId($itemId);
+        if ($itemId instanceof Response) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
+        }
+        
+        $wishlist = $this->wishlistService->getWishlistById($user['username'], $wishlistId);
+        
+        if (!$wishlist) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Wish List not found'
+            ], 400);
+        }
+
+        $item = $this->wishlistService->getItem($wishlistId, $itemId);
+        
+        if (!$item) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Item not found'
+            ], 400);
+        }
+
+        $data = $this->request->input();
+        $oldImage = $item['image']; // Store old image for potential cleanup
+        
+        // Prepare data for validation (include file upload info)
+        $validationData = $data;
+        if ($this->request->hasFile('item_image')) {
+            $validationData['item_image'] = 'uploaded'; // Mark that file was uploaded
+        }
+        
+        $errors = $this->itemValidator->validateItemImage($validationData, true, $oldImage); // true = edit operation, pass existing image
+
+        // Handle file upload - upload to TEMP folder first (for validation)
+        $tempFilename = '';
+        $hasNewImage = false;
+        $isTempImage = false;
+        
+        // Check if we're resubmitting with an existing temp file from form or session
+        $sessionFormData = \App\Services\SessionManager::get('item_edit_form_data');
+        $existingTempFilename = $data['temp_filename'] ?? ($sessionFormData['temp_filename'] ?? '');
+        
+        if (!empty($existingTempFilename) && empty($data['item_image']) && empty($data['paste_image'])) {
+            // User is resubmitting, using existing temp file
+            $tempFilename = $existingTempFilename;
+            $isTempImage = true;
+            $hasNewImage = true;
+        } elseif ($this->request->hasFile('item_image')) {
+            // New file upload - upload to temp
+            $file = $this->request->file('item_image');
+            $uploadResult = $this->fileUploadService->uploadItemImageToTemp($file, $data['name'] ?? 'item');
+            
+            if (!$uploadResult['success']) {
+                $errors['item_image'][] = $uploadResult['error'];
+            } else {
+                $tempFilename = $uploadResult['filename'];
+                $isTempImage = true;
+                $hasNewImage = true;
+            }
+        } elseif (!empty($data['paste_image'])) {
+            // Paste image - upload to temp (only if it's new data, not existing image)
+            $pasteData = trim($data['paste_image']);
+            
+            // Check if it's pointing to our existing image (don't re-upload)
+            if (strpos($pasteData, '/public/images/item-images/') !== false) {
+                // It's pointing to an existing image, keep the existing one
+                $hasNewImage = false;
+            } elseif (filter_var($pasteData, FILTER_VALIDATE_URL)) {
+                // External URL - upload to temp
+                $uploadResult = $this->fileUploadService->uploadFromUrlToTemp($pasteData, $data['name'] ?? 'item');
+                
+                if (!$uploadResult['success']) {
+                    $errors['item_image'][] = $uploadResult['error'];
+                } else {
+                    $tempFilename = $uploadResult['filename'];
+                    $isTempImage = true;
+                    $hasNewImage = true;
+                }
+            } elseif (strpos($pasteData, 'data:image') === 0 || (strlen($pasteData) > 100 && base64_decode($pasteData, true) !== false)) {
+                // Base64 data - upload to temp
+                $uploadResult = $this->fileUploadService->uploadFromBase64ToTemp($pasteData, $data['name'] ?? 'item');
+                
+                if (!$uploadResult['success']) {
+                    $errors['item_image'][] = $uploadResult['error'];
+                } else {
+                    $tempFilename = $uploadResult['filename'];
+                    $isTempImage = true;
+                    $hasNewImage = true;
+                }
+            }
+        }
+        // If no new image uploaded, keep existing image (hasNewImage stays false)
+
+        if ($this->itemValidator->hasErrors($errors)) {
+            return $this->json([
+                'status' => 'error',
+                'errors' => $this->itemValidator->formatErrorsForDisplay($errors)
+            ], 200);
+        }
+
+        // Validation passed - handle image: move temp to final if new image, or keep existing
+        $filename = $oldImage; // Default to old image
+        $imageChanged = false;
+        
+        if ($hasNewImage && $isTempImage && !empty($tempFilename)) {
+            // Move temp file to final destination
+            $moveResult = $this->fileUploadService->moveTempToFinal($tempFilename, $wishlistId, $data['name'] ?? 'item');
+            if (!$moveResult['success']) {
+                // If move fails, delete temp file and return error
+                return $this->json([
+                    'status' => 'error',
+                    'errors' => $this->itemValidator->formatErrorsForDisplay(['general' => ['Failed to save image. Please try again.']])
+                ], 200);
+            }
+            $filename = $moveResult['filename'];
+            $imageChanged = true;
+        }
+
+        // Filter data to only include database fields with proper defaults and correct types
+        $itemData = [
+            'image' => $filename,
+            'date_modified' => date(format: 'Y-m-d H:i:s') // Add current timestamp for synchronization
+        ];
+                
+        if ($this->wishlistService->updateItem($wishlistId, $itemId, $itemData)) {
+            // Handle copied items updates (all fields, not just images)
+            // Determine the original copy_id - if item is already a copy, use its copy_id, otherwise use its id
+            $originalCopyId = $item['copy_id'] ?: $itemId;
+            if ($originalCopyId) {
+                $this->wishlistService->updateCopiedItems($originalCopyId, $itemData, $wishlistId, $itemId, $this->fileUploadService);
+            }
+            
+            // Delete old image if it was changed (only after successful database update)
+            if ($imageChanged && $oldImage !== $filename) {
+                $this->fileUploadService->deleteItemImage($wishlistId, $oldImage);
+            }
+
+            $item = $this->wishlistService->getItem($wishlistId, $itemId);
+            
+            return $this->json([
+                'success' => 'true',
+                'newImage' => htmlspecialchars("/public/images/item-images/{$wishlistId}/$filename" . '?t=' . time())
+            ], 200);
+        }
+
+        // Database operation failed - clean up the new image file we created
+        if ($imageChanged && !empty($filename) && $filename !== $oldImage) {
+            // Delete the new file we just created (it was moved from temp to final)
+            $this->fileUploadService->deleteItemImage($wishlistId, $filename);
+        }
+
+        return $this->json([
+            'status' => 'error',
+            'errors' => $this->itemValidator->formatErrorsForDisplay(['general' => ['Unable to update item. Please try again.']])
+        ], 200);
     }
 
     public function delete(string|int $wishlistId, string|int $itemId): Response

@@ -80,6 +80,7 @@ Router::get('/admin/backgrounds/edit', [AdminController::class, 'editBackground'
 Router::get('/admin/backgrounds/add', [AdminController::class, 'addBackground'])->middleware('admin');
 Router::post('/admin/backgrounds/create', [AdminController::class, 'createBackground'])->middleware('admin');
 Router::post('/admin/backgrounds/update', [AdminController::class, 'updateBackground'])->middleware('admin');
+Router::get('/admin/backgrounds/delete', [AdminController::class, 'deleteBackground'])->middleware('admin');
 Router::get('/admin/gift-wraps', [AdminController::class, 'giftWraps'])->middleware('admin');
 Router::post('/admin/gift-wraps/paginate', [AdminController::class, 'paginateGiftWraps'])->middleware('admin');
 Router::get('/admin/gift-wraps/edit', [AdminController::class, 'editGiftWrap'])->middleware('admin');
@@ -138,7 +139,9 @@ Router::post('/wishlists/{wishlistId}/api/fetch-url-metadata', [ItemController::
 Router::post('/wishlists/{wishlistId}/api/store-fetched-data', [ItemController::class, 'storeFetchedData'])->middleware('auth');
 Router::get('/wishlists/{wishlistId}/api/test-json', [ItemController::class, 'testJson'])->middleware('auth');
 Router::get('/wishlists/{wishlistId}/item/{id}/edit', [ItemController::class, 'edit'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/fetch-item-form', [ItemController::class, 'fetchItemForm'])->middleware('auth');
 Router::post('/wishlists/{wishlistId}/item/{id}', [ItemController::class, 'update'])->middleware('auth');
+Router::post('/wishlists/{wishlistId}/item/{id}/change-image', [ItemController::class, 'updateImage'])->middleware('auth');
 Router::delete('/wishlists/{wishlistId}/item/{id}', [ItemController::class, 'delete'])->middleware('auth');
 Router::post('/wishlists/{wishlistId}/item/{id}/toggle-purchased', [ItemController::class, 'togglePurchased'])->middleware('auth');
 

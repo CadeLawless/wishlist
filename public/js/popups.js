@@ -48,6 +48,8 @@ $(document).ready(function() {
         const button = this;
         const imageSrc = $(button).find(".item-image").attr("src");
         const popup = $(".image-popup-container").first();
+        const itemId = $(this).closest('.item-container').data('item-id');
+        $('#newItemImage').data('item-id', itemId);
         
         if (popup.length && imageSrc) {
             popup.removeClass("hidden");

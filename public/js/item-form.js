@@ -1,16 +1,146 @@
-// Wait for DOM and jQuery to be ready
-$(document).ready(function() {
-    // Wait for autosize to be available, then autosize textareas
-    function initializeAutosize() {
-        if (typeof autosize !== 'undefined') {
-            for(const textarea of document.querySelectorAll("textarea")){
-                autosize(textarea);
+function initializeAutosize() {
+    if (typeof autosize !== 'undefined') {
+        for(const textarea of document.querySelectorAll("textarea")){
+            autosize(textarea);
+        }
+    } else {
+        // If autosize isn't ready yet, wait a bit and try again
+        setTimeout(initializeAutosize, 100);
+    }
+}
+
+// Validate URL format
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+const validationRules = {
+    name: {
+        required: true,
+        maxLength: 255
+    },
+    price: {
+        required: true,
+        currency: true,
+        // Custom error placement: after the price-input-container
+        errorContainer: '#price-input-container',
+        // Custom invalid target: the dollar-sign-input span
+        invalidTarget: '.dollar-sign-input'
+    },
+    quantity: {
+        required: function() {
+            // Only required if unlimited is NOT checked
+            return !$("#unlimited").is(":checked");
+        },
+        numeric: true,
+        // Custom error placement: after the quantity-container
+        errorContainer: '.quantity-container',
+        custom: function(value, field) {
+            // Skip validation if unlimited is checked
+            if ($("#unlimited").is(":checked")) {
+                return null;
             }
-        } else {
-            // If autosize isn't ready yet, wait a bit and try again
-            setTimeout(initializeAutosize, 100);
+            // Ensure quantity is at least 1
+            const numValue = parseInt(value, 10);
+            if (numValue < 1) {
+                return 'Quantity must be at least 1.';
+            }
+            return null;
+        }
+    },
+    link: {
+        required: true,
+        url: true
+    },
+    notes: {
+        required: false,
+        maxLength: 1000
+    },
+    priority: {
+        required: true
+    },
+    item_image: {
+        required: function() {
+            // For edit forms: only required if there's no existing image and no new image selected
+            if (isEditForm && hasExistingImage) {
+                // Check if user has selected a new image or pasted one
+                const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
+                const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+                const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+                
+                // If existing image and no new image, not required
+                if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                    return false;
+                }
+            }
+            // For create forms or edit forms without existing image: always required
+            return true;
+        },
+        custom: function(value, field) {
+            // Check if image is provided via file, paste, or temp
+            const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
+            const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+            const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+            
+            // For edit forms: check if existing image is present
+            if (isEditForm && hasExistingImage) {
+                // If no new image provided, existing image is sufficient
+                if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                    return null; // Valid - using existing image
+                }
+            }
+            
+            // Must have at least one image source
+            if (!hasFile && !hasPasteImage && !hasTempFilename) {
+                return 'Item image is required.';
+            }
+            
+            return null;
+        },
+        // Custom error placement: after the image input container
+        errorContainer: '#preview_container',
+        invalidTarget: '#preview_container'
+    }
+};
+
+// Custom validation for image field (file inputs need special handling)
+function validateImageField() {
+    const $imageField = $("#image, #newItemImage");
+    const hasFile = $imageField[0].files && $imageField[0].files.length > 0;
+    const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
+    const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
+    
+    // Check if this is an edit form with an existing image (check dynamically)
+    const $existingImageInput = $("input[name='existing_image']");
+    const hasExistingImageInput = $existingImageInput.length > 0 && $existingImageInput.val() !== '';
+    const $previewImg = $("#preview_container img.preview");
+    const hasVisibleExistingImage = hasExistingImageInput && $previewImg.length > 0 && 
+                                !$("#preview_container").hasClass("hidden") &&
+                                ($previewImg.css("display") !== "none" && $previewImg.attr("src"));
+    
+    // For edit forms: check if existing image is present
+    if (hasExistingImageInput && hasVisibleExistingImage) {
+        // If no new image provided, existing image is sufficient
+        if (!hasFile && !hasPasteImage && !hasTempFilename) {
+            FormValidator.clearErrors($imageField, validationRules.item_image);
+            return;
         }
     }
+    
+    // Must have at least one image source
+    if (!hasFile && !hasPasteImage && !hasTempFilename) {
+        FormValidator.displayErrors($imageField, ['Item image is required.'], validationRules.item_image);
+    } else {
+        FormValidator.clearErrors($imageField, validationRules.item_image);
+    }
+}
+
+function initializeItemForm() {
     initializeAutosize();
 
     // Initialize form validation with custom error placement for special fields
@@ -18,201 +148,89 @@ $(document).ready(function() {
     const isEditForm = $("input[name='existing_image']").length > 0 && $("input[name='existing_image']").val() !== '';
     const hasExistingImage = isEditForm && $("#preview_container img").length > 0 && !$("#preview_container").hasClass("hidden");
     
-    const validationRules = {
-        name: {
-            required: true,
-            maxLength: 255
-        },
-        price: {
-            required: true,
-            currency: true,
-            // Custom error placement: after the price-input-container
-            errorContainer: '#price-input-container',
-            // Custom invalid target: the dollar-sign-input span
-            invalidTarget: '.dollar-sign-input'
-        },
-        quantity: {
-            required: function() {
-                // Only required if unlimited is NOT checked
-                return !$("#unlimited").is(":checked");
-            },
-            numeric: true,
-            // Custom error placement: after the quantity-container
-            errorContainer: '.quantity-container',
-            custom: function(value, field) {
-                // Skip validation if unlimited is checked
-                if ($("#unlimited").is(":checked")) {
-                    return null;
-                }
-                // Ensure quantity is at least 1
-                const numValue = parseInt(value, 10);
-                if (numValue < 1) {
-                    return 'Quantity must be at least 1.';
-                }
-                return null;
-            }
-        },
-        link: {
-            required: true,
-            url: true
-        },
-        notes: {
-            required: false,
-            maxLength: 1000
-        },
-        priority: {
-            required: true
-        },
-        item_image: {
-            required: function() {
-                // For edit forms: only required if there's no existing image and no new image selected
-                if (isEditForm && hasExistingImage) {
-                    // Check if user has selected a new image or pasted one
-                    const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
-                    const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
-                    const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
-                    
-                    // If existing image and no new image, not required
-                    if (!hasFile && !hasPasteImage && !hasTempFilename) {
-                        return false;
-                    }
-                }
-                // For create forms or edit forms without existing image: always required
-                return true;
-            },
-            custom: function(value, field) {
-                // Check if image is provided via file, paste, or temp
-                const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
-                const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
-                const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
-                
-                // For edit forms: check if existing image is present
-                if (isEditForm && hasExistingImage) {
-                    // If no new image provided, existing image is sufficient
-                    if (!hasFile && !hasPasteImage && !hasTempFilename) {
-                        return null; // Valid - using existing image
-                    }
-                }
-                
-                // Must have at least one image source
-                if (!hasFile && !hasPasteImage && !hasTempFilename) {
-                    return 'Item image is required.';
-                }
-                
-                return null;
-            },
-            // Custom error placement: after the image input container
-            errorContainer: '#preview_container',
-            invalidTarget: '#preview_container'
-        }
-    };
+    FormValidator.init('#item-form', validationRules);
+}
 
-    FormValidator.init('form[method="POST"]', validationRules);
+// Wait for DOM and jQuery to be ready
+$(document).ready(function() {
+    initializeItemForm();
 
-    // Custom validation for image field (file inputs need special handling)
-    function validateImageField() {
-        const $imageField = $("#image");
-        const hasFile = $imageField[0].files && $imageField[0].files.length > 0;
-        const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
-        const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
-        
-        // Check if this is an edit form with an existing image (check dynamically)
-        const $existingImageInput = $("input[name='existing_image']");
-        const hasExistingImageInput = $existingImageInput.length > 0 && $existingImageInput.val() !== '';
-        const $previewImg = $("#preview_container img.preview");
-        const hasVisibleExistingImage = hasExistingImageInput && $previewImg.length > 0 && 
-                                       !$("#preview_container").hasClass("hidden") &&
-                                       ($previewImg.css("display") !== "none" && $previewImg.attr("src"));
-        
-        // For edit forms: check if existing image is present
-        if (hasExistingImageInput && hasVisibleExistingImage) {
-            // If no new image provided, existing image is sufficient
-            if (!hasFile && !hasPasteImage && !hasTempFilename) {
-                FormValidator.clearErrors($imageField, validationRules.item_image);
-                return;
-            }
-        }
-        
-        // Must have at least one image source
-        if (!hasFile && !hasPasteImage && !hasTempFilename) {
-            FormValidator.displayErrors($imageField, ['Item image is required.'], validationRules.item_image);
-        } else {
-            FormValidator.clearErrors($imageField, validationRules.item_image);
-        }
-    }
-
-    // Validate image when file is selected
-    $("#image").on("change", function() {
+        // Validate image when file is selected
+    $(document.body).on("change", "#image", function() {
         validateImageField();
     });
 
     // Validate image when paste image changes
-    $("#paste-image, #paste-image-hidden").on("input paste", function() {
+    $(document.body).on("input paste", "#paste-image, #paste-image-hidden", function() {
         setTimeout(validateImageField, 100); // Small delay to allow paste to complete
     });
 
     // Update quantity validation when unlimited checkbox changes
-    $("#unlimited").on("change", function(){
+    $(document.body).on("change", "#unlimited", function(){
         const $quantity = $("#quantity");
         if(this.checked){
+            $quantity.addClass("hidden");
+            $quantity.removeAttr("required");
             // Clear any validation errors when unlimited is checked
             FormValidator.clearErrors($quantity, validationRules.quantity);
             // Make sure to clear invalid class from dollar-sign-input if present
             $(".quantity-container").removeClass("invalid");
-        } else {
+        }else{
+            $quantity.removeClass("hidden");
+            $quantity.attr("required", "");
             // Re-validate quantity when unlimited is unchecked
             FormValidator.validateField($quantity, 'quantity', validationRules.quantity);
         }
     });
 
     // on click of file input button, open file picker
-    $(".file-input").on("click", function(e){
+    $(document.body).on("click", ".file-input", function(e){
         e.preventDefault();
         $(this).next().click();
     });
-    $("#paste-image").on("paste", function(e){
-    e.preventDefault();
-    const clipboardData = e.originalEvent.clipboardData;
-    const $previewContainer = $("#preview_container");
-    const $previewImg = $previewContainer.find("img");
-    
-    if (clipboardData && clipboardData.items) {
-        for (let i = 0; i < clipboardData.items.length; i++) {
-            const item = clipboardData.items[i];
-            
-            if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                const reader = new FileReader();
+    $(document.body).on("paste", "#paste-image", function(e){
+        e.preventDefault();
+        const clipboardData = e.originalEvent.clipboardData;
+        const $previewContainer = $("#preview_container");
+        const $previewImg = $previewContainer.find("img");
+        
+        if (clipboardData && clipboardData.items) {
+            for (let i = 0; i < clipboardData.items.length; i++) {
+                const item = clipboardData.items[i];
                 
-                reader.onload = function(event) {
-                    // Store the base64 data in the hidden input field
-                    $("#paste-image-hidden").val(event.target.result);
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
                     
-                    // Clear the visible input field so user doesn't see base64 data
-                    $("#paste-image").val("");
+                    reader.onload = function(event) {
+                        // Store the base64 data in the hidden input field
+                        $("#paste-image-hidden").val(event.target.result);
+                        
+                        // Clear the visible input field so user doesn't see base64 data
+                        $("#paste-image").val("");
+                        
+                        // Show preview
+                        $previewImg.attr("src", event.target.result);
+                        // Remove inline display:none style if present
+                        $previewImg.css("display", "");
+                        $previewContainer.removeClass("hidden");
+                        
+                        // Clear any temp filename hidden field since we're using a new image
+                        $("input[name='temp_filename']").remove();
+                        
+                        // Update button text
+                        $(".file-input").text("Change Image");
+                    };
                     
-                    // Show preview
-                    $previewImg.attr("src", event.target.result);
-                    // Remove inline display:none style if present
-                    $previewImg.css("display", "");
-                    $previewContainer.removeClass("hidden");
-                    
-                    // Clear any temp filename hidden field since we're using a new image
-                    $("input[name='temp_filename']").remove();
-                    
-                    // Update button text
-                    $(".file-input").text("Change Image");
-                };
-                
-                reader.readAsDataURL(file);
-                break;
+                    reader.readAsDataURL(file);
+                    break;
+                }
             }
         }
-    }
     });
     
     // Handle URL input in paste image field
-    $("#paste-image").on("input", function() {
+    $(document.body).on("input", "#paste-image", function() {
         const inputValue = $(this).val().trim();
         const pasteImageHidden = $("#paste-image-hidden");
         const previewContainer = $("#preview_container");
@@ -250,8 +268,9 @@ $(document).ready(function() {
         }
     });
     // show image preview on change
-    $("#image, input[type='file']").on("change", function(){
+    $(document.body).on("change", "#image, input[type='file']", function(){
         $input = $(this);
+        if ($input.attr('id') == 'newItemImage') return;
         const $previewContainer = $("#preview_container");
         let $previewImg = $previewContainer.find("img.preview");
         
@@ -282,36 +301,28 @@ $(document).ready(function() {
             }
 
             reader.readAsDataURL(this.files[0]);
-            this.previousElementSibling.textContent = "Change Image";
+            if(!this.previousElementSibling.classList.contains('change-image-button')) {
+                this.previousElementSibling.textContent = "Change Image";
+            }
         } else {
             // No file selected
             $previewContainer.addClass("hidden");
             $("#paste-image").val("");
             $("#paste-image-hidden").val("");
-            this.previousElementSibling.textContent = "Choose Image";
-        }
-    });
-    
-    // Handle unlimited checkbox to show/hide quantity field
-    $("#unlimited").on("change", function(){
-        const $quantity = $("#quantity");
-        if(this.checked){
-            $quantity.addClass("hidden");
-            $quantity.removeAttr("required");
-        }else{
-            $quantity.removeClass("hidden");
-            $quantity.attr("required", "");
+            if(!this.previousElementSibling.classList.contains('change-image-button')) {
+                this.previousElementSibling.textContent = "Choose Image";
+            }
         }
     });
 
     // URL fetch functionality
-    $("#fetch-details-btn").on("click", function(e){
+    $(document.body).on("click", "#fetch-details-btn", function(e){
         e.preventDefault();
         fetchUrlDetails();
     });
 
     // Auto-fetch when URL is pasted (optional)
-    $("#link").on("paste", function(){
+    $(document.body).on("paste", "#link", function(){
         setTimeout(() => {
             const url = $(this).val();
             if (url && isValidUrl(url)) {
@@ -452,16 +463,6 @@ $(document).ready(function() {
         }
     }
 
-    // Validate URL format
-    function isValidUrl(string) {
-        try {
-            new URL(string);
-            return true;
-        } catch (_) {
-            return false;
-        }
-    }
-    
     // Handle fetched image URL on page load
     const pasteImageInput = $("#paste-image");
     const pasteImageHidden = $("#paste-image-hidden");

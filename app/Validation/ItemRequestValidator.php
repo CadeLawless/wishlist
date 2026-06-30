@@ -81,4 +81,42 @@ class ItemRequestValidator extends BaseValidator
         
         return $errors;
     }
+
+    public function validateItemImage(array $data, bool $isEdit = false, ?string $existingImage = null): array
+    {
+        $errors = [];
+        
+        // Image validation
+        $hasImage = false;
+        
+        // Check for file upload (marked as 'uploaded' in validation data)
+        if (isset($data['item_image']) && ($data['item_image'] === 'uploaded' || !empty($data['item_image']))) {
+            $hasImage = true;
+        }
+        
+        // Check for paste image (base64 or URL)
+        if (!empty($data['paste_image'])) {
+            $hasImage = true;
+        }
+        
+        // Check for temp filename (from previous validation error)
+        if (!empty($data['temp_filename'])) {
+            $hasImage = true;
+        }
+        
+        // For edit: check if existing image is being kept
+        if ($isEdit && !empty($existingImage)) {
+            // If no new image provided, existing image is sufficient
+            if (!$hasImage) {
+                $hasImage = true; // Existing image counts
+            }
+        }
+        
+        // Image is required
+        if (!$hasImage) {
+            $errors['item_image'][] = 'Item image is required.';
+        }
+        
+        return $errors;
+    }
 }

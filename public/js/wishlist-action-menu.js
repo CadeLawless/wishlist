@@ -9,12 +9,18 @@ function scrollToIfNotVisible($elem, padding = 20) {
     const fullyVisible = elemTop >= viewportTop && elemBottom <= viewportBottom;
 
     if(!fullyVisible){
-        const targetScroll = elemTop - navbarHeight - padding;
-
-        $('html, body').animate({
-            scrollTop: targetScroll
-        }, 200);
+        scrollToElement($elem);
     }
+}
+
+function scrollToElement($elem, padding = 20) {
+    const elemTop = $elem.offset().top;
+    const navbarHeight = $('.header-container').outerHeight() || 0; 
+    const targetScroll = elemTop - navbarHeight - padding;
+
+    $('html, body').animate({
+        scrollTop: targetScroll
+    }, 200);
 }
 
 $(document).ready(function(){
