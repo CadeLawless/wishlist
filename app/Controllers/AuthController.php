@@ -769,7 +769,7 @@ class AuthController extends Controller
                 ]);
                 
                 // Send reset email to the current email (verified or unverified)
-                $this->emailService->sendPasswordResetEmail($currentEmail, $resetKey);
+                $this->emailService->sendPasswordResetEmail($currentEmail, $user['name'], $resetKey);
                 
                 return $this->redirect('/profile')->withSuccess('Password reset email sent! Please check your email.');
             } catch (\Exception $e) {

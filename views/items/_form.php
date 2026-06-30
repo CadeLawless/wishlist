@@ -42,14 +42,14 @@
     <label for="link">Item URL:<br></label>
     <input required type="url" name="link" id="link" value="<?php echo htmlspecialchars($link ?? ''); ?>" placeholder="https://example.com">
 </div>
-<div class="large-input">
-    <label for="image">Item Image:<br></label>
-    <a class="file-input">Choose Item Image</a>
-    <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
-    <input type="text" placeholder="Or paste an image here..." id="paste-image" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
-    <input type="hidden" name="paste_image" id="paste-image-hidden" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
-    <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
-    <?php if($add ?? false){ ?>
+<?php if($add ?? false){ ?>
+    <div class="large-input">
+        <label for="image">Item Image:<br></label>
+        <a class="file-input">Choose Item Image</a>
+        <input type="file" name="item_image" class="hidden" id="image" accept=".png, .jpg, .jpeg, .webp">
+        <input type="text" placeholder="Or paste an image here..." id="paste-image" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
+        <input type="hidden" name="paste_image" id="paste-image-hidden" value="<?php echo htmlspecialchars($fetched_image_url ?? ''); ?>" />
+        <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($filename ?? ''); ?>" />
         <div class="<?php if(($filename ?? '') == "") echo "hidden"; ?>" id="preview_container">
             <?php if(!empty($filename)): ?>
                 <?php if(($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
@@ -63,17 +63,6 @@
             <?php else: ?>
                 <!-- Empty preview container - img will be created by JS if needed -->
                 <img class="preview image-preview" style="display: none;">
-            <?php endif; ?>
-        </div>
-    <?php }else{ ?>
-        <div id="preview_container">
-            <?php if(($has_new_image ?? false) && ($is_temp ?? false) && !empty($temp_filename ?? '')): ?>
-                <!-- Temp image preview for edit form -->
-                <img class="preview image-preview" src="<?php echo htmlspecialchars($filename); ?>">
-                <input type="hidden" name="temp_filename" value="<?php echo htmlspecialchars($temp_filename); ?>">
-            <?php else: ?>
-                <!-- Regular existing image preview -->
-                <img class="preview image-preview" src="/public/images/item-images/<?php echo "{$wishlist['id']}/" . ($filename ?? $item['image']); ?>">
             <?php endif; ?>
         </div>
     <?php } ?>
@@ -90,6 +79,6 @@
 </div>
 <div class="large-input">
     <label for="notes">Item Notes:<br></label>
-    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="4"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
+    <textarea name="notes" placeholder="Needs to have 16GB RAM" id="notes" rows="<?= $add ? '4' : '1' ?>"><?php echo htmlspecialchars($notes ?? ''); ?></textarea>
 </div>
 
