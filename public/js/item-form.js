@@ -1,3 +1,14 @@
+function isEditForm() {
+    return $("input[name='existing_image']").length > 0 &&
+           $("input[name='existing_image']").val() !== "";
+}
+
+function hasExistingImage() {
+    return isEditForm() &&
+           $("#preview_container img").length > 0 &&
+           !$("#preview_container").hasClass("hidden");
+}
+
 function initializeAutosize() {
     if (typeof autosize !== 'undefined') {
         for(const textarea of document.querySelectorAll("textarea")){
@@ -67,7 +78,7 @@ const validationRules = {
     item_image: {
         required: function() {
             // For edit forms: only required if there's no existing image and no new image selected
-            if (isEditForm && hasExistingImage) {
+            if (isEditForm() && hasExistingImage()) {
                 // Check if user has selected a new image or pasted one
                 const hasFile = $("#image")[0].files && $("#image")[0].files.length > 0;
                 const hasPasteImage = $("#paste-image-hidden").val() && $("#paste-image-hidden").val().trim() !== '';
@@ -88,7 +99,7 @@ const validationRules = {
             const hasTempFilename = $("input[name='temp_filename']").length > 0 && $("input[name='temp_filename']").val() !== '';
             
             // For edit forms: check if existing image is present
-            if (isEditForm && hasExistingImage) {
+            if (isEditForm() && hasExistingImage()) {
                 // If no new image provided, existing image is sufficient
                 if (!hasFile && !hasPasteImage && !hasTempFilename) {
                     return null; // Valid - using existing image
@@ -142,11 +153,6 @@ function validateImageField() {
 
 function initializeItemForm() {
     initializeAutosize();
-
-    // Initialize form validation with custom error placement for special fields
-    // Check if this is an edit form (has existing image)
-    const isEditForm = $("input[name='existing_image']").length > 0 && $("input[name='existing_image']").val() !== '';
-    const hasExistingImage = isEditForm && $("#preview_container img").length > 0 && !$("#preview_container").hasClass("hidden");
     
     FormValidator.init('#item-form', validationRules);
 }

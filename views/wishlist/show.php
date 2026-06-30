@@ -339,7 +339,7 @@ $price_order = $sort_price ? "price {$sort_price}, " : "";
 <script src="/public/js/choose-theme.js?v=2.8"></script>
 <script src="/public/scripts/autosize-master/autosize-master/dist/autosize.js"></script>
 <script src="/public/js/form-validation.js?v=2.8"></script>
-<script src="/public/js/item-form.js?v=2.8"></script>
+<script src="/public/js/item-form.js?v=2.8.1"></script>
 <script src="/public/js/add-alert-message.js?v=2.8"></script>
 <script src="/public/js/wishlist-action-menu.js?v=2.8"></script>
 <script src="/public/js/see-more-link.js?v=2.8"></script>
